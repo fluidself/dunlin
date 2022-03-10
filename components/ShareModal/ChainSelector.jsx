@@ -1,9 +1,9 @@
 import React, { useMemo, useEffect } from 'react';
-import { Autocomplete, TextField } from '@mui/material';
+import Select from 'react-select';
 import LitJsSdk from 'lit-js-sdk';
 
 const ChainSelector = ({ chain, setChain }) => {
-  // default is eth
+  // Set Ethereum as default
   useEffect(
     () =>
       setChain({
@@ -27,21 +27,14 @@ const ChainSelector = ({ chain, setChain }) => {
   );
 
   return (
-    // <Select
-    //   classNamePrefix="react-select"
-    //   placeholder="Select a blockchain"
-    //   isClearable
-    //   options={chainOptions}
-    //   value={chain}
-    //   // menuPortalTarget={document.body}
-    //   onChange={(value) => setChain(value)}
-    // />
-    <Autocomplete
+    <Select
+      className="react-select-container"
+      classNamePrefix="react-select"
+      placeholder="Select a blockchain"
+      isClearable
       options={chainOptions}
       value={chain}
-      isOptionEqualToValue={(option, value) => option.value === value.value}
-      onChange={(event, newValue) => setChain(newValue)}
-      renderInput={params => <TextField {...params} />}
+      onChange={value => setChain(value)}
     />
   );
 };

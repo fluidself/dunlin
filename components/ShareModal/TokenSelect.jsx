@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Modal, Box, Typography, Button, Autocomplete, TextField } from '@mui/material';
+import { WindowedMenuList, createFilter, components } from 'react-windowed-select';
+import Creatable from 'react-select/creatable';
+import Button from '../Button';
 
 const Option = ({ children, data: { label, logo, symbol }, ...props }) => {
   const { onMouseMove, onMouseOver, ...rest } = props.innerProps;
@@ -7,9 +9,9 @@ const Option = ({ children, data: { label, logo, symbol }, ...props }) => {
 
   return (
     <components.Option {...newProps} style={{ padding: 0, zIndex: 105 }}>
-      <div className="flex items-center h-24">
+      <div className="flex items-center h-10 text-white cursor-pointer">
         <div
-          className="w-9 h-9 rounded-full bg-black bg-no-repeat bg-contain bg-center mx-4"
+          className="w-8 h-8 rounded-full bg-black bg-no-repeat bg-contain bg-center mx-2"
           style={{ backgroundImage: logo ? `url(${logo})` : undefined }}
         />
         <div>
@@ -46,7 +48,6 @@ const TOP_LIST = [
 
 const TokenSelect = props => {
   const { tokenList, onSelect } = props;
-  console.log(tokenList);
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedToken, setSelectedToken] = useState(null);
@@ -76,87 +77,75 @@ const TokenSelect = props => {
 
   return (
     <div>
-      <Button size={'large'} className="py-3" variant="outlined" color="inherit" onClick={() => setModalIsOpen(true)}>
-        Search for a token/NFT
-      </Button>
+      <Button onClick={() => setModalIsOpen(true)}>Search for a token/NFT</Button>
 
-      <Modal open={modalIsOpen} onClose={() => setModalIsOpen(false)} aria-describedby="token-select-modal-description">
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            maxWidth: 'lg',
-            bgcolor: 'background.paper',
-            border: '1px solid white',
-            p: 4,
-          }}
-        >
-          <Typography variant="div" id="token-select-modal-description" sx={{ mt: 2, width: 400 }}>
-            <div>
-              <label className="mb-2 block">Top Tokens/NFTS</label>
-              <div className="flex mb-2">
-                {TOP_LIST.map((t, i) => (
-                  <div
-                    className={`px-2 py-px flex items-center mr-2 border cursor-pointer ${
-                      t && t['symbol'] && selectedToken && t['symbol'] === selectedToken['symbol']
-                        ? 'border-2 bg-white text-black'
-                        : 'my-px mr-2 ml-px'
-                    }`}
-                    key={t.symbol}
-                    onClick={e => {
-                      setSelectedToken(t);
-                    }}
-                  >
+      {modalIsOpen && (
+        <div className="fixed inset-0 z-20 overflow-y-auto">
+          <div className="fixed inset-0 bg-black opacity-30" onClick={() => setModalIsOpen(false)} />
+          <div className="flex items-center justify-center h-screen p-6">
+            <div className="z-30 flex flex-col w-full h-full max-w-full overflow-hidden bg-background border border-gray-500 sm:max-h-[280px] sm:w-[450px] py-2 px-4">
+              <div>
+                <label className="mb-2 block">Top Tokens/NFTS</label>
+                <div className="flex mb-2">
+                  {TOP_LIST.map((t, i) => (
                     <div
-                      className={`w-4 h-4 rounded-full bg-no-repeat bg-contain bg-center mr-1 ${
-                        t && t['symbol'] && selectedToken && t['symbol'] === selectedToken['symbol'] ? 'bg-white' : 'bg-black'
+                      className={`px-2 py-px flex items-center mr-2 border cursor-pointer ${
+                        t && t['symbol'] && selectedToken && t['symbol'] === selectedToken['symbol']
+                          ? 'border-2 border-primary-500'
+                          : 'my-px mr-2 ml-px'
                       }`}
-                      style={{
-                        backgroundImage: t.logo ? `url(${t.logo})` : undefined,
+                      key={t.symbol}
+                      onClick={e => {
+                        setSelectedToken(t);
                       }}
-                    />
-                    <div>{t.symbol}</div>
-                  </div>
-                ))}
+                    >
+                      <div
+                        className="w-4 h-4 rounded-full bg-no-repeat bg-contain bg-center mr-1"
+                        style={{
+                          backgroundImage: t.logo ? `url(${t.logo})` : undefined,
+                        }}
+                      />
+                      <div>{t.symbol}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-8">
+                <label>Search</label>
+                <Creatable
+                  filterOption={createFilter({ ignoreAccents: false })}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  components={{ Option, MenuList: WindowedMenuList }}
+                  isClearable
+                  isSearchable
+                  defaultValue={''}
+                  options={tokenSelectBoxRows}
+                  styles={{
+                    menuPortal: base => ({ ...base, zIndex: 9999 }),
+                    option: base => ({
+                      ...base,
+                      backgroundColor: 'rgb(23 23 23 / var(--tw-bg-opacity))',
+                    }),
+                    menuList: base => ({
+                      ...base,
+                      backgroundColor: 'rgb(23 23 23 / var(--tw-bg-opacity))',
+                    }),
+                  }}
+                  menuPortalTarget={document.body}
+                  onChange={setSelectedToken}
+                />
+              </div>
+
+              <div className="mt-4 flex justify-end">
+                <Button disabled={!selectedToken} onClick={handleSelect}>
+                  Select
+                </Button>
               </div>
             </div>
-            <div className="mt-8">
-              <label>Search</label>
-              {/* <Creatable
-              filterOption={createFilter({ ignoreAccents: false })}
-              classNamePrefix="react-select"
-              components={{ Option, MenuList: WindowedMenuList }}
-              isClearable
-              isSearchable
-              defaultValue={''}
-              options={tokenSelectBoxRows}
-              styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
-              menuPortalTarget={document.body}
-              onChange={setSelectedToken}
-            /> */}
-              <Autocomplete
-                options={tokenSelectBoxRows}
-                onChange={setSelectedToken}
-                renderInput={params => <TextField {...params} label="Select..." />}
-                disableListWrap
-              />
-            </div>
-
-            <Button
-              variant="outlined"
-              color="inherit"
-              className="mt-4"
-              size={'large'}
-              disabled={!selectedToken}
-              onClick={handleSelect}
-            >
-              Select
-            </Button>
-          </Typography>
-        </Box>
-      </Modal>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

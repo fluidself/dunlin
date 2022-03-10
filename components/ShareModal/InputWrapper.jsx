@@ -1,6 +1,5 @@
 import React from 'react';
-import { IconButton, TextField } from '@mui/material';
-import { Close } from '@mui/icons-material';
+import { IconX } from '@tabler/icons';
 
 const InputWrapper = ({
   type = 'text',
@@ -13,7 +12,6 @@ const InputWrapper = ({
   readOnly = false,
   autoFocus = false,
   placeholder,
-  size,
   clearable = false,
   onClear = () => false,
 }) => {
@@ -28,21 +26,23 @@ const InputWrapper = ({
       {label && <label htmlFor={id}>{label}</label>}
       <div className="w-full relative">
         {clearable && (
-          <IconButton size="s" className="absolute right-[10px] bottom-[31%] z-10 cursor-pointer" onClick={onClear}>
-            <Close />
-          </IconButton>
+          <button className="absolute right-[10px] bottom-[31%] z-10 cursor-pointer" onClick={onClear}>
+            <IconX size={16} />
+          </button>
         )}
-        <TextField
+
+        <input
+          className={`input form-control block w-full px-3 py-3 bg-clip-padding border border-solid border-gray-500 m-0 bg-inherit dark:bg-inherit ${
+            error ? 'border-red-500' : ''
+          }`}
           readOnly={readOnly}
           type={type}
           id={id}
-          state={getState()}
           value={value}
           onChange={event => handleChange(event.target.value)}
-          autoFocus={autoFocus}
           placeholder={placeholder}
-          size={size}
-          fullWidth
+          autoFocus={autoFocus}
+          autoComplete="off"
         />
       </div>
       {error && <span className="text-red-500 pl-4 mt-2">{error}</span>}

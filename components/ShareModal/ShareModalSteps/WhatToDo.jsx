@@ -1,6 +1,5 @@
 import React from 'react';
-
-import LockIcon from '@mui/icons-material/Lock';
+import { IconLock } from '@tabler/icons';
 
 const WhatToDo = ({ setActiveStep, sharingItems, onlyAllowCopySharingLink, copyToClipboard, copyLinkText }) => {
   return (
@@ -10,10 +9,10 @@ const WhatToDo = ({ setActiveStep, sharingItems, onlyAllowCopySharingLink, copyT
       </div>
       <div className="flex flex-wrap justify-center w-full">
         {!onlyAllowCopySharingLink ? (
-          <div className="mt-2 py-4 w-full border border-white cursor-pointer" onClick={() => setActiveStep('ableToAccess')}>
+          <div className="mt-8 py-4 w-full border border-white cursor-pointer" onClick={() => setActiveStep('ableToAccess')}>
             <h4 className="text-center">Create Requirement</h4>
             <div className="flex justify-center items-center flex-col box-border">
-              <LockIcon sx={{ fontSize: 52, marginY: 2 }} />
+              <IconLock size={64} />
               <div>Lock this content with an existing token, NFT, or contract</div>
             </div>
           </div>

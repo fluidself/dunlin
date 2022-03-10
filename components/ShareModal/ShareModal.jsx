@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Box, Typography, Snackbar, Alert, IconButton } from '@mui/material';
-import { Close } from '@mui/icons-material';
+import { IconX } from '@tabler/icons';
+import { toast } from 'react-toastify';
 import LitJsSdk from 'lit-js-sdk';
 
 import {
@@ -45,21 +45,20 @@ const ShareModal = props => {
 
   //console.log("rendering ShareModal and sharingItems is", sharingItems);
 
-  const [showingSnackbar, setShowingSnackbar] = useState(false);
   const [activeStep, setActiveStep] = useState(showStep || 'whatToDo');
   const [tokenList, setTokenList] = useState([]);
   const [requirementCreated, setRequirementCreated] = useState(false);
   const [error, setError] = useState(null);
-  const [openErrorSnackbar, setOpenErrorSnackbar] = useState(null);
   const [showUnsavedPopup, setShowUnsavedPopup] = useState(false);
 
   useEffect(() => {
-    const go = async () => {
+    const getTokens = async () => {
       // get token list and cache it
       const tokens = await LitJsSdk.getTokenList();
       setTokenList(tokens);
     };
-    go();
+
+    getTokens();
   }, []);
 
   // useEffect(() => {
@@ -69,7 +68,9 @@ const ShareModal = props => {
   // }, [activeStep])
 
   useEffect(() => {
-    setOpenErrorSnackbar(true);
+    if (error) {
+      toast.error(`${error.title} - ${error.details}`);
+    }
   }, [error]);
 
   // console.log('accessControlConditions', accessControlConditions)
@@ -77,8 +78,8 @@ const ShareModal = props => {
   const copyToClipboard = async () => {
     const fileUrl = getSharingLink(sharingItems[0]);
     await navigator.clipboard.writeText(fileUrl);
-    setShowingSnackbar(true);
-    setTimeout(() => setShowingSnackbar(false), 5000);
+
+    toast.success('Copied!');
   };
 
   let totalAccessControlConditions = 1;
@@ -126,44 +127,25 @@ const ShareModal = props => {
   };
 
   return (
-    <Modal open={true} onClose={onClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
-      <Box
-        sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          maxWidth: 'lg',
-          bgcolor: 'background.paper',
-          border: '1px solid white',
-          p: 3,
-        }}
-      >
-        <Typography id="modal-modal-title" variant="div" className="flex justify-between items-center">
-          <span>{title}</span>
-          <IconButton onClick={handleClose}>
-            <Close />
-          </IconButton>
-        </Typography>
-        <Typography variant="div" id="modal-modal-description" sx={{ mt: 2 }}>
-          {error ? (
-            <div>
-              <div style={{ height: '24px' }} />
-              <Snackbar open={openErrorSnackbar} autoHideDuration={5000}>
-                <Alert severity={'error'}>
-                  {error.title} - {error.details}
-                </Alert>
-              </Snackbar>
-            </div>
-          ) : null}
-          <div className="w-[654px]">
-            <ModalComponent type={activeStep} setActiveStep={setActiveStep} />
-            <Snackbar open={showingSnackbar} autoHideDuration={3000} message={'Copied!'} />
+    <div className="fixed inset-0 z-20 overflow-y-auto">
+      <div className="fixed inset-0 bg-black opacity-30" onClick={handleClose} />
+      <div className="flex items-center justify-center h-screen p-6">
+        <div className="z-30 flex flex-col w-full h-full max-w-full overflow-hidden bg-background border border-gray-500 sm:max-h-[540px] sm:w-[740px] py-2 px-4">
+          <div className="flex flex-row justify-between items-center">
+            <span>{title}</span>
+            <button onClick={handleClose} className="mr-[-4px]">
+              <IconX size={20} />
+            </button>
           </div>
-          <UnsavedPopup open={showUnsavedPopup} onClose={onClose} onCancel={() => setShowUnsavedPopup(false)} />
-        </Typography>
-      </Box>
-    </Modal>
+          <div className="mt-4">
+            <div className="w-[654px]">
+              <ModalComponent type={activeStep} setActiveStep={setActiveStep} />
+            </div>
+            <UnsavedPopup open={showUnsavedPopup} onClose={onClose} onCancel={() => setShowUnsavedPopup(false)} />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

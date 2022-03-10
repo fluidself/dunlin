@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import LitJsSdk from 'lit-js-sdk';
-
 import InputWrapper from '../InputWrapper';
 import ChainSelector from '../ChainSelector';
 import Navigation from '../Navigation';

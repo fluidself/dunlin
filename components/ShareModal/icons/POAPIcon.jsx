@@ -1,15 +1,5 @@
-import { SvgIcon } from '@mui/material';
-
 export const POAPIcon = () => (
-  <SvgIcon
-    width="52"
-    height="67"
-    viewBox="0 0 52 67"
-    fill="none"
-    stroke="currentcolor"
-    xmlns="http://www.w3.org/2000/svg"
-    sx={{ fontSize: 74, marginX: 'auto' }}
-  >
+  <svg className="h-20 w-20 mx-auto" viewBox="0 0 52 67" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentcolor">
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -87,5 +77,5 @@ export const POAPIcon = () => (
       d="M31.2674 24.334C31.5515 25.3162 31.8287 26.3005 32.1243 27.2792C32.1933 27.5076 32.1483 27.5863 31.9131 27.5811C31.3721 27.5693 30.6579 27.7732 30.3379 27.5037C30.01 27.2273 30.4826 26.5799 30.6085 26.0971C30.7626 25.5061 30.9496 24.9235 31.1222 24.3373C31.1707 24.3361 31.2191 24.3351 31.2674 24.334Z"
       fill="white"
     />
-  </SvgIcon>
+  </svg>
 );

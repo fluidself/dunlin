@@ -1,15 +1,5 @@
-import { SvgIcon } from '@mui/material';
-
 export const DAOIcon = () => (
-  <SvgIcon
-    width="70"
-    height="68"
-    viewBox="0 0 70 68"
-    fill="none"
-    stroke="currentcolor"
-    xmlns="http://www.w3.org/2000/svg"
-    sx={{ fontSize: 74, marginX: 'auto' }}
-  >
+  <svg className="h-20 w-20 mx-auto" viewBox="0 0 70 68" fill="none" stroke="currentcolor" xmlns="http://www.w3.org/2000/svg">
     <circle cx="37.7183" cy="37.7186" r="9.53399" strokeWidth="2" />
     <circle cx="37.7185" cy="6.45632" r="5.45632" strokeWidth="2" />
     <circle cx="8.49515" cy="22.7666" r="7.49515" strokeWidth="2" />
@@ -23,5 +13,5 @@ export const DAOIcon = () => (
     <path d="M47.7429 36.8681L56.5779 35.8486" strokeWidth="2" />
     <path d="M45.0242 44.5146L58.2766 55.7283" strokeWidth="2" />
     <path d="M30.9224 60.1451L34.3204 47.2324" strokeWidth="2" />
-  </SvgIcon>
+  </svg>
 );

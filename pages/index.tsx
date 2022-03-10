@@ -2,7 +2,6 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useState } from 'react';
 // import Navbar from '../components/Navbar';
-// import ShareModal from '../components/ShareModalTS/ShareModal';
 import { ShareModal } from '../components/ShareModal';
 import Button from '../components/Button';
 
@@ -17,8 +16,7 @@ const Home: NextPage = () => {
         <meta name="description" content="Decentralized and Encrypted Collaborative Knowledge" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      {/* relative */}
-      <div className="container">
+      <div className="container text-white">
         {/* <Navbar /> */}
         <main className="border border-gray-500 p-4 mt-48">
           <h1 className="mb-12">Decentralized and Encrypted Collaborative Knowledge</h1>

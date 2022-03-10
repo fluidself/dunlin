@@ -1,7 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import Autocomplete from '@mui/material/Autocomplete';
-import TextField from '@mui/material/TextField';
-
+import Creatable from 'react-select/creatable';
 import InputWrapper from '../InputWrapper';
 import ChainSelector from '../ChainSelector';
 import Navigation from '../Navigation';
@@ -53,17 +51,14 @@ const AssetWallet = ({ setActiveStep, onAccessControlConditionsSelected, tokenLi
         </div>
         <div className="mt-4">
           <label className="mt-4">Select token or enter contract address</label>
-          {/* <Creatable
+          <Creatable
             isClearable
             isSearchable
-            defaultValue={""}
-            options={tokenSelectBoxRows}
-            onChange={(value) => setSelectedToken(value)}
-          /> */}
-          <Autocomplete
+            defaultValue={''}
+            className="react-select-container"
+            classNamePrefix="react-select"
             options={tokenSelectBoxRows}
             onChange={value => setSelectedToken(value)}
-            renderInput={params => <TextField {...params} />}
           />
         </div>
         <InputWrapper

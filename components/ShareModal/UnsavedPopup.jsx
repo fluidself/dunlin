@@ -1,35 +1,24 @@
 import React from 'react';
-import { Button, Modal, Box } from '@mui/material';
+import Button from '../Button';
 
 const UnsavedPopup = props => {
   const { onClose, onCancel, open } = props;
 
+  if (!open) return null;
+
   return (
-    <Modal open={open} hideBackdrop={true}>
-      <Box
-        sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          maxWidth: 'xs',
-          bgcolor: 'background.paper',
-          border: '1px solid white',
-          p: 4,
-          zIndex: 10,
-        }}
-      >
-        You have unsaved changes. Are you sure you want to exit?
-        <div className="flex justify-between mt-4">
-          <Button variant="outlined" color="inherit" onClick={onCancel}>
-            No, keep editing
-          </Button>
-          <Button variant="outlined" color="inherit" onClick={onClose}>
-            Yes, exit
-          </Button>
+    <div className="fixed inset-0 z-20 overflow-y-auto">
+      <div className="fixed inset-0 bg-black opacity-30" onClick={() => setModalIsOpen(false)} />
+      <div className="flex items-center justify-center h-screen p-6">
+        <div className="z-30 flex flex-col w-full h-full max-w-full overflow-hidden bg-background border border-gray-500 sm:max-h-[200px] sm:w-[450px] py-4 px-4">
+          You have unsaved changes. Are you sure you want to exit?
+          <div className="flex justify-between mt-12">
+            <Button onClick={onCancel}>No, keep editing</Button>
+            <Button onClick={onClose}>Yes, exit</Button>
+          </div>
         </div>
-      </Box>
-    </Modal>
+      </div>
+    </div>
   );
 };
 

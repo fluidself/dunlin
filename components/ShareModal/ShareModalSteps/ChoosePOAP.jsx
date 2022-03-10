@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import Autocomplete from '@mui/material/Autocomplete';
-import TextField from '@mui/material/TextField';
-
+import Select from 'react-select';
 import InputWrapper from '../InputWrapper';
 import Navigation from '../Navigation';
 
@@ -66,19 +64,14 @@ const DAOMembers = ({ setActiveStep, onAccessControlConditionsSelected }) => {
         />
         <div className="mt-4">
           <label>Match Conditions</label>
-          {/* <Select
+          <Select
+            className="react-select-container"
             classNamePrefix="react-select"
             placeholder="Select one..."
             isClearable
             options={matchConditionOptions}
             value={matchCondition}
-            // menuPortalTarget={document.body}
-            onChange={(value) => setMatchCondition(value)}
-          /> */}
-          <Autocomplete
-            options={matchConditionOptions}
             onChange={value => setMatchCondition(value)}
-            renderInput={params => <TextField {...params} label="Select one..." />}
           />
         </div>
       </div>

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import LitJsSdk from 'lit-js-sdk';
-import { IconButton, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel } from '@mui/material';
-import { Close } from '@mui/icons-material';
-
+import { RadioGroup } from '@headlessui/react';
+import { IconX } from '@tabler/icons';
 import InputWrapper from '../InputWrapper';
 import ChainSelector from '../ChainSelector';
 import Navigation from '../Navigation';
@@ -184,12 +183,6 @@ const SelectTokens = ({ setActiveStep, onAccessControlConditionsSelected, tokenL
     setActiveStep('accessCreated');
   };
 
-  const handleChangeContractType = event => {
-    setContractType(event.target.value);
-  };
-
-  console.log('chain', chain);
-
   return (
     <div>
       <h4 className="text-lg">Which wallet should be able to access this asset?</h4>
@@ -211,21 +204,17 @@ const SelectTokens = ({ setActiveStep, onAccessControlConditionsSelected, tokenL
             )}
             {!selectedToken && (
               <InputWrapper
-                placeholder="ERC20 or ERC721 or ERC1155 address"
+                placeholder="Token address"
                 value={contractAddress}
                 id="amount"
                 autoFocus
-                size="m"
+                clearable={contractAddress}
+                onClear={() => setContractAddress('')}
                 handleChange={v => setContractAddress(v)}
               />
             )}
-            {!selectedToken && !!contractAddress && contractAddress.length && (
-              <IconButton size={'small'} onClick={() => setContractAddress('')}>
-                <Close />
-              </IconButton>
-            )}
             {!!selectedToken && !contractAddress && !contractAddress.length && (
-              <div className="flex items-center border pl-2">
+              <div className="flex items-center border px-2 py-2">
                 <div
                   className="w-4 h-4 rounded-full bg-no-repeat bg-contain bg-center mr-1"
                   style={{
@@ -233,9 +222,9 @@ const SelectTokens = ({ setActiveStep, onAccessControlConditionsSelected, tokenL
                   }}
                 />
                 <div className="mr-4">{selectedToken.symbol}</div>
-                <IconButton size={'small'} onClick={() => setSelectedToken(null)}>
-                  <Close />
-                </IconButton>
+                <button onClick={() => setSelectedToken(null)}>
+                  <IconX size={16} />
+                </button>
               </div>
             )}
           </div>
@@ -243,20 +232,20 @@ const SelectTokens = ({ setActiveStep, onAccessControlConditionsSelected, tokenL
 
         {!selectedToken && !!contractAddress && contractAddress.length && (
           <div className="mt-4">
-            <FormControl>
-              <FormLabel id="demo-row-radio-buttons-group-label">Token contract type</FormLabel>
-              <RadioGroup
-                row
-                aria-labelledby="demo-row-radio-buttons-group-label"
-                name="row-radio-buttons-group"
-                value={contractType}
-                onChange={handleChangeContractType}
-              >
-                <FormControlLabel value="ERC20" control={<Radio />} label="ERC20" />
-                <FormControlLabel value="ERC721" control={<Radio />} label="ERC721" />
-                <FormControlLabel value="ERC1155" control={<Radio />} label="ERC1155" />
-              </RadioGroup>
-            </FormControl>
+            <RadioGroup value={contractType} onChange={setContractType}>
+              <RadioGroup.Label>Token contract type</RadioGroup.Label>
+              <div className="flex justify-between py-2">
+                <RadioGroup.Option value="ERC20">
+                  {({ checked }) => <span className={`p-2 ${checked ? 'border border-primary-500' : ''}`}>ERC20</span>}
+                </RadioGroup.Option>
+                <RadioGroup.Option value="ERC721">
+                  {({ checked }) => <span className={`p-2 ${checked ? 'border border-primary-500' : ''}`}>ERC721</span>}
+                </RadioGroup.Option>
+                <RadioGroup.Option value="ERC1155">
+                  {({ checked }) => <span className={`p-2 ${checked ? 'border border-primary-500' : ''}`}>ERC1155</span>}
+                </RadioGroup.Option>
+              </div>
+            </RadioGroup>
 
             {contractType === 'ERC1155' ? (
               <div>
@@ -269,16 +258,6 @@ const SelectTokens = ({ setActiveStep, onAccessControlConditionsSelected, tokenL
                 />
               </div>
             ) : null}
-            {/* <label>Token contract type</label>
-
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Typography>ERC20</Typography>
-              <Switch
-                checked={contractType === "ERC721"}
-                onChange={handleChangeContractType}
-              />
-              <Typography>ERC721 (NFT)</Typography>
-            </Stack> */}
           </div>
         )}
 
@@ -288,7 +267,6 @@ const SelectTokens = ({ setActiveStep, onAccessControlConditionsSelected, tokenL
             label="How many tokens does the wallet need to own?"
             id="amount"
             autoFocus
-            size="m"
             handleChange={value => setAmount(value)}
           />
         </div>
