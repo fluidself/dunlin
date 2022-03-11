@@ -222,7 +222,8 @@ export const store = createVanilla<Store, SetState<Store>, GetState<Store>, Stor
         openNoteIds: state.openNoteIds,
         isSidebarOpen: state.isSidebarOpen,
         noteSort: state.noteSort,
-        darkMode: state.darkMode,
+        // darkMode: state.darkMode,
+        darkMode: true,
         isPageStackingOn: state.isPageStackingOn,
       }),
       onRehydrateStorage: () => () => {

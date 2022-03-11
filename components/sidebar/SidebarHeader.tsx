@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { Menu } from '@headlessui/react';
-import { IconLogout, IconSelector, IconChevronsLeft, IconSettings, IconHelp, IconBrandGithub } from '@tabler/icons';
+import { IconLogout, IconSelector, IconChevronsLeft, IconSettings } from '@tabler/icons';
 import { useAuth } from 'utils/useAuth';
 import { useStore } from 'lib/store';
 import Tooltip from 'components/Tooltip';
@@ -40,7 +40,7 @@ export default function Header(props: Props) {
           <p className="px-4 pt-2 pb-1 overflow-hidden text-xs text-gray-600 overflow-ellipsis dark:text-gray-400">
             {user?.email}
           </p>
-          <DropdownItem
+          {/* <DropdownItem
             onClick={() => {
               if (isMobile()) {
                 setIsSidebarOpen(false);
@@ -50,7 +50,7 @@ export default function Header(props: Props) {
           >
             <IconSettings size={18} className="mr-1" />
             <span>Settings</span>
-          </DropdownItem>
+          </DropdownItem> */}
           {/* TODO: Github / contact here? */}
           <DropdownItem className="border-t dark:border-gray-700" onClick={() => signOut()}>
             <IconLogout size={18} className="mr-1" />

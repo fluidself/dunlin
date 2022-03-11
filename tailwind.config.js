@@ -5,7 +5,7 @@ const colors = require('tailwindcss/colors');
 module.exports = {
   mode: 'jit',
   content: ['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
-  darkMode: 'media',
+  darkMode: 'class',
   theme: {
     container: {
       center: true,
@@ -104,10 +104,5 @@ module.exports = {
       },
     },
   },
-  // variants: {
-  //   backgroundColor: ['responsive', 'hover', 'focus', 'active'],
-  //   display: ['responsive', 'group-hover'],
-  //   extend: {},
-  // },
   plugins: [require('@tailwindcss/typography'), require('@tailwindcss/forms')],
 };
