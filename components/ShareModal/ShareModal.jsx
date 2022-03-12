@@ -61,19 +61,11 @@ const ShareModal = props => {
     getTokens();
   }, []);
 
-  // useEffect(() => {
-  //   if (activeStep !== "accessCreated") {
-  //     setShowUnsavedPopup(true);
-  //   }
-  // }, [activeStep])
-
   useEffect(() => {
     if (error) {
       toast.error(`${error.title} - ${error.details}`);
     }
   }, [error]);
-
-  // console.log('accessControlConditions', accessControlConditions)
 
   const copyToClipboard = async () => {
     const fileUrl = getSharingLink(sharingItems[0]);

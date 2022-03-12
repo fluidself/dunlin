@@ -27,8 +27,8 @@ CREATE TABLE public.notes (
 DROP TABLE IF EXISTS public.users;
 CREATE TABLE public.users (
   id text NOT NULL,
-  nonce text,
   note_tree jsonb NULL,
+  ipfs_hashes json NULL
   CONSTRAINT users_pkey PRIMARY KEY (id)
 );
 
