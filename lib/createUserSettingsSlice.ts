@@ -30,10 +30,8 @@ export type UserSettings = {
   setNoteSort: Setter<Sort>;
 };
 
-const createUserSettingsSlice = (
-  set: (fn: (draft: Draft<Store>) => void) => void
-) => ({
-  darkMode: false,
+const createUserSettingsSlice = (set: (fn: (draft: Draft<Store>) => void) => void) => ({
+  darkMode: true,
   setDarkMode: setter(set, 'darkMode'),
   isSidebarOpen: true,
   setIsSidebarOpen: setter(set, 'isSidebarOpen'),

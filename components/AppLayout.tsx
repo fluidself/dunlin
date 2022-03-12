@@ -4,10 +4,10 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import classNames from 'classnames';
 import colors from 'tailwindcss/colors';
+import { useAccount } from 'wagmi';
 import { useStore, store, NoteTreeItem, getNoteTreeItem, Notes, SidebarTab } from 'lib/store';
 import supabase from 'lib/supabase';
 import { Note, User as DbUser } from 'types/supabase';
-import { useAuth } from 'utils/useAuth';
 import useHotkeys from 'utils/useHotkeys';
 import { isMobile } from 'utils/device';
 import Sidebar from './sidebar/Sidebar';
@@ -23,31 +23,34 @@ type Props = {
 
 export default function AppLayout(props: Props) {
   const { children, className = '' } = props;
-  const { user, isLoaded } = useAuth();
   const router = useRouter();
+  const [{ data: accountData }] = useAccount();
   const [isPageLoaded, setIsPageLoaded] = useState(false);
 
+  const userId = accountData?.address;
+  const isLoaded = accountData?.address.length !== 0;
+
   useEffect(() => {
-    if (!isPageLoaded && isLoaded && user) {
+    if (!isPageLoaded && isLoaded && userId) {
       // Use user's specific store and rehydrate data
       useStore.persist.setOptions({
-        name: `deck-storage-${user.id}`,
+        name: `deck-storage-${userId}`,
       });
       useStore.persist.rehydrate();
     }
-  }, [isPageLoaded, isLoaded, user]);
+  }, [isPageLoaded, isLoaded, userId]);
 
   const setNotes = useStore(state => state.setNotes);
   const setNoteTree = useStore(state => state.setNoteTree);
   const initData = useCallback(async () => {
-    if (!user) {
+    if (!userId) {
       return;
     }
 
     const { data: notes } = await supabase
       .from<Note>('notes')
       .select('id, title, content, created_at, updated_at')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .order('title');
 
     // Redirect to most recent note or first note in database
@@ -75,7 +78,8 @@ export default function AppLayout(props: Props) {
     setNotes(notesAsObj);
 
     // Set note tree
-    const { data: userData } = await supabase.from<DbUser>('users').select('note_tree').eq('id', user.id).single();
+    const { data: userData } = await supabase.from<DbUser>('users').select('note_tree').eq('id', userId).single();
+
     if (userData?.note_tree) {
       const noteTree: NoteTreeItem[] = [...userData.note_tree];
       // This is a sanity check for removing notes in the noteTree that do not exist
@@ -95,22 +99,23 @@ export default function AppLayout(props: Props) {
     }
 
     setIsPageLoaded(true);
-  }, [user, router, setNotes, setNoteTree]);
+  }, [userId, router, setNotes, setNoteTree]);
 
   useEffect(() => {
-    if (isLoaded && !user) {
-      // Redirect to login page if there is no user logged in
-      router.replace('/login');
-    } else if (!isPageLoaded && isLoaded && user) {
+    if (isLoaded && !userId) {
+      // Redirect to root page if there is no user logged in
+      router.replace('/');
+    } else if (!isPageLoaded && isLoaded && userId) {
       // Initialize data if there is a user and the data has not been initialized yet
       initData();
     }
-  }, [router, user, isLoaded, isPageLoaded, initData]);
+  }, [router, userId, isLoaded, isPageLoaded, initData]);
 
   const [isFindOrCreateModalOpen, setIsFindOrCreateModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const darkMode = useStore(state => state.darkMode);
+  // const darkMode = useStore(state => state.darkMode);
+  const darkMode = true;
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
   const setIsPageStackingOn = useStore(state => state.setIsPageStackingOn);
   const setSidebarTab = useStore(state => state.setSidebarTab);
@@ -132,13 +137,13 @@ export default function AppLayout(props: Props) {
   }, [setIsSidebarOpen, setIsPageStackingOn, hasHydrated]);
 
   useEffect(() => {
-    if (!user) {
+    if (!userId) {
       return;
     }
 
     // Subscribe to changes on the notes table for the logged in user
     const subscription = supabase
-      .from<Note>(`notes:user_id=eq.${user.id}`)
+      .from<Note>(`notes:user_id=eq.${userId}`)
       .on('*', payload => {
         if (payload.eventType === 'INSERT') {
           upsertNote(payload.new);
@@ -157,7 +162,7 @@ export default function AppLayout(props: Props) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [user, upsertNote, updateNote, deleteNote]);
+  }, [userId, upsertNote, updateNote, deleteNote]);
 
   const hotkeys = useMemo(
     () => [

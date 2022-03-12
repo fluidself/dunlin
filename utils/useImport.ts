@@ -6,6 +6,7 @@ import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import wikiLinkPlugin from 'remark-wiki-link';
 import { v4 as uuidv4 } from 'uuid';
+import { useAccount } from 'wagmi';
 import { store, useStore } from 'lib/store';
 import { NoteUpsert } from 'lib/api/upsertNote';
 import supabase from 'lib/supabase';
@@ -14,14 +15,14 @@ import remarkToSlate from 'editor/serialization/remarkToSlate';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { ElementType, NoteLink } from 'types/slate';
 import { Note } from 'types/supabase';
-import { useAuth } from './useAuth';
 
 export default function useImport() {
-  const { user } = useAuth();
+  const [{ data: accountData }] = useAccount();
+  const userId = accountData?.address;
   const setIsUpgradeModalOpen = useStore(state => state.setIsUpgradeModalOpen);
 
   const onImport = useCallback(() => {
-    if (!user) {
+    if (!userId) {
       return;
     }
 
@@ -69,7 +70,7 @@ export default function useImport() {
 
         noteLinkUpsertData.push(...newUpsertData);
         upsertData.push({
-          user_id: user.id,
+          user_id: userId,
           title: fileName,
           content: slateContent.length > 0 ? slateContent : getDefaultEditorValue(),
         });
@@ -96,7 +97,7 @@ export default function useImport() {
     };
 
     input.click();
-  }, [user, setIsUpgradeModalOpen]);
+  }, [userId, setIsUpgradeModalOpen]);
 
   return onImport;
 }
@@ -134,7 +135,7 @@ const getNoteId = (
     noteId = existingNoteId;
   } else {
     noteId = uuidv4(); // Create new note id
-    const userId = supabase.auth.user()?.id;
+    const userId = store.getState().userId;
     if (userId) {
       upsertData.push({ id: noteId, user_id: userId, title: noteTitle });
     }

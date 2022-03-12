@@ -1,32 +1,10 @@
-import {
-  useRef,
-  useCallback,
-  useMemo,
-  useState,
-  KeyboardEvent,
-  useEffect,
-  memo,
-} from 'react';
-import {
-  createEditor,
-  Range,
-  Editor as SlateEditor,
-  Transforms,
-  Descendant,
-  Path,
-} from 'slate';
+import { useRef, useCallback, useMemo, useState, KeyboardEvent, useEffect, memo } from 'react';
+import { createEditor, Range, Editor as SlateEditor, Transforms, Descendant, Path } from 'slate';
 import { withReact, Editable, ReactEditor, Slate } from 'slate-react';
 import { withHistory } from 'slate-history';
 import { isHotkey } from 'is-hotkey';
 import colors from 'tailwindcss/colors';
-import {
-  handleEnter,
-  handleIndent,
-  handleUnindent,
-  isElementActive,
-  toggleElement,
-  toggleMark,
-} from 'editor/formatting';
+import { handleEnter, handleIndent, handleUnindent, isElementActive, toggleElement, toggleMark } from 'editor/formatting';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
 import withLinks from 'editor/plugins/withLinks';
@@ -69,14 +47,8 @@ function Editor(props: Props) {
   const { noteId, onChange, className = '', highlightedPath } = props;
   const isMounted = useIsMounted();
 
-  const value = useStore(
-    (state) => state.notes[noteId]?.content ?? getDefaultEditorValue()
-  );
-  const setValue = useCallback(
-    (value: Descendant[]) =>
-      store.getState().updateNote({ id: noteId, content: value }),
-    [noteId]
-  );
+  const value = useStore(state => state.notes[noteId]?.content ?? getDefaultEditorValue());
+  const setValue = useCallback((value: Descendant[]) => store.getState().updateNote({ id: noteId, content: value }), [noteId]);
 
   const editorRef = useRef<SlateEditor>();
   if (!editorRef.current) {
@@ -86,37 +58,26 @@ function Editor(props: Props) {
           withHtml(
             withBlockBreakout(
               withVoidElements(
-                withBlockReferences(
-                  withImages(
-                    withTags(
-                      withLinks(
-                        withNodeId(withHistory(withReact(createEditor())))
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
-        )
-      )
+                withBlockReferences(withImages(withTags(withLinks(withNodeId(withHistory(withReact(createEditor()))))))),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
   const editor = editorRef.current;
 
   const renderElement = useMemo(() => {
-    const ElementWithSideMenu = withBlockSideMenu(
-      withVerticalSpacing(EditorElement)
-    );
+    const ElementWithSideMenu = withBlockSideMenu(withVerticalSpacing(EditorElement));
     return ElementWithSideMenu;
   }, []);
 
-  const [addLinkPopoverState, setAddLinkPopoverState] =
-    useState<AddLinkPopoverState>({
-      isVisible: false,
-      selection: undefined,
-      isLink: false,
-    });
+  const [addLinkPopoverState, setAddLinkPopoverState] = useState<AddLinkPopoverState>({
+    isVisible: false,
+    selection: undefined,
+    isLink: false,
+  });
 
   const [selection, setSelection] = useState(editor.selection);
   const [toolbarCanBeVisible, setToolbarCanBeVisible] = useState(true);
@@ -126,14 +87,11 @@ function Editor(props: Props) {
       ReactEditor.isFocused(editor) &&
       !Range.isCollapsed(selection) &&
       SlateEditor.string(editor, selection, { voids: true }) !== '',
-    [editor, selection]
+    [editor, selection],
   );
   const isToolbarVisible = useMemo(
-    () =>
-      toolbarCanBeVisible &&
-      hasExpandedSelection &&
-      !addLinkPopoverState.isVisible,
-    [toolbarCanBeVisible, hasExpandedSelection, addLinkPopoverState.isVisible]
+    () => toolbarCanBeVisible && hasExpandedSelection && !addLinkPopoverState.isVisible,
+    [toolbarCanBeVisible, hasExpandedSelection, addLinkPopoverState.isVisible],
   );
 
   const hotkeys = useMemo(
@@ -206,9 +164,7 @@ function Editor(props: Props) {
             setAddLinkPopoverState({
               isVisible: true,
               selection: editor.selection,
-              isLink:
-                isElementActive(editor, ElementType.ExternalLink) ||
-                isElementActive(editor, ElementType.NoteLink),
+              isLink: isElementActive(editor, ElementType.ExternalLink) || isElementActive(editor, ElementType.NoteLink),
             });
           }
         },
@@ -234,7 +190,7 @@ function Editor(props: Props) {
         callback: () => editor.insertBreak(),
       },
     ],
-    [editor, setAddLinkPopoverState]
+    [editor, setAddLinkPopoverState],
   );
 
   const onKeyDown = useCallback(
@@ -247,7 +203,7 @@ function Editor(props: Props) {
         }
       }
     },
-    [hotkeys]
+    [hotkeys],
   );
 
   const onSlateChange = useCallback(
@@ -260,11 +216,12 @@ function Editor(props: Props) {
         onChange(newValue);
       }
     },
-    [editor.selection, onChange, value, setValue]
+    [editor.selection, onChange, value, setValue],
   );
 
   // If highlightedPath is defined, highlight the path
-  const darkMode = useStore((state) => state.darkMode);
+  // const darkMode = useStore((state) => state.darkMode);
+  const darkMode = true;
   useEffect(() => {
     if (!highlightedPath) {
       return;
@@ -285,9 +242,7 @@ function Editor(props: Props) {
         domNode.style.backgroundColor = originalBgColor;
       };
 
-      domNode.style.backgroundColor = darkMode
-        ? colors.yellow[800]
-        : colors.yellow[200];
+      domNode.style.backgroundColor = darkMode ? colors.yellow[800] : colors.yellow[200];
       domNode.addEventListener('click', removeHighlight, { once: true });
 
       return () => {
@@ -301,14 +256,9 @@ function Editor(props: Props) {
 
   return (
     <Slate editor={editor} value={value} onChange={onSlateChange}>
-      {isToolbarVisible ? (
-        <HoveringToolbar setAddLinkPopoverState={setAddLinkPopoverState} />
-      ) : null}
+      {isToolbarVisible ? <HoveringToolbar setAddLinkPopoverState={setAddLinkPopoverState} /> : null}
       {addLinkPopoverState.isVisible ? (
-        <AddLinkPopover
-          addLinkPopoverState={addLinkPopoverState}
-          setAddLinkPopoverState={setAddLinkPopoverState}
-        />
+        <AddLinkPopover addLinkPopoverState={addLinkPopoverState} setAddLinkPopoverState={setAddLinkPopoverState} />
       ) : null}
       <LinkAutocompletePopover />
       <BlockAutocompletePopover />

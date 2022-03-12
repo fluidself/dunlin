@@ -3,7 +3,9 @@ import Router from 'next/router';
 import { ToastContainer } from 'react-toastify';
 import NProgress from 'nprogress';
 import type { AppProps } from 'next/app';
-import { ProvideAuth } from 'utils/useAuth';
+import { Provider, defaultChains } from 'wagmi';
+import { InjectedConnector } from 'wagmi/connectors/injected';
+import { providers } from 'ethers';
 import AppLayout from 'components/AppLayout';
 import ServiceWorker from 'components/ServiceWorker';
 import 'styles/globals.css';
@@ -15,6 +17,17 @@ Router.events.on('routeChangeStart', () => NProgress.start());
 Router.events.on('routeChangeComplete', () => NProgress.done());
 Router.events.on('routeChangeError', () => NProgress.done());
 
+const infuraId = process.env.NEXT_PUBLIC_INFURA_ID as string;
+const chains = defaultChains;
+
+type Config = { chainId?: number };
+
+const connectors = ({ chainId }: Config) => {
+  return [new InjectedConnector({ chains })];
+};
+
+const provider = ({ chainId }: Config) => new providers.InfuraProvider(chainId, infuraId);
+
 export default function MyApp({ Component, pageProps, router }: AppProps) {
   return (
     <>
@@ -24,7 +37,7 @@ export default function MyApp({ Component, pageProps, router }: AppProps) {
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
       <ServiceWorker>
-        <ProvideAuth>
+        <Provider autoConnect connectors={connectors} provider={provider}>
           {router.pathname.startsWith('/app') ? (
             <AppLayout>
               <Component {...pageProps} />
@@ -32,7 +45,7 @@ export default function MyApp({ Component, pageProps, router }: AppProps) {
           ) : (
             <Component {...pageProps} />
           )}
-        </ProvideAuth>
+        </Provider>
       </ServiceWorker>
       <ToastContainer position="top-center" hideProgressBar newestOnTop={true} theme="colored" />
     </>

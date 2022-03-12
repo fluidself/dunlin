@@ -8,9 +8,9 @@ export default async function deleteNote(id: string) {
 
   const response = await supabase.from<Note>('notes').delete().eq('id', id);
 
-  await supabase
-    .from<User>('users')
-    .update({ note_tree: store.getState().noteTree });
+  // await supabase
+  //   .from<User>('users')
+  //   .update({ note_tree: store.getState().noteTree });
 
   return response;
 }

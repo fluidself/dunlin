@@ -4,7 +4,6 @@ import { ElementType, Mark } from 'types/slate';
 import { isMark } from 'editor/formatting';
 import { store } from 'lib/store';
 import upsertNote from 'lib/api/upsertNote';
-import supabase from 'lib/supabase';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { deleteText } from 'editor/transforms';
 import handleMark from './handleMark';
@@ -118,7 +117,7 @@ export const getOrCreateNoteId = (noteTitle: string): string | null => {
   if (matchingNote) {
     noteId = matchingNote.id;
   } else {
-    const userId = supabase.auth.user()?.id;
+    const userId = store.getState().userId;
     noteId = uuidv4();
     if (userId) {
       upsertNote({ id: noteId, user_id: userId, title: noteTitle });

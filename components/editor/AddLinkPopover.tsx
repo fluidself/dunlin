@@ -4,10 +4,10 @@ import { ReactEditor, useSlate } from 'slate-react';
 import type { TablerIcon } from '@tabler/icons';
 import { IconUnlink, IconLink, IconFilePlus } from '@tabler/icons';
 import { v4 as uuidv4 } from 'uuid';
+import { useAccount } from 'wagmi';
 import upsertNote from 'lib/api/upsertNote';
 import { insertExternalLink, insertNoteLink, removeLink } from 'editor/formatting';
 import { isUrl } from 'utils/url';
-import { useAuth } from 'utils/useAuth';
 import useNoteSearch from 'utils/useNoteSearch';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { useStore } from 'lib/store';
@@ -35,7 +35,8 @@ type Props = {
 
 export default function AddLinkPopover(props: Props) {
   const { addLinkPopoverState, setAddLinkPopoverState } = props;
-  const { user } = useAuth();
+  const [{ data: accountData }] = useAccount();
+  const userId = accountData?.address;
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [linkText, setLinkText] = useState<string>('');
   const editor = useSlate();
@@ -106,7 +107,7 @@ export default function AddLinkPopover(props: Props) {
 
   const onOptionClick = useCallback(
     async (option?: Option) => {
-      if (!option || !user) {
+      if (!option || !userId) {
         return;
       }
 
@@ -125,7 +126,7 @@ export default function AddLinkPopover(props: Props) {
         // Add a new note and insert a link to it with the note title as the link text
         const noteId = uuidv4();
         insertNoteLink(editor, noteId, linkText);
-        upsertNote({ id: noteId, user_id: user.id, title: linkText });
+        upsertNote({ id: noteId, user_id: userId, title: linkText });
         Transforms.move(editor, { distance: 1, unit: 'offset' }); // Focus after the note link
       } else if (option.type === OptionType.REMOVE_LINK) {
         // Remove the link
@@ -134,7 +135,7 @@ export default function AddLinkPopover(props: Props) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [editor, user, hidePopover, linkText, setIsUpgradeModalOpen],
+    [editor, userId, hidePopover, linkText, setIsUpgradeModalOpen],
   );
 
   const onKeyDown = useCallback(

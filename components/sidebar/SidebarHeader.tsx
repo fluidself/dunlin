@@ -1,10 +1,10 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { Menu } from '@headlessui/react';
 import { IconLogout, IconSelector, IconChevronsLeft, IconSettings } from '@tabler/icons';
-import { useAuth } from 'utils/useAuth';
+import { useAccount } from 'wagmi';
 import { useStore } from 'lib/store';
 import Tooltip from 'components/Tooltip';
-import { isMobile } from 'utils/device';
+// import { isMobile } from 'utils/device';
 import { DropdownItem } from 'components/Dropdown';
 
 type Props = {
@@ -13,7 +13,8 @@ type Props = {
 
 export default function Header(props: Props) {
   const { setIsSettingsOpen } = props;
-  const { user, signOut } = useAuth();
+  const [{ data: accountData }, disconnect] = useAccount();
+  const userId = accountData?.address;
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
 
   return (
@@ -37,9 +38,10 @@ export default function Header(props: Props) {
           </Tooltip>
         </Menu.Button>
         <Menu.Items className="absolute z-20 w-56 overflow-hidden bg-white rounded left-6 top-full shadow-popover dark:bg-gray-800 focus:outline-none">
-          <p className="px-4 pt-2 pb-1 overflow-hidden text-xs text-gray-600 overflow-ellipsis dark:text-gray-400">
-            {user?.email}
-          </p>
+          <p className="px-4 pt-2 pb-1 overflow-hidden text-xs text-gray-600 overflow-ellipsis dark:text-gray-400">{`${userId?.slice(
+            0,
+            6,
+          )}...${userId?.slice(-4)}`}</p>
           {/* <DropdownItem
             onClick={() => {
               if (isMobile()) {
@@ -52,7 +54,7 @@ export default function Header(props: Props) {
             <span>Settings</span>
           </DropdownItem> */}
           {/* TODO: Github / contact here? */}
-          <DropdownItem className="border-t dark:border-gray-700" onClick={() => signOut()}>
+          <DropdownItem className="border-t dark:border-gray-700" onClick={disconnect}>
             <IconLogout size={18} className="mr-1" />
             <span>Sign out</span>
           </DropdownItem>

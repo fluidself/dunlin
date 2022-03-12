@@ -2,9 +2,9 @@ import { useMemo, useState, useCallback, useEffect } from 'react';
 import { createEditor, Editor, Element, Path, Range, Transforms } from 'slate';
 import { useSlate } from 'slate-react';
 import type { TablerIcon } from '@tabler/icons';
+import { useAccount } from 'wagmi';
 import { insertBlockReference } from 'editor/formatting';
 import { deleteText } from 'editor/transforms';
-import { useAuth } from 'utils/useAuth';
 import useBlockSearch from 'utils/useBlockSearch';
 import { createNodeId } from 'editor/plugins/withNodeId';
 import { isReferenceableBlockElement } from 'editor/checks';
@@ -32,7 +32,8 @@ type Option = {
 };
 
 export default function BlockAutocompletePopover() {
-  const { user } = useAuth();
+  const [{ data: accountData }] = useAccount();
+  const userId = accountData?.address;
   const editor = useSlate();
 
   const [isVisible, setIsVisible] = useState(false);
@@ -46,12 +47,12 @@ export default function BlockAutocompletePopover() {
 
   const options: Option[] = useMemo(() => {
     const currBlock = Editor.above(editor, {
-      match: (n) => Editor.isBlock(editor, n),
+      match: n => Editor.isBlock(editor, n),
     });
     const currPath = currBlock ? currBlock[1] : [];
     return searchResults
-      .filter((result) => !Path.equals(result.item.path, currPath))
-      .map((result) => ({
+      .filter(result => !Path.equals(result.item.path, currPath))
+      .map(result => ({
         id: `${result.item.noteId}-${result.item.path.toString()}`,
         type: OptionType.BLOCK,
         text: result.item.text,
@@ -71,8 +72,7 @@ export default function BlockAutocompletePopover() {
     const REGEX = /(?:^|\s)(\(\()(.+)/;
     const { selection } = editor;
 
-    const returnValue: { result: RegExpMatchArray | null; onOwnLine: boolean } =
-      { result: null, onOwnLine: false };
+    const returnValue: { result: RegExpMatchArray | null; onOwnLine: boolean } = { result: null, onOwnLine: false };
 
     if (!selection || !Range.isCollapsed(selection)) {
       return returnValue;
@@ -111,7 +111,7 @@ export default function BlockAutocompletePopover() {
 
   const onOptionClick = useCallback(
     async (option?: Option) => {
-      if (!option || !user) {
+      if (!option || !userId) {
         return;
       }
 
@@ -121,16 +121,10 @@ export default function BlockAutocompletePopover() {
       if (!regexResult || !editor.selection) {
         return;
       }
-      const { path: selectionPath, offset: endOfSelection } =
-        editor.selection.anchor;
+      const { path: selectionPath, offset: endOfSelection } = editor.selection.anchor;
       const [, startMark, blockText] = regexResult;
 
-      deleteText(
-        editor,
-        selectionPath,
-        endOfSelection,
-        startMark.length + blockText.length
-      );
+      deleteText(editor, selectionPath, endOfSelection, startMark.length + blockText.length);
 
       // Handle inserting block reference
       if (option.type === OptionType.BLOCK) {
@@ -149,9 +143,8 @@ export default function BlockAutocompletePopover() {
             { id: blockId },
             {
               at: option.path,
-              match: (n) =>
-                Element.isElement(n) && isReferenceableBlockElement(n),
-            }
+              match: n => Element.isElement(n) && isReferenceableBlockElement(n),
+            },
           );
 
           // Update note locally
@@ -161,10 +154,7 @@ export default function BlockAutocompletePopover() {
           });
 
           // Update note in database
-          await supabase
-            .from<Note>('notes')
-            .update({ content: noteEditor.children })
-            .eq('id', option.noteId);
+          await supabase.from<Note>('notes').update({ content: noteEditor.children }).eq('id', option.noteId);
         } else {
           blockId = option.blockId;
         }
@@ -176,20 +166,20 @@ export default function BlockAutocompletePopover() {
 
       hidePopover();
     },
-    [editor, user, hidePopover, getRegexResult]
+    [editor, userId, hidePopover, getRegexResult],
   );
 
   const onKeyDown = useCallback(
-    (event) => {
+    event => {
       // Update the selected option based on arrow key input
       if (event.key === 'ArrowUp') {
         event.preventDefault();
-        setSelectedOptionIndex((index) => {
+        setSelectedOptionIndex(index => {
           return index <= 0 ? options.length - 1 : index - 1;
         });
       } else if (event.key === 'ArrowDown') {
         event.preventDefault();
-        setSelectedOptionIndex((index) => {
+        setSelectedOptionIndex(index => {
           return index >= options.length - 1 ? 0 : index + 1;
         });
       } else if (event.key === 'Enter') {
@@ -199,7 +189,7 @@ export default function BlockAutocompletePopover() {
         onOptionClick(options[selectedOptionIndex]);
       }
     },
-    [onOptionClick, options, selectedOptionIndex]
+    [onOptionClick, options, selectedOptionIndex],
   );
 
   useEffect(() => {
@@ -213,11 +203,7 @@ export default function BlockAutocompletePopover() {
   }, [isVisible, onKeyDown, options.length]);
 
   return isVisible && options.length > 0 ? (
-    <EditorPopover
-      placement="bottom"
-      className="flex flex-col w-96"
-      onClose={hidePopover}
-    >
+    <EditorPopover placement="bottom" className="flex flex-col w-96" onClose={hidePopover}>
       {options.map((option, index) => (
         <OptionItem
           key={option.id}
@@ -243,22 +229,18 @@ const OptionItem = (props: OptionProps) => {
       className={`flex flex-row items-center px-4 py-1 cursor-pointer text-gray-800 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${
         isSelected ? 'bg-gray-100 dark:bg-gray-700' : ''
       }`}
-      onPointerDown={(event) => event.preventDefault()}
-      onPointerUp={(event) => {
+      onPointerDown={event => event.preventDefault()}
+      onPointerUp={event => {
         if (event.button === 0) {
           event.preventDefault();
           onClick();
         }
       }}
     >
-      {option.icon ? (
-        <option.icon size={18} className="flex-shrink-0 mr-1" />
-      ) : null}
+      {option.icon ? <option.icon size={18} className="flex-shrink-0 mr-1" /> : null}
       <div className="overflow-hidden overflow-ellipsis whitespace-nowrap">
         <div>{option.text}</div>
-        <div className="text-xs text-gray-600 dark:text-gray-400">
-          {option.noteTitle}
-        </div>
+        <div className="text-xs text-gray-600 dark:text-gray-400">{option.noteTitle}</div>
       </div>
     </div>
   );

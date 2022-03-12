@@ -68,6 +68,8 @@ export type Store = {
   setSidebarTab: Setter<SidebarTab>;
   sidebarSearchQuery: string;
   setSidebarSearchQuery: Setter<string>;
+  userId: string;
+  setUserId: Setter<string>;
 } & UserSettings;
 
 type FunctionPropertyNames<T> = {
@@ -212,6 +214,8 @@ export const store = createVanilla<Store, SetState<Store>, GetState<Store>, Stor
       setSidebarTab: setter(set, 'sidebarTab'),
       sidebarSearchQuery: '',
       setSidebarSearchQuery: setter(set, 'sidebarSearchQuery'),
+      userId: '',
+      setUserId: setter(set, 'userId'),
       ...createUserSettingsSlice(set),
     })),
     {

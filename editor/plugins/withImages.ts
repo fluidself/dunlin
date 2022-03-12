@@ -5,6 +5,7 @@ import { insertImage } from 'editor/formatting';
 import { isUrl } from 'utils/url';
 import imageExtensions from 'utils/image-extensions';
 import supabase from 'lib/supabase';
+import { store } from 'lib/store';
 
 const withImages = (editor: Editor) => {
   const { insertData } = editor;
@@ -46,9 +47,9 @@ const isImageUrl = (url: string) => {
 };
 
 export const uploadAndInsertImage = async (editor: Editor, file: File, path?: Path) => {
-  const user = supabase.auth.user();
+  const userId = store.getState().userId;
 
-  if (!user) {
+  if (!userId) {
     return;
   }
 
@@ -57,7 +58,7 @@ export const uploadAndInsertImage = async (editor: Editor, file: File, path?: Pa
     closeButton: false,
     draggable: false,
   });
-  const key = `${user.id}/${uuidv4()}.png`;
+  const key = `${userId}/${uuidv4()}.png`;
   const { error: uploadError } = await supabase.storage.from('user-assets').upload(key, file, { upsert: false });
 
   if (uploadError) {

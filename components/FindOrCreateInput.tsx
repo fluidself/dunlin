@@ -4,8 +4,8 @@ import { useRouter } from 'next/router';
 import type { TablerIcon } from '@tabler/icons';
 import { IconFilePlus, IconSearch } from '@tabler/icons';
 import { toast } from 'react-toastify';
+import { useAccount } from 'wagmi';
 import upsertNote from 'lib/api/upsertNote';
-import { useAuth } from 'utils/useAuth';
 import useNoteSearch from 'utils/useNoteSearch';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { useStore } from 'lib/store';
@@ -29,8 +29,9 @@ type Props = {
 
 function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
   const { onOptionClick: onOptionClickCallback, className = '' } = props;
-  const { user } = useAuth();
   const router = useRouter();
+  const [{ data: accountData }] = useAccount();
+  const userId = accountData?.address;
 
   const [inputText, setInputText] = useState('');
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0);
@@ -65,14 +66,14 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
 
   const onOptionClick = useCallback(
     async (option: Option) => {
-      if (!user) {
+      if (!userId) {
         return;
       }
 
       onOptionClickCallback?.();
 
       if (option.type === OptionType.NEW_NOTE) {
-        const note = await upsertNote({ user_id: user.id, title: inputText });
+        const note = await upsertNote({ user_id: userId, title: inputText });
         if (!note) {
           toast.error(`There was an error creating the note ${inputText}.`);
           return;
@@ -86,7 +87,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
       }
     },
     [
-      user,
+      // userId,
       router,
       // canCreateNote,
       inputText,

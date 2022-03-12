@@ -13,16 +13,13 @@ import {
   MouseSensor,
   TouchSensor,
 } from '@dnd-kit/core';
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { toast } from 'react-toastify';
+import { useAccount } from 'wagmi';
 import { NoteTreeItem, store, useStore } from 'lib/store';
 import Portal from 'components/Portal';
 import supabase from 'lib/supabase';
 import { User } from 'types/supabase';
-import { useAuth } from 'utils/useAuth';
 import SidebarNoteLink from './SidebarNoteLink';
 import DraggableSidebarNoteLink from './DraggableSidebarNoteLink';
 
@@ -39,15 +36,16 @@ type Props = {
 
 function SidebarNotesTree(props: Props) {
   const { data, className } = props;
-
-  const { user } = useAuth();
   const router = useRouter();
+  const [{ data: accountData }] = useAccount();
+  const userId = accountData?.address;
+
   const currentNoteId = useMemo(() => {
     const id = router.query.id;
     return id && typeof id === 'string' ? id : undefined;
   }, [router]);
 
-  const moveNoteTreeItem = useStore((state) => state.moveNoteTreeItem);
+  const moveNoteTreeItem = useStore(state => state.moveNoteTreeItem);
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const sensors = useSensors(
@@ -61,7 +59,7 @@ function SidebarNotesTree(props: Props) {
         delay: 250,
         tolerance: 5,
       },
-    })
+    }),
   );
 
   const flattenNode = useCallback(
@@ -81,7 +79,7 @@ function SidebarNotesTree(props: Props) {
         }
       }
     },
-    [activeId]
+    [activeId],
   );
 
   const flattenedData = useMemo(() => {
@@ -105,59 +103,33 @@ function SidebarNotesTree(props: Props) {
     async (event: DragEndEvent) => {
       const { active, over } = event;
 
-      if (over && user) {
+      if (over && userId) {
         moveNoteTreeItem(active.id, over.id);
-        await supabase
-          .from<User>('users')
-          .update({ note_tree: store.getState().noteTree })
-          .eq('id', user.id);
+        await supabase.from<User>('users').update({ note_tree: store.getState().noteTree }).eq('id', userId);
       } else {
-        toast.error(
-          'There was an unexpected error: you are not logged in and your changes could not be saved.'
-        );
+        toast.error('There was an unexpected error: you are not logged in and your changes could not be saved.');
       }
 
       resetState();
     },
-    [resetState, moveNoteTreeItem, user]
+    [resetState, moveNoteTreeItem, userId],
   );
 
   const Row = useCallback(
     ({ index, style }) => {
       const node = flattenedData[index];
-      return (
-        <DraggableSidebarNoteLink
-          key={node.id}
-          node={node}
-          isHighlighted={node.id === currentNoteId}
-          style={style}
-        />
-      );
+      return <DraggableSidebarNoteLink key={node.id} node={node} isHighlighted={node.id === currentNoteId} style={style} />;
     },
-    [currentNoteId, flattenedData]
+    [currentNoteId, flattenedData],
   );
 
   return (
     <div className={className}>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={flattenedData}
-          strategy={verticalListSortingStrategy}
-        >
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <SortableContext items={flattenedData} strategy={verticalListSortingStrategy}>
           <AutoSizer>
             {({ width, height }) => (
-              <List
-                width={width}
-                height={height}
-                rowCount={flattenedData.length}
-                rowHeight={32}
-                rowRenderer={Row}
-              />
+              <List width={width} height={height} rowCount={flattenedData.length} rowHeight={32} rowRenderer={Row} />
             )}
           </AutoSizer>
         </SortableContext>
@@ -166,7 +138,7 @@ function SidebarNotesTree(props: Props) {
             {activeId ? (
               <SidebarNoteLink
                 node={
-                  flattenedData.find((node) => node.id === activeId) ?? {
+                  flattenedData.find(node => node.id === activeId) ?? {
                     id: activeId,
                     depth: 0,
                     collapsed: false,

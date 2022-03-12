@@ -1,10 +1,4 @@
-import {
-  MutableRefObject,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import { MutableRefObject, useCallback, useEffect, useMemo, useRef } from 'react';
 import defaultTheme from 'tailwindcss/defaultTheme';
 import colors from 'tailwindcss/colors';
 import { useRouter } from 'next/router';
@@ -49,7 +43,8 @@ export default function ForceGraph(props: Props) {
   const transform = useRef(zoomIdentity);
   const hoveredNode = useRef<NodeDatum | null>(null);
 
-  const darkMode = useStore((state) => state.darkMode);
+  // const darkMode = useStore((state) => state.darkMode);
+  const darkMode = true;
 
   const router = useRouter();
 
@@ -69,11 +64,9 @@ export default function ForceGraph(props: Props) {
       if (!nodeId1 || !nodeId2) {
         return false;
       }
-      return (
-        neighbors[`${nodeId1}-${nodeId2}`] || neighbors[`${nodeId2}-${nodeId1}`]
-      );
+      return neighbors[`${nodeId1}-${nodeId2}`] || neighbors[`${nodeId2}-${nodeId1}`];
     },
-    [neighbors]
+    [neighbors],
   );
 
   const drawLink = useCallback(
@@ -81,14 +74,7 @@ export default function ForceGraph(props: Props) {
       const source = link.source;
       const target = link.target;
 
-      if (
-        !isNodeDatum(source) ||
-        !isNodeDatum(target) ||
-        !source.x ||
-        !source.y ||
-        !target.x ||
-        !target.y
-      ) {
+      if (!isNodeDatum(source) || !isNodeDatum(target) || !source.x || !source.y || !target.x || !target.y) {
         return;
       }
 
@@ -113,7 +99,7 @@ export default function ForceGraph(props: Props) {
 
       context.restore();
     },
-    [darkMode]
+    [darkMode],
   );
 
   const drawNode = useCallback(
@@ -164,7 +150,7 @@ export default function ForceGraph(props: Props) {
 
       context.restore();
     },
-    [areNeighbors, darkMode]
+    [areNeighbors, darkMode],
   );
 
   const renderCanvas = useCallback(() => {
@@ -184,14 +170,8 @@ export default function ForceGraph(props: Props) {
     context.clearRect(0, 0, width, height);
 
     const pixelRatio = window.devicePixelRatio;
-    context.translate(
-      transform.current.x * pixelRatio,
-      transform.current.y * pixelRatio
-    );
-    context.scale(
-      transform.current.k * pixelRatio,
-      transform.current.k * pixelRatio
-    );
+    context.translate(transform.current.x * pixelRatio, transform.current.y * pixelRatio);
+    context.scale(transform.current.k * pixelRatio, transform.current.k * pixelRatio);
 
     // Draw links
     for (const link of data.links) {
@@ -220,20 +200,19 @@ export default function ForceGraph(props: Props) {
     const width = canvasRef.current.width / pixelRatio;
     const height = canvasRef.current.height / pixelRatio;
 
-    const simulation: Simulation<NodeDatum, LinkDatum> =
-      forceSimulation<NodeDatum>(data.nodes)
-        .force(
-          'link',
-          forceLink<NodeDatum, LinkDatum>(data.links).id((d) => d.id)
-        )
-        .force(
-          'collide',
-          forceCollide<NodeDatum>().radius((node) => node.radius)
-        )
-        .force('charge', forceManyBody().strength(-80))
-        .force('center', forceCenter(width / 2, height / 2))
-        .force('x', forceX(width / 2))
-        .force('y', forceY(height / 2));
+    const simulation: Simulation<NodeDatum, LinkDatum> = forceSimulation<NodeDatum>(data.nodes)
+      .force(
+        'link',
+        forceLink<NodeDatum, LinkDatum>(data.links).id(d => d.id),
+      )
+      .force(
+        'collide',
+        forceCollide<NodeDatum>().radius(node => node.radius),
+      )
+      .force('charge', forceManyBody().strength(-80))
+      .force('center', forceCenter(width / 2, height / 2))
+      .force('x', forceX(width / 2))
+      .force('y', forceY(height / 2));
 
     simulation.on('tick', () => renderCanvas());
 
@@ -249,9 +228,9 @@ export default function ForceGraph(props: Props) {
           .on('zoom', ({ transform: t }: { transform: ZoomTransform }) => {
             transform.current = t;
             renderCanvas();
-          })
+          }),
       )
-      .on('mousemove', (event) => {
+      .on('mousemove', event => {
         const { x, y } = getMousePos(context.canvas, event);
         const node = getNode(simulation, context.canvas, x, y);
 
@@ -266,7 +245,7 @@ export default function ForceGraph(props: Props) {
           renderCanvas();
         }
       })
-      .on('click', (event) => {
+      .on('click', event => {
         const { x, y } = getMousePos(context.canvas, event);
         const clickedNode = getNode(simulation, context.canvas, x, y);
 
@@ -287,7 +266,7 @@ export default function ForceGraph(props: Props) {
     (node: HTMLDivElement | null) => {
       // Initialize resize observer
       if (!resizeObserverRef.current) {
-        resizeObserverRef.current = new ResizeObserver((entries) => {
+        resizeObserverRef.current = new ResizeObserver(entries => {
           if (!canvasRef.current) {
             return;
           }
@@ -321,7 +300,7 @@ export default function ForceGraph(props: Props) {
         }
       }
     },
-    [renderCanvas]
+    [renderCanvas],
   );
 
   useEffect(() => {
@@ -332,22 +311,13 @@ export default function ForceGraph(props: Props) {
   }, []);
 
   return (
-    <div
-      ref={containerRefCallback}
-      className={`relative select-none ${className}`}
-    >
-      <canvas
-        data-testid="graph-canvas"
-        ref={canvasRef}
-        className="absolute w-full h-full dark:bg-gray-800"
-      />
+    <div ref={containerRefCallback} className={`relative select-none ${className}`}>
+      <canvas data-testid="graph-canvas" ref={canvasRef} className="absolute w-full h-full dark:bg-gray-800" />
     </div>
   );
 }
 
-const isNodeDatum = (
-  datum: string | number | NodeDatum
-): datum is NodeDatum => {
+const isNodeDatum = (datum: string | number | NodeDatum): datum is NodeDatum => {
   return typeof datum !== 'string' && typeof datum !== 'number';
 };
 
@@ -359,22 +329,12 @@ const getMousePos = (canvas: HTMLCanvasElement, event: MouseEvent) => {
   };
 };
 
-const getNode = (
-  simulation: Simulation<NodeDatum, LinkDatum>,
-  canvas: HTMLCanvasElement,
-  canvasX: number,
-  canvasY: number
-) => {
+const getNode = (simulation: Simulation<NodeDatum, LinkDatum>, canvas: HTMLCanvasElement, canvasX: number, canvasY: number) => {
   const transform = zoomTransform(canvas);
   const x = transform.invertX(canvasX);
   const y = transform.invertY(canvasY);
   const subject = simulation.find(x, y);
-  if (
-    subject &&
-    subject.x &&
-    subject.y &&
-    Math.hypot(x - subject.x, y - subject.y) <= subject.radius
-  ) {
+  if (subject && subject.x && subject.y && Math.hypot(x - subject.x, y - subject.y) <= subject.radius) {
     return subject;
   } else {
     return undefined;
@@ -384,7 +344,7 @@ const getNode = (
 const getDrag = (
   simulation: Simulation<NodeDatum, LinkDatum>,
   canvas: HTMLCanvasElement,
-  hoveredNode: MutableRefObject<NodeDatum | null>
+  hoveredNode: MutableRefObject<NodeDatum | null>,
 ) => {
   let initialDragPos: { x: number; y: number };
 
@@ -407,10 +367,8 @@ const getDrag = (
 
   function dragged(event: DragEvent) {
     const transform = zoomTransform(canvas);
-    event.subject.fx =
-      initialDragPos.x + (event.x - initialDragPos.x) / transform.k;
-    event.subject.fy =
-      initialDragPos.y + (event.y - initialDragPos.y) / transform.k;
+    event.subject.fx = initialDragPos.x + (event.x - initialDragPos.x) / transform.k;
+    event.subject.fy = initialDragPos.y + (event.y - initialDragPos.y) / transform.k;
   }
 
   function dragended(event: DragEvent) {
@@ -428,11 +386,7 @@ const getDrag = (
     .on('end', dragended);
 };
 
-const getLines = (
-  context: CanvasRenderingContext2D,
-  text: string,
-  maxWidth: number
-) => {
+const getLines = (context: CanvasRenderingContext2D, text: string, maxWidth: number) => {
   const words = text.split(' ');
   const lines = [];
   let currentLine = words[0];

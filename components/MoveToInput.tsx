@@ -1,7 +1,7 @@
 import type { ForwardedRef } from 'react';
 import { forwardRef, useCallback, useMemo, useState } from 'react';
 import { IconChevronsUp, IconSearch, TablerIcon } from '@tabler/icons';
-import { useAuth } from 'utils/useAuth';
+import { useAccount } from 'wagmi';
 import useNoteSearch from 'utils/useNoteSearch';
 import supabase from 'lib/supabase';
 import { store, useStore } from 'lib/store';
@@ -27,18 +27,15 @@ type Props = {
 };
 
 function MoveToInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
-  const {
-    noteId,
-    onOptionClick: onOptionClickCallback,
-    className = '',
-  } = props;
-  const { user } = useAuth();
+  const { noteId, onOptionClick: onOptionClickCallback, className = '' } = props;
+  const [{ data: accountData }] = useAccount();
+  const userId = accountData?.address;
 
   const [inputText, setInputText] = useState('');
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0);
 
-  const noteTree = useStore((state) => state.noteTree);
-  const moveNoteTreeItem = useStore((state) => state.moveNoteTreeItem);
+  const noteTree = useStore(state => state.noteTree);
+  const moveNoteTreeItem = useStore(state => state.moveNoteTreeItem);
 
   const search = useNoteSearch({ numOfResults: 10 });
   const searchResults = useMemo(() => search(inputText), [search, inputText]);
@@ -56,24 +53,24 @@ function MoveToInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
       });
       result.push(
         ...noteTree
-          .filter((item) => item.id !== noteId)
-          .map((item) => ({
+          .filter(item => item.id !== noteId)
+          .map(item => ({
             id: item.id,
             type: OptionType.NOTE,
             text: notes[item.id].title,
           }))
           .sort((n1, n2) => caseInsensitiveStringCompare(n1.text, n2.text))
-          .slice(0, 9)
+          .slice(0, 9),
       );
     } else {
       result.push(
         ...searchResults
-          .filter((result) => result.item.id !== noteId)
-          .map((result) => ({
+          .filter(result => result.item.id !== noteId)
+          .map(result => ({
             id: result.item.id,
             type: OptionType.NOTE,
             text: result.item.title,
-          }))
+          })),
       );
     }
     return result;
@@ -81,7 +78,7 @@ function MoveToInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
 
   const onOptionClick = useCallback(
     async (option: Option) => {
-      if (!user) {
+      if (!userId) {
         return;
       }
 
@@ -95,30 +92,27 @@ function MoveToInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
 
-      await supabase
-        .from<User>('users')
-        .update({ note_tree: store.getState().noteTree })
-        .eq('id', user.id);
+      await supabase.from<User>('users').update({ note_tree: store.getState().noteTree }).eq('id', userId);
     },
-    [user, onOptionClickCallback, noteId, moveNoteTreeItem]
+    [userId, onOptionClickCallback, noteId, moveNoteTreeItem],
   );
 
   const onKeyDown = useCallback(
-    (event) => {
+    event => {
       // Update the selected option based on arrow key input
       if (event.key === 'ArrowUp') {
         event.preventDefault();
-        setSelectedOptionIndex((index) => {
+        setSelectedOptionIndex(index => {
           return index <= 0 ? options.length - 1 : index - 1;
         });
       } else if (event.key === 'ArrowDown') {
         event.preventDefault();
-        setSelectedOptionIndex((index) => {
+        setSelectedOptionIndex(index => {
           return index >= options.length - 1 ? 0 : index + 1;
         });
       }
     },
-    [options.length]
+    [options.length],
   );
 
   return (
@@ -133,9 +127,9 @@ function MoveToInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
           }`}
           placeholder="Search note to move to"
           value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
+          onChange={e => setInputText(e.target.value)}
           onKeyDown={onKeyDown}
-          onKeyPress={(event) => {
+          onKeyPress={event => {
             if (event.key === 'Enter') {
               event.preventDefault();
               onOptionClick(options[selectedOptionIndex]);
@@ -175,12 +169,8 @@ const OptionItem = (props: OptionProps) => {
       }`}
       onClick={onClick}
     >
-      {option.icon ? (
-        <option.icon size={18} className="flex-shrink-0 mr-1" />
-      ) : null}
-      <span className="overflow-hidden overflow-ellipsis whitespace-nowrap">
-        {option.text}
-      </span>
+      {option.icon ? <option.icon size={18} className="flex-shrink-0 mr-1" /> : null}
+      <span className="overflow-hidden overflow-ellipsis whitespace-nowrap">{option.text}</span>
     </button>
   );
 };
