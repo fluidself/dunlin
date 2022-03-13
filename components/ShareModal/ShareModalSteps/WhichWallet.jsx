@@ -45,7 +45,7 @@ const WhichWallet = ({ setActiveStep, onAccessControlConditionsSelected, setErro
   return (
     <div>
       <div>
-        <h4>Which wallet should be able to access this asset?</h4>
+        <h4 className="text-lg">Which wallet should be granted access?</h4>
         <a className="underline cursor-pointer hover:text-offWhite" onClick={() => setActiveStep('assetWallet')}>
           Grant Access on NFT Ownership
         </a>
@@ -61,7 +61,6 @@ const WhichWallet = ({ setActiveStep, onAccessControlConditionsSelected, setErro
           label="Add Wallet Address or Blockchain Domain (e.g. ENS, UNS) here:"
           id="walletAddress"
           autoFocus
-          size="m"
           handleChange={value => setWalletAddress(value)}
         />
       </div>

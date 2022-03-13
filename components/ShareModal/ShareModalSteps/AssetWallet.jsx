@@ -39,7 +39,7 @@ const AssetWallet = ({ setActiveStep, onAccessControlConditionsSelected, tokenLi
   return (
     <div>
       <div>
-        <h4>Which asset does a wallet need to own to access this?</h4>
+        <h4 className="text-lg">Which asset does a wallet need to own to access this?</h4>
         <a className="underline cursor-pointer hover:text-offWhite" onClick={() => setActiveStep('whichWallet')}>
           Grant Access to Wallet or Blockchain Domain
         </a>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { WalletIcon, TokenIcon, DAOIcon, POAPIcon } from '../icons';
+import Navigation from '../Navigation';
 
 const TypeButton = props => {
   const { type, icon, title, onClick } = props;
@@ -43,12 +44,13 @@ const AbleToAccess = props => {
 
   return (
     <div className="mb-4">
-      <div className="text-lg">Who should be able to access this asset?</div>
+      <div className="text-lg">Who should be able to access your DECK?</div>
       <div className="grid grid-cols-[180px_180px] gap-4 justify-center mt-[28px]">
         {ITEMS.map((item, i) => (
           <TypeButton key={i} {...item} onClick={setActiveStep} />
         ))}
       </div>
+      <Navigation backward={{ onClick: () => setActiveStep('provideString') }} forward={null} />
     </div>
   );
 };

@@ -185,7 +185,7 @@ const SelectTokens = ({ setActiveStep, onAccessControlConditionsSelected, tokenL
 
   return (
     <div>
-      <h4 className="text-lg">Which wallet should be able to access this asset?</h4>
+      <h4 className="text-lg">Which wallet(s) should be granted access?</h4>
       <div className="mt-4">
         <div>
           <div>
@@ -204,7 +204,8 @@ const SelectTokens = ({ setActiveStep, onAccessControlConditionsSelected, tokenL
             )}
             {!selectedToken && (
               <InputWrapper
-                placeholder="Token address"
+                placeholder="Enter contract address"
+                className="w-1/2"
                 value={contractAddress}
                 id="amount"
                 autoFocus

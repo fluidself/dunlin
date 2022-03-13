@@ -52,7 +52,7 @@ const DAOMembers = ({ setActiveStep, onAccessControlConditionsSelected }) => {
 
   return (
     <div>
-      <h4>Which POAP should be able to access this asset?</h4>
+      <h4 className="text-lg">Which POAP should be granted access?</h4>
       <div className="mt-8 max-w-[396px]">
         <InputWrapper
           value={POAPName}

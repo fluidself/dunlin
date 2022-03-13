@@ -24,7 +24,8 @@ const Home: NextPage = () => {
   ] = useConnect();
   const [{ data: accountData }] = useAccount();
   const [open, setOpen] = useState<boolean>(false);
-  const [selectedConditions, setSelectedConditions] = useState(null);
+  const [stringToEncrypt, setStringToEncrypt] = useState<string | null>(null);
+  const [accessControlConditions, setAccessControlConditions] = useState<AccessControlCondition[] | null>(null);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const isMounted = useIsMounted();
 
@@ -61,14 +62,17 @@ const Home: NextPage = () => {
     }
   }, [isMounted]);
 
-  const encryptString = async (accessControlConditions: AccessControlCondition[]) => {
+  const encryptString = async () => {
     // TODO: some kind of loading indicator spinner / feedback toasts
     const userId = accountData?.address;
-    if (!userId) return;
+    // console.log('================');
+    // console.log(userId, stringToEncrypt, accessControlConditions);
+    // console.log('================');
+    if (!userId || !stringToEncrypt || !accessControlConditions) return;
 
     const chain = accessControlConditions[0].chain;
     const authSig: AuthSig = await LitJsSdk.checkAndSignAuthMessage({ chain });
-    const { encryptedZip, symmetricKey } = await LitJsSdk.zipAndEncryptString('foobar'); // TODO: dynamic
+    const { encryptedZip, symmetricKey } = await LitJsSdk.zipAndEncryptString(stringToEncrypt);
     const encryptedSymmetricKey = await window.litNodeClient.saveEncryptionKey({
       accessControlConditions,
       symmetricKey,
@@ -148,24 +152,27 @@ const Home: NextPage = () => {
           </div>
         )}
 
+        {/* TODO: Join someone else's DECK
+            before or after connecting wallet?
+        */}
+
         {open && (
           <ShareModal
             onClose={() => setOpen(false)}
-            onAccessControlConditionsSelected={async (acc: any) => {
-              console.log('Access control conditions selected: ', acc);
-              setSelectedConditions(acc);
+            onStringProvided={(providedString: string) => setStringToEncrypt(providedString)}
+            onAccessControlConditionsSelected={async (acc: AccessControlCondition[]) => {
+              setAccessControlConditions(acc);
               setOpen(false);
-              await encryptString(acc);
+              await encryptString();
             }}
-            showStep={'ableToAccess'}
-            // showStep={'setPassword'}
+            showStep={'provideString'}
           />
         )}
 
-        {selectedConditions ? (
+        {accessControlConditions ? (
           <>
             <h3>Selected conditions: </h3>
-            <pre>{JSON.stringify(selectedConditions, null, 2)}</pre>
+            <pre>{JSON.stringify(accessControlConditions, null, 2)}</pre>
           </>
         ) : null}
       </main>

@@ -27,7 +27,7 @@ const DAOMembers = ({ setActiveStep, onAccessControlConditionsSelected }) => {
 
   return (
     <div>
-      <h4 className="text-lg">Which DAO’s members should be able to access this asset?</h4>
+      <h4 className="text-lg">Which DAO’s members should be granted access?</h4>
       <div className="mt-4">
         <div className="mt-4">
           <label>Select blockchain to check requirements against:</label>

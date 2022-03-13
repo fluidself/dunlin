@@ -5,6 +5,7 @@ import LitJsSdk from 'lit-js-sdk';
 
 import {
   WhatToDo,
+  ProvideString,
   AbleToAccess,
   WhichWallet,
   AssetWallet,
@@ -12,13 +13,12 @@ import {
   AccessCreated,
   SelectTokens,
   ChoosePOAP,
-  // RecentRequirement,
-  // CurrentRequirements,
 } from './ShareModalSteps';
 import UnsavedPopup from './UnsavedPopup';
 
 const ModalComponents = {
   whatToDo: WhatToDo,
+  provideString: ProvideString,
   ableToAccess: AbleToAccess,
   whichWallet: WhichWallet,
   assetWallet: AssetWallet,
@@ -26,8 +26,6 @@ const ModalComponents = {
   accessCreated: AccessCreated,
   selectTokens: SelectTokens,
   choosePOAP: ChoosePOAP,
-  // recentRequirement: RecentRequirement,
-  // currentRequirements: CurrentRequirements,
 };
 
 const ShareModal = props => {
@@ -36,14 +34,13 @@ const ShareModal = props => {
     onBack = () => false,
     sharingItems = [],
     showStep,
+    onStringProvided,
     onAccessControlConditionsSelected,
     getSharingLink,
     onlyAllowCopySharingLink,
     copyLinkText,
     myWalletAddress,
   } = props;
-
-  //console.log("rendering ShareModal and sharingItems is", sharingItems);
 
   const [activeStep, setActiveStep] = useState(showStep || 'whatToDo');
   const [tokenList, setTokenList] = useState([]);
@@ -92,6 +89,7 @@ const ShareModal = props => {
         onMainBack={onBack}
         sharingItems={sharingItems}
         copyToClipboard={copyToClipboard}
+        onStringProvided={onStringProvided}
         onAccessControlConditionsSelected={onAccessControlConditionsSelected}
         tokenList={tokenList}
         onlyAllowCopySharingLink={onlyAllowCopySharingLink}
@@ -104,14 +102,13 @@ const ShareModal = props => {
     );
   };
 
-  // const title = sharingItems.length > 1 ? `${sharingItems.length} Files` : sharingItems?.[0]?.name ?? '';
   let title = '';
   if (sharingItems.length > 0) {
     title = sharingItems.length > 1 ? `${sharingItems.length} Files` : `${sharingItems.length} File` ?? '';
   }
 
   const handleClose = () => {
-    if (!['whatToDo', 'ableToAccess'].includes(activeStep)) {
+    if (!['whatToDo', 'provideString'].includes(activeStep)) {
       setShowUnsavedPopup(true);
     } else {
       onClose();
