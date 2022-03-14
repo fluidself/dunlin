@@ -2,10 +2,10 @@ import { useMemo, useState, useCallback, useEffect } from 'react';
 import { createEditor, Editor, Element, Path, Range, Transforms } from 'slate';
 import { useSlate } from 'slate-react';
 import type { TablerIcon } from '@tabler/icons';
-import { useAccount } from 'wagmi';
 import { insertBlockReference } from 'editor/formatting';
 import { deleteText } from 'editor/transforms';
 import useBlockSearch from 'utils/useBlockSearch';
+import { useAuth } from 'utils/useAuth';
 import { createNodeId } from 'editor/plugins/withNodeId';
 import { isReferenceableBlockElement } from 'editor/checks';
 import { store } from 'lib/store';
@@ -32,8 +32,9 @@ type Option = {
 };
 
 export default function BlockAutocompletePopover() {
-  const [{ data: accountData }] = useAccount();
-  const userId = accountData?.address;
+  // const [{ data: accountData }] = useAccount();
+  // const userId = accountData?.address;
+  const { user } = useAuth();
   const editor = useSlate();
 
   const [isVisible, setIsVisible] = useState(false);
@@ -111,7 +112,7 @@ export default function BlockAutocompletePopover() {
 
   const onOptionClick = useCallback(
     async (option?: Option) => {
-      if (!option || !userId) {
+      if (!option || !user) {
         return;
       }
 
@@ -166,7 +167,7 @@ export default function BlockAutocompletePopover() {
 
       hidePopover();
     },
-    [editor, userId, hidePopover, getRegexResult],
+    [editor, user, hidePopover, getRegexResult],
   );
 
   const onKeyDown = useCallback(

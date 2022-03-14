@@ -1,6 +1,6 @@
 interface ButtonProps {
   children: any;
-  onClick?: () => void;
+  onClick?: (arg0?: any, arg1?: any) => void;
   disabled?: boolean;
   className?: string;
 }

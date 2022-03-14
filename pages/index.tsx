@@ -4,49 +4,29 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useAccount, useConnect } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { toast } from 'react-toastify';
 import { ShareModal } from 'components/ShareModal';
 import Button from 'components/Button';
 import useIsMounted from 'utils/useIsMounted';
 import { useIpfsUpload } from 'utils/useIpfs';
+import { useAuth } from 'utils/useAuth';
 import supabase from 'lib/supabase';
 import { User } from 'types/supabase';
 import { AccessControlCondition, AuthSig, ResourceId } from 'types/lit';
 
 const Home: NextPage = () => {
   const router = useRouter();
-  const [
-    {
-      data: { connectors },
-      error,
-    },
-    connect,
-  ] = useConnect();
   const [{ data: accountData }] = useAccount();
+  const { user, isLoaded, signIn, signOut, initUser } = useAuth();
   const [open, setOpen] = useState<boolean>(false);
   const [stringToEncrypt, setStringToEncrypt] = useState<string | null>(null);
   const [accessControlConditions, setAccessControlConditions] = useState<AccessControlCondition[] | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const isMounted = useIsMounted();
-
-  const initUser = async (walletAddress: string) => {
-    const response = await fetch('/api/auth', {
-      method: 'POST',
-      body: JSON.stringify({ walletAddress }),
-    });
-
-    if (response.status !== 200) return;
-
-    const user = await response.json();
-
-    setIsLoaded(true);
-  };
 
   useEffect(() => {
     if (accountData?.address && !isLoaded) {
-      setUserId(accountData?.address);
       initUser(accountData?.address);
     }
     // } else if (isLoaded) {
@@ -230,10 +210,9 @@ const Home: NextPage = () => {
       <main className="border border-gray-500 p-4 mt-48">
         <h1 className="mb-12">Decentralized and Encrypted Collaborative Knowledge</h1>
 
-        {!accountData?.address && <Button onClick={() => connect(connectors[0])}>Connect wallet</Button>}
-        {error && <div className="text-red-500">{error?.message ?? 'Failed to connect'}</div>}
+        {(!user || !accountData?.address) && <Button onClick={signIn}>Connect wallet</Button>}
 
-        {accountData?.address && (
+        {isLoaded && user?.id && accountData?.address && (
           <div className="flex flex-col w-52">
             <Link href="/app">
               <a>
@@ -248,6 +227,8 @@ const Home: NextPage = () => {
             <Button className="w-full my-2" onClick={() => verifyAccess()}>
               Test Verification
             </Button>
+
+            <Button onClick={signOut}>Sign out</Button>
           </div>
         )}
 
