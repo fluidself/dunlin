@@ -6,23 +6,22 @@ import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import wikiLinkPlugin from 'remark-wiki-link';
 import { v4 as uuidv4 } from 'uuid';
-import { useAccount } from 'wagmi';
 import { store, useStore } from 'lib/store';
 import { NoteUpsert } from 'lib/api/upsertNote';
 import supabase from 'lib/supabase';
 import { getDefaultEditorValue } from 'editor/constants';
 import remarkToSlate from 'editor/serialization/remarkToSlate';
 import { caseInsensitiveStringEqual } from 'utils/string';
+import { useAuth } from './useAuth';
 import { ElementType, NoteLink } from 'types/slate';
 import { Note } from 'types/supabase';
 
 export default function useImport() {
-  const [{ data: accountData }] = useAccount();
-  const userId = accountData?.address;
+  const { user } = useAuth();
   const setIsUpgradeModalOpen = useStore(state => state.setIsUpgradeModalOpen);
 
   const onImport = useCallback(() => {
-    if (!userId) {
+    if (!user) {
       return;
     }
 
@@ -70,7 +69,7 @@ export default function useImport() {
 
         noteLinkUpsertData.push(...newUpsertData);
         upsertData.push({
-          user_id: userId,
+          user_id: user.id,
           title: fileName,
           content: slateContent.length > 0 ? slateContent : getDefaultEditorValue(),
         });
@@ -97,7 +96,7 @@ export default function useImport() {
     };
 
     input.click();
-  }, [userId, setIsUpgradeModalOpen]);
+  }, [user, setIsUpgradeModalOpen]);
 
   return onImport;
 }

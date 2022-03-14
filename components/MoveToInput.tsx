@@ -1,7 +1,7 @@
 import type { ForwardedRef } from 'react';
 import { forwardRef, useCallback, useMemo, useState } from 'react';
 import { IconChevronsUp, IconSearch, TablerIcon } from '@tabler/icons';
-import { useAccount } from 'wagmi';
+import { useAuth } from 'utils/useAuth';
 import useNoteSearch from 'utils/useNoteSearch';
 import supabase from 'lib/supabase';
 import { store, useStore } from 'lib/store';
@@ -28,8 +28,7 @@ type Props = {
 
 function MoveToInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
   const { noteId, onOptionClick: onOptionClickCallback, className = '' } = props;
-  const [{ data: accountData }] = useAccount();
-  const userId = accountData?.address;
+  const { user } = useAuth();
 
   const [inputText, setInputText] = useState('');
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0);
@@ -78,7 +77,7 @@ function MoveToInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
 
   const onOptionClick = useCallback(
     async (option: Option) => {
-      if (!userId) {
+      if (!user) {
         return;
       }
 
@@ -92,9 +91,9 @@ function MoveToInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
 
-      await supabase.from<User>('users').update({ note_tree: store.getState().noteTree }).eq('id', userId);
+      await supabase.from<User>('users').update({ note_tree: store.getState().noteTree }).eq('id', user.id);
     },
-    [userId, onOptionClickCallback, noteId, moveNoteTreeItem],
+    [user, onOptionClickCallback, noteId, moveNoteTreeItem],
   );
 
   const onKeyDown = useCallback(
