@@ -18,3 +18,11 @@ export type AuthSig = {
   signedMessage: string;
   address: string;
 };
+
+export type ResourceId = {
+  baseUrl: string;
+  path: string;
+  orgId: string;
+  role: string;
+  extraData: string;
+};

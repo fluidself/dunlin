@@ -5,13 +5,14 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAccount, useConnect } from 'wagmi';
+import { toast } from 'react-toastify';
 import { ShareModal } from 'components/ShareModal';
 import Button from 'components/Button';
 import useIsMounted from 'utils/useIsMounted';
 import { useIpfsUpload } from 'utils/useIpfs';
 import supabase from 'lib/supabase';
 import { User } from 'types/supabase';
-import { AccessControlCondition, AuthSig } from 'types/lit';
+import { AccessControlCondition, AuthSig, ResourceId } from 'types/lit';
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -26,6 +27,7 @@ const Home: NextPage = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [stringToEncrypt, setStringToEncrypt] = useState<string | null>(null);
   const [accessControlConditions, setAccessControlConditions] = useState<AccessControlCondition[] | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const isMounted = useIsMounted();
 
@@ -44,6 +46,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     if (accountData?.address && !isLoaded) {
+      setUserId(accountData?.address);
       initUser(accountData?.address);
     }
     // } else if (isLoaded) {
@@ -95,7 +98,7 @@ const Home: NextPage = () => {
   const decryptString = async () => {
     // get hashes from DB, then fetch from fleek:
     // where to get userId from? passed in when user requests access to workspace
-    const userId = '0x209054D6337f6B147a7c38C73618e05f3770466e';
+    const userId = '';
     const { data: ipfsHashes } = await supabase.from<User>('users').select('ipfs_hashes').eq('id', userId).single();
 
     if (ipfsHashes?.ipfs_hashes) {
@@ -130,6 +133,98 @@ const Home: NextPage = () => {
     }
   };
 
+  const provisionAccess = async (accessControlConditions: AccessControlCondition[]) => {
+    if (!userId || !accessControlConditions) return;
+
+    try {
+      const chain = accessControlConditions[0].chain;
+      const authSig: AuthSig = await LitJsSdk.checkAndSignAuthMessage({ chain });
+      const resourceId: ResourceId = {
+        baseUrl: process.env.BASE_URL ?? '',
+        path: `/${userId}`,
+        orgId: '',
+        role: '',
+        extraData: '',
+      };
+
+      await window.litNodeClient.saveSigningCondition({
+        accessControlConditions,
+        chain,
+        authSig,
+        resourceId,
+        permanant: false,
+      });
+
+      const accessParamsToSave = { resource_id: resourceId, access_control_conditions: accessControlConditions };
+      // await supabase.from<User>('users').update({ access_params: accessParamsToSave }).eq('id', userId);
+
+      toast.success('Access to your DECK was successfully setup.');
+    } catch (e: any) {
+      console.error(e);
+      toast.error(`Provisioning access failed: ${e.errorCode && e.errorCode}`);
+    }
+  };
+
+  // const verifyAccess = async (resourceId: ResourceId, accessControlConditions: AccessControlCondition[]) => {
+  const verifyAccess = async () => {
+    // TODO: requestedPath passed in from user when requesting to join a DECK
+    // resourceId, accessControlConditions from DB
+    const requestedPath = '';
+    const resourceId = {
+      baseUrl: process.env.BASE_URL ?? '',
+      path: `/${requestedPath}`,
+      orgId: '',
+      role: '',
+      extraData: '',
+    };
+    const accessControlConditions = [
+      {
+        contractAddress: '',
+        standardContractType: '',
+        chain: 'ethereum',
+        method: '',
+        parameters: [':userAddress'],
+        returnValueTest: {
+          comparator: '=',
+          value: '',
+        },
+      },
+    ];
+
+    // const { data: accessParams } = await supabase.from<User>('users').select('access_params').eq('id', requestedPath).single();
+
+    // if (!accessParams?.access_params) return;
+
+    // console.log('accessParams from DB: ', accessParams?.access_params);
+    // const { resource_id: resourceId, access_control_conditions: accessControlConditions } = accessParams?.access_params;
+
+    if (!resourceId || !accessControlConditions || !accessControlConditions[0].chain) return;
+
+    try {
+      const chain = accessControlConditions[0].chain;
+      const authSig: AuthSig = await LitJsSdk.checkAndSignAuthMessage({ chain });
+      const jwt = await window.litNodeClient.getSignedToken({
+        accessControlConditions,
+        chain,
+        authSig,
+        resourceId,
+      });
+
+      const response = await fetch('/api/verify-jwt', {
+        method: 'POST',
+        body: JSON.stringify({ jwt, protectedPath: `/${userId}` }),
+      });
+
+      if (response.status !== 200) return;
+
+      router.push('/app/protected');
+    } catch (e: any) {
+      console.error(e);
+      toast.error(`Unable to verify access. ${e.errorCode && e.errorCode}`);
+      // https://developer.litprotocol.com/docs/SDK/errorHandling
+    }
+  };
+
   return (
     <div className="container text-white">
       <main className="border border-gray-500 p-4 mt-48">
@@ -149,6 +244,10 @@ const Home: NextPage = () => {
             <Button className="w-full my-2" onClick={() => setOpen(true)}>
               Share your DECK
             </Button>
+
+            <Button className="w-full my-2" onClick={() => verifyAccess()}>
+              Test Verification
+            </Button>
           </div>
         )}
 
@@ -163,9 +262,11 @@ const Home: NextPage = () => {
             onAccessControlConditionsSelected={async (acc: AccessControlCondition[]) => {
               setAccessControlConditions(acc);
               setOpen(false);
-              await encryptString();
+              // await encryptString();
+              await provisionAccess(acc);
             }}
-            showStep={'provideString'}
+            // showStep={'provideString'}
+            showStep={'ableToAccess'}
           />
         )}
 

@@ -1,11 +1,12 @@
 import type { Descendant } from 'slate';
 import { NoteTreeItem } from 'lib/store';
-import { AccessControlCondition } from './lit';
+import { AccessControlCondition, ResourceId } from './lit';
 
 export type User = {
   id: string;
   note_tree: NoteTreeItem[];
   ipfs_hashes: IpfsHashes;
+  access_params: AccessParams;
 };
 
 export type Note = {
@@ -21,4 +22,9 @@ export type IpfsHashes = {
   encryptedZipBase64?: string;
   hexEncryptedSymmetricKey?: string;
   accessControlConditions?: AccessControlCondition[];
+};
+
+export type AccessParams = {
+  resource_id: ResourceId;
+  access_control_conditions: AccessControlCondition[];
 };

@@ -28,7 +28,8 @@ DROP TABLE IF EXISTS public.users;
 CREATE TABLE public.users (
   id text NOT NULL,
   note_tree jsonb NULL,
-  ipfs_hashes json NULL
+  -- ipfs_hashes json NULL,
+  access_params json NULL,
   CONSTRAINT users_pkey PRIMARY KEY (id)
 );
 
