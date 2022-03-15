@@ -2,7 +2,7 @@ import { memo, useCallback } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { IconAffiliate, IconSearch } from '@tabler/icons';
+import { IconAffiliate, IconHome, IconSearch } from '@tabler/icons';
 import { useTransition, animated } from '@react-spring/web';
 import Tooltip from 'components/Tooltip';
 import { isMobile } from 'utils/device';
@@ -21,8 +21,8 @@ type Props = {
 function Sidebar(props: Props) {
   const { setIsFindOrCreateModalOpen, setIsSettingsOpen, className } = props;
 
-  const isSidebarOpen = useStore((state) => state.isSidebarOpen);
-  const setIsSidebarOpen = useStore((state) => state.setIsSidebarOpen);
+  const isSidebarOpen = useStore(state => state.isSidebarOpen);
+  const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
   const hideSidebarOnMobile = useCallback(() => {
     if (isMobile()) {
       setIsSidebarOpen(false);
@@ -63,7 +63,7 @@ function Sidebar(props: Props) {
       backgroundColor: 'transparent',
     },
     config: SPRING_CONFIG,
-    expires: (item) => !item,
+    expires: item => !item,
   });
 
   return transition(
@@ -76,9 +76,7 @@ function Sidebar(props: Props) {
               style={{
                 backgroundColor: styles.backgroundColor,
                 opacity: styles.backgroundOpacity,
-                display: styles.dspl.to((displ) =>
-                  displ === 0 ? 'none' : 'initial'
-                ),
+                display: styles.dspl.to(displ => (displ === 0 ? 'none' : 'initial')),
               }}
               onClick={() => setIsSidebarOpen(false)}
             />
@@ -87,19 +85,25 @@ function Sidebar(props: Props) {
             className="fixed top-0 bottom-0 left-0 z-20 w-64 shadow-popover md:shadow-none md:static md:z-0"
             style={{
               transform: styles.transform,
-              display: styles.dspl.to((displ) =>
-                displ === 0 ? 'none' : 'initial'
-              ),
+              display: styles.dspl.to(displ => (displ === 0 ? 'none' : 'initial')),
             }}
           >
             <div
               className={`flex flex-col flex-none h-full border-r bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 ${className}`}
             >
               <SidebarHeader setIsSettingsOpen={setIsSettingsOpen} />
+              <SidebarItem>
+                <Link href="/">
+                  <a className="flex items-center px-6 py-1">
+                    <IconHome className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
+                    <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Home</span>
+                  </a>
+                </Link>
+              </SidebarItem>
               <FindOrCreateModalButton
                 onClick={() => {
                   hideSidebarOnMobile();
-                  setIsFindOrCreateModalOpen((isOpen) => !isOpen);
+                  setIsFindOrCreateModalOpen(isOpen => !isOpen);
                 }}
               />
               <GraphButton onClick={hideSidebarOnMobile} />
@@ -110,7 +114,7 @@ function Sidebar(props: Props) {
             </div>
           </animated.div>
         </>
-      )
+      ),
   );
 }
 
@@ -122,22 +126,10 @@ const FindOrCreateModalButton = (props: FindOrCreateModalButtonProps) => {
   const { onClick } = props;
   return (
     <SidebarItem>
-      <Tooltip
-        content="Quickly jump to a note, or create a new note (Ctrl+P)"
-        placement="right"
-        touch={false}
-      >
-        <button
-          className="flex items-center w-full px-6 py-1 text-left"
-          onClick={onClick}
-        >
-          <IconSearch
-            className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300"
-            size={20}
-          />
-          <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">
-            Find or Create Note
-          </span>
+      <Tooltip content="Quickly jump to a note, or create a new note (Ctrl+P)" placement="right" touch={false}>
+        <button className="flex items-center w-full px-6 py-1 text-left" onClick={onClick}>
+          <IconSearch className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
+          <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Find or Create Note</span>
         </button>
       </Tooltip>
     </SidebarItem>
@@ -153,25 +145,13 @@ const GraphButton = (props: GraphButtonProps) => {
   const router = useRouter();
 
   return (
-    <SidebarItem
-      isHighlighted={router.pathname.includes('/app/graph')}
-      onClick={onClick}
-    >
-      <Tooltip
-        content="Visualization of all of your notes as a network (Ctrl+Shift+G)"
-        placement="right"
-        touch={false}
-      >
+    <SidebarItem isHighlighted={router.pathname.includes('/app/graph')} onClick={onClick}>
+      <Tooltip content="Visualization of all of your notes as a network (Ctrl+Shift+G)" placement="right" touch={false}>
         <span>
           <Link href="/app/graph">
             <a className="flex items-center px-6 py-1">
-              <IconAffiliate
-                className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300"
-                size={20}
-              />
-              <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">
-                Graph View
-              </span>
+              <IconAffiliate className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
+              <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Graph View</span>
             </a>
           </Link>
         </span>

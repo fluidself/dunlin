@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, createContext, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import { useConnect, useAccount } from 'wagmi';
+import { useConnect } from 'wagmi';
 import { SiweMessage } from 'siwe';
 import { User } from 'types/supabase';
 
@@ -22,12 +22,11 @@ function useProvideAuth(): AuthContextType {
     },
     connect,
   ] = useConnect();
-  // const [{ data: accountData }] = useAccount();
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  const [signingIn, setSigningIn] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
 
   const initUser = async (address?: string) => {
-    // const address = accountData?.address;
     if (!address) {
       const connector = connectors[0];
       const signer = await connector.getSigner();
@@ -46,6 +45,7 @@ function useProvideAuth(): AuthContextType {
     if (json.user) {
       setUser(json.user);
     }
+
     setIsLoaded(true);
   };
 
@@ -55,6 +55,8 @@ function useProvideAuth(): AuthContextType {
   // }, []);
 
   const signIn = useCallback(async () => {
+    setSigningIn(true);
+
     try {
       const connector = connectors[0];
       const res = await connect(connector);
@@ -85,8 +87,10 @@ function useProvideAuth(): AuthContextType {
       if (!verificationResponse.ok) throw new Error('Error verifying message');
 
       if (address) {
-        initUser(address);
+        await initUser(address);
       }
+
+      setSigningIn(false);
     } catch (e) {
       console.error(e);
     }
@@ -97,7 +101,7 @@ function useProvideAuth(): AuthContextType {
   }, []);
 
   return {
-    isLoaded,
+    isLoaded: isLoaded && !signingIn,
     user,
     signIn,
     signOut,

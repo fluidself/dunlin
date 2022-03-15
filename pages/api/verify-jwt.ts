@@ -8,8 +8,7 @@ const cookieOptions = {
   maxAge: 2592000,
   path: '/',
   sameSite: 'Strict',
-  // secure: process.env.NODE_ENV === 'production',
-  secure: false,
+  secure: process.env.NODE_ENV === 'production',
 };
 
 function setCookie(res: any, name: string, value: string, options: Record<string, unknown> = {}): void {
@@ -19,19 +18,20 @@ function setCookie(res: any, name: string, value: string, options: Record<string
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { jwt, protectedPath } = JSON.parse(req.body);
+  const { jwt, requestedDeck } = JSON.parse(req.body);
 
-  if (!jwt || !protectedPath) {
+  if (!jwt || !requestedDeck) {
     res.status(401).send('Unauthorized');
   }
 
-  const { verified, header, payload } = LitJsSdk.verifyJwt({ jwt });
+  const { verified, payload } = LitJsSdk.verifyJwt({ jwt });
 
-  if (!verified || payload.baseUrl !== process.env.BASE_URL || payload.path !== protectedPath) {
+  if (!verified || payload.baseUrl !== process.env.BASE_URL || payload.path !== `/${requestedDeck}`) {
     res.status(401).send('Unauthorized');
   }
 
-  setCookie(res, 'accessToken', jwt, cookieOptions);
+  // setCookie(res, 'accessToken', jwt, cookieOptions);
+  setCookie(res, 'accessToken', jwt, { ...cookieOptions, path: `/${requestedDeck}` });
   res.status(200).json({ message: 'success' });
 
   // payload
@@ -48,11 +48,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   //   sub: '0x...'
   // }
 }
-
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '1mb',
-    },
-  },
-};

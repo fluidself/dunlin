@@ -14,6 +14,7 @@ import { useAuth } from 'utils/useAuth';
 import supabase from 'lib/supabase';
 import { User } from 'types/supabase';
 import { AccessControlCondition, AuthSig, ResourceId } from 'types/lit';
+import { EthereumIcon } from 'components/ShareModal/icons';
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -147,12 +148,12 @@ const Home: NextPage = () => {
 
   // const verifyAccess = async (resourceId: ResourceId, accessControlConditions: AccessControlCondition[]) => {
   const verifyAccess = async () => {
-    // TODO: requestedPath passed in from user when requesting to join a DECK
+    // TODO: requestedDeck passed in from user when requesting to join a DECK
     // resourceId, accessControlConditions from DB
-    const requestedPath = '';
+    const requestedDeck = '';
     const resourceId = {
       baseUrl: process.env.BASE_URL ?? '',
-      path: `/${requestedPath}`,
+      path: `/${requestedDeck}`,
       orgId: '',
       role: '',
       extraData: '',
@@ -192,7 +193,7 @@ const Home: NextPage = () => {
 
       const response = await fetch('/api/verify-jwt', {
         method: 'POST',
-        body: JSON.stringify({ jwt, protectedPath: `/${userId}` }),
+        body: JSON.stringify({ jwt, requestedDeck }),
       });
 
       if (response.status !== 200) return;
@@ -206,59 +207,65 @@ const Home: NextPage = () => {
   };
 
   return (
-    <div className="container text-white">
-      <main className="border border-gray-500 p-4 mt-48">
-        <h1 className="mb-12">Decentralized and Encrypted Collaborative Knowledge</h1>
+    // border border-gray-500 max-w-4xl min-h-72 mt-48 py-12 px-4 justify-between
+    <main className="container text-white mt-36 lg:mt-72 flex flex-col items-center">
+      <h1 className="mb-12 text-xl">Decentralized and Encrypted Collaborative Knowledge (DECK)</h1>
 
-        {(!user || !accountData?.address) && <Button onClick={signIn}>Connect wallet</Button>}
+      {(!user || !accountData?.address) && (
+        <Button className="py-4" onClick={signIn}>
+          <EthereumIcon />
+          Sign-in with Ethereum
+        </Button>
+      )}
 
-        {isLoaded && user?.id && accountData?.address && (
-          <div className="flex flex-col w-52">
-            <Link href="/app">
-              <a>
-                <Button className="w-full my-2">Use your DECK</Button>
-              </a>
-            </Link>
+      {isLoaded && accountData?.address && user?.id && (
+        <div className="flex flex-col w-52">
+          <Link href="/app">
+            <a>
+              <Button className="w-full my-2">Use your DECK</Button>
+            </a>
+          </Link>
 
-            <Button className="w-full my-2" onClick={() => setOpen(true)}>
-              Share your DECK
-            </Button>
+          <Button className="w-full my-2" onClick={() => setOpen(true)}>
+            Share your DECK
+          </Button>
 
-            <Button className="w-full my-2" onClick={() => verifyAccess()}>
-              Test Verification
-            </Button>
+          <Button>Join a DECK</Button>
 
-            <Button onClick={signOut}>Sign out</Button>
-          </div>
-        )}
+          <Button className="w-full my-2" onClick={() => verifyAccess()}>
+            Test Verification
+          </Button>
 
-        {/* TODO: Join someone else's DECK
+          <Button onClick={signOut}>Sign out</Button>
+        </div>
+      )}
+
+      {/* TODO: Join someone else's DECK
             before or after connecting wallet?
         */}
 
-        {open && (
-          <ShareModal
-            onClose={() => setOpen(false)}
-            onStringProvided={(providedString: string) => setStringToEncrypt(providedString)}
-            onAccessControlConditionsSelected={async (acc: AccessControlCondition[]) => {
-              setAccessControlConditions(acc);
-              setOpen(false);
-              // await encryptString();
-              await provisionAccess(acc);
-            }}
-            // showStep={'provideString'}
-            showStep={'ableToAccess'}
-          />
-        )}
+      {open && (
+        <ShareModal
+          onClose={() => setOpen(false)}
+          onStringProvided={(providedString: string) => setStringToEncrypt(providedString)}
+          onAccessControlConditionsSelected={async (acc: AccessControlCondition[]) => {
+            setAccessControlConditions(acc);
+            setOpen(false);
+            // await encryptString();
+            await provisionAccess(acc);
+          }}
+          // showStep={'provideString'}
+          showStep={'ableToAccess'}
+        />
+      )}
 
-        {accessControlConditions ? (
-          <>
-            <h3>Selected conditions: </h3>
-            <pre>{JSON.stringify(accessControlConditions, null, 2)}</pre>
-          </>
-        ) : null}
-      </main>
-    </div>
+      {accessControlConditions ? (
+        <>
+          <h3>Selected conditions: </h3>
+          <pre>{JSON.stringify(accessControlConditions, null, 2)}</pre>
+        </>
+      ) : null}
+    </main>
   );
 };
 
