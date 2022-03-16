@@ -1,5 +1,4 @@
 export { default as WhatToDo } from './WhatToDo';
-export { default as ProvideString } from './ProvideString';
 export { default as AbleToAccess } from './AbleToAccess';
 export { default as WhichWallet } from './WhichWallet';
 export { default as AssetWallet } from './AssetWallet';

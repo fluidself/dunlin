@@ -50,7 +50,6 @@ const AbleToAccess = props => {
           <TypeButton key={i} {...item} onClick={setActiveStep} />
         ))}
       </div>
-      <Navigation backward={{ onClick: () => setActiveStep('provideString') }} forward={null} />
     </div>
   );
 };

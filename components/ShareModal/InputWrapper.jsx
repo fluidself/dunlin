@@ -15,12 +15,6 @@ const InputWrapper = ({
   clearable = false,
   onClear = () => false,
 }) => {
-  const getState = () => {
-    if (error) {
-      return 'alert';
-    }
-    return undefined;
-  };
   return (
     <div className={`flex flex-col ${className}`}>
       {label && <label htmlFor={id}>{label}</label>}

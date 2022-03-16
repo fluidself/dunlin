@@ -10,7 +10,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   switch (method) {
     case 'POST':
       try {
-        const { jwt, requestedDeck } = req.body; // JSON.parse()
+        const { jwt, requestedDeck } = req.body;
 
         if (!jwt || !requestedDeck) {
           return res.status(401).send('Unauthorized');

@@ -5,7 +5,6 @@ import LitJsSdk from 'lit-js-sdk';
 
 import {
   WhatToDo,
-  ProvideString,
   AbleToAccess,
   WhichWallet,
   AssetWallet,
@@ -18,7 +17,6 @@ import UnsavedPopup from './UnsavedPopup';
 
 const ModalComponents = {
   whatToDo: WhatToDo,
-  provideString: ProvideString,
   ableToAccess: AbleToAccess,
   whichWallet: WhichWallet,
   assetWallet: AssetWallet,
@@ -108,7 +106,7 @@ const ShareModal = props => {
   }
 
   const handleClose = () => {
-    if (!['whatToDo', 'provideString'].includes(activeStep)) {
+    if (!['whatToDo', 'ableToAccess'].includes(activeStep)) {
       setShowUnsavedPopup(true);
     } else {
       onClose();
