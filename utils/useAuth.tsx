@@ -9,7 +9,6 @@ type AuthContextType = {
   user: User | null;
   signIn: (address: string, chainId: string) => Promise<void>;
   signOut: () => Promise<void>;
-  initUser: (address?: string) => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,33 +25,27 @@ function useProvideAuth(): AuthContextType {
   const [signingIn, setSigningIn] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
 
-  const initUser = async (address?: string) => {
-    if (!address) {
-      const connector = connectors[0];
-      const signer = await connector.getSigner();
-      address = await signer.getAddress();
-    }
+  const initUser = async () => {
+    const res = await fetch('/api/user');
+    const { user } = await res.json();
 
-    const res = await fetch('/api/user', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ address }),
-    });
-    const json = await res.json();
-
-    if (json.user) {
-      setUser(json.user);
+    if (user) {
+      setUser(user);
+    } else {
+      setUser(null);
     }
 
     setIsLoaded(true);
   };
 
-  // useEffect(() => {
-  //   window.addEventListener('focus', initUser);
-  //   return () => window.removeEventListener('focus', initUser);
-  // }, []);
+  useEffect(() => {
+    initUser();
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('focus', initUser);
+    return () => window.removeEventListener('focus', initUser);
+  }, []);
 
   const signIn = useCallback(async () => {
     setSigningIn(true);
@@ -86,9 +79,7 @@ function useProvideAuth(): AuthContextType {
       });
       if (!verificationResponse.ok) throw new Error('Error verifying message');
 
-      if (address) {
-        await initUser(address);
-      }
+      await initUser();
 
       setSigningIn(false);
     } catch (e) {
@@ -105,7 +96,6 @@ function useProvideAuth(): AuthContextType {
     user,
     signIn,
     signOut,
-    initUser,
   };
 }
 

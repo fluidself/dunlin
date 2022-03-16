@@ -8,14 +8,26 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { method } = req;
 
   switch (method) {
-    case 'POST':
-      // const walletAddress = req.session.siwe?.address;
-      const { address } = req.body;
+    case 'GET':
+      const userInSession = req.session.user;
+      if (userInSession) {
+        res.status(200).json({ user: userInSession });
+        return;
+      }
+
+      const address = req.session.siwe?.address;
+      if (!address) {
+        res.status(200).json({ user: null });
+        return;
+      }
 
       const user = await supabase.from<User>('users').select('*').match({ id: address }).single();
 
       if (user.data) {
         // DB user exists, return it
+        req.session.user = user.data;
+        await req.session.save();
+
         res.status(200).json({ user: user.data });
 
         return;
@@ -29,6 +41,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           .single();
 
         if (result.data) {
+          req.session.user = result.data;
+          await req.session.save();
+
           res.status(200).json({ user: result.data });
         } else if (result.error) {
           res.status(result.status).json({ message: result.error.message });
@@ -37,7 +52,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
       break;
     default:
-      res.setHeader('Allow', ['POST']);
+      res.setHeader('Allow', ['GET']);
       res.status(405).end(`Method ${method} not allowed`);
   }
 };
