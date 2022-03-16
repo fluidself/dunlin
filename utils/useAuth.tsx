@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, createContext, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import { useConnect, useAccount } from 'wagmi';
+import { useConnect } from 'wagmi';
 import { SiweMessage } from 'siwe';
 import { User } from 'types/supabase';
 
@@ -82,6 +82,7 @@ function useProvideAuth(): AuthContextType {
 
   const signOut = useCallback(async () => {
     await fetch('/api/signout');
+    await initUser();
   }, []);
 
   return {

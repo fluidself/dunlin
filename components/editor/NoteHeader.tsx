@@ -12,16 +12,19 @@ import serialize from 'editor/serialization/serialize';
 import { Note } from 'types/supabase';
 import useImport from 'utils/useImport';
 import { queryParamToArray } from 'utils/url';
+import { useAuth } from 'utils/useAuth';
 import Tooltip from 'components/Tooltip';
 import OpenSidebarButton from 'components/sidebar/OpenSidebarButton';
 import { DropdownItem } from 'components/Dropdown';
 import useDeleteNote from 'utils/useDeleteNote';
 import NoteMetadata from 'components/NoteMetadata';
 import MoveToModal from 'components/MoveToModal';
+import Identicon from 'components/Identicon';
 
 export default function NoteHeader() {
   const currentNote = useCurrentNote();
   const onImport = useImport();
+  const { user } = useAuth();
   const router = useRouter();
   const {
     query: { stack: stackQuery },
@@ -109,7 +112,13 @@ export default function NoteHeader() {
         ) : null}
         <Menu>
           {({ open }) => (
-            <>
+            <div className="flex items-center">
+              <div className="flex items-center mr-4">
+                <div className="px-2 pt-2 pb-1 text-sm text-gray-600 overflow-ellipsis dark:text-gray-400">
+                  {user ? `${user?.id.slice(0, 6)}...${user?.id.slice(-4)}` : ''}
+                </div>
+                <Identicon diameter={16} className="w-4 h-4" />
+              </div>
               <Menu.Button ref={menuButtonRef} className={buttonClassName} title="Options (export, import, etc.)">
                 <Tooltip content="Options (export, import, etc.)">
                   <span className="flex items-center justify-center w-8 h-8">
@@ -150,7 +159,7 @@ export default function NoteHeader() {
                   </Menu.Items>
                 </Portal>
               )}
-            </>
+            </div>
           )}
         </Menu>
       </div>

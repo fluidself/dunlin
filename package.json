@@ -13,6 +13,7 @@
     "@dnd-kit/sortable": "^6.0.0",
     "@fleekhq/fleek-storage-js": "^1.0.21",
     "@headlessui/react": "^1.5.0",
+    "@metamask/jazzicon": "^2.0.0",
     "@popperjs/core": "^2.11.2",
     "@react-spring/web": "^9.4.3",
     "@supabase/supabase-js": "^1.31.1",

@@ -11,8 +11,9 @@ import { User, AccessParams } from 'types/supabase';
 import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';
 import { AccessControlCondition, AuthSig, ResourceId } from 'types/lit';
+import HomeHeader from 'components/HomeHeader';
 import { ShareModal } from 'components/ShareModal';
-import { EthereumIcon } from 'components/ShareModal/icons';
+import { EthereumIcon } from 'components/EthereumIcon';
 import RequestDeckAccess from 'components/RequestDeckAccess';
 import Button from 'components/Button';
 
@@ -113,62 +114,65 @@ const Home: NextPage = () => {
   };
 
   return (
-    <main className="container text-white mt-36 lg:mt-72 flex flex-col items-center">
-      <h1 className="mb-12 text-xl">Decentralized and Encrypted Collaborative Knowledge (DECK)</h1>
+    <div className="mt-3 text-white">
+      <div className="flex flex-col items-end text-white min-h-[24px] pr-8">{user && <HomeHeader />}</div>
+      <main className="container mt-36 lg:mt-72 flex flex-col items-center">
+        <h1 className="mb-12 text-xl">Decentralized and Encrypted Collaborative Knowledge (DECK)</h1>
 
-      {!user && (
-        <Button className="py-4" onClick={signIn}>
-          <EthereumIcon />
-          Sign-in with Ethereum
-        </Button>
-      )}
-
-      {isLoaded && accountData?.address && user && (
-        <div className="w-2/5 grid grid-cols-2 gap-4">
-          <Link href="/app">
-            <a>
-              <Button className="w-full">Use your DECK</Button>
-            </a>
-          </Link>
-
-          <Button className="" onClick={() => setOpen(true)}>
-            Share your DECK
+        {!user && (
+          <Button className="py-4" onClick={signIn}>
+            <EthereumIcon />
+            Sign-in with Ethereum
           </Button>
+        )}
 
-          <div className="col-span-2">
-            {!requestingAccess && (
-              <Button className="w-full" onClick={() => setRequestingAccess(true)}>
-                Join a DECK
-              </Button>
-            )}
+        {isLoaded && accountData?.address && user && (
+          <div className="w-2/5 grid grid-cols-2 gap-4">
+            <Link href="/app">
+              <a>
+                <Button className="w-full">Use your DECK</Button>
+              </a>
+            </Link>
 
-            {requestingAccess && (
-              <RequestDeckAccess
-                onCancel={() => setRequestingAccess(false)}
-                onDeckAccessRequested={async (requestedDeck: string) => {
-                  console.log(requestedDeck);
-                  // await verifyAccess(requestedDeck);
-                }}
-              />
-            )}
+            <Button className="" onClick={() => setOpen(true)}>
+              Share your DECK
+            </Button>
+
+            <div className="col-span-2">
+              {!requestingAccess && (
+                <Button className="w-full" onClick={() => setRequestingAccess(true)}>
+                  Join a DECK
+                </Button>
+              )}
+
+              {requestingAccess && (
+                <RequestDeckAccess
+                  onCancel={() => setRequestingAccess(false)}
+                  onDeckAccessRequested={async (requestedDeck: string) => {
+                    console.log(requestedDeck);
+                    // await verifyAccess(requestedDeck);
+                  }}
+                />
+              )}
+            </div>
+
+            {/* <Button onClick={signOut}>Sign out</Button> */}
           </div>
+        )}
 
-          {/* <Button onClick={signOut}>Sign out</Button> */}
-        </div>
-      )}
+        {open && (
+          <ShareModal
+            onClose={() => setOpen(false)}
+            onAccessControlConditionsSelected={async (acc: AccessControlCondition[]) => {
+              setOpen(false);
 
-      {open && (
-        <ShareModal
-          onClose={() => setOpen(false)}
-          onAccessControlConditionsSelected={async (acc: AccessControlCondition[]) => {
-            setOpen(false);
-
-            await provisionAccess(acc);
-          }}
-          showStep={'ableToAccess'}
-        />
-      )}
-    </main>
+              await provisionAccess(acc);
+            }}
+            showStep={'ableToAccess'}
+          />
+        )}
+      </main>
+    </div>
   );
 };
 

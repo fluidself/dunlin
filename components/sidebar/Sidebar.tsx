@@ -2,10 +2,11 @@ import { memo, useCallback } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { IconAffiliate, IconHome, IconSearch } from '@tabler/icons';
+import { IconAffiliate, IconHome, IconSearch, IconLogout } from '@tabler/icons';
 import { useTransition, animated } from '@react-spring/web';
 import Tooltip from 'components/Tooltip';
 import { isMobile } from 'utils/device';
+import { useAuth } from 'utils/useAuth';
 import { useStore } from 'lib/store';
 import { SPRING_CONFIG } from 'constants/spring';
 import SidebarItem from './SidebarItem';
@@ -21,6 +22,7 @@ type Props = {
 function Sidebar(props: Props) {
   const { setIsFindOrCreateModalOpen, setIsSettingsOpen, className } = props;
 
+  const { signOut } = useAuth();
   const isSidebarOpen = useStore(state => state.isSidebarOpen);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
   const hideSidebarOnMobile = useCallback(() => {
@@ -107,6 +109,12 @@ function Sidebar(props: Props) {
                 }}
               />
               <GraphButton onClick={hideSidebarOnMobile} />
+              <SidebarItem className="cursor-pointer">
+                <button className="flex items-center pl-6 py-1" onClick={signOut}>
+                  <IconLogout className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
+                  <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Sign out</span>
+                </button>
+              </SidebarItem>
               <SidebarContent
                 className="flex-1 mt-3 overflow-x-hidden overflow-y-auto"
                 setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen}
