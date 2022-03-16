@@ -25,9 +25,15 @@ type Props = {
 export default function AppLayout(props: Props) {
   const { children, className = '' } = props;
   const router = useRouter();
-  const { user, isLoaded, initUser } = useAuth();
+  const { user, isLoaded, signOut } = useAuth();
   const [{ data: accountData }] = useAccount();
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+
+  useEffect(() => {
+    if (isLoaded && !accountData?.address) {
+      signOut();
+    }
+  }, [accountData?.address]);
 
   useEffect(() => {
     if (!isPageLoaded && isLoaded && user) {
@@ -104,8 +110,6 @@ export default function AppLayout(props: Props) {
     if (isLoaded && !user) {
       // Redirect to root page if there is no user logged in
       router.replace('/');
-    } else if (!isLoaded) {
-      initUser(accountData?.address || '');
     } else if (!isPageLoaded && isLoaded && user) {
       // Initialize data if there is a user and the data has not been initialized yet
       initData();

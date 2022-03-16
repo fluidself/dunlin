@@ -19,7 +19,7 @@ import { EthereumIcon } from 'components/ShareModal/icons';
 const Home: NextPage = () => {
   const router = useRouter();
   const [{ data: accountData }] = useAccount();
-  const { user, isLoaded, signIn, signOut, initUser } = useAuth();
+  const { user, isLoaded, signIn, signOut } = useAuth();
   const [open, setOpen] = useState<boolean>(false);
   const [stringToEncrypt, setStringToEncrypt] = useState<string | null>(null);
   const [accessControlConditions, setAccessControlConditions] = useState<AccessControlCondition[] | null>(null);
@@ -27,24 +27,22 @@ const Home: NextPage = () => {
   const isMounted = useIsMounted();
 
   useEffect(() => {
-    if (accountData?.address && !isLoaded) {
-      initUser(accountData?.address);
+    if (isLoaded && !accountData?.address) {
+      signOut();
     }
-    // } else if (isLoaded) {
-    //   router.push('/app');
-    // }
-  }, [accountData?.address, isLoaded]);
+  }, [accountData?.address]);
 
   useEffect(() => {
     const initLit = async () => {
+      // https://lit-protocol.github.io/lit-js-sdk/api_docs_html/index.html#litnodeclient
       const client = new LitJsSdk.LitNodeClient();
       await client.connect();
       window.litNodeClient = client;
     };
-    if (isMounted() && (user || accountData?.address)) {
+    if (!window.litNodeClient && isMounted() && user) {
       initLit();
     }
-  }, [isMounted, user, accountData?.address]);
+  }, [isMounted, user]);
 
   const encryptString = async () => {
     // TODO: some kind of loading indicator spinner / feedback toasts
@@ -211,7 +209,7 @@ const Home: NextPage = () => {
     <main className="container text-white mt-36 lg:mt-72 flex flex-col items-center">
       <h1 className="mb-12 text-xl">Decentralized and Encrypted Collaborative Knowledge (DECK)</h1>
 
-      {(!user || !accountData?.address) && (
+      {!user && (
         <Button className="py-4" onClick={signIn}>
           <EthereumIcon />
           Sign-in with Ethereum
