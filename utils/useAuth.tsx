@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, createContext, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import { useConnect } from 'wagmi';
+import { useConnect, useAccount } from 'wagmi';
 import { SiweMessage } from 'siwe';
 import { User } from 'types/supabase';
 
@@ -29,20 +29,13 @@ function useProvideAuth(): AuthContextType {
     const res = await fetch('/api/user');
     const { user } = await res.json();
 
-    if (user) {
-      setUser(user);
-    } else {
-      setUser(null);
-    }
-
+    setUser(user);
     setIsLoaded(true);
   };
 
   useEffect(() => {
     initUser();
-  }, []);
 
-  useEffect(() => {
     window.addEventListener('focus', initUser);
     return () => window.removeEventListener('focus', initUser);
   }, []);
