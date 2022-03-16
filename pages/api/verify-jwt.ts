@@ -26,12 +26,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         //   iat: 1647224912,
         //   iss: 'LIT',
         //   orgId: '',
-        //   path: '/0x...',
+        //   path: '/app/0x...',
         //   role: '',
         //   sub: '0x...'
         // }
 
-        if (!verified || payload.baseUrl !== process.env.BASE_URL || payload.path !== `/${requestedDeck}`) {
+        if (!verified || payload.baseUrl !== process.env.BASE_URL || payload.path !== `/app/${requestedDeck}`) {
           return res.status(401).send('Unauthorized');
         }
 

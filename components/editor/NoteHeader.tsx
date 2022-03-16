@@ -112,13 +112,15 @@ export default function NoteHeader() {
         ) : null}
         <Menu>
           {({ open }) => (
-            <div className="flex items-center">
-              <div className="flex items-center mr-4">
-                <div className="px-2 pt-2 pb-1 text-sm text-gray-600 overflow-ellipsis dark:text-gray-400">
-                  {user ? `${user?.id.slice(0, 6)}...${user?.id.slice(-4)}` : ''}
+            <div className="inline-flex justify-center">
+              {!isCloseButtonVisible && user && (
+                <div className="flex items-center mr-4">
+                  <div className="px-2 pt-2 pb-1 text-sm text-gray-600 overflow-ellipsis dark:text-gray-400">
+                    {user ? `${user?.id.slice(0, 6)}...${user?.id.slice(-4)}` : ''}
+                  </div>
+                  <Identicon diameter={16} className="w-4 h-4" />
                 </div>
-                <Identicon diameter={16} className="w-4 h-4" />
-              </div>
+              )}
               <Menu.Button ref={menuButtonRef} className={buttonClassName} title="Options (export, import, etc.)">
                 <Tooltip content="Options (export, import, etc.)">
                   <span className="flex items-center justify-center w-8 h-8">
