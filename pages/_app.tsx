@@ -38,7 +38,6 @@ export default function MyApp({ Component, pageProps, router }: AppProps) {
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
       <ServiceWorker>
-        {/* TODO: autoConnect desirable? */}
         <Provider autoConnect connectors={connectors} provider={provider}>
           <ProvideAuth>
             {router.pathname.startsWith('/app') ? (

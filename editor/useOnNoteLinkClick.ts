@@ -2,6 +2,7 @@ import { MouseEvent, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { Path } from 'slate';
 import { useStore } from 'lib/store';
+import { useAuth } from 'utils/useAuth';
 import { queryParamToArray } from 'utils/url';
 
 export default function useOnNoteLinkClick(currentNoteId: string) {
@@ -9,26 +10,26 @@ export default function useOnNoteLinkClick(currentNoteId: string) {
   const {
     query: { stack: stackQuery },
   } = router;
-  const openNoteIds = useStore((state) => state.openNoteIds);
-  const isPageStackingOn = useStore((state) => state.isPageStackingOn);
+  const { user } = useAuth();
+  const openNoteIds = useStore(state => state.openNoteIds);
+  const isPageStackingOn = useStore(state => state.isPageStackingOn);
 
   const onClick = useCallback(
     (noteId: string, stackNote: boolean, highlightedPath?: Path) => {
+      if (!user) return;
       // If stackNote is false, open the note in its own page
       if (!stackNote) {
         const hash = highlightedPath ? `0-${highlightedPath}` : undefined;
         router.push({
-          pathname: '/app/note/[id]',
-          query: { id: noteId },
+          pathname: `/app/[userId]/note/[id]`,
+          query: { userId: user.id, id: noteId },
           hash,
         });
         return;
       }
 
       // If the note is already open, scroll it into view
-      const index = openNoteIds.findIndex(
-        (openNoteId) => openNoteId === noteId
-      );
+      const index = openNoteIds.findIndex(openNoteId => openNoteId === noteId);
       if (index > -1) {
         const noteElement = document.getElementById(openNoteIds[index]);
         if (noteElement) {
@@ -51,13 +52,9 @@ export default function useOnNoteLinkClick(currentNoteId: string) {
       }
 
       // If the note is not open, add it to the open notes after currentNoteId
-      const currentNoteIndex = openNoteIds.findIndex(
-        (openNoteId) => openNoteId === currentNoteId
-      );
+      const currentNoteIndex = openNoteIds.findIndex(openNoteId => openNoteId === currentNoteId);
       if (currentNoteIndex < 0) {
-        console.error(
-          `Error: current note ${currentNoteId} is not in open notes`
-        );
+        console.error(`Error: current note ${currentNoteId} is not in open notes`);
         return;
       }
 
@@ -68,30 +65,27 @@ export default function useOnNoteLinkClick(currentNoteId: string) {
       stackedNoteIds.splice(
         newNoteIndex - 1, // Stacked notes don't include the main note
         stackedNoteIds.length - (newNoteIndex - 1),
-        noteId
+        noteId,
       );
 
       // Open the note as a stacked note
-      const hash = highlightedPath
-        ? `${newNoteIndex}-${highlightedPath}`
-        : undefined;
+      const hash = highlightedPath ? `${newNoteIndex}-${highlightedPath}` : undefined;
       router.push(
         {
-          pathname: '/app/note/[id]',
+          pathname: `/app/[userId]/note/[id]`,
           query: { ...router.query, stack: stackedNoteIds },
           hash,
         },
         undefined,
-        { shallow: true }
+        { shallow: true },
       );
     },
-    [router, openNoteIds, currentNoteId, stackQuery]
+    [router, openNoteIds, currentNoteId, stackQuery, user],
   );
 
   const defaultStackingBehavior = useCallback(
-    (e: MouseEvent) =>
-      (isPageStackingOn && !e.shiftKey) || (!isPageStackingOn && e.shiftKey),
-    [isPageStackingOn]
+    (e: MouseEvent) => (isPageStackingOn && !e.shiftKey) || (!isPageStackingOn && e.shiftKey),
+    [isPageStackingOn],
   );
 
   return { onClick, defaultStackingBehavior };

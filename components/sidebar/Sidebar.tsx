@@ -22,7 +22,7 @@ type Props = {
 function Sidebar(props: Props) {
   const { setIsFindOrCreateModalOpen, setIsSettingsOpen, className } = props;
 
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const isSidebarOpen = useStore(state => state.isSidebarOpen);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
   const hideSidebarOnMobile = useCallback(() => {
@@ -108,7 +108,7 @@ function Sidebar(props: Props) {
                   setIsFindOrCreateModalOpen(isOpen => !isOpen);
                 }}
               />
-              <GraphButton onClick={hideSidebarOnMobile} />
+              {user && <GraphButton onClick={hideSidebarOnMobile} userId={user?.id} />}
               <SidebarItem className="cursor-pointer">
                 <button className="flex items-center pl-6 py-1" onClick={signOut}>
                   <IconLogout className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
@@ -146,17 +146,18 @@ const FindOrCreateModalButton = (props: FindOrCreateModalButtonProps) => {
 
 type GraphButtonProps = {
   onClick: () => void;
+  userId: string;
 };
 
 const GraphButton = (props: GraphButtonProps) => {
-  const { onClick } = props;
+  const { onClick, userId } = props;
   const router = useRouter();
 
   return (
-    <SidebarItem isHighlighted={router.pathname.includes('/app/graph')} onClick={onClick}>
+    <SidebarItem isHighlighted={router.pathname.includes(`/app/${userId}/graph`)} onClick={onClick}>
       <Tooltip content="Visualization of all of your notes as a network (Ctrl+Shift+G)" placement="right" touch={false}>
         <span>
-          <Link href="/app/graph">
+          <Link href={`/app/${userId}/graph`}>
             <a className="flex items-center px-6 py-1">
               <IconAffiliate className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
               <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Graph View</span>
