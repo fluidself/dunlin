@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAccount } from 'wagmi';
 import { toast } from 'react-toastify';
+import { IconPencil, IconShare, IconGitPullRequest } from '@tabler/icons';
 import supabase from 'lib/supabase';
 import { User, AccessParams } from 'types/supabase';
 import useIsMounted from 'utils/useIsMounted';
@@ -130,17 +131,22 @@ const Home: NextPage = () => {
           <div className="w-2/5 grid grid-cols-2 gap-4">
             <Link href="/app">
               <a>
-                <Button className="w-full">Use your DECK</Button>
+                <Button className="w-full">
+                  <IconPencil size={20} className="mr-2" />
+                  Use your DECK
+                </Button>
               </a>
             </Link>
 
-            <Button className="" onClick={() => setOpen(true)}>
+            <Button onClick={() => setOpen(true)}>
+              <IconShare size={20} className="mr-2" />
               Share your DECK
             </Button>
 
             <div className="col-span-2">
               {!requestingAccess && (
                 <Button className="w-full" onClick={() => setRequestingAccess(true)}>
+                  <IconGitPullRequest size={20} className="mr-2" />
                   Join a DECK
                 </Button>
               )}
@@ -155,8 +161,6 @@ const Home: NextPage = () => {
                 />
               )}
             </div>
-
-            {/* <Button onClick={signOut}>Sign out</Button> */}
           </div>
         )}
 
