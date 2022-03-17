@@ -78,9 +78,9 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
           return;
         }
 
-        router.push(`/app/note/${note.id}`);
+        router.push(`/app/${user.id}/note/${note.id}`);
       } else if (option.type === OptionType.NOTE) {
-        router.push(`/app/note/${option.id}`);
+        router.push(`/app/${user.id}/note/${option.id}`);
       } else {
         throw new Error(`Option type ${option.type} is not supported`);
       }

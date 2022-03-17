@@ -62,10 +62,10 @@ export default function AppLayout(props: Props) {
     if (router.pathname === '/app') {
       const openNoteIds = store.getState().openNoteIds;
       if (openNoteIds.length > 0 && notes && notes.findIndex(note => note.id === openNoteIds[0]) > -1) {
-        router.replace(`/app/note/${openNoteIds[0]}`);
+        router.replace(`/app/${user.id}/note/${openNoteIds[0]}`);
         return;
       } else if (notes && notes.length > 0) {
-        router.replace(`/app/note/${notes[0].id}`);
+        router.replace(`/app/${user.id}/note/${notes[0].id}`);
         return;
       }
     }
@@ -191,14 +191,14 @@ export default function AppLayout(props: Props) {
       },
       {
         hotkey: 'mod+shift+g',
-        callback: () => router.push('/app/graph'),
+        callback: () => router.push(`/app/${user?.id}/graph`),
       },
       {
         hotkey: 'mod+\\',
         callback: () => setIsSidebarOpen(isOpen => !isOpen),
       },
     ],
-    [setIsFindOrCreateModalOpen, setSidebarTab, setIsSidebarOpen, router],
+    [setIsFindOrCreateModalOpen, setSidebarTab, setIsSidebarOpen, router, user],
   );
   useHotkeys(hotkeys);
 
