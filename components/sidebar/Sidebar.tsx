@@ -7,6 +7,7 @@ import { useTransition, animated } from '@react-spring/web';
 import Tooltip from 'components/Tooltip';
 import { isMobile } from 'utils/device';
 import { useAuth } from 'utils/useAuth';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useStore } from 'lib/store';
 import { SPRING_CONFIG } from 'constants/spring';
 import SidebarItem from './SidebarItem';
@@ -22,7 +23,8 @@ type Props = {
 function Sidebar(props: Props) {
   const { setIsFindOrCreateModalOpen, setIsSettingsOpen, className } = props;
 
-  const { user, signOut } = useAuth();
+  const { signOut } = useAuth();
+  const { deck } = useCurrentDeck();
   const isSidebarOpen = useStore(state => state.isSidebarOpen);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
   const hideSidebarOnMobile = useCallback(() => {
@@ -108,7 +110,7 @@ function Sidebar(props: Props) {
                   setIsFindOrCreateModalOpen(isOpen => !isOpen);
                 }}
               />
-              {user && <GraphButton onClick={hideSidebarOnMobile} userId={user?.id} />}
+              {deck && <GraphButton onClick={hideSidebarOnMobile} deckId={deck?.id} />}
               <SidebarItem className="cursor-pointer">
                 <button className="flex items-center pl-6 py-1" onClick={signOut}>
                   <IconLogout className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
@@ -146,18 +148,18 @@ const FindOrCreateModalButton = (props: FindOrCreateModalButtonProps) => {
 
 type GraphButtonProps = {
   onClick: () => void;
-  userId: string;
+  deckId: string;
 };
 
 const GraphButton = (props: GraphButtonProps) => {
-  const { onClick, userId } = props;
+  const { onClick, deckId } = props;
   const router = useRouter();
 
   return (
-    <SidebarItem isHighlighted={router.pathname.includes(`/app/${userId}/graph`)} onClick={onClick}>
+    <SidebarItem isHighlighted={router.pathname.includes(`/app/${deckId}/graph`)} onClick={onClick}>
       <Tooltip content="Visualization of all of your notes as a network (Ctrl+Shift+G)" placement="right" touch={false}>
         <span>
-          <Link href={`/app/${userId}/graph`}>
+          <Link href={`/app/${deckId}/graph`}>
             <a className="flex items-center px-6 py-1">
               <IconAffiliate className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
               <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Graph View</span>

@@ -1,5 +1,5 @@
 import { SiweMessage } from 'siwe';
-import { User } from 'types/supabase';
+import { User, Deck } from 'types/supabase';
 
 declare module 'iron-session' {
   interface IronSessionData {

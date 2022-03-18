@@ -8,7 +8,7 @@ export type NoteUpsert = PickPartial<Note, 'id' | 'content' | 'created_at' | 'up
 export default async function upsertNote(note: NoteUpsert) {
   const { data, error } = await supabase
     .from<Note>('notes')
-    .upsert({ ...note, updated_at: new Date().toISOString() }, { onConflict: 'user_id, title' })
+    .upsert({ ...note, updated_at: new Date().toISOString() }, { onConflict: 'deck_id, title' })
     .single();
 
   // Refreshes the list of notes in the sidebar

@@ -17,7 +17,7 @@ import {
 import { D3DragEvent, drag } from 'd3-drag';
 import { zoom, zoomIdentity, zoomTransform, ZoomTransform } from 'd3-zoom';
 import { select } from 'd3-selection';
-import { useAuth } from 'utils/useAuth';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
 
 export type NodeDatum = {
   id: string;
@@ -39,7 +39,7 @@ type Props = {
 export default function ForceGraph(props: Props) {
   const { data, className } = props;
 
-  const { user } = useAuth();
+  const { deck } = useCurrentDeck();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const transform = useRef(zoomIdentity);
   const hoveredNode = useRef<NodeDatum | null>(null);
@@ -251,8 +251,8 @@ export default function ForceGraph(props: Props) {
         const clickedNode = getNode(simulation, context.canvas, x, y);
 
         // Redirect to note when a node is clicked
-        if (clickedNode && user) {
-          router.push(`/app/${user.id}/note/${clickedNode.id}`);
+        if (clickedNode && deck) {
+          router.push(`/app/${deck.id}/note/${clickedNode.id}`);
         }
       });
   }, [data, renderCanvas, router]);

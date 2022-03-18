@@ -3,16 +3,16 @@ import { useRouter } from 'next/router';
 import deleteBacklinks from 'editor/backlinks/deleteBacklinks';
 import deleteNote from 'lib/api/deleteNote';
 import { store, useStore } from 'lib/store';
-import { useAuth } from 'utils/useAuth';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
 
 export default function useDeleteNote(noteId: string) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { deck } = useCurrentDeck();
 
   const openNoteIds = useStore(state => state.openNoteIds);
 
   const onDeleteClick = useCallback(async () => {
-    if (!user) return;
+    if (!deck) return;
     const deletedNoteIndex = openNoteIds.findIndex(openNoteId => openNoteId === noteId);
 
     if (deletedNoteIndex !== -1) {
@@ -23,7 +23,7 @@ export default function useDeleteNote(noteId: string) {
         for (const id of noteIds) {
           // We haven't deleted the note yet, so we need to check the id
           if (noteId !== id) {
-            router.push(`/app/${user.id}/note/${id}`, undefined, { shallow: true });
+            router.push(`/app/${deck.id}/note/${id}`, undefined, { shallow: true });
             break;
           }
         }

@@ -15,11 +15,11 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { toast } from 'react-toastify';
-import { useAuth } from 'utils/useAuth';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { NoteTreeItem, store, useStore } from 'lib/store';
 import Portal from 'components/Portal';
 import supabase from 'lib/supabase';
-import { User } from 'types/supabase';
+import { Deck } from 'types/supabase';
 import SidebarNoteLink from './SidebarNoteLink';
 import DraggableSidebarNoteLink from './DraggableSidebarNoteLink';
 
@@ -38,9 +38,7 @@ function SidebarNotesTree(props: Props) {
   const { data, className } = props;
 
   const router = useRouter();
-  const { user } = useAuth();
-  // const [{ data: accountData }] = useAccount();
-  // const userId = accountData?.address;
+  const { deck } = useCurrentDeck();
 
   const currentNoteId = useMemo(() => {
     const id = router.query.id;
@@ -105,16 +103,16 @@ function SidebarNotesTree(props: Props) {
     async (event: DragEndEvent) => {
       const { active, over } = event;
 
-      if (over && user) {
+      if (over && deck) {
         moveNoteTreeItem(active.id, over.id);
-        await supabase.from<User>('users').update({ note_tree: store.getState().noteTree }).eq('id', user.id);
+        await supabase.from<Deck>('decks').update({ note_tree: store.getState().noteTree }).eq('id', deck.id);
       } else {
         toast.error('There was an unexpected error: you are not logged in and your changes could not be saved.');
       }
 
       resetState();
     },
-    [resetState, moveNoteTreeItem, user],
+    [resetState, moveNoteTreeItem, deck],
   );
 
   const Row = useCallback(

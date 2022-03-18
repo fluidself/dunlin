@@ -2,27 +2,24 @@ import { MouseEvent, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { Path } from 'slate';
 import { useStore } from 'lib/store';
-import { useAuth } from 'utils/useAuth';
 import { queryParamToArray } from 'utils/url';
 
 export default function useOnNoteLinkClick(currentNoteId: string) {
   const router = useRouter();
   const {
-    query: { stack: stackQuery },
+    query: { deckId, stack: stackQuery },
   } = router;
-  const { user } = useAuth();
   const openNoteIds = useStore(state => state.openNoteIds);
   const isPageStackingOn = useStore(state => state.isPageStackingOn);
 
   const onClick = useCallback(
     (noteId: string, stackNote: boolean, highlightedPath?: Path) => {
-      if (!user) return;
       // If stackNote is false, open the note in its own page
       if (!stackNote) {
         const hash = highlightedPath ? `0-${highlightedPath}` : undefined;
         router.push({
-          pathname: `/app/[userId]/note/[id]`,
-          query: { userId: user.id, id: noteId },
+          pathname: `/app/[deckId]/note/[id]`,
+          query: { deckId, id: noteId },
           hash,
         });
         return;
@@ -72,7 +69,7 @@ export default function useOnNoteLinkClick(currentNoteId: string) {
       const hash = highlightedPath ? `${newNoteIndex}-${highlightedPath}` : undefined;
       router.push(
         {
-          pathname: `/app/[userId]/note/[id]`,
+          pathname: `/app/[deckId]/note/[id]`,
           query: { ...router.query, stack: stackedNoteIds },
           hash,
         },
@@ -80,7 +77,7 @@ export default function useOnNoteLinkClick(currentNoteId: string) {
         { shallow: true },
       );
     },
-    [router, openNoteIds, currentNoteId, stackQuery, user],
+    [router, openNoteIds, currentNoteId, stackQuery],
   );
 
   const defaultStackingBehavior = useCallback(
