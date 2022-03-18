@@ -12,16 +12,16 @@ import supabase from 'lib/supabase';
 import { getDefaultEditorValue } from 'editor/constants';
 import remarkToSlate from 'editor/serialization/remarkToSlate';
 import { caseInsensitiveStringEqual } from 'utils/string';
-import { useAuth } from './useAuth';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { ElementType, NoteLink } from 'types/slate';
 import { Note } from 'types/supabase';
 
 export default function useImport() {
-  const { user } = useAuth();
+  const { deck } = useCurrentDeck();
   const setIsUpgradeModalOpen = useStore(state => state.setIsUpgradeModalOpen);
 
   const onImport = useCallback(() => {
-    if (!user) {
+    if (!deck) {
       return;
     }
 
@@ -65,11 +65,15 @@ export default function useImport() {
           .use(remarkToSlate)
           .processSync(fileContent);
 
-        const { content: slateContent, upsertData: newUpsertData } = fixNoteLinks(result as Descendant[], noteTitleToIdCache);
+        const { content: slateContent, upsertData: newUpsertData } = fixNoteLinks(
+          result as Descendant[],
+          noteTitleToIdCache,
+          deck.id,
+        );
 
         noteLinkUpsertData.push(...newUpsertData);
         upsertData.push({
-          user_id: user.id,
+          deck_id: deck.id,
           title: fileName,
           content: slateContent.length > 0 ? slateContent : getDefaultEditorValue(),
         });
@@ -78,10 +82,10 @@ export default function useImport() {
       // Create new notes that are linked to
       const { data: newLinkedNotes } = await supabase
         .from<Note>('notes')
-        .upsert(noteLinkUpsertData, { onConflict: 'user_id, title' });
+        .upsert(noteLinkUpsertData, { onConflict: 'deck_id, title' });
 
       // Create new notes from files
-      const { data: newNotes } = await supabase.from<Note>('notes').upsert(upsertData, { onConflict: 'user_id, title' });
+      const { data: newNotes } = await supabase.from<Note>('notes').upsert(upsertData, { onConflict: 'deck_id, title' });
 
       // Show a toast with the number of successfully imported notes
       toast.dismiss(importingToast);
@@ -96,7 +100,7 @@ export default function useImport() {
     };
 
     input.click();
-  }, [user, setIsUpgradeModalOpen]);
+  }, [deck, setIsUpgradeModalOpen]);
 
   return onImport;
 }
@@ -108,12 +112,13 @@ export default function useImport() {
 const fixNoteLinks = (
   content: Descendant[],
   noteTitleToIdCache: Record<string, string | undefined> = {},
+  deckId: string,
 ): { content: Descendant[]; upsertData: NoteUpsert[] } => {
   const upsertData: NoteUpsert[] = [];
 
   // Update note link elements with noteId
   const notesArr = Object.values(store.getState().notes);
-  const newContent = content.map(node => setNoteLinkIds(node, notesArr, noteTitleToIdCache, upsertData));
+  const newContent = content.map(node => setNoteLinkIds(node, notesArr, noteTitleToIdCache, upsertData, deckId));
 
   return { content: newContent, upsertData };
 };
@@ -123,6 +128,7 @@ const getNoteId = (
   notes: Note[],
   noteTitleToIdCache: Record<string, string | undefined>,
   upsertData: NoteUpsert[],
+  deckId: string,
 ): string => {
   const noteTitle = node.noteTitle;
   let noteId;
@@ -134,9 +140,8 @@ const getNoteId = (
     noteId = existingNoteId;
   } else {
     noteId = uuidv4(); // Create new note id
-    const userId = store.getState().userId;
-    if (userId) {
-      upsertData.push({ id: noteId, user_id: userId, title: noteTitle });
+    if (deckId) {
+      upsertData.push({ id: noteId, deck_id: deckId, title: noteTitle });
     }
   }
   noteTitleToIdCache[noteTitle.toLowerCase()] = noteId; // Add to cache
@@ -148,12 +153,13 @@ const setNoteLinkIds = (
   notes: Note[],
   noteTitleToIdCache: Record<string, string | undefined>,
   upsertData: NoteUpsert[],
+  deckId: string,
 ): Descendant => {
   if (Element.isElement(node)) {
     return {
       ...node,
-      ...(node.type === ElementType.NoteLink ? { noteId: getNoteId(node, notes, noteTitleToIdCache, upsertData) } : {}),
-      children: node.children.map(child => setNoteLinkIds(child, notes, noteTitleToIdCache, upsertData)),
+      ...(node.type === ElementType.NoteLink ? { noteId: getNoteId(node, notes, noteTitleToIdCache, upsertData, deckId) } : {}),
+      children: node.children.map(child => setNoteLinkIds(child, notes, noteTitleToIdCache, upsertData, deckId)),
     };
   } else {
     return node;

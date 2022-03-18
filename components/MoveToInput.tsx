@@ -1,11 +1,11 @@
 import type { ForwardedRef } from 'react';
 import { forwardRef, useCallback, useMemo, useState } from 'react';
 import { IconChevronsUp, IconSearch, TablerIcon } from '@tabler/icons';
-import { useAuth } from 'utils/useAuth';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
 import useNoteSearch from 'utils/useNoteSearch';
 import supabase from 'lib/supabase';
 import { store, useStore } from 'lib/store';
-import { User } from 'types/supabase';
+import { Deck } from 'types/supabase';
 import { caseInsensitiveStringCompare } from 'utils/string';
 
 enum OptionType {
@@ -28,7 +28,7 @@ type Props = {
 
 function MoveToInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
   const { noteId, onOptionClick: onOptionClickCallback, className = '' } = props;
-  const { user } = useAuth();
+  const { deck } = useCurrentDeck();
 
   const [inputText, setInputText] = useState('');
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0);
@@ -77,7 +77,7 @@ function MoveToInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
 
   const onOptionClick = useCallback(
     async (option: Option) => {
-      if (!user) {
+      if (!deck) {
         return;
       }
 
@@ -91,9 +91,9 @@ function MoveToInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
 
-      await supabase.from<User>('users').update({ note_tree: store.getState().noteTree }).eq('id', user.id);
+      await supabase.from<Deck>('decks').update({ note_tree: store.getState().noteTree }).eq('id', deck.id);
     },
-    [user, onOptionClickCallback, noteId, moveNoteTreeItem],
+    [deck, onOptionClickCallback, noteId, moveNoteTreeItem],
   );
 
   const onKeyDown = useCallback(

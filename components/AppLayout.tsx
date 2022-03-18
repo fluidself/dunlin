@@ -7,7 +7,8 @@ import colors from 'tailwindcss/colors';
 import { useAccount } from 'wagmi';
 import { useStore, store, NoteTreeItem, getNoteTreeItem, Notes, SidebarTab } from 'lib/store';
 import supabase from 'lib/supabase';
-import { Note, User as DbUser } from 'types/supabase';
+import { Note, Deck } from 'types/supabase';
+import { ProvideCurrentDeck } from 'utils/useCurrentDeck';
 import useHotkeys from 'utils/useHotkeys';
 import { useAuth } from 'utils/useAuth';
 import { isMobile } from 'utils/device';
@@ -25,6 +26,9 @@ type Props = {
 export default function AppLayout(props: Props) {
   const { children, className = '' } = props;
   const router = useRouter();
+  let {
+    query: { deckId },
+  } = router;
   const { user, isLoaded, signOut } = useAuth();
   const [{ data: accountData }] = useAccount();
   const [isPageLoaded, setIsPageLoaded] = useState(false);
@@ -48,24 +52,34 @@ export default function AppLayout(props: Props) {
   const setNotes = useStore(state => state.setNotes);
   const setNoteTree = useStore(state => state.setNoteTree);
   const initData = useCallback(async () => {
-    if (!user) {
-      return;
+    if (!deckId || typeof deckId !== 'string') {
+      const { data: deck } = await supabase
+        .from<Deck>('decks')
+        .select('id')
+        .eq('user_id', user?.id)
+        .order('id')
+        .limit(1)
+        .single();
+
+      if (!deck) return;
+
+      deckId = deck.id;
     }
 
     const { data: notes } = await supabase
       .from<Note>('notes')
       .select('id, title, content, created_at, updated_at')
-      .eq('user_id', user.id)
+      .eq('deck_id', deckId)
       .order('title');
 
     // Redirect to most recent note or first note in database
-    if (router.pathname === '/app') {
+    if (router.pathname === '/app' || router.pathname.match(/^\/app\/[^\/]+$/i)) {
       const openNoteIds = store.getState().openNoteIds;
       if (openNoteIds.length > 0 && notes && notes.findIndex(note => note.id === openNoteIds[0]) > -1) {
-        router.replace(`/app/${user.id}/note/${openNoteIds[0]}`);
+        router.replace(`/app/${deckId}/note/${openNoteIds[0]}`);
         return;
       } else if (notes && notes.length > 0) {
-        router.replace(`/app/${user.id}/note/${notes[0].id}`);
+        router.replace(`/app/${deckId}/note/${notes[0].id}`);
         return;
       }
     }
@@ -83,10 +97,10 @@ export default function AppLayout(props: Props) {
     setNotes(notesAsObj);
 
     // Set note tree
-    const { data: userData } = await supabase.from<DbUser>('users').select('note_tree').eq('id', user.id).single();
+    const { data: deckData } = await supabase.from<Deck>('decks').select('note_tree').eq('id', deckId).single();
 
-    if (userData?.note_tree) {
-      const noteTree: NoteTreeItem[] = [...userData.note_tree];
+    if (deckData?.note_tree) {
+      const noteTree: NoteTreeItem[] = [...deckData.note_tree];
       // This is a sanity check for removing notes in the noteTree that do not exist
       removeNonexistentNotes(noteTree, notesAsObj);
       // If there are notes that are not in the note tree, add them
@@ -104,7 +118,7 @@ export default function AppLayout(props: Props) {
     }
 
     setIsPageLoaded(true);
-  }, [user, router, setNotes, setNoteTree]);
+  }, [deckId, router, setNotes, setNoteTree]);
 
   useEffect(() => {
     if (isLoaded && !user) {
@@ -142,13 +156,13 @@ export default function AppLayout(props: Props) {
   }, [setIsSidebarOpen, setIsPageStackingOn, hasHydrated]);
 
   useEffect(() => {
-    if (!user) {
+    if (!deckId) {
       return;
     }
 
-    // Subscribe to changes on the notes table for the logged in user
+    // Subscribe to changes on the notes table for the current DECK
     const subscription = supabase
-      .from<Note>(`notes:user_id=eq.${user.id}`)
+      .from<Note>(`notes:deck_id=eq.${deckId}`)
       .on('*', payload => {
         if (payload.eventType === 'INSERT') {
           upsertNote(payload.new);
@@ -167,7 +181,7 @@ export default function AppLayout(props: Props) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [user, upsertNote, updateNote, deleteNote]);
+  }, [deckId, upsertNote, updateNote, deleteNote]);
 
   const hotkeys = useMemo(
     () => [
@@ -191,7 +205,7 @@ export default function AppLayout(props: Props) {
       },
       {
         hotkey: 'mod+shift+g',
-        callback: () => router.push(`/app/${user?.id}/graph`),
+        callback: () => router.push(`/app/${deckId}/graph`),
       },
       {
         hotkey: 'mod+\\',
@@ -208,22 +222,28 @@ export default function AppLayout(props: Props) {
     return <PageLoading />;
   }
 
+  if (!deckId || typeof deckId !== 'string') {
+    return <PageLoading />;
+  }
+
   return (
     <>
       <Head>
         <meta name="theme-color" content={darkMode ? colors.neutral[900] : colors.white} />
       </Head>
-      <div id="app-container" className={appContainerClassName}>
-        <div className="flex w-full h-full dark:bg-gray-900">
-          <Sidebar setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen} setIsSettingsOpen={setIsSettingsOpen} />
-          <div className="relative flex flex-col flex-1 overflow-y-hidden">
-            <OfflineBanner />
-            {children}
+      <ProvideCurrentDeck deckId={deckId}>
+        <div id="app-container" className={appContainerClassName}>
+          <div className="flex w-full h-full dark:bg-gray-900">
+            <Sidebar setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen} setIsSettingsOpen={setIsSettingsOpen} />
+            <div className="relative flex flex-col flex-1 overflow-y-hidden">
+              <OfflineBanner />
+              {children}
+            </div>
+            {isSettingsOpen ? <SettingsModal setIsOpen={setIsSettingsOpen} /> : null}
+            {isFindOrCreateModalOpen ? <FindOrCreateModal setIsOpen={setIsFindOrCreateModalOpen} /> : null}
           </div>
-          {isSettingsOpen ? <SettingsModal setIsOpen={setIsSettingsOpen} /> : null}
-          {isFindOrCreateModalOpen ? <FindOrCreateModal setIsOpen={setIsFindOrCreateModalOpen} /> : null}
         </div>
-      </div>
+      </ProvideCurrentDeck>
     </>
   );
 }

@@ -27,7 +27,7 @@ export default function NoteHeader() {
   const { user } = useAuth();
   const router = useRouter();
   const {
-    query: { stack: stackQuery },
+    query: { deckId, stack: stackQuery },
   } = router;
 
   const isSidebarButtonVisible = useStore(state => !state.isSidebarOpen && state.openNoteIds?.[0] === currentNote.id);
@@ -47,7 +47,7 @@ export default function NoteHeader() {
       router.push(
         {
           pathname: router.pathname,
-          query: { userId: user?.id, id: stackedNoteIds[0], stack: stackedNoteIds.slice(1) },
+          query: { deckId, id: stackedNoteIds[0], stack: stackedNoteIds.slice(1) },
         },
         undefined,
         { shallow: true },
