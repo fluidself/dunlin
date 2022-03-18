@@ -19,7 +19,7 @@ import { DropdownItem } from 'components/Dropdown';
 import useDeleteNote from 'utils/useDeleteNote';
 import NoteMetadata from 'components/NoteMetadata';
 import MoveToModal from 'components/MoveToModal';
-import Identicon from 'components/Identicon';
+import Identicon from 'components/home/Identicon';
 
 export default function NoteHeader() {
   const currentNote = useCurrentNote();

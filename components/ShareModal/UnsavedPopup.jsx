@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from '../Button';
+import Button from 'components/home/Button';
 
 const UnsavedPopup = props => {
   const { onClose, onCancel, open } = props;

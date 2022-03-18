@@ -1,30 +1,35 @@
 // @ts-ignore
 import LitJsSdk from 'lit-js-sdk';
 import type { NextPage } from 'next';
-import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAccount } from 'wagmi';
 import { toast } from 'react-toastify';
-import { IconPencil, IconShare, IconGitPullRequest, IconFilePlus } from '@tabler/icons';
+import { IconGitPullRequest, IconFolderPlus } from '@tabler/icons';
 import supabase from 'lib/supabase';
 import insertDeck from 'lib/api/insertDeck';
 import { Deck, AccessParams } from 'types/supabase';
 import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';
 import { AccessControlCondition, AuthSig, ResourceId } from 'types/lit';
-import HomeHeader from 'components/HomeHeader';
+import HomeHeader from 'components/home/HomeHeader';
 import { ShareModal } from 'components/ShareModal';
-import { EthereumIcon } from 'components/EthereumIcon';
-import RequestDeckAccess from 'components/RequestDeckAccess';
-import Button from 'components/Button';
+import { EthereumIcon } from 'components/home/EthereumIcon';
+import RequestDeckAccess from 'components/home/RequestDeckAccess';
+import ProvideDeckName from 'components/home/ProvideDeckName';
+import Button from 'components/home/Button';
+import DecksTable from 'components/home/DecksTable';
 
 const Home: NextPage = () => {
   const router = useRouter();
   const [{ data: accountData }] = useAccount();
   const { user, isLoaded, signIn, signOut } = useAuth();
+  const [decks, setDecks] = useState<Deck[] | null>(null);
+  const [error, setError] = useState<string>('');
   const [open, setOpen] = useState<boolean>(false);
+  const [deckToShare, setDeckToShare] = useState<string>('');
   const [requestingAccess, setRequestingAccess] = useState<boolean>(false);
+  const [creatingDeck, setCreatingDeck] = useState<boolean>(false);
   const isMounted = useIsMounted();
 
   useEffect(() => {
@@ -34,26 +39,43 @@ const Home: NextPage = () => {
   }, [accountData?.address]);
 
   useEffect(() => {
+    const fetchDecks = async () => {
+      const { data: decks, error } = await supabase.from<Deck>('decks').select('*').eq('user_id', user?.id).order('id');
+
+      if (error) {
+        setError(error.message);
+      } else {
+        setDecks(decks);
+      }
+    };
+
+    if (user) {
+      fetchDecks();
+    }
+  }, [user]);
+
+  useEffect(() => {
     const initLit = async () => {
       // https://lit-protocol.github.io/lit-js-sdk/api_docs_html/index.html#litnodeclient
       const client = new LitJsSdk.LitNodeClient();
       await client.connect();
       window.litNodeClient = client;
     };
+
     if (!window.litNodeClient && isMounted() && user) {
       initLit();
     }
   }, [isMounted, user]);
 
-  const provisionAccess = async (deckId: string, accessControlConditions: AccessControlCondition[]) => {
-    if (!deckId || !accessControlConditions) return;
+  const provisionAccess = async (accessControlConditions: AccessControlCondition[]) => {
+    if (!deckToShare || !accessControlConditions) return;
 
     try {
       const chain = accessControlConditions[0].chain;
       const authSig: AuthSig = await LitJsSdk.checkAndSignAuthMessage({ chain });
       const resourceId: ResourceId = {
         baseUrl: process.env.BASE_URL ?? '',
-        path: `/app/${deckId}`,
+        path: `/app/${deckToShare}`,
         orgId: '',
         role: '',
         extraData: '',
@@ -68,7 +90,7 @@ const Home: NextPage = () => {
       });
 
       const accessParamsToSave: AccessParams = { resource_id: resourceId, access_control_conditions: accessControlConditions };
-      await supabase.from<Deck>('decks').update({ access_params: accessParamsToSave }).eq('id', deckId);
+      await supabase.from<Deck>('decks').update({ access_params: accessParamsToSave }).eq('id', deckToShare);
 
       toast.success('Access to your DECK was successfully setup.');
     } catch (e: any) {
@@ -107,7 +129,6 @@ const Home: NextPage = () => {
       if (!response.ok) return;
 
       router.push(`/app/${requestedDeck}`);
-      // router.push('/app/protected');
     } catch (e: any) {
       console.error(e);
       toast.error(`Unable to verify access.`);
@@ -115,97 +136,89 @@ const Home: NextPage = () => {
     }
   };
 
-  const createNewDeck = async () => {
+  const createNewDeck = async (deckName: string) => {
     if (!user) return;
 
-    const deck = await insertDeck({ user_id: user.id }); // deck_name?
+    const deck = await insertDeck({ user_id: user.id, deck_name: deckName });
 
     if (!deck) {
       toast.error('There was an error creating the DECK');
       return;
     }
 
-    toast.success(`Successfully created DECK ${deck.id}`); // deck_name?
+    toast.success(`Successfully created ${deck.deck_name}`);
     router.push(`/app/${deck.id}`);
   };
 
   return (
     <div className="mt-3 text-white">
       <div className="flex flex-col items-end text-white min-h-[24px] pr-8">{user && <HomeHeader />}</div>
-      <main className="container mt-36 lg:mt-72 flex flex-col items-center">
-        <h1 className="mb-12 text-xl">Decentralized and Encrypted Collaborative Knowledge (DECK)</h1>
-
+      <main className="container mt-28 lg:mt-52 flex flex-col">
+        <h1 className="mb-12 text-xl text-center">Decentralized and Encrypted Collaborative Knowledge (DECK)</h1>
+        {/* TODO: fix flash of wrong rendering */}
+        {/* TODO: more landing page content? */}
         {!user && (
-          <Button className="py-4" onClick={signIn}>
+          <Button className="py-4 w-80 mx-auto" onClick={signIn}>
             <EthereumIcon />
             Sign-in with Ethereum
           </Button>
         )}
 
-        {isLoaded && accountData?.address && user && (
-          // Welcome/helper text
+        <div className="w-4/5 mx-auto">
+          {decks && (
+            <DecksTable
+              decks={decks}
+              onShareClick={(deckId: string) => {
+                setDeckToShare(deckId);
+                setOpen(true);
+              }}
+            />
+          )}
 
-          // 1. new user:
-          // create a deck
-          // join a deck
+          {/* TODO: better intro text */}
+          {user && !decks && <div className="text-center">Get started by creating a new DECK or joining one.</div>}
 
-          // 2. user who owns decks
-          // your decks grid with buttons
-          //// use your deck
-          //// share your deck
-
-          // create a deck
-          // join a deck
-          <div className="w-2/5 grid grid-cols-2 gap-4">
-            <Link href="/app">
-              <a>
-                <Button className="w-full">
-                  <IconPencil size={20} className="mr-2" />
-                  Use your DECK
-                </Button>
-              </a>
-            </Link>
-
-            {/* TODO: ask for deck_name ? */}
-            <Button onClick={createNewDeck}>
-              <IconFilePlus size={20} className="mr-2" />
-              Create a new DECK
-            </Button>
-
-            <Button onClick={() => setOpen(true)}>
-              <IconShare size={20} className="mr-2" />
-              Share your DECK
-            </Button>
-
-            <div className="col-span-2">
-              {!requestingAccess && (
-                <Button className="w-full" onClick={() => setRequestingAccess(true)}>
-                  <IconGitPullRequest size={20} className="mr-2" />
-                  Join a DECK
+          {isLoaded && accountData?.address && user && (
+            <div className="flex flex-col w-1/2 mx-auto mt-12 space-y-4">
+              {creatingDeck ? (
+                <ProvideDeckName
+                  onCancel={() => setCreatingDeck(false)}
+                  onDeckNameProvided={async (deckName: string) => {
+                    console.log(deckName);
+                    await createNewDeck(deckName);
+                  }}
+                />
+              ) : (
+                <Button onClick={() => setCreatingDeck(true)} className="">
+                  <IconFolderPlus size={20} className="mr-2" />
+                  Create a new DECK
                 </Button>
               )}
 
-              {requestingAccess && (
+              {requestingAccess ? (
                 <RequestDeckAccess
                   onCancel={() => setRequestingAccess(false)}
                   onDeckAccessRequested={async (requestedDeck: string) => {
                     console.log(requestedDeck);
-                    // await verifyAccess(requestedDeck);
+                    await verifyAccess(requestedDeck);
                   }}
                 />
+              ) : (
+                <Button className="" onClick={() => setRequestingAccess(true)}>
+                  <IconGitPullRequest size={20} className="mr-2" />
+                  Join a DECK
+                </Button>
               )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {open && (
           <ShareModal
             onClose={() => setOpen(false)}
             onAccessControlConditionsSelected={async (acc: AccessControlCondition[]) => {
               setOpen(false);
-              // TODO: where to get deckId from? bring back ProvideString component?
-              const deckId = '';
-              await provisionAccess(deckId, acc);
+              await provisionAccess(acc);
             }}
             showStep={'ableToAccess'}
           />

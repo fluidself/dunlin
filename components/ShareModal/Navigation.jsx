@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from '../../components/Button';
+import Button from 'components/home/Button';
 import { IconArrowNarrowLeft, IconArrowNarrowRight } from '@tabler/icons';
 
 const Navigation = props => {
