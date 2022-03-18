@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { WindowedMenuList, createFilter, components } from 'react-windowed-select';
 import Creatable from 'react-select/creatable';
-import Button from '../Button';
+import Button from 'components/home/Button';
 
 const Option = ({ children, data: { label, logo, symbol }, ...props }) => {
   const { onMouseMove, onMouseOver, ...rest } = props.innerProps;

@@ -1,6 +1,6 @@
 import { IconLogout } from '@tabler/icons';
 import { useAuth } from 'utils/useAuth';
-import Identicon from 'components/Identicon';
+import Identicon from 'components/home/Identicon';
 
 export default function HomeHeader() {
   const { user, signOut } = useAuth();

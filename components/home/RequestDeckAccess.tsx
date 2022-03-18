@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IconX } from '@tabler/icons';
-import Button from 'components/Button';
+import Button from 'components/home/Button';
 
 type Props = {
   onDeckAccessRequested: (arg0: string) => void;
@@ -21,7 +21,7 @@ const RequestDeckAccess = ({ onDeckAccessRequested, onCancel }: Props) => {
         className="input block w-full px-3 py-1 text-sm border border-gray-400 bg-inherit"
         value={inputValue}
         onChange={event => setInputValue(event.target.value)}
-        placeholder="Enter DECK ID: 0x..."
+        placeholder="Enter DECK ID"
         autoFocus={true}
         autoComplete="off"
       />
