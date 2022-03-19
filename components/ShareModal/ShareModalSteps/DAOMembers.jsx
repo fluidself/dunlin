@@ -3,11 +3,11 @@ import InputWrapper from '../InputWrapper';
 import ChainSelector from '../ChainSelector';
 import Navigation from '../Navigation';
 
-const DAOMembers = ({ setActiveStep, onAccessControlConditionsSelected }) => {
+const DAOMembers = ({ setActiveStep, processingAccess, onAccessControlConditionsSelected }) => {
   const [DAOAddress, setDAOAddress] = useState('');
   const [chain, setChain] = useState(null);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const accessControlConditions = [
       {
         contractAddress: DAOAddress,
@@ -21,8 +21,11 @@ const DAOMembers = ({ setActiveStep, onAccessControlConditionsSelected }) => {
         },
       },
     ];
-    onAccessControlConditionsSelected(accessControlConditions);
-    setActiveStep('accessCreated');
+    const success = await onAccessControlConditionsSelected(accessControlConditions);
+
+    if (success) {
+      setActiveStep('accessCreated');
+    }
   };
 
   return (
@@ -45,17 +48,16 @@ const DAOMembers = ({ setActiveStep, onAccessControlConditionsSelected }) => {
           />
         </div>
       </div>
-      <span className="mt-4 text-sm block">
-        Lit Gateway currently supports DAOs using the MolochDAOv2.1 contract (includes DAOhaus){' '}
-      </span>
+      <span className="mt-4 text-sm block">DAOs using the MolochDAOv2.1 contract (includes DAOhaus) are supported</span>
 
       <Navigation
         backward={{ onClick: () => setActiveStep('ableToAccess') }}
         forward={{
-          label: 'Create Requirement',
+          label: processingAccess ? 'Processing...' : 'Create Requirement',
           onClick: handleSubmit,
           withoutIcon: true,
-          disabled: !DAOAddress || !chain,
+          disabled: !DAOAddress || !chain || processingAccess,
+          loading: processingAccess,
         }}
       />
     </div>

@@ -9,7 +9,7 @@ export default function HomeHeader() {
     <div className="flex items-center">
       <span className="mr-2 text-sm">{user?.id && `${user?.id.slice(0, 6)}...${user?.id.slice(-4)}`}</span>
       <Identicon diameter={16} className="w-5 h-5" />
-      <IconLogout size={20} className="cursor-pointer ml-4" onClick={signOut} />
+      <IconLogout size={20} className="cursor-pointer ml-4 hover:text-offWhite" onClick={signOut} />
     </div>
   );
 }

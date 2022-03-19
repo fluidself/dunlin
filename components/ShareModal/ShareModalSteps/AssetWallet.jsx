@@ -4,7 +4,7 @@ import InputWrapper from '../InputWrapper';
 import ChainSelector from '../ChainSelector';
 import Navigation from '../Navigation';
 
-const AssetWallet = ({ setActiveStep, onAccessControlConditionsSelected, tokenList }) => {
+const AssetWallet = ({ setActiveStep, processingAccess, onAccessControlConditionsSelected, tokenList }) => {
   const [tokenId, setTokenId] = useState('');
   const [chain, setChain] = useState(null);
   const [selectedToken, setSelectedToken] = useState(null);
@@ -18,7 +18,7 @@ const AssetWallet = ({ setActiveStep, onAccessControlConditionsSelected, tokenLi
       }));
   }, [tokenList]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const accessControlConditions = [
       {
         contractAddress: selectedToken.value,
@@ -32,8 +32,12 @@ const AssetWallet = ({ setActiveStep, onAccessControlConditionsSelected, tokenLi
         },
       },
     ];
-    onAccessControlConditionsSelected(accessControlConditions);
-    setActiveStep('accessCreated');
+
+    const success = await onAccessControlConditionsSelected(accessControlConditions);
+
+    if (success) {
+      setActiveStep('accessCreated');
+    }
   };
 
   return (
@@ -73,10 +77,11 @@ const AssetWallet = ({ setActiveStep, onAccessControlConditionsSelected, tokenLi
       <Navigation
         backward={{ onClick: () => setActiveStep('ableToAccess') }}
         forward={{
-          label: 'Create Requirement',
+          label: processingAccess ? 'Processing...' : 'Create Requirement',
           onClick: handleSubmit,
           withoutIcon: true,
-          disabled: !tokenId || !chain,
+          disabled: !tokenId || !chain || processingAccess,
+          loading: processingAccess,
         }}
       />
     </div>

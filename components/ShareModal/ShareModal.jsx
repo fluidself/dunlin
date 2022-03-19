@@ -2,21 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { IconX } from '@tabler/icons';
 import { toast } from 'react-toastify';
 import LitJsSdk from 'lit-js-sdk';
-
-import {
-  WhatToDo,
-  AbleToAccess,
-  WhichWallet,
-  AssetWallet,
-  DAOMembers,
-  AccessCreated,
-  SelectTokens,
-  ChoosePOAP,
-} from './ShareModalSteps';
+import { AbleToAccess, WhichWallet, AssetWallet, DAOMembers, AccessCreated, SelectTokens, ChoosePOAP } from './ShareModalSteps';
 import UnsavedPopup from './UnsavedPopup';
 
 const ModalComponents = {
-  whatToDo: WhatToDo,
   ableToAccess: AbleToAccess,
   whichWallet: WhichWallet,
   assetWallet: AssetWallet,
@@ -27,22 +16,10 @@ const ModalComponents = {
 };
 
 const ShareModal = props => {
-  const {
-    onClose = () => false,
-    onBack = () => false,
-    sharingItems = [],
-    showStep,
-    onStringProvided,
-    onAccessControlConditionsSelected,
-    getSharingLink,
-    onlyAllowCopySharingLink,
-    copyLinkText,
-    myWalletAddress,
-  } = props;
+  const { onClose = () => false, showStep, deckToShare = '', processingAccess, onAccessControlConditionsSelected } = props;
 
-  const [activeStep, setActiveStep] = useState(showStep || 'whatToDo');
+  const [activeStep, setActiveStep] = useState(showStep || 'ableToAccess');
   const [tokenList, setTokenList] = useState([]);
-  const [requirementCreated, setRequirementCreated] = useState(false);
   const [error, setError] = useState(null);
   const [showUnsavedPopup, setShowUnsavedPopup] = useState(false);
 
@@ -62,20 +39,6 @@ const ShareModal = props => {
     }
   }, [error]);
 
-  const copyToClipboard = async () => {
-    const fileUrl = getSharingLink(sharingItems[0]);
-    await navigator.clipboard.writeText(fileUrl);
-
-    toast.success('Copied!');
-  };
-
-  let totalAccessControlConditions = 1;
-  if (sharingItems.length === 1) {
-    if (sharingItems[0].additionalAccessControlConditions) {
-      totalAccessControlConditions += sharingItems[0].additionalAccessControlConditions.length;
-    }
-  }
-
   const ModalComponent = props => {
     const { type } = props;
 
@@ -84,29 +47,18 @@ const ShareModal = props => {
     return (
       <Component
         {...props}
-        onMainBack={onBack}
-        sharingItems={sharingItems}
-        copyToClipboard={copyToClipboard}
-        onStringProvided={onStringProvided}
+        deckToShare={deckToShare}
+        processingAccess={processingAccess}
         onAccessControlConditionsSelected={onAccessControlConditionsSelected}
         tokenList={tokenList}
-        onlyAllowCopySharingLink={onlyAllowCopySharingLink}
-        copyLinkText={copyLinkText}
-        setRequirementCreated={setRequirementCreated}
-        requirementCreated={requirementCreated}
         setError={setError}
-        myWalletAddress={myWalletAddress}
+        onClose={onClose}
       />
     );
   };
 
-  let title = '';
-  if (sharingItems.length > 0) {
-    title = sharingItems.length > 1 ? `${sharingItems.length} Files` : `${sharingItems.length} File` ?? '';
-  }
-
   const handleClose = () => {
-    if (!['whatToDo', 'ableToAccess'].includes(activeStep)) {
+    if (!['ableToAccess', 'accessCreated'].includes(activeStep)) {
       setShowUnsavedPopup(true);
     } else {
       onClose();
@@ -119,13 +71,13 @@ const ShareModal = props => {
       <div className="flex items-center justify-center h-screen p-6">
         <div className="z-30 flex flex-col w-full h-full max-w-full overflow-hidden bg-background border border-gray-500 sm:max-h-[540px] sm:w-[740px] py-2 px-4">
           <div className="flex flex-row justify-between items-center">
-            <span>{title}</span>
+            <span></span>
             <button onClick={handleClose} className="mr-[-4px]">
               <IconX size={20} />
             </button>
           </div>
           <div className="mt-4">
-            <div className="w-[654px]">
+            <div className="w-[654px] mx-auto">
               <ModalComponent type={activeStep} setActiveStep={setActiveStep} />
             </div>
             <UnsavedPopup open={showUnsavedPopup} onClose={onClose} onCancel={() => setShowUnsavedPopup(false)} />

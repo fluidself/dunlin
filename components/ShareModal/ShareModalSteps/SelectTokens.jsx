@@ -8,7 +8,7 @@ import ChainSelector from '../ChainSelector';
 import Navigation from '../Navigation';
 import TokenSelect from '../TokenSelect';
 
-const SelectTokens = ({ setActiveStep, onAccessControlConditionsSelected, tokenList }) => {
+const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditionsSelected, tokenList }) => {
   const [amount, setAmount] = useState('');
   const [selectedToken, setSelectedToken] = useState(null);
   const [contractAddress, setContractAddress] = useState('');
@@ -16,16 +16,12 @@ const SelectTokens = ({ setActiveStep, onAccessControlConditionsSelected, tokenL
   const [contractType, setContractType] = useState('ERC721');
   const [erc1155TokenId, setErc1155TokenId] = useState('');
 
-  // useEffect(() => {
-  //   console.log('CHECK SELECTED', selectedToken)
-  //   console.log('CONTRACT ADDRESS', contractAddress)
-  // }, [selectedToken, contractAddress])
-
   const handleSubmit = async () => {
     console.log('handleSubmit and selectedToken is', selectedToken);
 
     if (contractAddress && contractAddress.length) {
       let accessControlConditions;
+      let success;
       if (contractType === 'ERC20') {
         let decimals = 0;
         try {
@@ -81,7 +77,7 @@ const SelectTokens = ({ setActiveStep, onAccessControlConditionsSelected, tokenL
         ];
       }
       console.log('accessControlConditions contract', accessControlConditions);
-      onAccessControlConditionsSelected(accessControlConditions);
+      success = await onAccessControlConditionsSelected(accessControlConditions);
     } else if (selectedToken && selectedToken.value === 'ethereum') {
       // ethereum
       const amountInWei = ethers.utils.parseEther(amount);
@@ -99,7 +95,7 @@ const SelectTokens = ({ setActiveStep, onAccessControlConditionsSelected, tokenL
         },
       ];
       console.log('accessControlConditions token', accessControlConditions);
-      onAccessControlConditionsSelected(accessControlConditions);
+      success = await onAccessControlConditionsSelected(accessControlConditions);
     } else {
       console.log('selectedToken', selectedToken);
 
@@ -143,7 +139,7 @@ const SelectTokens = ({ setActiveStep, onAccessControlConditionsSelected, tokenL
           },
         ];
         console.log('accessControlConditions typeerc721', accessControlConditions);
-        onAccessControlConditionsSelected(accessControlConditions);
+        success = await onAccessControlConditionsSelected(accessControlConditions);
       } else {
         // erc20 token
         let amountInBaseUnit;
@@ -177,10 +173,13 @@ const SelectTokens = ({ setActiveStep, onAccessControlConditionsSelected, tokenL
           },
         ];
         console.log('accessControlConditions else', accessControlConditions);
-        onAccessControlConditionsSelected(accessControlConditions);
+        success = await onAccessControlConditionsSelected(accessControlConditions);
       }
     }
-    setActiveStep('accessCreated');
+
+    if (success) {
+      setActiveStep('accessCreated');
+    }
   };
 
   return (
@@ -276,10 +275,11 @@ const SelectTokens = ({ setActiveStep, onAccessControlConditionsSelected, tokenL
       <Navigation
         backward={{ onClick: () => setActiveStep('ableToAccess') }}
         forward={{
-          label: 'Create Requirement',
+          label: processingAccess ? 'Processing...' : 'Create Requirement',
           onClick: handleSubmit,
           withoutIcon: true,
-          disabled: !amount || !(selectedToken || contractAddress) || !chain,
+          disabled: !amount || !(selectedToken || contractAddress) || !chain || processingAccess,
+          loading: processingAccess,
         }}
       />
     </div>

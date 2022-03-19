@@ -1,6 +1,5 @@
 import React from 'react';
 import { WalletIcon, TokenIcon, DAOIcon, POAPIcon } from '../icons';
-import Navigation from '../Navigation';
 
 const TypeButton = props => {
   const { type, icon, title, onClick } = props;

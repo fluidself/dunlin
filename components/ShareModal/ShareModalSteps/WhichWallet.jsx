@@ -4,7 +4,7 @@ import InputWrapper from '../InputWrapper';
 import ChainSelector from '../ChainSelector';
 import Navigation from '../Navigation';
 
-const WhichWallet = ({ setActiveStep, onAccessControlConditionsSelected, setError }) => {
+const WhichWallet = ({ setActiveStep, processingAccess, onAccessControlConditionsSelected, setError }) => {
   const [walletAddress, setWalletAddress] = useState('');
   const [chain, setChain] = useState(null);
 
@@ -38,8 +38,12 @@ const WhichWallet = ({ setActiveStep, onAccessControlConditionsSelected, setErro
         },
       },
     ];
-    onAccessControlConditionsSelected(accessControlConditions);
-    setActiveStep('accessCreated');
+
+    const success = await onAccessControlConditionsSelected(accessControlConditions);
+
+    if (success) {
+      setActiveStep('accessCreated');
+    }
   };
 
   return (
@@ -68,10 +72,11 @@ const WhichWallet = ({ setActiveStep, onAccessControlConditionsSelected, setErro
       <Navigation
         backward={{ onClick: () => setActiveStep('ableToAccess') }}
         forward={{
-          label: 'Create Requirement',
+          label: processingAccess ? 'Processing...' : 'Create Requirement',
           onClick: handleSubmit,
           withoutIcon: true,
-          disabled: !walletAddress || !chain,
+          disabled: !walletAddress || !chain || processingAccess,
+          loading: processingAccess,
         }}
       />
     </div>

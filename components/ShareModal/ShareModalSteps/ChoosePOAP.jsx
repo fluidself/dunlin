@@ -16,11 +16,11 @@ const matchConditionOptions = [
   },
 ];
 
-const DAOMembers = ({ setActiveStep, onAccessControlConditionsSelected }) => {
+const DAOMembers = ({ setActiveStep, processingAccess, onAccessControlConditionsSelected }) => {
   const [POAPName, setPOAPName] = useState('');
   const [matchCondition, setMatchCondition] = useState(null);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const chain = 'xdai';
     const accessControlConditions = [
       {
@@ -46,8 +46,12 @@ const DAOMembers = ({ setActiveStep, onAccessControlConditionsSelected }) => {
         },
       },
     ];
-    onAccessControlConditionsSelected(accessControlConditions);
-    setActiveStep('accessCreated');
+
+    const success = await onAccessControlConditionsSelected(accessControlConditions);
+
+    if (success) {
+      setActiveStep('accessCreated');
+    }
   };
 
   return (
@@ -79,10 +83,11 @@ const DAOMembers = ({ setActiveStep, onAccessControlConditionsSelected }) => {
       <Navigation
         backward={{ onClick: () => setActiveStep('ableToAccess') }}
         forward={{
-          label: 'Create Requirement',
+          label: processingAccess ? 'Processing...' : 'Create Requirement',
           onClick: handleSubmit,
           withoutIcon: true,
-          disabled: !POAPName || !matchCondition,
+          disabled: !POAPName || !matchCondition || processingAccess,
+          loading: processingAccess,
         }}
       />
     </div>

@@ -3,7 +3,7 @@ import Button from 'components/home/Button';
 import { IconArrowNarrowLeft, IconArrowNarrowRight } from '@tabler/icons';
 
 const Navigation = props => {
-  const { backward, forward, withoutIcon } = props;
+  const { backward, forward } = props;
 
   return (
     <div className="mt-16 flex items-center justify-between">
@@ -15,7 +15,7 @@ const Navigation = props => {
       ) : null}
 
       {forward ? (
-        <Button onClick={forward.onClick} disabled={forward.disabled}>
+        <Button onClick={forward.onClick} disabled={forward.disabled} loading={forward.loading}>
           {forward.label ?? 'Next'}
           {!forward.withoutIcon && <IconArrowNarrowRight />}
         </Button>

@@ -24,9 +24,10 @@ const Home: NextPage = () => {
   const router = useRouter();
   const [{ data: accountData }] = useAccount();
   const { user, isLoaded, signIn, signOut } = useAuth();
-  const [decks, setDecks] = useState<Deck[] | null>(null);
+  const [decks, setDecks] = useState<Deck[] | []>([]);
   const [error, setError] = useState<string>('');
   const [open, setOpen] = useState<boolean>(false);
+  const [processingAccess, setProcessingAccess] = useState<boolean>(false);
   const [deckToShare, setDeckToShare] = useState<string>('');
   const [requestingAccess, setRequestingAccess] = useState<boolean>(false);
   const [creatingDeck, setCreatingDeck] = useState<boolean>(false);
@@ -67,6 +68,20 @@ const Home: NextPage = () => {
     }
   }, [isMounted, user]);
 
+  const createNewDeck = async (deckName: string) => {
+    if (!user) return;
+
+    const deck = await insertDeck({ user_id: user.id, deck_name: deckName });
+
+    if (!deck) {
+      toast.error('There was an error creating the DECK');
+      return;
+    }
+
+    toast.success(`Successfully created ${deck.deck_name}`);
+    router.push(`/app/${deck.id}`);
+  };
+
   const provisionAccess = async (accessControlConditions: AccessControlCondition[]) => {
     if (!deckToShare || !accessControlConditions) return;
 
@@ -92,10 +107,10 @@ const Home: NextPage = () => {
       const accessParamsToSave: AccessParams = { resource_id: resourceId, access_control_conditions: accessControlConditions };
       await supabase.from<Deck>('decks').update({ access_params: accessParamsToSave }).eq('id', deckToShare);
 
-      toast.success('Access to your DECK was successfully setup.');
+      toast.success('Access to your DECK was configured');
     } catch (e: any) {
       console.error(e);
-      toast.error(`Provisioning access failed.`);
+      toast.error('Provisioning access failed.');
     }
   };
 
@@ -128,26 +143,12 @@ const Home: NextPage = () => {
 
       if (!response.ok) return;
 
+      toast.success('Access to DECK is granted.');
       router.push(`/app/${requestedDeck}`);
     } catch (e: any) {
       console.error(e);
-      toast.error(`Unable to verify access.`);
-      // https://developer.litprotocol.com/docs/SDK/errorHandling
+      toast.error('Unable to verify access.');
     }
-  };
-
-  const createNewDeck = async (deckName: string) => {
-    if (!user) return;
-
-    const deck = await insertDeck({ user_id: user.id, deck_name: deckName });
-
-    if (!deck) {
-      toast.error('There was an error creating the DECK');
-      return;
-    }
-
-    toast.success(`Successfully created ${deck.deck_name}`);
-    router.push(`/app/${deck.id}`);
   };
 
   return (
@@ -155,9 +156,9 @@ const Home: NextPage = () => {
       <div className="flex flex-col items-end text-white min-h-[24px] pr-8">{user && <HomeHeader />}</div>
       <main className="container mt-28 lg:mt-52 flex flex-col">
         <h1 className="mb-12 text-xl text-center">Decentralized and Encrypted Collaborative Knowledge (DECK)</h1>
-        {/* TODO: fix flashes of wrong rendering. Loading spinners? */}
+        {/* TODO: fix flashes of wrong rendering. Loading spinners? new isPageLoaded state? */}
         {/* TODO: more landing page content? */}
-        {isLoaded && !user && (
+        {!user && (
           <Button className="py-4 w-80 mx-auto" onClick={signIn}>
             <EthereumIcon />
             Sign-in with Ethereum
@@ -165,7 +166,7 @@ const Home: NextPage = () => {
         )}
 
         <div className="w-4/5 mx-auto">
-          {isLoaded && user && decks && (
+          {isLoaded && user && decks.length ? (
             <DecksTable
               decks={decks}
               onShareClick={(deckId: string) => {
@@ -173,13 +174,17 @@ const Home: NextPage = () => {
                 setOpen(true);
               }}
             />
-          )}
+          ) : null}
 
-          {/* TODO: better intro text */}
-          {isLoaded && user && !decks && <div className="text-center">Get started by creating a new DECK or joining one.</div>}
+          {isLoaded && user && !decks.length ? (
+            <div className="text-center">
+              You are one step closer to compiling your new favorite knowledge base. Work by yourself or join forces with your
+              community. Get started by creating a new DECK or joining one if you have received an invitation.
+            </div>
+          ) : null}
 
           {isLoaded && user && (
-            <div className="flex flex-col w-1/2 mx-auto mt-12 space-y-4">
+            <div className="flex flex-col w-1/2 mx-auto mt-12 space-y-5">
               {creatingDeck ? (
                 <ProvideDeckName
                   onCancel={() => setCreatingDeck(false)}
@@ -215,10 +220,13 @@ const Home: NextPage = () => {
         {open && (
           <ShareModal
             onClose={() => setOpen(false)}
+            deckToShare={deckToShare}
+            processingAccess={processingAccess}
             onAccessControlConditionsSelected={async (acc: AccessControlCondition[]) => {
-              setOpen(false);
+              setProcessingAccess(true);
               await provisionAccess(acc);
-              // TODO: render next step after success toast. Share DECK id with others (copy to clipboard?)
+              setProcessingAccess(false);
+              return true;
             }}
             showStep={'ableToAccess'}
           />

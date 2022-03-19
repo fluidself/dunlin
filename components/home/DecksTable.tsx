@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { IconShare, IconRocket, IconPencil } from '@tabler/icons';
+import { IconShare, IconRocket } from '@tabler/icons';
 import { Deck } from 'types/supabase';
 
 type DecksTableProps = {
@@ -14,8 +14,8 @@ export default function DecksTable(props: DecksTableProps) {
     <table className="border-collapse table-auto w-full text-sm">
       <thead>
         <tr>
-          <th className="border-b border-gray-300 font-medium p-4 pl-8 pt-0 pb-3 text-left">DECK id</th>
-          <th className="border-b border-gray-300 font-medium p-4 pt-0 pb-3 text-left">Name</th>
+          <th className="border-b border-gray-300 font-medium p-4 pl-8 pt-0 pb-3 text-left">DECK ID</th>
+          <th className="border-b border-gray-300 font-medium p-4 pt-0 pb-3 text-left">NAME</th>
           <th className="border-b border-gray-300 font-medium p-4 pt-0 pb-3 pr-1 text-left"></th>
           <th className="border-b border-gray-300 font-medium p-4 pt-0 pb-3 pr-1 text-left"></th>
         </tr>
@@ -29,14 +29,14 @@ export default function DecksTable(props: DecksTableProps) {
               <Link href={`/app/${deck.id}`}>
                 <a className="flex items-center hover:text-primary-500">
                   <IconRocket size={20} className="mr-1" />
-                  Use
+                  USE
                 </a>
               </Link>
             </td>
             <td className="border-b border-gray-300 pl-1 py-4 pr-0">
               <button className="flex items-center hover:text-primary-500" onClick={() => onShareClick(deck.id)}>
                 <IconShare size={20} className="mr-1" />
-                Share
+                SHARE
               </button>
             </td>
           </tr>
