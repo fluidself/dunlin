@@ -50,10 +50,10 @@ const Home: NextPage = () => {
       }
     };
 
-    if (accountData?.address && user) {
+    if (user) {
       fetchDecks();
     }
-  }, [accountData?.address, user]);
+  }, [user]);
 
   useEffect(() => {
     const initLit = async () => {

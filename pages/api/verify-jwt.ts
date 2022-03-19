@@ -17,19 +17,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         }
 
         const { verified, payload } = LitJsSdk.verifyJwt({ jwt });
-        // payload
-        // {
-        //   baseUrl: 'http://localhost:3000',
-        //   chain: 'ethereum',
-        //   exp: 1647268112,
-        //   extraData: '',
-        //   iat: 1647224912,
-        //   iss: 'LIT',
-        //   orgId: '',
-        //   path: '/app/0x...',
-        //   role: '',
-        //   sub: '0x...'
-        // }
 
         if (!verified || payload.baseUrl !== process.env.BASE_URL || payload.path !== `/app/${requestedDeck}`) {
           return res.status(401).send('Unauthorized');

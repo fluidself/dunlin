@@ -1,3 +1,5 @@
+import { withIronSessionSsr } from 'iron-session/next';
+import { ironOptions } from 'constants/iron-session';
 import { useMemo } from 'react';
 import Head from 'next/head';
 import { createEditor, Editor, Element, Node } from 'slate';
@@ -8,6 +10,7 @@ import ForceGraph from 'components/ForceGraph';
 import { useStore } from 'lib/store';
 import ErrorBoundary from 'components/ErrorBoundary';
 import OpenSidebarButton from 'components/sidebar/OpenSidebarButton';
+import checkProtectedPageAuth from 'utils/checkProtectedPageAuth';
 
 export default function Graph() {
   const notes = useStore(state => state.notes);
@@ -88,3 +91,11 @@ const getRadius = (numOfLinks: number) => {
   const LINK_MULTIPLIER = 0.5;
   return Math.min(BASE_RADIUS + LINK_MULTIPLIER * numOfLinks, MAX_RADIUS);
 };
+
+export const getServerSideProps = withIronSessionSsr(async function ({ params, req }) {
+  const { user, allowedDeck } = req.session;
+  const deckId = params?.deckId;
+  const authorized = await checkProtectedPageAuth(deckId, user, allowedDeck);
+
+  return authorized ? { props: {} } : { redirect: { destination: '/', permanent: false } };
+}, ironOptions);
