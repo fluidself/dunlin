@@ -49,10 +49,10 @@ const Home: NextPage = () => {
       }
     };
 
-    if (user) {
+    if (accountData?.address && user) {
       fetchDecks();
     }
-  }, [user]);
+  }, [accountData?.address, user]);
 
   useEffect(() => {
     const initLit = async () => {
@@ -155,9 +155,9 @@ const Home: NextPage = () => {
       <div className="flex flex-col items-end text-white min-h-[24px] pr-8">{user && <HomeHeader />}</div>
       <main className="container mt-28 lg:mt-52 flex flex-col">
         <h1 className="mb-12 text-xl text-center">Decentralized and Encrypted Collaborative Knowledge (DECK)</h1>
-        {/* TODO: fix flash of wrong rendering */}
+        {/* TODO: fix flashes of wrong rendering. Loading spinners? */}
         {/* TODO: more landing page content? */}
-        {!user && (
+        {isLoaded && !user && (
           <Button className="py-4 w-80 mx-auto" onClick={signIn}>
             <EthereumIcon />
             Sign-in with Ethereum
@@ -165,7 +165,7 @@ const Home: NextPage = () => {
         )}
 
         <div className="w-4/5 mx-auto">
-          {decks && (
+          {isLoaded && user && decks && (
             <DecksTable
               decks={decks}
               onShareClick={(deckId: string) => {
@@ -176,15 +176,14 @@ const Home: NextPage = () => {
           )}
 
           {/* TODO: better intro text */}
-          {user && !decks && <div className="text-center">Get started by creating a new DECK or joining one.</div>}
+          {isLoaded && user && !decks && <div className="text-center">Get started by creating a new DECK or joining one.</div>}
 
-          {isLoaded && accountData?.address && user && (
+          {isLoaded && user && (
             <div className="flex flex-col w-1/2 mx-auto mt-12 space-y-4">
               {creatingDeck ? (
                 <ProvideDeckName
                   onCancel={() => setCreatingDeck(false)}
                   onDeckNameProvided={async (deckName: string) => {
-                    console.log(deckName);
                     await createNewDeck(deckName);
                   }}
                 />
@@ -219,6 +218,7 @@ const Home: NextPage = () => {
             onAccessControlConditionsSelected={async (acc: AccessControlCondition[]) => {
               setOpen(false);
               await provisionAccess(acc);
+              // TODO: render next step after success toast. Share DECK id with others (copy to clipboard?)
             }}
             showStep={'ableToAccess'}
           />

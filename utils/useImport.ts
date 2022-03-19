@@ -18,7 +18,6 @@ import { Note } from 'types/supabase';
 
 export default function useImport() {
   const { deck } = useCurrentDeck();
-  const setIsUpgradeModalOpen = useStore(state => state.setIsUpgradeModalOpen);
 
   const onImport = useCallback(() => {
     if (!deck) {
@@ -100,7 +99,7 @@ export default function useImport() {
     };
 
     input.click();
-  }, [deck, setIsUpgradeModalOpen]);
+  }, [deck]);
 
   return onImport;
 }

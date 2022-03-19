@@ -19,7 +19,7 @@ const immer =
 localforage.config({
   name: 'deck',
   version: 1.0,
-  storeName: 'user_data',
+  storeName: 'deck_data',
 });
 
 const storage: StateStorage = {
@@ -60,16 +60,14 @@ export type Store = {
   setNoteTree: Setter<NoteTreeItem[]>;
   moveNoteTreeItem: (noteId: string, newParentNoteId: string | null) => void;
   toggleNoteTreeItemCollapsed: (noteId: string) => void;
-  isUpgradeModalOpen: boolean;
-  setIsUpgradeModalOpen: Setter<boolean>;
   blockIdToBacklinksMap: Record<string, Backlink[] | undefined>;
   setBlockIdToBacklinksMap: Setter<Record<string, Backlink[] | undefined>>;
   sidebarTab: SidebarTab;
   setSidebarTab: Setter<SidebarTab>;
   sidebarSearchQuery: string;
   setSidebarSearchQuery: Setter<string>;
-  userId: string;
-  setUserId: Setter<string>;
+  deckId: string;
+  setDeckId: Setter<string>;
 } & UserSettings;
 
 type FunctionPropertyNames<T> = {
@@ -201,11 +199,6 @@ export const store = createVanilla<Store, SetState<Store>, GetState<Store>, Stor
         });
       },
       /**
-       * Whether or not the upgrade modal is open
-       */
-      isUpgradeModalOpen: false,
-      setIsUpgradeModalOpen: setter(set, 'isUpgradeModalOpen'),
-      /**
        * Cache of block id to backlinks
        */
       blockIdToBacklinksMap: {},
@@ -214,8 +207,8 @@ export const store = createVanilla<Store, SetState<Store>, GetState<Store>, Stor
       setSidebarTab: setter(set, 'sidebarTab'),
       sidebarSearchQuery: '',
       setSidebarSearchQuery: setter(set, 'sidebarSearchQuery'),
-      userId: '',
-      setUserId: setter(set, 'userId'),
+      deckId: '',
+      setDeckId: setter(set, 'deckId'),
       ...createUserSettingsSlice(set),
     })),
     {

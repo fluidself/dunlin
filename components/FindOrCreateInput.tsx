@@ -61,8 +61,6 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
     return result;
   }, [searchResults, inputText]);
 
-  const setIsUpgradeModalOpen = useStore(state => state.setIsUpgradeModalOpen);
-
   const onOptionClick = useCallback(
     async (option: Option) => {
       if (!deck) {
@@ -85,7 +83,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [deck, router, inputText, onOptionClickCallback, setIsUpgradeModalOpen],
+    [deck, router, inputText, onOptionClickCallback],
   );
 
   const onKeyDown = useCallback(

@@ -47,9 +47,9 @@ const isImageUrl = (url: string) => {
 };
 
 export const uploadAndInsertImage = async (editor: Editor, file: File, path?: Path) => {
-  const userId = store.getState().userId;
+  const deckId = store.getState().deckId;
 
-  if (!userId) {
+  if (!deckId) {
     return;
   }
 
@@ -58,8 +58,8 @@ export const uploadAndInsertImage = async (editor: Editor, file: File, path?: Pa
     closeButton: false,
     draggable: false,
   });
-  const key = `${userId}/${uuidv4()}.png`;
-  const { error: uploadError } = await supabase.storage.from('user-assets').upload(key, file, { upsert: false });
+  const key = `${deckId}/${uuidv4()}.png`;
+  const { error: uploadError } = await supabase.storage.from('deck-assets').upload(key, file, { upsert: false });
 
   if (uploadError) {
     toast.dismiss(uploadingToast);
@@ -68,7 +68,7 @@ export const uploadAndInsertImage = async (editor: Editor, file: File, path?: Pa
   }
 
   const expiresIn = 60 * 60 * 24 * 365 * 100; // 100 year expiry
-  const { signedURL, error: signedUrlError } = await supabase.storage.from('user-assets').createSignedUrl(key, expiresIn);
+  const { signedURL, error: signedUrlError } = await supabase.storage.from('deck-assets').createSignedUrl(key, expiresIn);
 
   toast.dismiss(uploadingToast);
   if (signedURL) {

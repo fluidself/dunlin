@@ -102,8 +102,6 @@ export default function AddLinkPopover(props: Props) {
     });
   }, [editor, addLinkPopoverState, setAddLinkPopoverState]);
 
-  const setIsUpgradeModalOpen = useStore(state => state.setIsUpgradeModalOpen);
-
   const onOptionClick = useCallback(
     async (option?: Option) => {
       if (!option || !deck) {
@@ -134,7 +132,7 @@ export default function AddLinkPopover(props: Props) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [editor, deck, hidePopover, linkText, setIsUpgradeModalOpen],
+    [editor, deck, hidePopover, linkText],
   );
 
   const onKeyDown = useCallback(

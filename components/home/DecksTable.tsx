@@ -14,7 +14,7 @@ export default function DecksTable(props: DecksTableProps) {
     <table className="border-collapse table-auto w-full text-sm">
       <thead>
         <tr>
-          <th className="border-b border-gray-300 font-medium p-4 pl-8 pt-0 pb-3 text-left">DECK ID</th>
+          <th className="border-b border-gray-300 font-medium p-4 pl-8 pt-0 pb-3 text-left">DECK id</th>
           <th className="border-b border-gray-300 font-medium p-4 pt-0 pb-3 text-left">Name</th>
           <th className="border-b border-gray-300 font-medium p-4 pt-0 pb-3 pr-1 text-left"></th>
           <th className="border-b border-gray-300 font-medium p-4 pt-0 pb-3 pr-1 text-left"></th>
@@ -27,11 +27,9 @@ export default function DecksTable(props: DecksTableProps) {
             <td className="border-b border-gray-300 p-4">{deck.deck_name}</td>
             <td className="border-b border-gray-300 pl-1 py-4 pr-0">
               <Link href={`/app/${deck.id}`}>
-                <a>
-                  <button className="flex items-center hover:text-primary-500">
-                    <IconRocket size={20} className="mr-1" />
-                    Use
-                  </button>
+                <a className="flex items-center hover:text-primary-500">
+                  <IconRocket size={20} className="mr-1" />
+                  Use
                 </a>
               </Link>
             </td>
