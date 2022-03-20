@@ -15,7 +15,7 @@ const Navigation = props => {
       ) : null}
 
       {forward ? (
-        <Button onClick={forward.onClick} disabled={forward.disabled} loading={forward.loading}>
+        <Button onClick={forward.onClick} disabled={forward.disabled} loading={forward.loading} primary={forward.withoutIcon}>
           {forward.label ?? 'Next'}
           {!forward.withoutIcon && <IconArrowNarrowRight />}
         </Button>

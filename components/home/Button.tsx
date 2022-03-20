@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import classNames from 'classnames';
 
 interface ButtonProps {
   children: ReactNode;
@@ -6,15 +7,20 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   className?: string;
+  primary?: boolean;
 }
 
-const Button = ({ children, onClick, disabled, loading, className }: ButtonProps) => {
+const Button = ({ children, onClick, disabled = false, loading, className, primary = false }: ButtonProps) => {
+  const buttonClassName = classNames(
+    'flex items-center justify-center px-6 py-2 rounded uppercase border border-gray-500',
+    { 'bg-white text-black hover:text-white hover:bg-background hover:border-white': primary && !disabled },
+    { 'text-gray-300 hover:border-white hover:text-white': !primary && !disabled },
+    { 'bg-gray-900 border-gray-700 text-gray-600 hover:bg-gray-900 cursor-not-allowed': disabled },
+    className,
+  );
+
   return (
-    <button
-      className={`flex justify-center items-center border rounded-sm border-white px-6 py-2 uppercase hover:bg-gray-900 disabled:border-gray-500 disabled:cursor-not-allowed disabled:text-gray-500 disabled:hover:bg-inherit ${className}`}
-      onClick={onClick}
-      disabled={disabled}
-    >
+    <button className={buttonClassName} onClick={onClick} disabled={disabled}>
       {loading && (
         <svg
           className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"

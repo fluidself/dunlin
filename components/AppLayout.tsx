@@ -15,7 +15,6 @@ import { isMobile } from 'utils/device';
 import Sidebar from './sidebar/Sidebar';
 import FindOrCreateModal from './FindOrCreateModal';
 import PageLoading from './PageLoading';
-import SettingsModal from './settings/SettingsModal';
 import OfflineBanner from './OfflineBanner';
 
 type Props = {

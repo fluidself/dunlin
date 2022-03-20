@@ -27,7 +27,7 @@ const RequestDeckAccess = ({ onDeckNameProvided, onCancel }: Props) => {
         maxLength={20}
       />
 
-      <Button className="mx-2 px-3" disabled={!inputValue} onClick={handleSubmit}>
+      <Button className="mx-2 px-3" disabled={!inputValue} primary onClick={handleSubmit}>
         Create
       </Button>
       <Button className="px-2" onClick={onCancel}>

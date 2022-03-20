@@ -57,15 +57,8 @@ const DAOMembers = ({ setActiveStep, processingAccess, onAccessControlConditions
   return (
     <div>
       <h4 className="text-lg">Which POAP should be granted access?</h4>
-      <div className="mt-8 max-w-[396px]">
-        <InputWrapper
-          value={POAPName}
-          label="POAP Name"
-          id="POAPName"
-          autoFocus
-          size="m"
-          handleChange={value => setPOAPName(value)}
-        />
+      <div className="mt-8">
+        <InputWrapper value={POAPName} label="POAP Name" id="POAPName" autoFocus handleChange={value => setPOAPName(value)} />
         <div className="mt-4">
           <label>Match Conditions</label>
           <Select

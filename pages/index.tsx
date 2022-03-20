@@ -155,15 +155,37 @@ const Home: NextPage = () => {
 
   return (
     <div className="mt-2 text-white">
-      <div className="flex flex-col items-end text-white min-h-[27px] pr-8">{user && <HomeHeader />}</div>
-      <main className="container mt-28 lg:mt-52 flex flex-col">
-        <h1 className="mb-12 text-xl text-center">Decentralized and Encrypted Collaborative Knowledge (DECK)</h1>
+      <div className="flex flex-col items-end text-white min-h-[27px] pr-8">{isLoaded && user && <HomeHeader />}</div>
+      <main className="container mt-28 lg:mt-48 flex flex-col">
         {!user && (
-          <Button className="py-4 w-80 mx-auto" onClick={signIn}>
-            <EthereumIcon />
-            Sign-in with Ethereum
-          </Button>
+          <>
+            <div className="mx-auto pl-2 mb-16">
+              <h1 className="text-5xl space-y-4 tracking-wider">
+                <span className="block">
+                  <span className="hero-decoration">D</span>
+                  ecentralized
+                </span>
+                <span className="block">
+                  <span className="hero-decoration">E</span>ncrypted
+                </span>
+                <span className="block">
+                  <span className="hero-decoration">C</span>
+                  ollaborative
+                </span>
+                <span className="block">
+                  <span className="hero-decoration">K</span>nowledge
+                </span>
+              </h1>
+            </div>
+
+            <Button className="py-4 w-80 mx-auto" onClick={signIn} primary>
+              <EthereumIcon />
+              Sign-in with Ethereum
+            </Button>
+          </>
         )}
+
+        {isLoaded && user && <h1 className="mb-12 text-xl text-center">DECK Dashboard</h1>}
 
         <div className="w-4/5 mx-auto">
           {isLoaded && user && decks && decks.length ? (

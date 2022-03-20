@@ -13,7 +13,7 @@ module.exports = phase => {
       ];
     },
     env: {
-      BASE_URL: phase === PHASE_DEVELOPMENT_SERVER ? 'http://localhost:3000' : 'https://deck-tau.vercel.app',
+      BASE_URL: phase === PHASE_DEVELOPMENT_SERVER ? 'http://localhost:3000' : 'https://usedeck.vercel.app',
     },
   };
 };

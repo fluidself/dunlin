@@ -21,6 +21,7 @@ import useDeleteNote from 'utils/useDeleteNote';
 import NoteMetadata from 'components/NoteMetadata';
 import MoveToModal from 'components/MoveToModal';
 import Identicon from 'components/home/Identicon';
+import { NoteHeaderDivider } from './NoteHeaderDivider';
 
 export default function NoteHeader() {
   const currentNote = useCurrentNote();
@@ -116,14 +117,16 @@ export default function NoteHeader() {
           {({ open }) => (
             <div className="inline-flex justify-center">
               {!isCloseButtonVisible && user && (
-                <div className="flex items-center mr-4">
-                  <div className="px-2 pt-1 pb-1 mr-3 text-sm text-gray-600 overflow-ellipsis dark:text-gray-400">
+                <div className="flex items-center">
+                  <div className="px-2 pt-1 pb-1 mr-1 text-sm text-gray-600 overflow-ellipsis dark:text-gray-400">
                     {deck?.deck_name}
                   </div>
+                  <NoteHeaderDivider />
                   <div className="px-2 pt-1 pb-1 text-sm text-gray-600 overflow-ellipsis dark:text-gray-400">
                     {user ? `${user?.id.slice(0, 6)}...${user?.id.slice(-4)}` : ''}
                   </div>
-                  <Identicon diameter={16} className="w-5 h-5" />
+                  <Identicon diameter={16} className="w-5 h-5 mr-2" />
+                  <NoteHeaderDivider />
                 </div>
               )}
               <Menu.Button ref={menuButtonRef} className={buttonClassName} title="Options (export, import, etc.)">

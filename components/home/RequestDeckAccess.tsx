@@ -26,7 +26,7 @@ const RequestDeckAccess = ({ onDeckAccessRequested, onCancel }: Props) => {
         autoComplete="off"
       />
 
-      <Button className="mx-2 px-3" disabled={!inputValue} onClick={handleSubmit}>
+      <Button className="mx-2 px-3" disabled={!inputValue} primary onClick={handleSubmit}>
         Join
       </Button>
       <Button className="px-2" onClick={onCancel}>

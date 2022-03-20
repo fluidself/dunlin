@@ -95,7 +95,7 @@ module.exports = {
               textDecoration: 'none',
               fontWeight: 'normal',
               '&:hover': {
-                color: colors.emerald[500],
+                color: colors.pink[500],
               },
             },
           },

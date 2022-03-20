@@ -90,7 +90,7 @@ export default function ForceGraph(props: Props) {
       context.lineWidth = 0.5;
       context.lineTo(target.x, target.y);
       if (isLinkHighlighted) {
-        context.strokeStyle = colors.emerald[300];
+        context.strokeStyle = colors.pink[300];
       } else if (darkMode) {
         context.strokeStyle = colors.neutral[700];
       } else {
@@ -119,11 +119,11 @@ export default function ForceGraph(props: Props) {
 
       // Fill node color
       if (isHovered) {
-        context.strokeStyle = colors.emerald[900];
+        context.strokeStyle = colors.pink[900];
         context.stroke();
-        context.fillStyle = colors.emerald[400];
+        context.fillStyle = colors.pink[400];
       } else if (areNeighbors(hoveredNode.current?.id, node.id)) {
-        context.fillStyle = colors.emerald[400];
+        context.fillStyle = colors.pink[400];
       } else {
         context.fillStyle = colors.neutral[400];
       }
