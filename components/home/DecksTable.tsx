@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { IconShare, IconRocket } from '@tabler/icons';
+import { IconShare, IconRocket, IconCopy } from '@tabler/icons';
 import { Deck } from 'types/supabase';
+import copyToClipboard from 'utils/copyToClipboard';
 
 type DecksTableProps = {
   decks: Deck[];
@@ -23,7 +24,14 @@ export default function DecksTable(props: DecksTableProps) {
       <tbody>
         {decks.map((deck: Deck) => (
           <tr key={deck.id}>
-            <td className="border-b border-gray-300 p-4 pl-8">{deck.id}</td>
+            <td className="border-b border-gray-300 p-4 pl-8">
+              <span className="inline-flex items-center">
+                {deck.id}
+                <button className="hover:bg-gray-800 p-1 rounded-lg ml-2" onClick={async () => await copyToClipboard(deck.id)}>
+                  <IconCopy />
+                </button>
+              </span>
+            </td>
             <td className="border-b border-gray-300 p-4">{deck.deck_name}</td>
             <td className="border-b border-gray-300 pl-1 py-4 pr-0">
               <Link href={`/app/${deck.id}`}>

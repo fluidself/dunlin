@@ -1,19 +1,13 @@
 import React from 'react';
-import { toast } from 'react-toastify';
 import { IconCopy } from '@tabler/icons';
 import Button from 'components/home/Button';
+import copyToClipboard from 'utils/copyToClipboard';
 
 const AccessCreated = ({ deckToShare, onClose }) => {
-  const copyToClipboard = async () => {
-    await navigator.clipboard.writeText(deckToShare);
-
-    toast.success('Copied!');
-  };
-
   return (
     <div>
       <div>
-        <h4 className="text-lg">Access to your DECK has been configured!</h4>
+        <h4 className="text-lg">Access to your DECK has been configured.</h4>
       </div>
 
       <div className="mt-8">
@@ -21,7 +15,7 @@ const AccessCreated = ({ deckToShare, onClose }) => {
         <div
           role="button"
           className="bg-gray-900 flex mt-4 p-2 max-w-[26rem] rounded-md overflow-ellipsis"
-          onClick={copyToClipboard}
+          onClick={async () => await copyToClipboard(deckToShare)}
         >
           {deckToShare}
           <IconCopy className="ml-4" />

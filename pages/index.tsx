@@ -4,10 +4,12 @@ import type { NextPage } from 'next';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAccount } from 'wagmi';
+import useSWR from 'swr';
 import { toast } from 'react-toastify';
 import { IconGitPullRequest, IconFolderPlus } from '@tabler/icons';
 import supabase from 'lib/supabase';
 import insertDeck from 'lib/api/insertDeck';
+import selectDecks from 'lib/api/selectDecks';
 import { Deck, AccessParams } from 'types/supabase';
 import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';
@@ -24,7 +26,7 @@ const Home: NextPage = () => {
   const router = useRouter();
   const [{ data: accountData }] = useAccount();
   const { user, isLoaded, signIn, signOut } = useAuth();
-  const [decks, setDecks] = useState<Deck[] | []>([]);
+  const { data: decks, error } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id));
   const [open, setOpen] = useState<boolean>(false);
   const [processingAccess, setProcessingAccess] = useState<boolean>(false);
   const [deckToShare, setDeckToShare] = useState<string>('');
@@ -39,25 +41,8 @@ const Home: NextPage = () => {
   }, [accountData?.address]);
 
   useEffect(() => {
-    const fetchDecks = async () => {
-      const { data: decks, error } = await supabase.from<Deck>('decks').select('*').eq('user_id', user?.id).order('id');
-
-      if (error) {
-        console.error('Failed to fetch DECKs: ', error.message);
-      } else {
-        setDecks(decks);
-      }
-    };
-
-    if (isLoaded && user) {
-      fetchDecks();
-    }
-  }, [user, isLoaded]);
-
-  useEffect(() => {
     const initLit = async () => {
-      // https://lit-protocol.github.io/lit-js-sdk/api_docs_html/index.html#litnodeclient
-      const client = new LitJsSdk.LitNodeClient();
+      const client = new LitJsSdk.LitNodeClient({ alertWhenUnauthorized: false, debug: false });
       await client.connect();
       window.litNodeClient = client;
     };
@@ -78,6 +63,7 @@ const Home: NextPage = () => {
     }
 
     toast.success(`Successfully created ${deck.deck_name}`);
+    setCreatingDeck(false);
     router.push(`/app/${deck.id}`);
   };
 
@@ -116,11 +102,24 @@ const Home: NextPage = () => {
   const verifyAccess = async (requestedDeck: string) => {
     if (!requestedDeck) return;
 
+    if (decks?.find(deck => deck.id === requestedDeck)) {
+      toast.success('You own that DECK!');
+      setRequestingAccess(false);
+      router.push(`/app/${requestedDeck}`);
+      return;
+    }
+
     const { data: accessParams } = await supabase.from<Deck>('decks').select('access_params').eq('id', requestedDeck).single();
-    if (!accessParams?.access_params) return;
+    if (!accessParams?.access_params) {
+      toast.error('Unable to verify access.');
+      return;
+    }
 
     const { resource_id: resourceId, access_control_conditions: accessControlConditions } = accessParams?.access_params;
-    if (!resourceId || !accessControlConditions || !accessControlConditions[0].chain) return;
+    if (!resourceId || !accessControlConditions || !accessControlConditions[0].chain) {
+      toast.error('Unable to verify access.');
+      return;
+    }
 
     try {
       const chain = accessControlConditions[0].chain;
@@ -143,6 +142,7 @@ const Home: NextPage = () => {
       if (!response.ok) return;
 
       toast.success('Access to DECK is granted.');
+      setRequestingAccess(false);
       router.push(`/app/${requestedDeck}`);
     } catch (e: any) {
       console.error(e);
@@ -155,7 +155,6 @@ const Home: NextPage = () => {
       <div className="flex flex-col items-end text-white min-h-[27px] pr-8">{user && <HomeHeader />}</div>
       <main className="container mt-28 lg:mt-52 flex flex-col">
         <h1 className="mb-12 text-xl text-center">Decentralized and Encrypted Collaborative Knowledge (DECK)</h1>
-        {/* TODO: more landing page content? */}
         {!user && (
           <Button className="py-4 w-80 mx-auto" onClick={signIn}>
             <EthereumIcon />
@@ -164,7 +163,7 @@ const Home: NextPage = () => {
         )}
 
         <div className="w-4/5 mx-auto">
-          {isLoaded && user && decks.length ? (
+          {isLoaded && user && decks && decks.length ? (
             <DecksTable
               decks={decks}
               onShareClick={(deckId: string) => {
@@ -174,7 +173,7 @@ const Home: NextPage = () => {
             />
           ) : null}
 
-          {isLoaded && user && !decks.length ? (
+          {isLoaded && user && (!decks || !decks.length) ? (
             <div className="text-center">
               You are one step closer to compiling your new favorite knowledge base. Work by yourself or join forces with your
               community. Get started by creating a new DECK or joining one if you have received an invitation.
@@ -186,9 +185,7 @@ const Home: NextPage = () => {
               {creatingDeck ? (
                 <ProvideDeckName
                   onCancel={() => setCreatingDeck(false)}
-                  onDeckNameProvided={async (deckName: string) => {
-                    await createNewDeck(deckName);
-                  }}
+                  onDeckNameProvided={async (deckName: string) => await createNewDeck(deckName)}
                 />
               ) : (
                 <Button onClick={() => setCreatingDeck(true)} className="">
@@ -200,10 +197,7 @@ const Home: NextPage = () => {
               {requestingAccess ? (
                 <RequestDeckAccess
                   onCancel={() => setRequestingAccess(false)}
-                  onDeckAccessRequested={async (requestedDeck: string) => {
-                    console.log(requestedDeck);
-                    await verifyAccess(requestedDeck);
-                  }}
+                  onDeckAccessRequested={async (requestedDeck: string) => await verifyAccess(requestedDeck)}
                 />
               ) : (
                 <Button className="" onClick={() => setRequestingAccess(true)}>

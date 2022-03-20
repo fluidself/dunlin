@@ -51,6 +51,7 @@
     "slate-history": "^0.66.0",
     "slate-hyperscript": "^0.67.0",
     "slate-react": "^0.74.2",
+    "swr": "^1.2.2",
     "unified": "^10.1.2",
     "uuid": "^8.3.2",
     "wagmi": "^0.2.18",
