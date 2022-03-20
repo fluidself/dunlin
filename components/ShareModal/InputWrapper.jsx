@@ -26,9 +26,7 @@ const InputWrapper = ({
         )}
 
         <input
-          className={`input form-control block w-full px-3 py-3 bg-clip-padding border border-solid border-gray-500 m-0 bg-inherit dark:bg-inherit ${
-            error ? 'border-red-500' : ''
-          }`}
+          className={`input-subdued form-control block w-full px-3 py-3 m-0 ${error ? 'border-red-500' : ''}`}
           readOnly={readOnly}
           type={type}
           id={id}

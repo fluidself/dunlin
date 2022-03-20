@@ -16,15 +16,15 @@ type Props = {
 
 export default function SidebarSearch(props: Props) {
   const { className } = props;
-  const inputText = useStore((state) => state.sidebarSearchQuery);
-  const setInputText = useStore((state) => state.setSidebarSearchQuery);
+  const inputText = useStore(state => state.sidebarSearchQuery);
+  const setInputText = useStore(state => state.setSidebarSearchQuery);
 
   const [searchQuery, setSearchQuery] = useDebounce(inputText, DEBOUNCE_MS);
   const search = useNoteSearch({ searchContent: true, extendedSearch: true });
 
   const searchResultsData = useMemo(() => {
     const searchResults = search(searchQuery);
-    return searchResults.map((result) => ({
+    return searchResults.map(result => ({
       id: result.item.id,
       labelNode: <SidebarSearchBranch text={result.item.title} />,
       children: result.matches
@@ -35,11 +35,7 @@ export default function SidebarSearch(props: Props) {
                 noteId={result.item.id}
                 text={match.value ?? ''}
                 searchQuery={searchQuery}
-                block={
-                  result.item.blocks && match.refIndex !== undefined
-                    ? result.item.blocks[match.refIndex]
-                    : undefined
-                }
+                block={result.item.blocks && match.refIndex !== undefined ? result.item.blocks[match.refIndex] : undefined}
               />
             ),
             showArrow: false,
@@ -53,11 +49,11 @@ export default function SidebarSearch(props: Props) {
       <div className={`flex flex-col flex-1 overflow-y-auto ${className}`}>
         <input
           type="text"
-          className="block py-1 mx-4 my-2 bg-white border-gray-200 rounded dark:bg-gray-700 dark:border-gray-700"
+          className="block py-1 mx-4 my-2 bg-white border-gray-200 rounded dark:bg-gray-700 dark:border-gray-700 input"
           placeholder="Search notes"
           value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          onKeyDown={(e) => {
+          onChange={e => setInputText(e.target.value)}
+          onKeyDown={e => {
             if (e.key === 'Enter') {
               e.preventDefault();
               setSearchQuery(inputText);
@@ -66,10 +62,7 @@ export default function SidebarSearch(props: Props) {
           autoFocus
         />
         {!searchQuery || searchResultsData.length > 0 ? (
-          <VirtualTree
-            className="flex-1 px-1 overflow-y-auto"
-            data={searchResultsData}
-          />
+          <VirtualTree className="flex-1 px-1 overflow-y-auto" data={searchResultsData} />
         ) : (
           <p className="px-4 text-gray-600">No results found.</p>
         )}
@@ -82,15 +75,9 @@ type SidebarSearchBranchProps = {
   text: string;
 };
 
-const SidebarSearchBranch = memo(function SidebarSearchBranch(
-  props: SidebarSearchBranchProps
-) {
+const SidebarSearchBranch = memo(function SidebarSearchBranch(props: SidebarSearchBranchProps) {
   const { text } = props;
-  return (
-    <p className="py-1 overflow-hidden overflow-ellipsis whitespace-nowrap dark:text-gray-200">
-      {text}
-    </p>
-  );
+  return <p className="py-1 overflow-hidden overflow-ellipsis whitespace-nowrap dark:text-gray-200">{text}</p>;
 });
 
 type SidebarSearchLeafProps = {
@@ -100,9 +87,7 @@ type SidebarSearchLeafProps = {
   block?: NoteBlock;
 };
 
-const SidebarSearchLeaf = memo(function SidebarSearchLeaf(
-  props: SidebarSearchLeafProps
-) {
+const SidebarSearchLeaf = memo(function SidebarSearchLeaf(props: SidebarSearchLeafProps) {
   const { noteId, text, searchQuery, block } = props;
   const router = useRouter();
   return (

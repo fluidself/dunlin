@@ -5,7 +5,6 @@ class MyDocument extends Document {
     return (
       <Html lang="en-us">
         <Head>
-          <link rel="icon" href="/favicon.ico" />
           <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&display=swap" />
         </Head>
         <body className="bg-background font-display">

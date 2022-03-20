@@ -18,7 +18,7 @@ const RequestDeckAccess = ({ onDeckAccessRequested, onCancel }: Props) => {
     <div className="flex">
       <input
         type="text"
-        className="input block w-full px-3 py-1 text-sm border border-gray-400 bg-inherit"
+        className="input-subdued block w-full px-3 py-1 text-sm"
         value={inputValue}
         onChange={event => setInputValue(event.target.value)}
         placeholder="Enter DECK ID"

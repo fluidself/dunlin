@@ -27,14 +27,14 @@ export default function DecksTable(props: DecksTableProps) {
             <td className="border-b border-gray-300 p-4">{deck.deck_name}</td>
             <td className="border-b border-gray-300 pl-1 py-4 pr-0">
               <Link href={`/app/${deck.id}`}>
-                <a className="flex items-center hover:text-primary-500">
+                <a className="flex items-center max-w-[60px] hover:bg-gray-800 p-1 rounded-lg">
                   <IconRocket size={20} className="mr-1" />
                   USE
                 </a>
               </Link>
             </td>
             <td className="border-b border-gray-300 pl-1 py-4 pr-0">
-              <button className="flex items-center hover:text-primary-500" onClick={() => onShareClick(deck.id)}>
+              <button className="flex items-center hover:bg-gray-800 p-1 rounded-lg" onClick={() => onShareClick(deck.id)}>
                 <IconShare size={20} className="mr-1" />
                 SHARE
               </button>

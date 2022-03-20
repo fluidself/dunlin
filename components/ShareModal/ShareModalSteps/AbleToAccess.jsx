@@ -6,7 +6,7 @@ const TypeButton = props => {
 
   return (
     <div
-      className="flex flex-col justify-between py-2 w-[180px] h-[148px] border border-white cursor-pointer box-border text-white"
+      className="flex flex-col justify-between py-2 w-[180px] h-[148px] border border-white cursor-pointer box-border text-white hover:bg-gray-900"
       onClick={() => onClick(type)}
     >
       {icon}

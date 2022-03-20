@@ -19,6 +19,7 @@ import RequestDeckAccess from 'components/home/RequestDeckAccess';
 import ProvideDeckName from 'components/home/ProvideDeckName';
 import Button from 'components/home/Button';
 import DecksTable from 'components/home/DecksTable';
+import Logo from 'components/Logo';
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -53,7 +54,7 @@ const Home: NextPage = () => {
     if (user) {
       fetchDecks();
     }
-  }, [user]);
+  }, [accountData?.address]);
 
   useEffect(() => {
     const initLit = async () => {
@@ -153,9 +154,11 @@ const Home: NextPage = () => {
 
   return (
     <div className="mt-3 text-white">
-      <div className="flex flex-col items-end text-white min-h-[24px] pr-8">{user && <HomeHeader />}</div>
+      <div className="flex flex-col items-end text-white min-h-[27px] pr-8">{user && <HomeHeader />}</div>
       <main className="container mt-28 lg:mt-52 flex flex-col">
-        <h1 className="mb-12 text-xl text-center">Decentralized and Encrypted Collaborative Knowledge (DECK)</h1>
+        <h1 className="mb-12 text-xl text-center">
+          Decentralized and Encrypted Collaborative Knowledge (<span className="text-primary-400">DECK</span>)
+        </h1>
         {/* TODO: fix flashes of wrong rendering. Loading spinners? new isPageLoaded state? */}
         {/* TODO: more landing page content? */}
         {!user && (
