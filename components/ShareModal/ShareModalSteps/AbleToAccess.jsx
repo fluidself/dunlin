@@ -5,13 +5,13 @@ const TypeButton = props => {
   const { type, icon, title, onClick } = props;
 
   return (
-    <div
-      className="flex flex-col justify-between py-2 w-[180px] h-[148px] border border-white cursor-pointer box-border text-white hover:bg-gray-900"
+    <button
+      className="flex flex-col justify-between items-center py-2 w-[180px] h-[148px] border border-white cursor-pointer box-border text-white hover:bg-gray-900 focus:bg-gray-900"
       onClick={() => onClick(type)}
     >
       {icon}
-      <div className="text-white mb-2 text-center">{title}</div>
-    </div>
+      <div className="mb-2">{title}</div>
+    </button>
   );
 };
 
