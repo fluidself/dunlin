@@ -255,7 +255,7 @@ export default function ForceGraph(props: Props) {
           router.push(`/app/${deck.id}/note/${clickedNode.id}`);
         }
       });
-  }, [data, renderCanvas, router]);
+  }, [data, renderCanvas, router, deck]);
 
   /**
    * Set canvas width and height when its container changes size

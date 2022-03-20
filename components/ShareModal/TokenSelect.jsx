@@ -3,7 +3,7 @@ import { WindowedMenuList, createFilter, components } from 'react-windowed-selec
 import Creatable from 'react-select/creatable';
 import Button from 'components/home/Button';
 
-const Option = ({ children, data: { label, logo, symbol }, ...props }) => {
+const Option = ({ data: { label, logo, symbol }, ...props }) => {
   const { onMouseMove, onMouseOver, ...rest } = props.innerProps;
   const newProps = Object.assign(props, { innerProps: rest });
 
@@ -87,7 +87,7 @@ const TokenSelect = props => {
               <div>
                 <label className="mb-2 block">Top Tokens/NFTS</label>
                 <div className="flex mb-2">
-                  {TOP_LIST.map((t, i) => (
+                  {TOP_LIST.map(t => (
                     <div
                       className={`px-2 py-px flex items-center mr-2 border cursor-pointer ${
                         t && t['symbol'] && selectedToken && t['symbol'] === selectedToken['symbol']
@@ -95,9 +95,7 @@ const TokenSelect = props => {
                           : 'my-px mr-2 ml-px'
                       }`}
                       key={t.symbol}
-                      onClick={e => {
-                        setSelectedToken(t);
-                      }}
+                      onClick={() => setSelectedToken(t)}
                     >
                       <div
                         className="w-4 h-4 rounded-full bg-no-repeat bg-contain bg-center mr-1"

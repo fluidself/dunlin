@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ethers } from 'ethers';
 import LitJsSdk from 'lit-js-sdk';
 import { RadioGroup } from '@headlessui/react';
@@ -18,10 +18,11 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
 
   const handleSubmit = async () => {
     console.log('handleSubmit and selectedToken is', selectedToken);
+    let success;
 
     if (contractAddress && contractAddress.length) {
       let accessControlConditions;
-      let success;
+
       if (contractType === 'ERC20') {
         let decimals = 0;
         try {

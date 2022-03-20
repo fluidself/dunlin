@@ -1,5 +1,7 @@
+import type { ReactNode } from 'react';
+
 interface ButtonProps {
-  children: any;
+  children: ReactNode;
   onClick?: (arg0?: any, arg1?: any) => void;
   disabled?: boolean;
   loading?: boolean;

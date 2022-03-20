@@ -7,53 +7,50 @@ import supabase from 'lib/supabase';
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { method } = req;
 
-  switch (method) {
-    case 'GET':
-      const userInSession = req.session.user;
-      if (userInSession) {
-        res.status(200).json({ user: userInSession });
-        return;
-      }
+  if (method !== 'GET') {
+    res.setHeader('Allow', ['GET']);
+    res.status(405).end(`Method ${method} not allowed`);
+  }
 
-      const address = req.session.siwe?.address;
-      if (!address) {
-        res.status(200).json({ user: null });
-        return;
-      }
+  const userInSession = req.session.user;
+  if (userInSession) {
+    res.status(200).json({ user: userInSession });
+    return;
+  }
 
-      const user = await supabase.from<User>('users').select('*').match({ id: address }).single();
+  const address = req.session.siwe?.address;
+  if (!address) {
+    res.status(200).json({ user: null });
+    return;
+  }
 
-      if (user.data) {
-        // DB user exists, return it
-        req.session.user = user.data;
-        await req.session.save();
+  const user = await supabase.from<User>('users').select('*').match({ id: address }).single();
 
-        res.status(200).json({ user: user.data });
+  if (user.data) {
+    // DB user exists, return it
+    req.session.user = user.data;
+    await req.session.save();
 
-        return;
-      } else {
-        // DB user does not exist, create and return
-        const result = await supabase
-          .from<User>('users')
-          .insert({
-            id: address,
-          })
-          .single();
+    res.status(200).json({ user: user.data });
 
-        if (result.data) {
-          req.session.user = result.data;
-          await req.session.save();
+    return;
+  } else {
+    // DB user does not exist, create and return
+    const result = await supabase
+      .from<User>('users')
+      .insert({
+        id: address,
+      })
+      .single();
 
-          res.status(200).json({ user: result.data });
-        } else if (result.error) {
-          res.status(result.status).json({ message: result.error.message });
-        }
-      }
+    if (result.data) {
+      req.session.user = result.data;
+      await req.session.save();
 
-      break;
-    default:
-      res.setHeader('Allow', ['GET']);
-      res.status(405).end(`Method ${method} not allowed`);
+      res.status(200).json({ user: result.data });
+    } else if (result.error) {
+      res.status(result.status).json({ message: result.error.message });
+    }
   }
 };
 

@@ -6,17 +6,15 @@ import { ironOptions } from 'constants/iron-session';
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { method } = req;
 
-  switch (method) {
-    case 'GET':
-      req.session.nonce = generateNonce();
-      await req.session.save();
-      res.setHeader('Content-Type', 'text/plain');
-      res.send(req.session.nonce);
-      break;
-    default:
-      res.setHeader('Allow', ['GET']);
-      res.status(405).end(`Method ${method} not allowed`);
+  if (method !== 'GET') {
+    res.setHeader('Allow', ['GET']);
+    res.status(405).end(`Method ${method} not allowed`);
   }
+
+  req.session.nonce = generateNonce();
+  await req.session.save();
+  res.setHeader('Content-Type', 'text/plain');
+  res.send(req.session.nonce);
 };
 
 export default withIronSessionApiRoute(handler, ironOptions);

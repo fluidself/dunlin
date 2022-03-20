@@ -1,6 +1,6 @@
 import React from 'react';
-import Button from 'components/home/Button';
 import { IconArrowNarrowLeft, IconArrowNarrowRight } from '@tabler/icons';
+import Button from 'components/home/Button';
 
 const Navigation = props => {
   const { backward, forward } = props;

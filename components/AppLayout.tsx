@@ -26,7 +26,7 @@ type Props = {
 export default function AppLayout(props: Props) {
   const { children, className = '' } = props;
   const router = useRouter();
-  let {
+  const {
     query: { deckId },
   } = router;
   const { user, isLoaded, signOut } = useAuth();
@@ -34,10 +34,13 @@ export default function AppLayout(props: Props) {
   const [isPageLoaded, setIsPageLoaded] = useState(false);
 
   useEffect(() => {
-    if (isLoaded && !accountData?.address) {
-      signOut();
-    }
-  }, [accountData?.address]);
+    const onDisconnect = () => signOut();
+    accountData?.connector?.on('disconnect', onDisconnect);
+
+    return () => {
+      accountData?.connector?.off('disconnect', onDisconnect);
+    };
+  }, [accountData?.connector, signOut]);
 
   useEffect(() => {
     if (!isPageLoaded && isLoaded && user) {
@@ -54,17 +57,7 @@ export default function AppLayout(props: Props) {
   const setDeckId = useStore(state => state.setDeckId);
   const initData = useCallback(async () => {
     if (!deckId || typeof deckId !== 'string') {
-      const { data: deck } = await supabase
-        .from<Deck>('decks')
-        .select('id')
-        .eq('user_id', user?.id)
-        .order('id')
-        .limit(1)
-        .single();
-
-      if (!deck) return;
-
-      deckId = deck.id;
+      return;
     }
 
     setDeckId(deckId);
@@ -76,7 +69,7 @@ export default function AppLayout(props: Props) {
       .order('title');
 
     // Redirect to most recent note or first note in database
-    if (router.pathname.match(/^\/app\/[^\/]+$/i)) {
+    if (router.pathname.match(/^\/app\/[^/]+$/i)) {
       const openNoteIds = store.getState().openNoteIds;
       if (openNoteIds.length > 0 && notes && notes.findIndex(note => note.id === openNoteIds[0]) > -1) {
         router.replace(`/app/${deckId}/note/${openNoteIds[0]}`);
@@ -121,7 +114,7 @@ export default function AppLayout(props: Props) {
     }
 
     setIsPageLoaded(true);
-  }, [deckId, router, setNotes, setNoteTree]);
+  }, [deckId, router, setNotes, setNoteTree, setDeckId]);
 
   useEffect(() => {
     if (isLoaded && !user) {
@@ -215,7 +208,7 @@ export default function AppLayout(props: Props) {
         callback: () => setIsSidebarOpen(isOpen => !isOpen),
       },
     ],
-    [setIsFindOrCreateModalOpen, setSidebarTab, setIsSidebarOpen, router, user],
+    [setIsFindOrCreateModalOpen, setSidebarTab, setIsSidebarOpen, router, deckId],
   );
   useHotkeys(hotkeys);
 

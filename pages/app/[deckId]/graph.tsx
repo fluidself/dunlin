@@ -1,8 +1,8 @@
 import { withIronSessionSsr } from 'iron-session/next';
-import { ironOptions } from 'constants/iron-session';
 import { useMemo } from 'react';
 import Head from 'next/head';
 import { createEditor, Editor, Element, Node } from 'slate';
+import { ironOptions } from 'constants/iron-session';
 import type { NoteLink } from 'types/slate';
 import { ElementType } from 'types/slate';
 import type { GraphData } from 'components/ForceGraph';

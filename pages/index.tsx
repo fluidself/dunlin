@@ -26,7 +26,7 @@ const Home: NextPage = () => {
   const router = useRouter();
   const [{ data: accountData }] = useAccount();
   const { user, isLoaded, signIn, signOut } = useAuth();
-  const { data: decks, error } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id));
+  const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id));
   const [open, setOpen] = useState<boolean>(false);
   const [processingAccess, setProcessingAccess] = useState<boolean>(false);
   const [deckToShare, setDeckToShare] = useState<string>('');
@@ -35,10 +35,13 @@ const Home: NextPage = () => {
   const isMounted = useIsMounted();
 
   useEffect(() => {
-    if (isLoaded && !accountData?.address) {
-      signOut();
-    }
-  }, [accountData?.address]);
+    const onDisconnect = () => signOut();
+    accountData?.connector?.on('disconnect', onDisconnect);
+
+    return () => {
+      accountData?.connector?.off('disconnect', onDisconnect);
+    };
+  }, [accountData?.connector, signOut]);
 
   useEffect(() => {
     const initLit = async () => {
@@ -115,7 +118,7 @@ const Home: NextPage = () => {
       return;
     }
 
-    const { resource_id: resourceId, access_control_conditions: accessControlConditions } = accessParams?.access_params;
+    const { resource_id: resourceId, access_control_conditions: accessControlConditions } = accessParams?.access_params || {};
     if (!resourceId || !accessControlConditions || !accessControlConditions[0].chain) {
       toast.error('Unable to verify access.');
       return;

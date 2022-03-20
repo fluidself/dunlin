@@ -11,7 +11,7 @@ const ChainSelector = ({ chain, setChain }) => {
         id: 'ethereum',
         value: 'ethereum',
       }),
-    [],
+    [setChain],
   );
 
   const chainOptions = useMemo(
@@ -23,7 +23,7 @@ const ChainSelector = ({ chain, setChain }) => {
           value: item,
         };
       }),
-    [LitJsSdk.LIT_CHAINS],
+    [],
   );
 
   return (

@@ -1,13 +1,8 @@
-import type { Dispatch, SetStateAction } from 'react';
 import { IconChevronsLeft } from '@tabler/icons';
 import { useStore } from 'lib/store';
 import Tooltip from 'components/Tooltip';
 
-type Props = {
-  setIsSettingsOpen: Dispatch<SetStateAction<boolean>>;
-};
-
-export default function Header(props: Props) {
+export default function Header() {
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
 
   return (

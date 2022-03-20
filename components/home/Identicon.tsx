@@ -16,7 +16,7 @@ export default function Identicon({ diameter, className }: Props) {
       ref.current.innerHTML = '';
       ref.current.appendChild(Jazzicon(diameter, parseInt(user.id.slice(2, 10), 16)));
     }
-  }, [user]);
+  }, [user, diameter]);
 
   return <div className={`rounded-full bg-background ${className}`} ref={ref as any} />;
 }

@@ -33,7 +33,7 @@ export default function useDeleteNote(noteId: string) {
       }
     }
 
-    await deleteNote(noteId);
+    await deleteNote(noteId, deck.id);
     await deleteBacklinks(noteId);
   }, [router, noteId, openNoteIds]);
 

@@ -10,7 +10,6 @@ import { insertExternalLink, insertNoteLink, removeLink } from 'editor/formattin
 import { isUrl } from 'utils/url';
 import useNoteSearch from 'utils/useNoteSearch';
 import { caseInsensitiveStringEqual } from 'utils/string';
-import { useStore } from 'lib/store';
 import EditorPopover from './EditorPopover';
 import type { AddLinkPopoverState } from './Editor';
 

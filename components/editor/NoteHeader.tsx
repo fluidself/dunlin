@@ -69,7 +69,7 @@ export default function NoteHeader() {
         { shallow: true },
       );
     }
-  }, [currentNote.id, stackQuery, router]);
+  }, [currentNote.id, stackQuery, router, deckId]);
 
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
