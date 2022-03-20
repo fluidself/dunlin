@@ -32,13 +32,12 @@ module.exports = {
         'screen-80': '80vh',
       },
       colors: {
-        primary: colors.emerald,
+        primary: colors.pink,
         gray: colors.neutral,
         orange: colors.orange,
         background: 'rgb(11,11,11)',
         black: 'rgb(0,0,0)',
         white: '#E9E9E9',
-        offWhite: '#c4c4c4',
       },
       boxShadow: {
         popover: 'rgb(15 15 15 / 10%) 0px 3px 6px, rgb(15 15 15 / 20%) 0px 9px 24px',

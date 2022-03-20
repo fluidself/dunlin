@@ -40,7 +40,7 @@ const DAOMembers = ({ setActiveStep, processingAccess, onAccessControlConditions
         <div className="mt-4">
           <InputWrapper
             value={DAOAddress}
-            label="Add DAO contract address"
+            label="Enter DAO contract address"
             id="DAOAddress"
             autoFocus
             size="m"

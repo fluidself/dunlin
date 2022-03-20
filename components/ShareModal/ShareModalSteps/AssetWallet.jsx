@@ -44,7 +44,7 @@ const AssetWallet = ({ setActiveStep, processingAccess, onAccessControlCondition
     <div>
       <div>
         <h4 className="text-lg">Which asset does a wallet need to own to access this?</h4>
-        <a className="underline cursor-pointer hover:text-offWhite" onClick={() => setActiveStep('whichWallet')}>
+        <a className="underline cursor-pointer hover:text-gray-300" onClick={() => setActiveStep('whichWallet')}>
           Grant Access to Wallet or Blockchain Domain
         </a>
       </div>
@@ -70,7 +70,6 @@ const AssetWallet = ({ setActiveStep, processingAccess, onAccessControlCondition
           className="mt-4"
           label="Add Token ID"
           id="tokenId"
-          size="m"
           handleChange={value => setTokenId(value)}
         />
       </div>
