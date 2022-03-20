@@ -16,12 +16,11 @@ import SidebarHeader from './SidebarHeader';
 
 type Props = {
   setIsFindOrCreateModalOpen: Dispatch<SetStateAction<boolean>>;
-  setIsSettingsOpen: Dispatch<SetStateAction<boolean>>;
   className?: string;
 };
 
 function Sidebar(props: Props) {
-  const { setIsFindOrCreateModalOpen, setIsSettingsOpen, className } = props;
+  const { setIsFindOrCreateModalOpen, className } = props;
 
   const { signOut } = useAuth();
   const { deck } = useCurrentDeck();
@@ -95,7 +94,7 @@ function Sidebar(props: Props) {
             <div
               className={`flex flex-col flex-none h-full border-r bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 ${className}`}
             >
-              <SidebarHeader setIsSettingsOpen={setIsSettingsOpen} />
+              <SidebarHeader />
               <SidebarItem>
                 <Link href="/">
                   <a className="flex items-center px-6 py-1">

@@ -127,7 +127,7 @@ export default function AppLayout(props: Props) {
   }, [router, user, isLoaded, isPageLoaded, initData]);
 
   const [isFindOrCreateModalOpen, setIsFindOrCreateModalOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  // const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // const darkMode = useStore(state => state.darkMode);
   const darkMode = true;
@@ -230,12 +230,11 @@ export default function AppLayout(props: Props) {
       <ProvideCurrentDeck deckId={deckId}>
         <div id="app-container" className={appContainerClassName}>
           <div className="flex w-full h-full dark:bg-gray-900">
-            <Sidebar setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen} setIsSettingsOpen={setIsSettingsOpen} />
+            <Sidebar setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen} />
             <div className="relative flex flex-col flex-1 overflow-y-hidden">
               <OfflineBanner />
               {children}
             </div>
-            {isSettingsOpen ? <SettingsModal setIsOpen={setIsSettingsOpen} /> : null}
             {isFindOrCreateModalOpen ? <FindOrCreateModal setIsOpen={setIsFindOrCreateModalOpen} /> : null}
           </div>
         </div>

@@ -1,18 +1,19 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
-  async redirects() {
-    return [
-      {
-        source: '/app',
-        destination: '/',
-        permanent: true,
-      },
-    ];
-  },
-  env: {
-    BASE_URL: 'http://localhost:3000', // TODO: ternary to deployed url when deployed
-  },
-};
+const { PHASE_DEVELOPMENT_SERVER } = require('next/constants');
 
-module.exports = nextConfig;
+module.exports = phase => {
+  return {
+    reactStrictMode: true,
+    async redirects() {
+      return [
+        {
+          source: '/app',
+          destination: '/',
+          permanent: true,
+        },
+      ];
+    },
+    env: {
+      BASE_URL: phase === PHASE_DEVELOPMENT_SERVER ? 'http://localhost:3000' : 'https://deck-tau.vercel.app',
+    },
+  };
+};
