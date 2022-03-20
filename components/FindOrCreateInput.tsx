@@ -8,7 +8,6 @@ import upsertNote from 'lib/api/upsertNote';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import useNoteSearch from 'utils/useNoteSearch';
 import { caseInsensitiveStringEqual } from 'utils/string';
-import { useStore } from 'lib/store';
 
 enum OptionType {
   NOTE,
