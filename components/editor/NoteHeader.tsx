@@ -13,6 +13,7 @@ import { Note } from 'types/supabase';
 import useImport from 'utils/useImport';
 import { queryParamToArray } from 'utils/url';
 import { useAuth } from 'utils/useAuth';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
 import Tooltip from 'components/Tooltip';
 import OpenSidebarButton from 'components/sidebar/OpenSidebarButton';
 import { DropdownItem } from 'components/Dropdown';
@@ -25,6 +26,7 @@ export default function NoteHeader() {
   const currentNote = useCurrentNote();
   const onImport = useImport();
   const { user } = useAuth();
+  const { deck } = useCurrentDeck();
   const router = useRouter();
   const {
     query: { deckId, stack: stackQuery },
@@ -115,10 +117,13 @@ export default function NoteHeader() {
             <div className="inline-flex justify-center">
               {!isCloseButtonVisible && user && (
                 <div className="flex items-center mr-4">
-                  <div className="px-2 pt-2 pb-1 text-sm text-gray-600 overflow-ellipsis dark:text-gray-400">
+                  <div className="px-2 pt-1 pb-1 mr-3 text-sm text-gray-600 overflow-ellipsis dark:text-gray-400">
+                    {deck?.deck_name}
+                  </div>
+                  <div className="px-2 pt-1 pb-1 text-sm text-gray-600 overflow-ellipsis dark:text-gray-400">
                     {user ? `${user?.id.slice(0, 6)}...${user?.id.slice(-4)}` : ''}
                   </div>
-                  <Identicon diameter={16} className="w-4 h-4" />
+                  <Identicon diameter={16} className="w-5 h-5" />
                 </div>
               )}
               <Menu.Button ref={menuButtonRef} className={buttonClassName} title="Options (export, import, etc.)">

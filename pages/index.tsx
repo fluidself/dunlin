@@ -17,16 +17,14 @@ import { ShareModal } from 'components/ShareModal';
 import { EthereumIcon } from 'components/home/EthereumIcon';
 import RequestDeckAccess from 'components/home/RequestDeckAccess';
 import ProvideDeckName from 'components/home/ProvideDeckName';
-import Button from 'components/home/Button';
 import DecksTable from 'components/home/DecksTable';
-import Logo from 'components/Logo';
+import Button from 'components/home/Button';
 
 const Home: NextPage = () => {
   const router = useRouter();
   const [{ data: accountData }] = useAccount();
   const { user, isLoaded, signIn, signOut } = useAuth();
   const [decks, setDecks] = useState<Deck[] | []>([]);
-  const [error, setError] = useState<string>('');
   const [open, setOpen] = useState<boolean>(false);
   const [processingAccess, setProcessingAccess] = useState<boolean>(false);
   const [deckToShare, setDeckToShare] = useState<string>('');
@@ -45,16 +43,16 @@ const Home: NextPage = () => {
       const { data: decks, error } = await supabase.from<Deck>('decks').select('*').eq('user_id', user?.id).order('id');
 
       if (error) {
-        setError(error.message);
+        console.error('Failed to fetch DECKs: ', error.message);
       } else {
         setDecks(decks);
       }
     };
 
-    if (user) {
+    if (isLoaded && user) {
       fetchDecks();
     }
-  }, [accountData?.address]);
+  }, [user, isLoaded]);
 
   useEffect(() => {
     const initLit = async () => {
@@ -153,13 +151,10 @@ const Home: NextPage = () => {
   };
 
   return (
-    <div className="mt-3 text-white">
+    <div className="mt-2 text-white">
       <div className="flex flex-col items-end text-white min-h-[27px] pr-8">{user && <HomeHeader />}</div>
       <main className="container mt-28 lg:mt-52 flex flex-col">
-        <h1 className="mb-12 text-xl text-center">
-          Decentralized and Encrypted Collaborative Knowledge (<span className="text-primary-400">DECK</span>)
-        </h1>
-        {/* TODO: fix flashes of wrong rendering. Loading spinners? new isPageLoaded state? */}
+        <h1 className="mb-12 text-xl text-center">Decentralized and Encrypted Collaborative Knowledge (DECK)</h1>
         {/* TODO: more landing page content? */}
         {!user && (
           <Button className="py-4 w-80 mx-auto" onClick={signIn}>
