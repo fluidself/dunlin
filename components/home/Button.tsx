@@ -13,7 +13,7 @@ interface ButtonProps {
 const Button = ({ children, onClick, disabled = false, loading, className, primary = false }: ButtonProps) => {
   const buttonClassName = classNames(
     'flex items-center justify-center px-6 py-2 rounded uppercase border border-gray-500',
-    { 'bg-white text-black hover:text-white hover:bg-background hover:border-white': primary && !disabled },
+    { 'bg-white text-black hover:text-white hover:bg-inherit hover:border-white': primary && !disabled },
     { 'text-gray-300 hover:border-white hover:text-white': !primary && !disabled },
     { 'bg-gray-900 border-gray-700 text-gray-600 hover:bg-gray-900 cursor-not-allowed': disabled },
     className,
