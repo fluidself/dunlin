@@ -20,8 +20,10 @@ import { DropdownItem } from 'components/Dropdown';
 import useDeleteNote from 'utils/useDeleteNote';
 import NoteMetadata from 'components/NoteMetadata';
 import MoveToModal from 'components/MoveToModal';
+import MintNFTModal from 'components/MintNFTModal';
 import Identicon from 'components/home/Identicon';
 import { NoteHeaderDivider } from './NoteHeaderDivider';
+import { NFTIcon } from './NFTIcon';
 
 export default function NoteHeader() {
   const currentNote = useCurrentNote();
@@ -97,6 +99,9 @@ export default function NoteHeader() {
   const [isMoveToModalOpen, setIsMoveToModalOpen] = useState(false);
   const onMoveToClick = useCallback(() => setIsMoveToModalOpen(true), []);
 
+  const [isMintModalOpen, setIsMintModalOpen] = useState(false);
+  const onMintClick = useCallback(() => setIsMintModalOpen(true), []);
+
   const buttonClassName = 'rounded hover:bg-gray-300 active:bg-gray-400 dark:hover:bg-gray-700 dark:active:bg-gray-600';
   const iconClassName = 'text-gray-600 dark:text-gray-300';
 
@@ -145,6 +150,10 @@ export default function NoteHeader() {
                     style={styles.popper}
                     {...attributes.popper}
                   >
+                    <DropdownItem onClick={onMintClick}>
+                      <NFTIcon className="w-5 h-5 mr-1" />
+                      <span>Mint as NFT</span>
+                    </DropdownItem>
                     <DropdownItem onClick={onImport}>
                       <IconDownload size={18} className="mr-1" />
                       <span>Import</span>
@@ -178,11 +187,16 @@ export default function NoteHeader() {
           <MoveToModal noteId={currentNote.id} setIsOpen={setIsMoveToModalOpen} />
         </Portal>
       ) : null}
+      {isMintModalOpen ? (
+        <Portal>
+          <MintNFTModal note={note} userId={user?.id} setIsOpen={setIsMintModalOpen} />
+        </Portal>
+      ) : null}
     </div>
   );
 }
 
-const getSerializedNote = (note: Note) => note.content.map(n => serialize(n)).join('');
+export const getSerializedNote = (note: Note) => note.content.map(n => serialize(n)).join('');
 
 const getNoteAsBlob = (note: Note) => {
   const serializedContent = getSerializedNote(note);
