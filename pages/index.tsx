@@ -26,7 +26,7 @@ const Home: NextPage = () => {
   const router = useRouter();
   const [{ data: accountData }] = useAccount();
   const { user, isLoaded, signIn, signOut } = useAuth();
-  const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id));
+  const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
   const [open, setOpen] = useState<boolean>(false);
   const [processingAccess, setProcessingAccess] = useState<boolean>(false);
   const [deckToShare, setDeckToShare] = useState<string>('');
