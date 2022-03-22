@@ -6,7 +6,7 @@ import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import wikiLinkPlugin from 'remark-wiki-link';
 import { v4 as uuidv4 } from 'uuid';
-import { store, useStore } from 'lib/store';
+import { store } from 'lib/store';
 import { NoteUpsert } from 'lib/api/upsertNote';
 import supabase from 'lib/supabase';
 import { getDefaultEditorValue } from 'editor/constants';

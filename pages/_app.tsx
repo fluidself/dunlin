@@ -3,9 +3,9 @@ import Router from 'next/router';
 import { ToastContainer } from 'react-toastify';
 import NProgress from 'nprogress';
 import type { AppProps } from 'next/app';
-import { Provider, defaultChains } from 'wagmi';
+import { Provider, defaultChains, developmentChains } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected';
-import { providers } from 'ethers';
+import { ethers, providers } from 'ethers';
 import { ProvideAuth } from 'utils/useAuth';
 import AppLayout from 'components/AppLayout';
 import ServiceWorker from 'components/ServiceWorker';
@@ -19,7 +19,8 @@ Router.events.on('routeChangeComplete', () => NProgress.done());
 Router.events.on('routeChangeError', () => NProgress.done());
 
 const infuraId = process.env.NEXT_PUBLIC_INFURA_ID as string;
-const chains = defaultChains;
+// const chains = defaultChains;
+const chains = developmentChains;
 
 type Config = { chainId?: number };
 
@@ -27,7 +28,8 @@ const connectors = ({ chainId }: Config) => {
   return [new InjectedConnector({ chains })];
 };
 
-const provider = ({ chainId }: Config) => new providers.InfuraProvider(chainId, infuraId);
+// const provider = ({ chainId }: Config) => new providers.InfuraProvider(chainId, infuraId);
+const provider = ({ chainId }: Config) => ethers.getDefaultProvider('http://localhost:8545');
 
 export default function MyApp({ Component, pageProps, router }: AppProps) {
   return (

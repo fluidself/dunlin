@@ -1,4 +1,5 @@
 import { Note } from 'types/supabase';
+import { getReadableDatetime } from 'utils/date';
 
 type Props = {
   note: Note;
@@ -13,10 +14,3 @@ export default function NoteMetadata(props: Props) {
     </div>
   );
 }
-
-const getReadableDatetime = (dateStr: string) => {
-  return new Date(dateStr).toLocaleString(undefined, {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  });
-};

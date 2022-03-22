@@ -8,3 +8,10 @@ export function caseInsensitiveStringCompare(str1: string, str2: string) {
 export function caseInsensitiveStringEqual(str1: string, str2: string) {
   return caseInsensitiveStringCompare(str1, str2) === 0;
 }
+
+export function addEllipsis(text: string): string {
+  const start = text.slice(0, 6).trim();
+  const suffix = text.slice(-4).trim();
+
+  return `${start}...${suffix}`;
+}

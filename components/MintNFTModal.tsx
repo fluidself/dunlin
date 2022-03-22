@@ -1,13 +1,16 @@
-import { useMemo, useCallback, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
 import { IconAlertTriangle } from '@tabler/icons';
 import fleekStorage from '@fleekhq/fleek-storage-js';
-// import { useSigner, useContract } from 'wagmi';
-// import { Contract } from 'ethers';
+import { useSigner, useContract } from 'wagmi';
+import { Contract } from 'ethers';
 import { toast } from 'react-toastify';
 import { Note } from 'types/supabase';
 import useHotkeys from 'utils/useHotkeys';
 import { getSerializedNote } from 'components/editor/NoteHeader';
 import Button from 'components/home/Button';
+import DECKNFT from 'artifacts/contracts/DECKNFT.sol/DECKNFT.json';
+import { CONTRACT_ADDRESS } from 'constants/nft-contract';
 
 type Props = {
   note: Note;
@@ -18,12 +21,13 @@ type Props = {
 export default function MintNFTModal(props: Props) {
   const { note, userId, setIsOpen } = props;
 
-  // const [{ data: signer }] = useSigner();
-  // const contract: Contract = useContract({
-  //   addressOrName: CONTRACT_ADDRESS,
-  //   contractInterface: DECKNFT.abi,
-  //   signerOrProvider: signer,
-  // });
+  const router = useRouter();
+  const [{ data: signer }] = useSigner();
+  const contract: Contract = useContract({
+    addressOrName: CONTRACT_ADDRESS,
+    contractInterface: DECKNFT.abi,
+    signerOrProvider: signer,
+  });
   const [processing, setProcessing] = useState<boolean>(false);
 
   const hotkeys = useMemo(
@@ -37,12 +41,12 @@ export default function MintNFTModal(props: Props) {
   );
   useHotkeys(hotkeys);
 
-  const onConfirm = useCallback(async () => {
-    if (!userId) return;
+  const onConfirm = async () => {
+    if (!userId || !signer) return;
     setProcessing(true);
 
     const serializedBody = getSerializedNote(note);
-    const data = JSON.stringify({ title: note.title, body: serializedBody });
+    const data = JSON.stringify({ address: userId, timestamp: Date.now(), title: note.title, body: serializedBody });
 
     try {
       const uploadedFile = await fleekStorage.upload({
@@ -51,25 +55,22 @@ export default function MintNFTModal(props: Props) {
         key: `${userId}/${note.title}`,
         data,
       });
-      // console.log(uploadedFile);
+      console.log(uploadedFile.hash);
 
-      // const tokenURI = `https://ipfs.infura.io/ipfs/${uploadedFile.hash}`;
-      // const tx = await contract.createToken(tokenURI);
-      // // const rec = await tx.wait();
+      const tokenURI = `https://ipfs.infura.io/ipfs/${uploadedFile.hash}`;
+      const tx = await contract.createToken(tokenURI);
+      await tx.wait();
 
-      // toast.info('Processing transaction');
-
-      // await tx.wait();
-
-      toast.success('Your NFT was minted!');
+      toast.success('Your NFT was minted! Hang tight while we redirect you.');
       setProcessing(false);
-      // // redirect somewhere or setIsOpen(false)?
-      // router.push(`/publication/${uploadedFile.hash}`);
+      setIsOpen(false);
+      router.push(`/publications/${uploadedFile.hash}`);
     } catch (e: any) {
       toast.error('Failed to mint the NFT.');
       console.error(e);
+      setProcessing(false);
     }
-  }, [note]);
+  };
 
   return (
     <div className="fixed inset-0 z-20 overflow-y-auto">
