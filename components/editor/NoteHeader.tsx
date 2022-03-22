@@ -1,7 +1,16 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { Menu } from '@headlessui/react';
 import Select from 'react-select';
-import { IconDots, IconDownload, IconUpload, IconCloudDownload, IconX, IconTrash, IconCornerDownRight } from '@tabler/icons';
+import {
+  IconDots,
+  IconDownload,
+  IconUpload,
+  IconCloudDownload,
+  IconX,
+  IconTrash,
+  IconCornerDownRight,
+  IconSend,
+} from '@tabler/icons';
 import { usePopper } from 'react-popper';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
@@ -27,7 +36,7 @@ import MoveToModal from 'components/MoveToModal';
 import MintNFTModal from 'components/MintNFTModal';
 import Identicon from 'components/home/Identicon';
 import { NoteHeaderDivider } from './NoteHeaderDivider';
-import { NFTIcon } from './NFTIcon';
+// import { NFTIcon } from './NFTIcon';
 
 export default function NoteHeader() {
   const currentNote = useCurrentNote();
@@ -178,8 +187,10 @@ export default function NoteHeader() {
                       {...attributes.popper}
                     >
                       <DropdownItem onClick={onMintClick}>
-                        <NFTIcon className="w-5 h-5 mr-1" />
-                        <span>Mint as NFT</span>
+                        {/* <NFTIcon className="w-5 h-5 mr-1" />
+                        <span>Mint as NFT</span> */}
+                        <IconSend size={18} className="mr-1" />
+                        <span>Publish</span>
                       </DropdownItem>
                       <DropdownItem onClick={onImport}>
                         <IconDownload size={18} className="mr-1" />
