@@ -15,13 +15,13 @@ import { useStore } from 'lib/store';
 import supabase from 'lib/supabase';
 import useIsMounted from 'utils/useIsMounted';
 import { SPRING_CONFIG } from 'constants/spring';
+import { AccessControlCondition, AuthSig, ResourceId } from 'types/lit';
+import { Deck, AccessParams } from 'types/supabase';
+import { ShareModal } from 'components/ShareModal';
+import CreateOrJoinDeckModal from 'components/CreateOrJoinDeckModal';
 import SidebarItem from './SidebarItem';
 import SidebarContent from './SidebarContent';
 import SidebarHeader from './SidebarHeader';
-import { ShareModal } from 'components/ShareModal';
-import { AccessControlCondition, AuthSig, ResourceId } from 'types/lit';
-import { Deck, AccessParams } from 'types/supabase';
-import CreateOrJoinDeckModal from 'components/CreateOrJoinDeckModal';
 
 type Props = {
   setIsFindOrCreateModalOpen: Dispatch<SetStateAction<boolean>>;

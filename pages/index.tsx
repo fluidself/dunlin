@@ -1,7 +1,7 @@
 import { withIronSessionSsr } from 'iron-session/next';
-import { ironOptions } from 'constants/iron-session';
 import { useEffect } from 'react';
 import { useAccount } from 'wagmi';
+import { ironOptions } from 'constants/iron-session';
 import selectDecks from 'lib/api/selectDecks';
 import { useAuth } from 'utils/useAuth';
 import { EthereumIcon } from 'components/home/EthereumIcon';

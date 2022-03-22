@@ -29,7 +29,7 @@ type Props = {
 
 export default function PublicationPage(props: Props) {
   const {
-    publication: { title, body, address, timestamp },
+    publication: { address, timestamp, title, body },
   } = props;
   const router = useRouter();
   const { hash } = router.query;
@@ -69,7 +69,7 @@ export default function PublicationPage(props: Props) {
     };
 
     process();
-  }, [body]);
+  }, [hash, address, timestamp, title, body]);
 
   if (!parsedBody) {
     return <PageLoading />;

@@ -1,7 +1,6 @@
 // @ts-ignore
 import LitJsSdk from 'lit-js-sdk';
 import { useMemo, useState } from 'react';
-import { useRouter } from 'next/router';
 import { IconFolderPlus, IconGitPullRequest } from '@tabler/icons';
 import { toast } from 'react-toastify';
 import useSWR from 'swr';
@@ -22,7 +21,6 @@ type Props = {
 export default function CreateOrJoinDeckModal(props: Props) {
   const { type, closeModal } = props;
 
-  const router = useRouter();
   const { user } = useAuth();
   const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
   const [inputText, setInputText] = useState<string>('');
