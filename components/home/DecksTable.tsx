@@ -45,9 +45,12 @@ export default function DecksTable(props: DecksTableProps) {
               </Link>
             </td>
             <td className="border-b border-gray-500 pl-1 py-4 pr-0">
-              <Button className="py-1" onClick={() => onShareClick(deck.id)}>
+              <button
+                className="py-1 px-6 flex items-center justify-center rounded uppercase border border-gray-500 text-gray-300 hover:border-white hover:text-white"
+                onClick={() => onShareClick(deck.id)}
+              >
                 Share
-              </Button>
+              </button>
             </td>
           </tr>
         ))}
