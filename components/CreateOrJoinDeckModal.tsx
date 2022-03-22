@@ -135,7 +135,7 @@ export default function CreateOrJoinDeckModal(props: Props) {
               maxLength={type === 'create' ? 20 : 40}
             />
             <Button
-              className={`my-4 ${processing ? 'bg-gray-600 text-gray-300 hover:bg-gray-600 hover:bg-text-gray-300' : ''}`}
+              className={`my-4 ${processing ? 'bg-gray-800 text-gray-400 hover:bg-gray-800 hover:text-gray-400' : ''}`}
               primary
               onClick={() => (type === 'create' ? createNewDeck() : verifyAccess())}
               disabled={processing}

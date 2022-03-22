@@ -50,10 +50,10 @@ export default function PublicationPage(props: Props) {
           <h1 class="text-5xl font-semibold text-[#FFFFFF] mb-4">${title}</h1>
         </div>
         <div class="flex space-x-4">
-          <span class="text-xs inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded-lg">
+          <span class="text-xs inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
             ${addEllipsis(address)}
           </span>
-          <span class="text-xs inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded-lg">
+          <span class="text-xs inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
             ${getReadableDatetime(timestamp)}
           </span>
         </div>` +
@@ -62,7 +62,7 @@ export default function PublicationPage(props: Props) {
           <div class="not-prose">
             <div class="flex flex-col mt-6 mb-12">
               <div class="">IPFS HASH: <a href="https://ipfs.infura.io/ipfs/${hash}" rel="noreferrer" target="_blank"}>${hash}</a></div>
-              <div class="">ADDRESS: ${address}</div>
+              <div class="">ETHEREUM ADDRESS: <a href="https://etherscan.io/address/${address}" rel="noreferrer" target="_blank"}>${address}</a></div>
             </div>
           </div>`,
       );
