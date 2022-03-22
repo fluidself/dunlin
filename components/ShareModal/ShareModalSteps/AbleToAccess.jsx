@@ -1,4 +1,5 @@
 import React from 'react';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { WalletIcon, TokenIcon, DAOIcon, POAPIcon } from '../icons';
 
 const TypeButton = props => {
@@ -40,10 +41,14 @@ const ITEMS = [
 
 const AbleToAccess = props => {
   const { setActiveStep } = props;
+  const { deck } = useCurrentDeck();
 
   return (
     <div className="mb-4">
-      <div className="text-lg">Who should be able to access your DECK?</div>
+      <div className="text-lg">Who should be able to access this DECK?</div>
+      <span className="text-xs inline-block mt-2 py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded-sm">
+        {deck.id}
+      </span>
       <div className="grid grid-cols-[180px_180px] gap-4 justify-center mt-[28px]">
         {ITEMS.map((item, i) => (
           <TypeButton key={i} {...item} onClick={setActiveStep} />

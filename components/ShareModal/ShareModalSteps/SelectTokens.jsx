@@ -189,12 +189,12 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
       <div className="mt-4">
         <div>
           <div>
-            <label>Select blockchain to check requirements against:</label>
+            <label>Select blockchain to check requirements against</label>
             <ChainSelector chain={chain} setChain={setChain} />
           </div>
         </div>
         <div className="mt-4">
-          <label>Select token/NFT or enter contract address: </label>
+          <label>Select token/NFT or enter contract address</label>
           <div className="flex items-center">
             {(!contractAddress || !contractAddress.length) && !selectedToken && (
               <span className="flex items-center">

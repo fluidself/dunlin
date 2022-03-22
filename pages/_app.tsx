@@ -49,7 +49,7 @@ export default function MyApp({ Component, pageProps, router }: AppProps) {
       <ServiceWorker>
         <Provider autoConnect connectors={connectors} provider={provider}>
           <ProvideAuth>
-            {router.pathname.startsWith('/app') ? (
+            {router.pathname.startsWith('/app/') ? (
               <AppLayout>
                 <Component {...pageProps} />
               </AppLayout>

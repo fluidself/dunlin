@@ -45,6 +45,44 @@
   .react-select-container .react-select__single-value {
     @apply text-neutral-200;
   }
+
+  .react-select-container-header .react-select-header__control {
+    @apply bg-gray-900 py-0 pl-1 border-[0.5px] border-gray-700 hover:border-gray-400 text-sm leading-4 min-w-[474px] text-left;
+  }
+
+  .react-select-container-header .react-select-header__control--is-focused {
+    @apply border-neutral-400 hover:border-neutral-400 shadow-none;
+  }
+
+  .react-select-container-header .react-select-header__menu {
+    @apply bg-neutral-900 border-2 border-neutral-600;
+  }
+
+  .react-select-container-header .react-select-header__indicators {
+    @apply text-gray-400 my-0 py-0;
+  }
+
+  .react-select-container-header .react-select-header__option {
+    @apply text-gray-400 bg-gray-900 hover:bg-neutral-800 text-sm text-left;
+  }
+
+  .react-select-container-header .react-select-header__indicator-separator {
+    @apply invisible mx-0;
+  }
+
+  .react-select-container-header .react-select-header__dropdown-indicator {
+    @apply py-1;
+  }
+
+  .react-select-container-header .react-select-header__value-container {
+    @apply py-0 border-0 pl-2 pr-0;
+  }
+
+  .react-select-container-header .react-select-header__input-container,
+  .react-select-container-header .react-select-header__placeholder,
+  .react-select-container-header .react-select-header__single-value {
+    @apply text-gray-400 my-0 py-0 leading-4;
+  }
 }
 
 :root {

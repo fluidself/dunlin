@@ -69,7 +69,7 @@ const ShareModal = props => {
     <div className="fixed inset-0 z-20 overflow-y-auto">
       <div className="fixed inset-0 bg-black opacity-30" onClick={handleClose} />
       <div className="flex items-center justify-center h-screen p-6">
-        <div className="z-30 flex flex-col w-full h-full max-w-full overflow-hidden bg-background border border-gray-500 sm:max-h-[540px] sm:w-[740px] py-2 px-4">
+        <div className="z-30 flex flex-col w-full h-full max-w-full overflow-hidden bg-background border border-gray-500 sm:max-h-[540px] sm:w-[740px] py-2 px-4 text-gray-100">
           <div className="flex flex-row justify-between items-center">
             <span></span>
             <button onClick={handleClose} className="mr-[-4px]">

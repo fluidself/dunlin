@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext, createContext, useCallback } from 'react';
 import type { ReactNode } from 'react';
+import { useRouter } from 'next/router';
 import { useConnect } from 'wagmi';
 import { SiweMessage } from 'siwe';
 import { User } from 'types/supabase';
@@ -21,6 +22,7 @@ function useProvideAuth(): AuthContextType {
     },
     connect,
   ] = useConnect();
+  const router = useRouter();
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [signingIn, setSigningIn] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
@@ -75,6 +77,7 @@ function useProvideAuth(): AuthContextType {
       await initUser();
 
       setSigningIn(false);
+      router.push('/app');
     } catch (e) {
       console.error(e);
     }
