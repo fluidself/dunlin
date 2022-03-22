@@ -1,9 +1,11 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 import { Menu } from '@headlessui/react';
+import Select from 'react-select';
 import { IconDots, IconDownload, IconUpload, IconCloudDownload, IconX, IconTrash, IconCornerDownRight } from '@tabler/icons';
 import { usePopper } from 'react-popper';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
+import useSWR from 'swr';
 import { useRouter } from 'next/router';
 import Portal from 'components/Portal';
 import { useCurrentNote } from 'utils/useCurrentNote';
@@ -15,6 +17,7 @@ import { queryParamToArray } from 'utils/url';
 import { addEllipsis } from 'utils/string';
 import { useAuth } from 'utils/useAuth';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
+import selectDecks from 'lib/api/selectDecks';
 import Tooltip from 'components/Tooltip';
 import OpenSidebarButton from 'components/sidebar/OpenSidebarButton';
 import { DropdownItem } from 'components/Dropdown';
@@ -31,10 +34,23 @@ export default function NoteHeader() {
   const onImport = useImport();
   const { user } = useAuth();
   const { deck } = useCurrentDeck();
+  const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
+  const [deckOptions, setDeckOptions] = useState<any>(null);
+  const [selectedDeck, setSelectedDeck] = useState<any>(null);
   const router = useRouter();
   const {
     query: { deckId, stack: stackQuery },
   } = router;
+
+  useEffect(() => {
+    const decksToOptions = decks?.map(deck => ({
+      label: `${deck.deck_name} (${deck.id})`,
+      id: deck.id,
+      value: deck.id,
+    }));
+    setDeckOptions(decksToOptions);
+    setSelectedDeck(decksToOptions?.filter(deckOption => deckOption.id === deck?.id)[0]);
+  }, [decks]);
 
   const isSidebarButtonVisible = useStore(state => !state.isSidebarOpen && state.openNoteIds?.[0] === currentNote.id);
   const isCloseButtonVisible = useStore(state => state.openNoteIds.length > 1);
@@ -119,69 +135,80 @@ export default function NoteHeader() {
             </button>
           </Tooltip>
         ) : null}
-        <Menu>
-          {({ open }) => (
-            <div className="inline-flex justify-center">
-              {!isCloseButtonVisible && user && (
-                <div className="flex items-center">
-                  <div className="px-2 pt-1 pb-1 mr-1 text-sm text-gray-600 overflow-ellipsis dark:text-gray-400">
-                    {deck?.deck_name}
-                  </div>
-                  <NoteHeaderDivider />
-                  <div className="px-2 pt-1 pb-1 text-sm text-gray-600 overflow-ellipsis dark:text-gray-400">
-                    {user ? addEllipsis(user?.id) : ''}
-                  </div>
-                  <Identicon diameter={16} className="w-5 h-5 mr-2" />
-                  <NoteHeaderDivider />
-                </div>
-              )}
-              <Menu.Button ref={menuButtonRef} className={buttonClassName} title="Options (export, import, etc.)">
-                <Tooltip content="Options (export, import, etc.)">
-                  <span className="flex items-center justify-center w-8 h-8">
-                    <IconDots className={iconClassName} />
-                  </span>
-                </Tooltip>
-              </Menu.Button>
-              {open && (
-                <Portal>
-                  <Menu.Items
-                    ref={setPopperElement}
-                    className="z-10 w-56 overflow-hidden bg-white rounded shadow-popover dark:bg-gray-800 focus:outline-none"
-                    static
-                    style={styles.popper}
-                    {...attributes.popper}
-                  >
-                    <DropdownItem onClick={onMintClick}>
-                      <NFTIcon className="w-5 h-5 mr-1" />
-                      <span>Mint as NFT</span>
-                    </DropdownItem>
-                    <DropdownItem onClick={onImport}>
-                      <IconDownload size={18} className="mr-1" />
-                      <span>Import</span>
-                    </DropdownItem>
-                    <DropdownItem onClick={onExportClick}>
-                      <IconUpload size={18} className="mr-1" />
-                      <span>Export</span>
-                    </DropdownItem>
-                    <DropdownItem onClick={onExportAllClick}>
-                      <IconCloudDownload size={18} className="mr-1" />
-                      <span>Export All</span>
-                    </DropdownItem>
-                    <DropdownItem onClick={onDeleteClick} className="border-t dark:border-gray-700">
-                      <IconTrash size={18} className="mr-1" />
-                      <span>Delete</span>
-                    </DropdownItem>
-                    <DropdownItem onClick={onMoveToClick}>
-                      <IconCornerDownRight size={18} className="mr-1" />
-                      <span>Move to</span>
-                    </DropdownItem>
-                    <NoteMetadata note={note} />
-                  </Menu.Items>
-                </Portal>
-              )}
+        <div className="inline-flex justify-center">
+          {!isCloseButtonVisible && user && (
+            <div className="flex items-center">
+              <div className="mr-3">
+                <Select
+                  className="react-select-container-header"
+                  classNamePrefix="react-select-header"
+                  options={deckOptions}
+                  value={selectedDeck}
+                  onChange={value => {
+                    setSelectedDeck(value);
+                    window.location.assign(`${process.env.BASE_URL}/app/${value.id}`);
+                  }}
+                />
+              </div>
+              <NoteHeaderDivider />
+              <div className="px-2 pt-1 pb-1 text-sm text-gray-600 overflow-ellipsis dark:text-gray-400">
+                {user ? addEllipsis(user?.id) : ''}
+              </div>
+              <Identicon diameter={16} className="w-5 h-5 mr-2" />
+              <NoteHeaderDivider />
             </div>
           )}
-        </Menu>
+          <Menu>
+            {({ open }) => (
+              <>
+                <Menu.Button ref={menuButtonRef} className={buttonClassName} title="Options (export, import, etc.)">
+                  <Tooltip content="Options (export, import, etc.)">
+                    <span className="flex items-center justify-center w-8 h-8">
+                      <IconDots className={iconClassName} />
+                    </span>
+                  </Tooltip>
+                </Menu.Button>
+                {open && (
+                  <Portal>
+                    <Menu.Items
+                      ref={setPopperElement}
+                      className="z-10 w-56 overflow-hidden bg-white rounded shadow-popover dark:bg-gray-800 focus:outline-none"
+                      static
+                      style={styles.popper}
+                      {...attributes.popper}
+                    >
+                      <DropdownItem onClick={onMintClick}>
+                        <NFTIcon className="w-5 h-5 mr-1" />
+                        <span>Mint as NFT</span>
+                      </DropdownItem>
+                      <DropdownItem onClick={onImport}>
+                        <IconDownload size={18} className="mr-1" />
+                        <span>Import</span>
+                      </DropdownItem>
+                      <DropdownItem onClick={onExportClick}>
+                        <IconUpload size={18} className="mr-1" />
+                        <span>Export</span>
+                      </DropdownItem>
+                      <DropdownItem onClick={onExportAllClick}>
+                        <IconCloudDownload size={18} className="mr-1" />
+                        <span>Export All</span>
+                      </DropdownItem>
+                      <DropdownItem onClick={onDeleteClick} className="border-t dark:border-gray-700">
+                        <IconTrash size={18} className="mr-1" />
+                        <span>Delete</span>
+                      </DropdownItem>
+                      <DropdownItem onClick={onMoveToClick}>
+                        <IconCornerDownRight size={18} className="mr-1" />
+                        <span>Move to</span>
+                      </DropdownItem>
+                      <NoteMetadata note={note} />
+                    </Menu.Items>
+                  </Portal>
+                )}
+              </>
+            )}
+          </Menu>
+        </div>
       </div>
       {isMoveToModalOpen ? (
         <Portal>

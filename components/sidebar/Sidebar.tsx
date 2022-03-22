@@ -1,18 +1,27 @@
-import { memo, useCallback } from 'react';
+// @ts-ignore
+import LitJsSdk from 'lit-js-sdk';
+import { memo, useCallback, useState, useEffect } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { IconAffiliate, IconHome, IconSearch, IconLogout } from '@tabler/icons';
+import { IconAffiliate, IconSearch, IconLogout, IconShare, IconFolderPlus, IconGitPullRequest } from '@tabler/icons';
 import { useTransition, animated } from '@react-spring/web';
+import { toast } from 'react-toastify';
 import Tooltip from 'components/Tooltip';
 import { isMobile } from 'utils/device';
 import { useAuth } from 'utils/useAuth';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useStore } from 'lib/store';
+import supabase from 'lib/supabase';
+import useIsMounted from 'utils/useIsMounted';
 import { SPRING_CONFIG } from 'constants/spring';
 import SidebarItem from './SidebarItem';
 import SidebarContent from './SidebarContent';
 import SidebarHeader from './SidebarHeader';
+import { ShareModal } from 'components/ShareModal';
+import { AccessControlCondition, AuthSig, ResourceId } from 'types/lit';
+import { Deck, AccessParams } from 'types/supabase';
+import CreateOrJoinDeckModal from 'components/CreateOrJoinDeckModal';
 
 type Props = {
   setIsFindOrCreateModalOpen: Dispatch<SetStateAction<boolean>>;
@@ -22,7 +31,7 @@ type Props = {
 function Sidebar(props: Props) {
   const { setIsFindOrCreateModalOpen, className } = props;
 
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const { deck } = useCurrentDeck();
   const isSidebarOpen = useStore(state => state.isSidebarOpen);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
@@ -31,6 +40,55 @@ function Sidebar(props: Props) {
       setIsSidebarOpen(false);
     }
   }, [setIsSidebarOpen]);
+  const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
+  const [processingAccess, setProcessingAccess] = useState<boolean>(false);
+  const [createOrJoinModal, setCreateOrJoinModal] = useState<any>({ open: false, type: '' });
+
+  const isMounted = useIsMounted();
+
+  useEffect(() => {
+    const initLit = async () => {
+      const client = new LitJsSdk.LitNodeClient({ alertWhenUnauthorized: false, debug: false });
+      await client.connect();
+      window.litNodeClient = client;
+    };
+
+    if (!window.litNodeClient && isMounted() && user) {
+      initLit();
+    }
+  }, [isMounted, user]);
+
+  const provisionAccess = async (accessControlConditions: AccessControlCondition[]) => {
+    if (!deck || !accessControlConditions) return;
+
+    try {
+      const chain = accessControlConditions[0].chain;
+      const authSig: AuthSig = await LitJsSdk.checkAndSignAuthMessage({ chain });
+      const resourceId: ResourceId = {
+        baseUrl: process.env.BASE_URL ?? '',
+        path: `/app/${deck?.id}`,
+        orgId: '',
+        role: '',
+        extraData: '',
+      };
+
+      await window.litNodeClient.saveSigningCondition({
+        accessControlConditions,
+        chain,
+        authSig,
+        resourceId,
+        permanent: false,
+      });
+
+      const accessParamsToSave: AccessParams = { resource_id: resourceId, access_control_conditions: accessControlConditions };
+      await supabase.from<Deck>('decks').update({ access_params: accessParamsToSave }).eq('id', deck.id);
+
+      toast.success('Access to your DECK was configured');
+    } catch (e: any) {
+      console.error(e);
+      toast.error('Provisioning access failed.');
+    }
+  };
 
   const transition = useTransition<
     boolean,
@@ -95,14 +153,6 @@ function Sidebar(props: Props) {
               className={`flex flex-col flex-none h-full border-r bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 ${className}`}
             >
               <SidebarHeader />
-              <SidebarItem>
-                <Link href="/">
-                  <a className="flex items-center px-6 py-1">
-                    <IconHome className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
-                    <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Home</span>
-                  </a>
-                </Link>
-              </SidebarItem>
               <FindOrCreateModalButton
                 onClick={() => {
                   hideSidebarOnMobile();
@@ -110,10 +160,33 @@ function Sidebar(props: Props) {
                 }}
               />
               {deck && <GraphButton onClick={hideSidebarOnMobile} deckId={deck?.id} />}
+              <ShareModalButton
+                onClick={() => {
+                  setIsShareModalOpen(isOpen => !isOpen);
+                }}
+              />
+              <SidebarItem>
+                <button
+                  className="flex items-center w-full px-6 py-1 text-left"
+                  onClick={() => setCreateOrJoinModal({ open: true, type: 'join' })}
+                >
+                  <IconGitPullRequest className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
+                  <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Join DECK</span>
+                </button>
+              </SidebarItem>
+              <SidebarItem>
+                <button
+                  className="flex items-center w-full px-6 py-1 text-left"
+                  onClick={() => setCreateOrJoinModal({ open: true, type: 'create' })}
+                >
+                  <IconFolderPlus className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
+                  <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">New DECK</span>
+                </button>
+              </SidebarItem>
               <SidebarItem className="cursor-pointer">
                 <button className="flex items-center pl-6 py-1" onClick={signOut}>
                   <IconLogout className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
-                  <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Sign out</span>
+                  <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Sign Out</span>
                 </button>
               </SidebarItem>
               <SidebarContent
@@ -122,10 +195,48 @@ function Sidebar(props: Props) {
               />
             </div>
           </animated.div>
+          {isShareModalOpen && (
+            <ShareModal
+              onClose={() => setIsShareModalOpen(false)}
+              deckToShare={deck?.id}
+              processingAccess={processingAccess}
+              onAccessControlConditionsSelected={async (acc: AccessControlCondition[]) => {
+                setProcessingAccess(true);
+                await provisionAccess(acc);
+                setProcessingAccess(false);
+                return true;
+              }}
+              showStep={'ableToAccess'}
+            />
+          )}
+          {createOrJoinModal.open && (
+            <CreateOrJoinDeckModal
+              type={createOrJoinModal.type}
+              closeModal={() => setCreateOrJoinModal({ open: false, type: '' })}
+            />
+          )}
         </>
       ),
   );
 }
+
+type ShareModalButtonProps = {
+  onClick: () => void;
+};
+
+const ShareModalButton = (props: ShareModalButtonProps) => {
+  const { onClick } = props;
+  return (
+    <SidebarItem>
+      <Tooltip content="Access control conditions for this DECK" placement="right" touch={false}>
+        <button className="flex items-center w-full px-6 py-1 text-left" onClick={onClick}>
+          <IconShare className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
+          <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Share DECK</span>
+        </button>
+      </Tooltip>
+    </SidebarItem>
+  );
+};
 
 type FindOrCreateModalButtonProps = {
   onClick: () => void;

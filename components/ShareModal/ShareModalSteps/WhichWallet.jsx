@@ -62,7 +62,7 @@ const WhichWallet = ({ setActiveStep, processingAccess, onAccessControlCondition
         <InputWrapper
           value={walletAddress}
           className="mt-4"
-          label="Add Wallet Address or Blockchain Domain (e.g. ENS, UNS) here:"
+          label="Add Wallet Address or Blockchain Domain (e.g. ENS, UNS)"
           id="walletAddress"
           autoFocus
           handleChange={value => setWalletAddress(value)}
