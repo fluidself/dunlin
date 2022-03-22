@@ -84,7 +84,8 @@ export default function MintNFTModal(props: Props) {
             </span>
           </div>
           <div className="px-4 py-2 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br bg-gray-700 border-gray-700">
-            You are about to mint this note's content as an NFT. Double check that you are publishing exactly what you intend to.
+            You are about to mint this note&apos;s content as an NFT. Double check that you are publishing exactly what you intend
+            to.
             <Button
               className={`my-4 ${processing ? 'bg-gray-600 text-gray-300 hover:bg-gray-600 hover:bg-text-gray-300' : ''}`}
               primary

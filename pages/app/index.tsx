@@ -1,12 +1,12 @@
 // @ts-ignore
 import LitJsSdk from 'lit-js-sdk';
 import { withIronSessionSsr } from 'iron-session/next';
-import { ironOptions } from 'constants/iron-session';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAccount } from 'wagmi';
 import useSWR from 'swr';
 import { toast } from 'react-toastify';
+import { ironOptions } from 'constants/iron-session';
 import supabase from 'lib/supabase';
 import insertDeck from 'lib/api/insertDeck';
 import selectDecks from 'lib/api/selectDecks';

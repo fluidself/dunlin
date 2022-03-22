@@ -50,7 +50,7 @@ export default function NoteHeader() {
     }));
     setDeckOptions(decksToOptions);
     setSelectedDeck(decksToOptions?.filter(deckOption => deckOption.id === deck?.id)[0]);
-  }, [decks]);
+  }, [decks, deck?.id]);
 
   const isSidebarButtonVisible = useStore(state => !state.isSidebarOpen && state.openNoteIds?.[0] === currentNote.id);
   const isCloseButtonVisible = useStore(state => state.openNoteIds.length > 1);
