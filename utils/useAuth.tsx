@@ -83,10 +83,12 @@ function useProvideAuth(): AuthContextType {
     }
   }, []);
 
-  const signOut = useCallback(async () => {
-    await fetch('/api/signout');
+  const signOut = async () => {
+    await fetch('/api/signout', {
+      method: 'POST',
+    });
     await initUser();
-  }, []);
+  };
 
   return {
     isLoaded: isLoaded && !signingIn,
