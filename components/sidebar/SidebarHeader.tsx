@@ -1,43 +1,78 @@
-import { IconChevronsLeft, IconCopy } from '@tabler/icons';
+import { Menu } from '@headlessui/react';
+import {
+  IconLogout,
+  IconSelector,
+  IconChevronsLeft,
+  IconBrandGithub,
+  IconShare,
+  IconGitPullRequest,
+  IconFolderPlus,
+  IconPencil,
+} from '@tabler/icons';
+import { useAuth } from 'utils/useAuth';
 import { useStore } from 'lib/store';
-import copyToClipboard from 'utils/copyToClipboard';
-import { useCurrentDeck } from 'utils/useCurrentDeck';
-import { addEllipsis } from 'utils/string';
 import Tooltip from 'components/Tooltip';
+import { DropdownItem } from 'components/Dropdown';
 
-export default function Header() {
-  const { deck } = useCurrentDeck();
+type Props = {
+  setIsShareModalOpen: (arg0: boolean) => void;
+  setCreateJoinRenameModal: (arg0: { open: boolean; type: string }) => void;
+};
+
+export default function Header(props: Props) {
+  const { setIsShareModalOpen, setCreateJoinRenameModal } = props;
+  const { signOut } = useAuth();
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
 
   return (
-    <div className="relative">
-      <div className="flex items-center justify-between w-full py-2 pl-6 overflow-x-hidden text-left text-gray-800  dark:text-gray-200  overflow-ellipsis whitespace-nowrap focus:outline-none cursor-default border-b border-gray-700">
-        <div className="flex flex-col flex-1">
-          <span className="mr-1 font-semibold select-none hero-decoration">DECK</span>
-          {deck && (
-            <div className="flex flex-row items-center">
-              <span className="text-xs">{addEllipsis(deck.id)}</span>
-              <button
-                className="flex items-center text-gray-200 hover:bg-gray-600 hover:text-gray-200 ml-2 rounded p-1"
-                onClick={async () => await copyToClipboard(deck.id)}
-              >
-                <IconCopy size={18} className="" />
-              </button>
+    <>
+      <div className="relative">
+        <Menu>
+          <Menu.Button className="flex items-center justify-between w-full py-2 pl-6 overflow-x-hidden text-left text-gray-800 hover:bg-gray-200 active:bg-gray-300 dark:text-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 overflow-ellipsis whitespace-nowrap focus:outline-none border-b border-gray-700">
+            <div className="flex items-center flex-1">
+              <span className="mr-1 font-semibold select-none">DECK</span>
+              <IconSelector size={18} className="text-gray-500 dark:text-gray-400" />
             </div>
-          )}
-        </div>
-        <Tooltip content="Collapse sidebar (Ctrl+\)" placement="right">
-          <span
-            className="p-1 mr-2 rounded hover:bg-gray-300 active:bg-gray-400 dark:hover:bg-gray-600 dark:active:bg-gray-500 cursor-pointer"
-            onClick={e => {
-              e.stopPropagation();
-              setIsSidebarOpen(false);
-            }}
-          >
-            <IconChevronsLeft className="text-gray-500 dark:text-gray-400" />
-          </span>
-        </Tooltip>
+            <Tooltip content="Collapse sidebar (Ctrl+\)" placement="right">
+              <span
+                className="p-1 mr-2 rounded hover:bg-gray-300 active:bg-gray-400 dark:hover:bg-gray-600 dark:active:bg-gray-500"
+                onClick={e => {
+                  e.stopPropagation();
+                  setIsSidebarOpen(false);
+                }}
+              >
+                <IconChevronsLeft className="text-gray-500 dark:text-gray-400" />
+              </span>
+            </Tooltip>
+          </Menu.Button>
+          <Menu.Items className="absolute z-20 w-56 overflow-hidden bg-white rounded left-6 top-full shadow-popover dark:bg-gray-800 focus:outline-none border border-gray-500">
+            <DropdownItem className="" onClick={() => setIsShareModalOpen(true)}>
+              <IconShare size={18} className="mr-1" />
+              <span>Share</span>
+            </DropdownItem>
+            <DropdownItem className="" onClick={() => setCreateJoinRenameModal({ open: true, type: 'rename' })}>
+              <IconPencil size={18} className="mr-1" />
+              <span>Rename</span>
+            </DropdownItem>
+            <DropdownItem className="" onClick={() => setCreateJoinRenameModal({ open: true, type: 'join' })}>
+              <IconGitPullRequest size={18} className="mr-1" />
+              <span>Join</span>
+            </DropdownItem>
+            <DropdownItem className="" onClick={() => setCreateJoinRenameModal({ open: true, type: 'create' })}>
+              <IconFolderPlus size={18} className="mr-1" />
+              <span>Create</span>
+            </DropdownItem>
+            <DropdownItem as="a" className="border-t dark:border-gray-700" href="https://github.com/fluidself/deck">
+              <IconBrandGithub size={18} className="mr-1" />
+              <span>Source Code</span>
+            </DropdownItem>
+            <DropdownItem className="" onClick={signOut}>
+              <IconLogout size={18} className="mr-1" />
+              <span>Sign Out</span>
+            </DropdownItem>
+          </Menu.Items>
+        </Menu>
       </div>
-    </div>
+    </>
   );
 }
