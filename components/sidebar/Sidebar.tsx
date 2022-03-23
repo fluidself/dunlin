@@ -4,7 +4,7 @@ import { memo, useCallback, useState, useEffect } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { IconAffiliate, IconSearch, IconLogout, IconShare, IconFolderPlus, IconGitPullRequest } from '@tabler/icons';
+import { IconAffiliate, IconSearch } from '@tabler/icons';
 import { useTransition, animated } from '@react-spring/web';
 import { toast } from 'react-toastify';
 import Tooltip from 'components/Tooltip';
@@ -18,7 +18,7 @@ import { SPRING_CONFIG } from 'constants/spring';
 import { AccessControlCondition, AuthSig, ResourceId } from 'types/lit';
 import { Deck, AccessParams } from 'types/supabase';
 import { ShareModal } from 'components/ShareModal';
-import CreateOrJoinDeckModal from 'components/CreateOrJoinDeckModal';
+import CreateJoinRenameDeckModal from 'components/CreateJoinRenameDeckModal';
 import SidebarItem from './SidebarItem';
 import SidebarContent from './SidebarContent';
 import SidebarHeader from './SidebarHeader';
@@ -31,7 +31,7 @@ type Props = {
 function Sidebar(props: Props) {
   const { setIsFindOrCreateModalOpen, className } = props;
 
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const { deck } = useCurrentDeck();
   const isSidebarOpen = useStore(state => state.isSidebarOpen);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
@@ -42,7 +42,7 @@ function Sidebar(props: Props) {
   }, [setIsSidebarOpen]);
   const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
   const [processingAccess, setProcessingAccess] = useState<boolean>(false);
-  const [createOrJoinModal, setCreateOrJoinModal] = useState<any>({ open: false, type: '' });
+  const [createJoinRenameModal, setCreateJoinRenameModal] = useState<any>({ open: false, type: '' });
 
   const isMounted = useIsMounted();
 
@@ -152,7 +152,7 @@ function Sidebar(props: Props) {
             <div
               className={`flex flex-col flex-none h-full border-r bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 ${className}`}
             >
-              <SidebarHeader />
+              <SidebarHeader setIsShareModalOpen={setIsShareModalOpen} setCreateJoinRenameModal={setCreateJoinRenameModal} />
               <FindOrCreateModalButton
                 onClick={() => {
                   hideSidebarOnMobile();
@@ -160,35 +160,6 @@ function Sidebar(props: Props) {
                 }}
               />
               {deck && <GraphButton onClick={hideSidebarOnMobile} deckId={deck?.id} />}
-              <ShareModalButton
-                onClick={() => {
-                  setIsShareModalOpen(isOpen => !isOpen);
-                }}
-              />
-              <SidebarItem>
-                <button
-                  className="flex items-center w-full px-6 py-1 text-left"
-                  onClick={() => setCreateOrJoinModal({ open: true, type: 'join' })}
-                >
-                  <IconGitPullRequest className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
-                  <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Join DECK</span>
-                </button>
-              </SidebarItem>
-              <SidebarItem>
-                <button
-                  className="flex items-center w-full px-6 py-1 text-left"
-                  onClick={() => setCreateOrJoinModal({ open: true, type: 'create' })}
-                >
-                  <IconFolderPlus className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
-                  <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">New DECK</span>
-                </button>
-              </SidebarItem>
-              <SidebarItem className="cursor-pointer">
-                <button className="flex items-center pl-6 py-1" onClick={signOut}>
-                  <IconLogout className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
-                  <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Sign Out</span>
-                </button>
-              </SidebarItem>
               <SidebarContent
                 className="flex-1 mt-3 overflow-x-hidden overflow-y-auto"
                 setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen}
@@ -209,34 +180,16 @@ function Sidebar(props: Props) {
               showStep={'ableToAccess'}
             />
           )}
-          {createOrJoinModal.open && (
-            <CreateOrJoinDeckModal
-              type={createOrJoinModal.type}
-              closeModal={() => setCreateOrJoinModal({ open: false, type: '' })}
+          {createJoinRenameModal.open && (
+            <CreateJoinRenameDeckModal
+              type={createJoinRenameModal.type}
+              closeModal={() => setCreateJoinRenameModal({ open: false, type: '' })}
             />
           )}
         </>
       ),
   );
 }
-
-type ShareModalButtonProps = {
-  onClick: () => void;
-};
-
-const ShareModalButton = (props: ShareModalButtonProps) => {
-  const { onClick } = props;
-  return (
-    <SidebarItem>
-      <Tooltip content="Access control conditions for this DECK" placement="right" touch={false}>
-        <button className="flex items-center w-full px-6 py-1 text-left" onClick={onClick}>
-          <IconShare className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
-          <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Share DECK</span>
-        </button>
-      </Tooltip>
-    </SidebarItem>
-  );
-};
 
 type FindOrCreateModalButtonProps = {
   onClick: () => void;
