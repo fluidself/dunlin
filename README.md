@@ -1,6 +1,10 @@
 # DECK
 
-DECK is a note-taking app with built-in decentralized access control. Individuals can compile their ideas, thoughts, and notes in an interconnected context and make connections between them. DAOs and other communities can create knowledge bases and set up granular access control based on on-chain conditions such as ownership of an NFT or token.
+DECK is a notebook for crypto natives who want to capture, organize, and share complex information. Individuals can compile their ideas, thoughts, and notes in an interconnected context and make connections between them. DAOs and other communities can manage projects and create knowledge bases, FAQs, and guides. Access to notebooks can be granted using tokens, NFTs, and blockchain identity as keys.
+
+## Motivation
+
+The problem is a sense of information overload which pervades everything we do online. It's hard to keep up and separating signal from noise is tricky. Without a good note-taking system, we are prone to miss key information, forget lessons, and fail to see the big picture. Private coordination and sense-making in groups that are dynamically changing—such as members of a DAO or holders of a given NFT—is difficult and the typical tools leave something to be desired.
 
 ## Technologies
 
