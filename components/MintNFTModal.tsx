@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
-import { IconAlertTriangle, IconSend } from '@tabler/icons';
+import { IconSend } from '@tabler/icons';
 import fleekStorage from '@fleekhq/fleek-storage-js';
 // import { useSigner, useContract } from 'wagmi';
 // import { Contract } from 'ethers';

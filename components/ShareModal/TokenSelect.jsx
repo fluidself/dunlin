@@ -31,10 +31,17 @@ const TOP_LIST = [
     logo: 'https://upload.wikimedia.org/wikipedia/commons/0/05/Ethereum_logo_2014.svg',
   },
   {
-    label: 'Lit Genesis Gate',
-    logo: 'https://litgateway.com/favicon.png',
-    value: '0xA3D109E28589D2AbC15991B57Ce5ca461Ad8e026',
-    symbol: 'LITGATE',
+    label: 'USD Coin',
+    logo: 'https://etherscan.io/token/images/centre-usdc_28.png',
+    value: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+    symbol: 'USDC',
+    standard: 'ERC20',
+  },
+  {
+    label: 'BoredApeYachtClub',
+    logo: 'https://etherscan.io/token/images/boredapeyc_32.png',
+    value: '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d',
+    symbol: 'BAYC',
     standard: 'ERC721',
   },
   {
@@ -77,7 +84,9 @@ const TokenSelect = props => {
 
   return (
     <div>
-      <Button onClick={() => setModalIsOpen(true)}>Search for a token/NFT</Button>
+      <Button className="py-[12px]" onClick={() => setModalIsOpen(true)}>
+        Search for a token/NFT
+      </Button>
 
       {modalIsOpen && (
         <div className="fixed inset-0 z-20 overflow-y-auto">

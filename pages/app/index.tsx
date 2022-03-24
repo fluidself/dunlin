@@ -107,9 +107,7 @@ export default function AppHome() {
         <div className="flex flex-col items-end text-white min-h-[27px] pr-8 mt-2">{isLoaded && user && <HomeHeader />}</div>
         <div className="flex flex-col flex-1 overflow-y-hidden container">
           <div className="flex flex-col items-center flex-1 w-full p-12">
-            <h1 className="mb-12 text-xl text-center mt-24 lg:mt-48">
-              Welcome to <span className="hero-decoration">DECK</span>
-            </h1>
+            <h1 className="mb-12 text-xl text-center mt-24 lg:mt-48">Welcome to DECK</h1>
             <p className="text-center">
               You are one step closer to compiling your new favorite knowledge base. Work by yourself or join forces with your
               community. Get started by creating a new DECK or joining one if you have received an invitation.

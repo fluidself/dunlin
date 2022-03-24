@@ -19,6 +19,11 @@
     @apply cursor-pointer text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300;
   }
 
+  input[type='text']:focus,
+  input[type='radio']:focus {
+    box-shadow: none;
+  }
+
   /* react-select */
   .react-select-container .react-select__control {
     @apply bg-background border border-neutral-500 hover:border-neutral-500 py-2;
@@ -82,6 +87,17 @@
   .react-select-container-header .react-select-header__placeholder,
   .react-select-container-header .react-select-header__single-value {
     @apply text-gray-400 my-0 py-0 leading-4;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 

@@ -9,5 +9,5 @@ type Props = {
 
 export default function Logo(props: Props) {
   const { width, height, className = '' } = props;
-  return <Image src={logo} width={width} height={height} alt="logo" layout="fixed" className={className} />;
+  return <Image src={logo} width={width} height={height} alt="logo" layout="fixed" priority className={className} />;
 }

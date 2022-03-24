@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
 import LitJsSdk from 'lit-js-sdk';
-import { RadioGroup } from '@headlessui/react';
 import { IconX } from '@tabler/icons';
 import InputWrapper from '../InputWrapper';
 import ChainSelector from '../ChainSelector';
@@ -17,7 +16,6 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
   const [erc1155TokenId, setErc1155TokenId] = useState('');
 
   const handleSubmit = async () => {
-    console.log('handleSubmit and selectedToken is', selectedToken);
     let success;
 
     if (contractAddress && contractAddress.length) {
@@ -233,20 +231,53 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
 
         {!selectedToken && !!contractAddress && contractAddress.length && (
           <div className="mt-4">
-            <RadioGroup value={contractType} onChange={setContractType}>
-              <RadioGroup.Label>Token contract type</RadioGroup.Label>
-              <div className="flex justify-between py-2">
-                <RadioGroup.Option value="ERC20">
-                  {({ checked }) => <span className={`p-2 ${checked ? 'border border-primary-500' : ''}`}>ERC20</span>}
-                </RadioGroup.Option>
-                <RadioGroup.Option value="ERC721">
-                  {({ checked }) => <span className={`p-2 ${checked ? 'border border-primary-500' : ''}`}>ERC721</span>}
-                </RadioGroup.Option>
-                <RadioGroup.Option value="ERC1155">
-                  {({ checked }) => <span className={`p-2 ${checked ? 'border border-primary-500' : ''}`}>ERC1155</span>}
-                </RadioGroup.Option>
+            <fieldset>
+              <div className="flex space-x-4">
+                <legend>Token contract type:</legend>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-radio appearance-none rounded-full h-4 w-4 border border-gray-300 bg-white text-primary-500 checked:bg-primary-500 checked:border-primary-500 focus:outline-none mt-1 align-top bg-no-repeat bg-center bg-contain mr-2 cursor-pointer"
+                    type="radio"
+                    name="contractType"
+                    id="ERC20"
+                    value="ERC20"
+                    checked={contractType === 'ERC20'}
+                    onChange={e => setContractType(e.target.value)}
+                  />
+                  <label className="form-check-label" htmlFor="ERC20">
+                    ERC20
+                  </label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-radio appearance-none rounded-full h-4 w-4 border border-gray-300 bg-white text-primary-500 checked:bg-primary-500 checked:border-primary-500 focus:outline-none mt-1 align-top bg-no-repeat bg-center bg-contain mr-2 cursor-pointer"
+                    type="radio"
+                    name="contractType"
+                    id="ERC721"
+                    value="ERC721"
+                    checked={contractType === 'ERC721'}
+                    onChange={e => setContractType(e.target.value)}
+                  />
+                  <label className="form-check-label" htmlFor="ERC721">
+                    ERC721
+                  </label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-radio appearance-none rounded-full h-4 w-4 border border-gray-300 bg-white text-primary-500 checked:bg-primary-500 checked:border-primary-500 focus:outline-none mt-1 align-top bg-no-repeat bg-center bg-contain mr-2 cursor-pointer"
+                    type="radio"
+                    name="contractType"
+                    id="ERC1155"
+                    value="ERC1155"
+                    checked={contractType === 'ERC1155'}
+                    onChange={e => setContractType(e.target.value)}
+                  />
+                  <label className="form-check-label" htmlFor="ERC1155">
+                    ERC1155
+                  </label>
+                </div>
               </div>
-            </RadioGroup>
+            </fieldset>
 
             {contractType === 'ERC1155' ? (
               <div>
