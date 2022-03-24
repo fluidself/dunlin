@@ -9,11 +9,9 @@ import { useTransition, animated } from '@react-spring/web';
 import { toast } from 'react-toastify';
 import Tooltip from 'components/Tooltip';
 import { isMobile } from 'utils/device';
-import { useAuth } from 'utils/useAuth';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useStore } from 'lib/store';
 import supabase from 'lib/supabase';
-import useIsMounted from 'utils/useIsMounted';
 import { SPRING_CONFIG } from 'constants/spring';
 import { AccessControlCondition, AuthSig, ResourceId } from 'types/lit';
 import { Deck, AccessParams } from 'types/supabase';
@@ -31,7 +29,6 @@ type Props = {
 function Sidebar(props: Props) {
   const { setIsFindOrCreateModalOpen, className } = props;
 
-  const { user } = useAuth();
   const { deck } = useCurrentDeck();
   const isSidebarOpen = useStore(state => state.isSidebarOpen);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
@@ -43,20 +40,6 @@ function Sidebar(props: Props) {
   const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
   const [processingAccess, setProcessingAccess] = useState<boolean>(false);
   const [createJoinRenameModal, setCreateJoinRenameModal] = useState<any>({ open: false, type: '' });
-
-  const isMounted = useIsMounted();
-
-  useEffect(() => {
-    const initLit = async () => {
-      const client = new LitJsSdk.LitNodeClient({ alertWhenUnauthorized: false, debug: false });
-      await client.connect();
-      window.litNodeClient = client;
-    };
-
-    if (!window.litNodeClient && isMounted() && user) {
-      initLit();
-    }
-  }, [isMounted, user]);
 
   const provisionAccess = async (accessControlConditions: AccessControlCondition[]) => {
     if (!deck || !accessControlConditions) return;

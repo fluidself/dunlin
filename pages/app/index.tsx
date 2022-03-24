@@ -11,6 +11,7 @@ import supabase from 'lib/supabase';
 import insertDeck from 'lib/api/insertDeck';
 import selectDecks from 'lib/api/selectDecks';
 import { Deck } from 'types/supabase';
+import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';
 import { AuthSig } from 'types/lit';
 import HomeHeader from 'components/home/HomeHeader';
@@ -25,6 +26,19 @@ export default function AppHome() {
   const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
   const [requestingAccess, setRequestingAccess] = useState<boolean>(false);
   const [creatingDeck, setCreatingDeck] = useState<boolean>(false);
+  const isMounted = useIsMounted();
+
+  useEffect(() => {
+    const initLit = async () => {
+      const client = new LitJsSdk.LitNodeClient({ alertWhenUnauthorized: false, debug: false });
+      await client.connect();
+      window.litNodeClient = client;
+    };
+
+    if (!window.litNodeClient && isMounted() && user) {
+      initLit();
+    }
+  }, [isMounted, user]);
 
   useEffect(() => {
     const onDisconnect = () => signOut();
