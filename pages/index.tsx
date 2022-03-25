@@ -1,4 +1,5 @@
 import { withIronSessionSsr } from 'iron-session/next';
+import { IconInfoCircle } from '@tabler/icons';
 import { useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { ironOptions } from 'constants/iron-session';
@@ -21,7 +22,15 @@ export default function Home() {
   }, [accountData?.connector, signOut]);
 
   return (
-    <div className="mt-2 text-white">
+    <div className="mt-2">
+      <a
+        href="https://github.com/fluidself/deck#deck"
+        rel="noopener noreferrer"
+        target="_blank"
+        className="focus:outline-none absolute top-3 right-6"
+      >
+        <IconInfoCircle size={20} className="hover:text-gray-500" />
+      </a>
       <main className="container mt-28 lg:mt-48 flex flex-col">
         <div className="mx-auto pl-2 mb-16">
           <h1 className="text-5xl space-y-4 tracking-wider">

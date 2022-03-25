@@ -1,10 +1,4 @@
-import {
-  useState,
-  ReactNode,
-  MouseEventHandler,
-  useRef,
-  useCallback,
-} from 'react';
+import { useState, ReactNode, MouseEventHandler, useRef, useCallback } from 'react';
 import { usePopper } from 'react-popper';
 import { Menu } from '@headlessui/react';
 import { Placement } from '@popperjs/core';
@@ -35,17 +29,11 @@ export default function Dropdown(props: Props) {
   } = props;
 
   const referenceElementRef = useRef<HTMLButtonElement | null>(null);
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(
-    null
-  );
-  const { styles, attributes } = usePopper(
-    referenceElementRef.current,
-    popperElement,
-    {
-      placement,
-      modifiers: [{ name: 'offset', options: { offset } }],
-    }
-  );
+  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
+  const { styles, attributes } = usePopper(referenceElementRef.current, popperElement, {
+    placement,
+    modifiers: [{ name: 'offset', options: { offset } }],
+  });
 
   return (
     <Menu>
@@ -57,12 +45,7 @@ export default function Dropdown(props: Props) {
             className={buttonClassName}
             contentEditable={false}
           >
-            <Tooltip
-              disabled={!tooltipContent}
-              content={tooltipContent}
-              delay={[200, 0]}
-              placement={tooltipPlacement}
-            >
+            <Tooltip disabled={!tooltipContent} content={tooltipContent} delay={[200, 0]} placement={tooltipPlacement}>
               <span>{buttonChildren}</span>
             </Tooltip>
           </Menu.Button>
@@ -95,6 +78,8 @@ type DropdownItemProps =
   | {
       children: ReactNode;
       href: string;
+      rel?: string;
+      target?: string;
       as: 'a';
       className?: string;
     };
@@ -103,23 +88,18 @@ export function DropdownItem(props: DropdownItemProps) {
   const { children, className = '' } = props;
 
   const itemClassName = useCallback(
-    (active) =>
+    active =>
       `flex w-full items-center px-4 py-2 text-left text-sm text-gray-800 dark:text-gray-200 select-none ${
         active ? 'bg-gray-100 dark:bg-gray-700' : ''
       } ${className}`,
-    [className]
+    [className],
   );
 
   return (
     <Menu.Item>
       {({ active }) =>
         props.as === 'a' ? (
-          <a
-            className={itemClassName(active)}
-            href={props.href}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a className={itemClassName(active)} href={props.href} target="_blank" rel="noopener noreferrer">
             {children}
           </a>
         ) : (

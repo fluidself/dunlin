@@ -7,7 +7,7 @@ class MyDocument extends Document {
         <Head>
           <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&display=swap" />
         </Head>
-        <body className="bg-background font-display">
+        <body className="bg-gray-900 text-gray-100 font-display">
           <Main />
           <NextScript />
         </body>

@@ -4,7 +4,17 @@ DECK is a notebook for crypto natives who want to capture, organize, and share c
 
 ## Motivation
 
-The problem is a sense of information overload which pervades everything we do online. It's hard to keep up and separating signal from noise is tricky. Without a good note-taking system, we are prone to miss key information, forget lessons, and fail to see the big picture. Private coordination and sense-making in groups that are dynamically changing—such as members of a DAO or holders of a given NFT—is difficult and the typical tools leave something to be desired.
+The problem is a sense of information overload which pervades everything we do online. It's hard to keep up and separating signal from noise is tricky. Without a good note-taking system, we are prone to miss key information, forget lessons, and fail to see the big picture. Private coordination and sense-making in groups that are dynamically changing—such as members of a DAO or holders of a given NFT—is difficult, and the typical tools leave something to be desired.
+
+## Features
+
+- 📝 WYSIWYG editor with markdown support
+- 🔗 Use links, tags, and nested notes to organize your thinking
+- 🔍 Full-text search helps you find relevant notes
+- 🔀 Analyze your knowledge graph to discover new connections
+- 📤 Import or export notes in markdown format
+- 🔐 Leverage on-chain conditions to securely collaborate
+- 📄 Publish notes to IPFS
 
 ## Technologies
 
@@ -19,3 +29,4 @@ This project is made possible thanks to these and other open source languages, l
 | [Supabase](https://supabase.io/)              | An open source Firebase alternative       |
 | [Notabase](https://notabase.io/)              | A personal knowledge base                 |
 | [Lit Protocol](https://litprotocol.com/)      | Decentralized access control              |
+| [wagmi](https://wagmi.sh/)                    | React Hooks library for Ethereum          |

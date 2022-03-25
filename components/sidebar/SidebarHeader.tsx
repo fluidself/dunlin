@@ -3,7 +3,7 @@ import {
   IconLogout,
   IconSelector,
   IconChevronsLeft,
-  IconBrandGithub,
+  IconCode,
   IconShare,
   IconGitPullRequest,
   IconFolderPlus,
@@ -62,9 +62,15 @@ export default function Header(props: Props) {
               <IconFolderPlus size={18} className="mr-1" />
               <span>Create</span>
             </DropdownItem>
-            <DropdownItem as="a" className="border-t dark:border-gray-700" href="https://github.com/fluidself/deck">
-              <IconBrandGithub size={18} className="mr-1" />
-              <span>Source Code</span>
+            <DropdownItem
+              as="a"
+              className="border-t dark:border-gray-700"
+              href="https://github.com/fluidself/deck"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <IconCode size={18} className="mr-1" />
+              <span>Code</span>
             </DropdownItem>
             <DropdownItem className="" onClick={signOut}>
               <IconLogout size={18} className="mr-1" />
