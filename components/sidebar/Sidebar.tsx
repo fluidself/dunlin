@@ -9,6 +9,8 @@ import { useTransition, animated } from '@react-spring/web';
 import { toast } from 'react-toastify';
 import Tooltip from 'components/Tooltip';
 import { isMobile } from 'utils/device';
+import useIsMounted from 'utils/useIsMounted';
+import { useAuth } from 'utils/useAuth';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useStore } from 'lib/store';
 import supabase from 'lib/supabase';
@@ -29,6 +31,7 @@ type Props = {
 function Sidebar(props: Props) {
   const { setIsFindOrCreateModalOpen, className } = props;
 
+  const { user } = useAuth();
   const { deck } = useCurrentDeck();
   const isSidebarOpen = useStore(state => state.isSidebarOpen);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
@@ -40,6 +43,19 @@ function Sidebar(props: Props) {
   const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
   const [processingAccess, setProcessingAccess] = useState<boolean>(false);
   const [createJoinRenameModal, setCreateJoinRenameModal] = useState<any>({ open: false, type: '' });
+  const isMounted = useIsMounted();
+
+  useEffect(() => {
+    const initLit = async () => {
+      const client = new LitJsSdk.LitNodeClient({ alertWhenUnauthorized: false, debug: false });
+      await client.connect();
+      window.litNodeClient = client;
+    };
+
+    if (!window.litNodeClient && isMounted() && user) {
+      initLit();
+    }
+  }, [isMounted, user]);
 
   const provisionAccess = async (accessControlConditions: AccessControlCondition[]) => {
     if (!deck || !accessControlConditions) return;
@@ -47,6 +63,12 @@ function Sidebar(props: Props) {
     try {
       const chain = accessControlConditions[0].chain;
       const authSig: AuthSig = await LitJsSdk.checkAndSignAuthMessage({ chain });
+
+      if (!authSig) {
+        toast.error('Provisioning access failed.');
+        return false;
+      }
+
       const resourceId: ResourceId = {
         baseUrl: process.env.BASE_URL ?? '',
         path: `/app/${deck?.id}`,
@@ -67,9 +89,11 @@ function Sidebar(props: Props) {
       await supabase.from<Deck>('decks').update({ access_params: accessParamsToSave }).eq('id', deck.id);
 
       toast.success('Access to your DECK was configured');
+      return true;
     } catch (e: any) {
       console.error(e);
       toast.error('Provisioning access failed.');
+      return false;
     }
   };
 
@@ -156,9 +180,9 @@ function Sidebar(props: Props) {
               processingAccess={processingAccess}
               onAccessControlConditionsSelected={async (acc: AccessControlCondition[]) => {
                 setProcessingAccess(true);
-                await provisionAccess(acc);
+                const success = await provisionAccess(acc);
+                if (success) return true;
                 setProcessingAccess(false);
-                return true;
               }}
               showStep={'ableToAccess'}
             />
