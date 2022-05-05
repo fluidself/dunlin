@@ -61,7 +61,9 @@ function Sidebar(props: Props) {
     if (!deck || !accessControlConditions) return;
 
     try {
-      const chain = accessControlConditions[0].chain;
+      // TODO: hotfix to only allow EVM chains for now
+      // const chain = accessControlConditions[0].chain;
+      const chain = 'ethereum';
       const authSig: AuthSig = await LitJsSdk.checkAndSignAuthMessage({ chain });
 
       if (!authSig) {
