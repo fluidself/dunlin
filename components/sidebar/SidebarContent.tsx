@@ -13,18 +13,14 @@ type Props = {
 
 export default function SidebarContent(props: Props) {
   const { className, setIsFindOrCreateModalOpen } = props;
-  const activeTab = useStore((state) => state.sidebarTab);
-  const setActiveTab = useStore((state) => state.setSidebarTab);
+  const activeTab = useStore(state => state.sidebarTab);
+  const setActiveTab = useStore(state => state.setSidebarTab);
 
   return (
     <div className={`flex flex-col ${className}`}>
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
       <div className="flex flex-col flex-1 overflow-x-hidden">
-        {activeTab === SidebarTabType.Notes ? (
-          <SidebarNotes
-            setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen}
-          />
-        ) : null}
+        {activeTab === SidebarTabType.Notes ? <SidebarNotes setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen} /> : null}
         {activeTab === SidebarTabType.Search ? <SidebarSearch /> : null}
       </div>
     </div>

@@ -151,6 +151,7 @@ export default function NoteHeader() {
                 <Select
                   className="react-select-container-header"
                   classNamePrefix="react-select-header"
+                  placeholder="Select DECK..."
                   options={deckOptions}
                   value={selectedDeck}
                   onChange={value => {
