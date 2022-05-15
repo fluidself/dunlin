@@ -179,7 +179,7 @@ export default function AppLayout(props: Props) {
       subscription.unsubscribe();
       window.removeEventListener('focus', initData);
     };
-  }, [deckId, upsertNote, updateNote, deleteNote]);
+  }, [deckId, upsertNote, updateNote, deleteNote, initData]);
 
   const hotkeys = useMemo(
     () => [

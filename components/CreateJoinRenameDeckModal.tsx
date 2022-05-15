@@ -1,13 +1,13 @@
 // @ts-ignore
 import LitJsSdk from 'lit-js-sdk';
 import { useMemo, useState } from 'react';
-import { IconFolderPlus, IconGitPullRequest, IconPencil } from '@tabler/icons';
+import { IconFolderPlus, IconGitPullRequest, IconPencil, IconTrash } from '@tabler/icons';
 import { toast } from 'react-toastify';
 import useSWR from 'swr';
 import supabase from 'lib/supabase';
 import insertDeck from 'lib/api/insertDeck';
 import selectDecks from 'lib/api/selectDecks';
-import { Deck } from 'types/supabase';
+import { Deck, Note } from 'types/supabase';
 import { useAuth } from 'utils/useAuth';
 import { AuthSig } from 'types/lit';
 import useHotkeys from 'utils/useHotkeys';
@@ -15,7 +15,7 @@ import Button from 'components/home/Button';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 
 type Props = {
-  type: 'create' | 'join' | 'rename';
+  type: 'create' | 'join' | 'rename' | 'delete';
   closeModal: () => void;
 };
 
@@ -69,6 +69,22 @@ export default function CreateJoinRenameDeckModal(props: Props) {
     setProcessing(false);
     closeModal();
     window.location.assign(`${process.env.BASE_URL}/app/${deck.id}`);
+  };
+
+  const deleteDeck = async () => {
+    if (!user || !deck) return;
+
+    try {
+      await supabase.from<Note>('notes').delete().eq('deck_id', deck.id);
+      await supabase.from<Deck>('decks').delete().eq('id', deck.id);
+
+      toast.success(`Successfully deleted ${deck.deck_name}`);
+      setProcessing(false);
+      closeModal();
+      window.location.assign(`${process.env.BASE_URL}/app`);
+    } catch (e: any) {
+      toast.error('There was an error deleting the DECK');
+    }
   };
 
   const verifyAccess = async () => {
@@ -126,14 +142,15 @@ export default function CreateJoinRenameDeckModal(props: Props) {
     }
   };
 
-  const headings = { create: 'Create a new DECK', join: 'Join a DECK', rename: 'Rename this DECK' };
+  const headings = { create: 'Create a new DECK', join: 'Join a DECK', rename: 'Rename this DECK', delete: 'Delete this DECK' };
   const icons = {
     create: <IconFolderPlus className="ml-4 mr-1 text-gray-200" size={32} />,
     join: <IconGitPullRequest className="ml-4 mr-1 text-gray-200" size={32} />,
     rename: <IconPencil className="ml-4 mr-1 text-gray-200" size={32} />,
+    delete: <IconTrash className="ml-4 mr-1 text-gray-200" size={32} />,
   };
   const placeholders = { create: 'Enter DECK name', join: 'Enter DECK ID', rename: 'Enter new DECK name' };
-  const onClickHandlers = { create: createNewDeck, join: verifyAccess, rename: renameDeck };
+  const onClickHandlers = { create: createNewDeck, join: verifyAccess, rename: renameDeck, delete: deleteDeck };
 
   return (
     <div className="fixed inset-0 z-20 overflow-y-auto">
@@ -145,16 +162,30 @@ export default function CreateJoinRenameDeckModal(props: Props) {
             <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0 bg-gray-800">{headings[type]}</span>
           </div>
           <div className="px-4 py-4 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br bg-gray-700 border-gray-700">
-            <input
-              type="text"
-              className="w-full py-4 px-2 text-xl border-none rounded-tl rounded-tr focus:ring-0 bg-gray-800 text-gray-200"
-              placeholder={placeholders[type]}
-              value={inputText}
-              onChange={e => setInputText(e.target.value)}
-              autoFocus
-              autoComplete="off"
-              maxLength={type === 'create' || type === 'rename' ? 20 : 40}
-            />
+            {type !== 'delete' ? (
+              <input
+                type="text"
+                className="w-full py-4 px-2 text-xl border-none rounded-tl rounded-tr focus:ring-0 bg-gray-800 text-gray-200"
+                placeholder={placeholders[type]}
+                value={inputText}
+                onChange={e => setInputText(e.target.value)}
+                autoFocus
+                autoComplete="off"
+                maxLength={type === 'create' || type === 'rename' ? 20 : 40}
+              />
+            ) : (
+              <>
+                <div>Are you sure you want to delete this DECK?</div>
+                <div className="flex my-2 m-[-4px] flex-wrap">
+                  <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
+                    {deck?.deck_name}
+                  </span>
+                  <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
+                    {deck?.id}
+                  </span>
+                </div>
+              </>
+            )}
             <Button
               className={`my-4 ${processing ? 'bg-gray-800 text-gray-400 hover:bg-gray-800 hover:text-gray-400' : ''}`}
               primary

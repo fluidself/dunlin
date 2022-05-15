@@ -8,6 +8,7 @@ import {
   IconGitPullRequest,
   IconFolderPlus,
   IconPencil,
+  IconTrash,
 } from '@tabler/icons';
 import { useAuth } from 'utils/useAuth';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
@@ -57,6 +58,10 @@ export default function Header(props: Props) {
                 <DropdownItem className="" onClick={() => setCreateJoinRenameModal({ open: true, type: 'rename' })}>
                   <IconPencil size={18} className="mr-1" />
                   <span>Rename</span>
+                </DropdownItem>
+                <DropdownItem className="" onClick={() => setCreateJoinRenameModal({ open: true, type: 'delete' })}>
+                  <IconTrash size={18} className="mr-1" />
+                  <span>Delete</span>
                 </DropdownItem>
               </>
             )}
