@@ -129,15 +129,16 @@ export default function CreateJoinRenameDeckModal(props: Props) {
         },
         body: JSON.stringify({ jwt, requestedDeck: inputText }),
       });
-
-      if (!response.ok) return;
+      if (!response.ok) {
+        toast.error('Unable to verify access.');
+        return;
+      }
 
       toast.success('Access to DECK is granted.');
       setProcessing(false);
       closeModal();
       window.location.assign(`${process.env.BASE_URL}/app/${inputText}`);
     } catch (e: any) {
-      console.error(e);
       toast.error('Unable to verify access.');
     }
   };

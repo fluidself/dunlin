@@ -106,13 +106,15 @@ export default function AppHome() {
         body: JSON.stringify({ jwt, requestedDeck }),
       });
 
-      if (!response.ok) return;
+      if (!response.ok) {
+        toast.error('Unable to verify access.');
+        return;
+      }
 
       toast.success('Access to DECK is granted.');
       setRequestingAccess(false);
       router.push(`/app/${requestedDeck}`);
     } catch (e: any) {
-      console.error(e);
       toast.error('Unable to verify access.');
     }
   };

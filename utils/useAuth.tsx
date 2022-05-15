@@ -88,6 +88,7 @@ function useProvideAuth(): AuthContextType {
       method: 'POST',
     });
     await initUser();
+    router.push('/');
   };
 
   return {
