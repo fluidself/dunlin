@@ -18,19 +18,13 @@ const SidebarNoteLinkDropdown = (props: Props) => {
   const { note, className } = props;
 
   const containerRef = useRef<HTMLButtonElement | null>(null);
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(
-    null
-  );
-  const { styles, attributes } = usePopper(
-    containerRef.current,
-    popperElement,
-    { placement: 'right-start' }
-  );
+  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
+  const { styles, attributes } = usePopper(containerRef.current, popperElement, { placement: 'right-start' });
 
   const [isMoveToModalOpen, setIsMoveToModalOpen] = useState(false);
   const onMoveToClick = useCallback(() => setIsMoveToModalOpen(true), []);
 
-  const onDeleteClick = useDeleteNote(note.id);
+  const onDeleteClick = useDeleteNote(note?.id);
 
   return (
     <>
