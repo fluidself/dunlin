@@ -1,6 +1,9 @@
-import { useRef, useCallback, useMemo, useState, KeyboardEvent, useEffect, memo } from 'react';
+import { useCallback, useMemo, useState, KeyboardEvent, useEffect, memo } from 'react';
 import { createEditor, Range, Editor as SlateEditor, Transforms, Descendant, Path } from 'slate';
 import { withReact, Editable, ReactEditor, Slate } from 'slate-react';
+import { SyncElement, toSharedType, withYjs } from 'slate-yjs';
+import { WebsocketProvider } from 'y-websocket';
+import * as Y from 'yjs';
 import { withHistory } from 'slate-history';
 import { isHotkey } from 'is-hotkey';
 import colors from 'tailwindcss/colors';
@@ -10,7 +13,7 @@ import withBlockBreakout from 'editor/plugins/withBlockBreakout';
 import withLinks from 'editor/plugins/withLinks';
 import withNormalization from 'editor/plugins/withNormalization';
 import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
-import withImages from 'editor/plugins/withImages';
+// import withImages from 'editor/plugins/withImages';
 import withVoidElements from 'editor/plugins/withVoidElements';
 import withNodeId from 'editor/plugins/withNodeId';
 import withBlockReferences from 'editor/plugins/withBlockReferences';
@@ -18,6 +21,7 @@ import withTags from 'editor/plugins/withTags';
 import withHtml from 'editor/plugins/withHtml';
 import { getDefaultEditorValue } from 'editor/constants';
 import { store, useStore } from 'lib/store';
+import { DeckEditor } from 'types/slate';
 import { ElementType, Mark } from 'types/slate';
 import useIsMounted from 'utils/useIsMounted';
 import HoveringToolbar from './HoveringToolbar';
@@ -43,6 +47,8 @@ type Props = {
   highlightedPath?: Path;
 };
 
+const WEBSOCKET_ENDPOINT = 'ws://localhost:1234';
+
 function Editor(props: Props) {
   const { noteId, onChange, className = '', highlightedPath } = props;
   const isMounted = useIsMounted();
@@ -50,23 +56,50 @@ function Editor(props: Props) {
   const value = useStore(state => state.notes[noteId]?.content ?? getDefaultEditorValue());
   const setValue = useCallback((value: Descendant[]) => store.getState().updateNote({ id: noteId, content: value }), [noteId]);
 
-  const editorRef = useRef<SlateEditor>();
-  if (!editorRef.current) {
-    editorRef.current = withNormalization(
-      withCustomDeleteBackward(
-        withAutoMarkdown(
-          withHtml(
-            withBlockBreakout(
-              withVoidElements(
-                withBlockReferences(withImages(withTags(withLinks(withNodeId(withHistory(withReact(createEditor()))))))),
+  const [sharedType, provider] = useMemo(() => {
+    const doc = new Y.Doc();
+    const sharedType = doc.getArray<SyncElement>('content');
+    const provider = new WebsocketProvider(WEBSOCKET_ENDPOINT, noteId, doc, {
+      connect: false,
+    });
+
+    return [sharedType, provider];
+  }, [noteId]);
+
+  const editor = useMemo(() => {
+    const editor = withYjs(
+      withNormalization(
+        withCustomDeleteBackward(
+          withAutoMarkdown(
+            withHtml(
+              withBlockBreakout(
+                withVoidElements(
+                  withBlockReferences(withTags(withLinks(withNodeId(withHistory(withReact(createEditor() as DeckEditor)))))),
+                ),
               ),
             ),
           ),
         ),
       ),
+      sharedType,
     );
-  }
-  const editor = editorRef.current;
+
+    return editor;
+  }, [sharedType, provider]);
+
+  useEffect(() => {
+    provider.on('sync', (isSynced: boolean) => {
+      if (isSynced && sharedType.length === 0) {
+        toSharedType(sharedType, getDefaultEditorValue());
+      }
+    });
+
+    provider.connect();
+
+    return () => {
+      provider.disconnect();
+    };
+  }, [provider]);
 
   const renderElement = useMemo(() => {
     const ElementWithSideMenu = withBlockSideMenu(withVerticalSpacing(EditorElement));

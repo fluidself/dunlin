@@ -1,8 +1,9 @@
 import type { BaseEditor, Descendant } from 'slate';
 import type { ReactEditor } from 'slate-react';
 import type { HistoryEditor } from 'slate-history';
+import { YjsEditor } from 'slate-yjs';
 
-export type DeckEditor = BaseEditor & ReactEditor & HistoryEditor;
+export type DeckEditor = BaseEditor & ReactEditor & HistoryEditor & YjsEditor;
 
 export enum ElementType {
   Paragraph = 'paragraph',
@@ -157,6 +158,7 @@ export type ListElement = BulletedList | NumberedList;
 export type DeckElement = ReferenceableBlockElement | ListElement | InlineElement;
 
 export type FormattedText = { text: string } & Partial<Record<Mark, boolean>>;
+// export type FormattedText = any;
 
 export type DeckText = FormattedText;
 

@@ -54,10 +54,13 @@
     "slate-history": "^0.66.0",
     "slate-hyperscript": "^0.67.0",
     "slate-react": "^0.74.2",
+    "slate-yjs": "^3.2.0",
     "swr": "^1.2.2",
     "unified": "^10.1.2",
     "uuid": "^8.3.2",
     "wagmi": "^0.2.18",
+    "y-websocket": "^1.4.3",
+    "yjs": "^13.5.38",
     "zustand": "^3.7.1"
   },
   "devDependencies": {
