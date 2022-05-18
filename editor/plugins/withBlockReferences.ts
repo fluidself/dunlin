@@ -15,10 +15,7 @@ const replaceBlockRefs = async (editor: Editor, blockId: string) => {
   const updatedNodes = [];
   const matchingNodes = Editor.nodes<BlockReference>(editor, {
     at: [],
-    match: (n) =>
-      Element.isElement(n) &&
-      n.type === ElementType.BlockReference &&
-      n.blockId === blockId,
+    match: n => Element.isElement(n) && n.type === ElementType.BlockReference && n.blockId === blockId,
   });
   for (const [node, path] of matchingNodes) {
     Transforms.setNodes(editor, { type: ElementType.Paragraph }, { at: path });
@@ -37,11 +34,7 @@ const replaceBlockRefs = async (editor: Editor, blockId: string) => {
         // We've already updated this note, skip it
         continue backlinks;
       }
-      Transforms.setNodes(
-        noteEditor,
-        { type: ElementType.Paragraph },
-        { at: match.path }
-      );
+      Transforms.setNodes(noteEditor, { type: ElementType.Paragraph }, { at: match.path });
     }
 
     updateData.push({
@@ -59,12 +52,7 @@ const replaceBlockRefs = async (editor: Editor, blockId: string) => {
   // See https://github.com/supabase/supabase-js/issues/156
   const promises = [];
   for (const data of updateData) {
-    promises.push(
-      supabase
-        .from<Note>('notes')
-        .update({ content: data.content })
-        .eq('id', data.id)
-    );
+    promises.push(supabase.from<Note>('notes').update({ content: data.content }).eq('id', data.id));
   }
   await Promise.all(promises);
 };
@@ -73,7 +61,7 @@ const withBlockReferences = (editor: Editor) => {
   const { apply } = editor;
 
   // Remove block references if the original block is deleted
-  editor.apply = (operation) => {
+  editor.apply = (operation: any) => {
     apply(operation);
 
     if (operation.type === 'merge_node') {
@@ -87,13 +75,8 @@ const withBlockReferences = (editor: Editor) => {
     if (operation.type === 'remove_node') {
       const node = operation.node;
 
-      if (
-        !Editor.isEditor(node) &&
-        Element.isElement(node) &&
-        isReferenceableBlockElement(node) &&
-        node.id
-      ) {
-        replaceBlockRefs(editor, node.id);
+      if (!Editor.isEditor(node) && Element.isElement(node) && isReferenceableBlockElement(node) && node['id']) {
+        replaceBlockRefs(editor, node['id']);
       }
     }
   };

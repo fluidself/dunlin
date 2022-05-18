@@ -40,9 +40,7 @@ const recursivelySetIds = (node: Node): Node => {
       newNode.id = createNodeId();
     }
 
-    const newChildren = newNode.children.map<Descendant>(
-      (child) => recursivelySetIds(child) as Descendant
-    );
+    const newChildren = newNode.children.map<Descendant>(child => recursivelySetIds(child) as Descendant);
     newNode.children = newChildren;
   }
   return newNode;
@@ -58,8 +56,7 @@ const isDuplicateId = (nodeId: string): boolean => {
 
     const matchingNodes = Editor.nodes(editor, {
       at: [],
-      match: (n) =>
-        !Editor.isEditor(n) && Element.isElement(n) && n.id === nodeId,
+      match: n => !Editor.isEditor(n) && Element.isElement(n) && n['id'] === nodeId,
     });
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -79,17 +76,12 @@ export const isPartialElement = (node: any): node is Partial<Element> => {
 const withNodeId = (editor: Editor): Editor => {
   const { apply } = editor;
 
-  editor.apply = (operation) => {
+  editor.apply = (operation: any) => {
     if (operation.type === 'insert_node') {
       let node = operation.node;
 
       // delete node id if the node is an element and it has a duplicate id
-      if (
-        !Editor.isEditor(node) &&
-        Element.isElement(node) &&
-        node.id &&
-        isDuplicateId(node.id)
-      ) {
+      if (!Editor.isEditor(node) && Element.isElement(node) && node['id'] && isDuplicateId(node['id'])) {
         // id will be set later, ignore this error
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore

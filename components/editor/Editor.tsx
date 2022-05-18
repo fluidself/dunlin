@@ -47,7 +47,8 @@ type Props = {
   highlightedPath?: Path;
 };
 
-const WEBSOCKET_ENDPOINT = 'ws://localhost:1234';
+const WEBSOCKET_ENDPOINT =
+  process.env.BASE_URL === 'http://localhost:3000' ? 'ws://localhost:1234' : process.env.NEXT_PUBLIC_Y_WEBSOCKET_ENDPOINT!;
 
 function Editor(props: Props) {
   const { noteId, onChange, className = '', highlightedPath } = props;
@@ -85,12 +86,12 @@ function Editor(props: Props) {
     );
 
     return editor;
-  }, [sharedType, provider]);
+  }, [sharedType]);
 
   useEffect(() => {
     provider.on('sync', (isSynced: boolean) => {
       if (isSynced && sharedType.length === 0) {
-        toSharedType(sharedType, getDefaultEditorValue());
+        toSharedType(sharedType, value);
       }
     });
 
@@ -99,7 +100,8 @@ function Editor(props: Props) {
     return () => {
       provider.disconnect();
     };
-  }, [provider]);
+    // eslint-disable-next-line
+  }, [provider, sharedType]);
 
   const renderElement = useMemo(() => {
     const ElementWithSideMenu = withBlockSideMenu(withVerticalSpacing(EditorElement));

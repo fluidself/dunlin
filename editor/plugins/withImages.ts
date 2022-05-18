@@ -10,7 +10,7 @@ import { store } from 'lib/store';
 const withImages = (editor: Editor) => {
   const { insertData } = editor;
 
-  editor.insertData = data => {
+  editor.insertData = (data: any) => {
     const text = data.getData('text/plain');
     const { files } = data;
 

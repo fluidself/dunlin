@@ -6,10 +6,10 @@ const withCustomDeleteBackward = (editor: Editor) => {
   const { deleteBackward } = editor;
 
   // Convert list item to a paragraph if deleted at the beginning of the item
-  editor.deleteBackward = (...args) => {
+  editor.deleteBackward = (...args: any[]) => {
     const { selection } = editor;
     const block = Editor.above(editor, {
-      match: (n) => Editor.isBlock(editor, n),
+      match: n => Editor.isBlock(editor, n),
     });
 
     if (!selection || !block) {
@@ -30,14 +30,12 @@ const withCustomDeleteBackward = (editor: Editor) => {
       // If it is a list item, unwrap the list
       if (lineElement.type === ElementType.ListItem) {
         Transforms.unwrapNodes(editor, {
-          match: (n) =>
-            !Editor.isEditor(n) && Element.isElement(n) && isListType(n.type),
+          match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
           split: true,
         });
 
         const isInList = Editor.above(editor, {
-          match: (n) =>
-            !Editor.isEditor(n) && Element.isElement(n) && isListType(n.type),
+          match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
         });
         if (!isInList) {
           Transforms.setNodes(editor, { type: ElementType.Paragraph });

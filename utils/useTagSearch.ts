@@ -13,15 +13,13 @@ type NoteSearchOptions = {
   numOfResults?: number;
 };
 
-export default function useTagSearch({
-  numOfResults = -1,
-}: NoteSearchOptions = {}) {
+export default function useTagSearch({ numOfResults = -1 }: NoteSearchOptions = {}) {
   const search = useCallback(
     (searchText: string) => {
       const fuse = initFuse(store.getState().notes);
       return fuse.search(searchText, { limit: numOfResults });
     },
-    [numOfResults]
+    [numOfResults],
   );
   return search;
 }
@@ -53,8 +51,7 @@ const flattenContent = (content: Descendant[]): string[] => {
 
   const tags = Editor.nodes<Tag>(editor, {
     at: [],
-    match: (n) =>
-      !Editor.isEditor(n) && Element.isElement(n) && n.type === ElementType.Tag,
+    match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.Tag,
     mode: 'lowest',
   });
 

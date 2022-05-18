@@ -54,6 +54,7 @@ export default function AppLayout(props: Props) {
   const setNotes = useStore(state => state.setNotes);
   const setNoteTree = useStore(state => state.setNoteTree);
   const setDeckId = useStore(state => state.setDeckId);
+
   const initData = useCallback(async () => {
     if (!deckId || typeof deckId !== 'string') {
       return;

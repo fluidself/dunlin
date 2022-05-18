@@ -12,7 +12,7 @@ const VOID_ELEMENTS: Array<ElementType> = [
 const withVoidElements = (editor: Editor) => {
   const { isVoid: slateIsVoid } = editor;
 
-  editor.isVoid = (element) => {
+  editor.isVoid = (element: any) => {
     return isVoid(element) ? true : slateIsVoid(element);
   };
 

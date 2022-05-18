@@ -1,13 +1,6 @@
 import { Editor, Element, Transforms, Range, Text, Node, Path } from 'slate';
 import { store } from 'lib/store';
-import type {
-  ExternalLink,
-  NoteLink,
-  ListElement,
-  Image,
-  BlockReference,
-  Tag,
-} from 'types/slate';
+import type { ExternalLink, NoteLink, ListElement, Image, BlockReference, Tag } from 'types/slate';
 import { ElementType, Mark } from 'types/slate';
 import { computeBlockReference } from './backlinks/useBlockReference';
 import { createNodeId } from './plugins/withNodeId';
@@ -18,15 +11,13 @@ export const isMark = (type: any): type is Mark => {
   return Object.values(Mark).includes(type as Mark);
 };
 
-export const isListType = (
-  type: ElementType
-): type is ElementType.BulletedList | ElementType.NumberedList => {
+export const isListType = (type: ElementType): type is ElementType.BulletedList | ElementType.NumberedList => {
   return type === ElementType.BulletedList || type === ElementType.NumberedList;
 };
 
 export const isMarkActive = (editor: Editor, format: Mark) => {
   const [match] = Editor.nodes(editor, {
-    match: (n) => Text.isText(n) && n[format] === true,
+    match: n => Text.isText(n) && n[format] === true,
     mode: 'all',
   });
   return !!match;
@@ -42,25 +33,16 @@ export const toggleMark = (editor: Editor, format: Mark) => {
   }
 };
 
-export const isElementActive = (
-  editor: Editor,
-  format: ElementType,
-  path?: Path
-) => {
+export const isElementActive = (editor: Editor, format: ElementType, path?: Path) => {
   const [match] = Editor.nodes(editor, {
     ...(path ? { at: path } : {}),
-    match: (n) =>
-      !Editor.isEditor(n) && Element.isElement(n) && n.type === format,
+    match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === format,
   });
 
   return !!match;
 };
 
-export const toggleElement = (
-  editor: Editor,
-  format: ElementType,
-  path?: Path
-) => {
+export const toggleElement = (editor: Editor, format: ElementType, path?: Path) => {
   const pathRef = path ? Editor.pathRef(editor, path) : null;
   const isActive = isElementActive(editor, format, path);
 
@@ -76,8 +58,7 @@ export const toggleElement = (
     // there is a list element above the current path/selection
     const hasListTypeAbove = Editor.above(editor, {
       at: getCurrentLocation(),
-      match: (n) =>
-        !Editor.isEditor(n) && Element.isElement(n) && isListType(n.type),
+      match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
     });
 
     return formatIsTextAndNotActive && hasListTypeAbove;
@@ -86,8 +67,7 @@ export const toggleElement = (
   do {
     Transforms.unwrapNodes(editor, {
       at: getCurrentLocation(),
-      match: (n) =>
-        !Editor.isEditor(n) && Element.isElement(n) && isListType(n.type),
+      match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
       split: true,
     });
   } while (continueUnwrappingList());
@@ -149,8 +129,7 @@ export const handleUnindent = (editor: Editor) => {
   // Only unindent if there would be another list above the current node
   if (numOfLists > 1) {
     Transforms.unwrapNodes(editor, {
-      match: (n) =>
-        !Editor.isEditor(n) && Element.isElement(n) && isListType(n.type),
+      match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
       split: true,
     });
   }
@@ -171,10 +150,10 @@ export const removeLink = (editor: Editor) => {
 
 const unwrapLink = (editor: Editor) => {
   Transforms.unwrapNodes(editor, {
-    match: (n) =>
+    match: n =>
       !Editor.isEditor(n) &&
       Element.isElement(n) &&
-      (n.type === ElementType.ExternalLink || n.type === ElementType.NoteLink),
+      (n['type'] === ElementType.ExternalLink || n['type'] === ElementType.NoteLink),
     voids: true,
   });
 };
@@ -185,10 +164,7 @@ const wrapLink = (editor: Editor, link: ExternalLink | NoteLink) => {
     return;
   }
 
-  if (
-    isElementActive(editor, ElementType.ExternalLink) ||
-    isElementActive(editor, ElementType.NoteLink)
-  ) {
+  if (isElementActive(editor, ElementType.ExternalLink) || isElementActive(editor, ElementType.NoteLink)) {
     unwrapLink(editor);
   }
 
@@ -202,11 +178,7 @@ const wrapLink = (editor: Editor, link: ExternalLink | NoteLink) => {
 };
 
 // Text is only used as the link text if the range is collapsed; otherwise, we reuse the existing selection text.
-export const insertExternalLink = (
-  editor: Editor,
-  url: string,
-  text?: string
-) => {
+export const insertExternalLink = (editor: Editor, url: string, text?: string) => {
   const { selection } = editor;
   if (!selection) {
     return;
@@ -222,11 +194,7 @@ export const insertExternalLink = (
   wrapLink(editor, link);
 };
 
-export const insertNoteLink = (
-  editor: Editor,
-  noteId: string,
-  noteTitle: string
-) => {
+export const insertNoteLink = (editor: Editor, noteId: string, noteTitle: string) => {
   const { selection } = editor;
   if (!selection) {
     return;
@@ -271,11 +239,7 @@ export const insertImage = (editor: Editor, url: string, path?: Path) => {
   }
 };
 
-export const insertBlockReference = (
-  editor: Editor,
-  blockId: string,
-  onOwnLine: boolean
-) => {
+export const insertBlockReference = (editor: Editor, blockId: string, onOwnLine: boolean) => {
   if (!editor.selection) {
     return;
   }
