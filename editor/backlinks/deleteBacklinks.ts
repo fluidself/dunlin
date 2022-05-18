@@ -25,11 +25,7 @@ const deleteBacklinks = async (noteId: string) => {
 
     Transforms.unwrapNodes(editor, {
       at: [],
-      match: (n) =>
-        !Editor.isEditor(n) &&
-        Element.isElement(n) &&
-        n.type === ElementType.NoteLink &&
-        n.noteId === noteId,
+      match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.NoteLink && n['noteId'] === noteId,
     });
 
     updateData.push({
@@ -48,10 +44,7 @@ const deleteBacklinks = async (noteId: string) => {
   const promises = [];
   for (const data of updateData) {
     promises.push(
-      supabase
-        .from<Note>('notes')
-        .update({ content: data.content, updated_at: new Date().toISOString() })
-        .eq('id', data.id)
+      supabase.from<Note>('notes').update({ content: data.content, updated_at: new Date().toISOString() }).eq('id', data.id),
     );
   }
   await Promise.all(promises);

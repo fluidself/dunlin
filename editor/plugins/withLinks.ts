@@ -6,14 +6,11 @@ import { ElementType } from 'types/slate';
 const withLinks = (editor: Editor) => {
   const { insertData, insertText, isInline } = editor;
 
-  editor.isInline = (element) => {
-    return element.type === ElementType.ExternalLink ||
-      element.type === ElementType.NoteLink
-      ? true
-      : isInline(element);
+  editor.isInline = (element: any) => {
+    return element.type === ElementType.ExternalLink || element.type === ElementType.NoteLink ? true : isInline(element);
   };
 
-  editor.insertText = (text) => {
+  editor.insertText = (text: any) => {
     const { selection } = editor;
 
     if (text && isUrl(text)) {
@@ -45,7 +42,7 @@ const withLinks = (editor: Editor) => {
     }
   };
 
-  editor.insertData = (data) => {
+  editor.insertData = (data: any) => {
     const text = data.getData('text/plain');
 
     if (text && isUrl(text)) {

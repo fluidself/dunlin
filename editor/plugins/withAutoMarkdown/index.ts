@@ -7,14 +7,14 @@ import handleInlineShortcuts from './handleInlineShortcuts';
 const withAutoMarkdown = (editor: Editor) => {
   const { insertText, insertData } = editor;
 
-  editor.insertText = (text) => {
+  editor.insertText = (text: any) => {
     const handled = handleAutoMarkdown(editor, text);
     if (!handled) {
       insertText(text);
     }
   };
 
-  editor.insertData = (data) => {
+  editor.insertData = (data: any) => {
     const text = data.getData('text/plain');
     const handled = handleAutoMarkdown(editor, text);
     if (!handled) {
@@ -28,10 +28,7 @@ const withAutoMarkdown = (editor: Editor) => {
 const handleAutoMarkdown = (editor: Editor, text: string) => {
   // Don't handle auto markdown shortcuts in code blocks
   const inCodeBlock = Editor.above(editor, {
-    match: (n) =>
-      !Editor.isEditor(n) &&
-      Element.isElement(n) &&
-      n.type === ElementType.CodeBlock,
+    match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.CodeBlock,
   });
 
   if (inCodeBlock) {

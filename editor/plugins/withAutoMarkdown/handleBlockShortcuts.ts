@@ -42,7 +42,7 @@ const handleBlockShortcuts = (editor: Editor, text: string): boolean => {
   }
 
   const block = Editor.above(editor, {
-    match: (n) => Editor.isBlock(editor, n),
+    match: n => Editor.isBlock(editor, n),
   });
   const path = block ? block[1] : [];
   const lineStart = Editor.start(editor, path);
@@ -73,17 +73,12 @@ const handleBlockShortcuts = (editor: Editor, text: string): boolean => {
 
     // Unwrap lists if there are any
     Transforms.unwrapNodes(editor, {
-      match: (n) =>
-        !Editor.isEditor(n) && Element.isElement(n) && isListType(n.type),
+      match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
       split: true,
     });
 
     // Update node type
-    Transforms.setNodes(
-      editor,
-      { type },
-      { match: (n) => Editor.isBlock(editor, n) }
-    );
+    Transforms.setNodes(editor, { type }, { match: n => Editor.isBlock(editor, n) });
 
     if (type === ElementType.ListItem) {
       const list: ListElement = {
@@ -92,10 +87,7 @@ const handleBlockShortcuts = (editor: Editor, text: string): boolean => {
         children: [],
       };
       Transforms.wrapNodes(editor, list, {
-        match: (n) =>
-          !Editor.isEditor(n) &&
-          Element.isElement(n) &&
-          n.type === ElementType.ListItem,
+        match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.ListItem,
       });
     } else if (type === ElementType.ThematicBreak) {
       // Insert a new paragraph below thematic break

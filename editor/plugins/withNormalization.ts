@@ -5,15 +5,13 @@ import { isTextType } from 'editor/checks';
 import { createNodeId } from './withNodeId';
 
 const withNormalization = (editor: Editor) => {
-  return withListNormalization(
-    withInlineNormalization(withLayoutNormalization(editor))
-  );
+  return withListNormalization(withInlineNormalization(withLayoutNormalization(editor)));
 };
 
 const withLayoutNormalization = (editor: Editor) => {
   const { normalizeNode } = editor;
 
-  editor.normalizeNode = (entry) => {
+  editor.normalizeNode = (entry: any) => {
     const [, path] = entry;
 
     // Make sure there is at least a paragraph in the editor
@@ -38,7 +36,7 @@ const withLayoutNormalization = (editor: Editor) => {
 const withInlineNormalization = (editor: Editor) => {
   const { normalizeNode } = editor;
 
-  editor.normalizeNode = (entry) => {
+  editor.normalizeNode = (entry: any) => {
     const [node, path] = entry;
 
     if (Element.isElement(node)) {
@@ -48,21 +46,12 @@ const withInlineNormalization = (editor: Editor) => {
         let normalized = false;
 
         // Inline, non-void elements with no text should be unwrapped
-        if (
-          Element.isElement(child) &&
-          editor.isInline(child) &&
-          !editor.isVoid(child) &&
-          !Node.string(child)
-        ) {
+        if (Element.isElement(child) && editor.isInline(child) && !editor.isVoid(child) && !Node.string(child)) {
           Transforms.unwrapNodes(editor, { at: childPath });
           normalized = true;
         }
         // Text elements with no text and a mark should have their mark unset
-        else if (
-          Text.isText(child) &&
-          !Node.string(child) &&
-          markArr.some((mark) => !!child[mark])
-        ) {
+        else if (Text.isText(child) && !Node.string(child) && markArr.some(mark => !!child[mark])) {
           Transforms.unsetNodes(editor, markArr, { at: childPath });
           normalized = true;
         }
@@ -87,16 +76,13 @@ const withInlineNormalization = (editor: Editor) => {
 const withListNormalization = (editor: Editor) => {
   const { normalizeNode } = editor;
 
-  editor.normalizeNode = (entry) => {
+  editor.normalizeNode = (entry: any) => {
     const [node, path] = entry;
 
     // Paragraphs, headings, and list items in list items should be stripped out
     if (Element.isElement(node) && node.type === ElementType.ListItem) {
       for (const [child, childPath] of Node.children(editor, path)) {
-        if (
-          Element.isElement(child) &&
-          (isTextType(child.type) || child.type === ElementType.ListItem)
-        ) {
+        if (Element.isElement(child) && (isTextType(child.type) || child.type === ElementType.ListItem)) {
           Transforms.unwrapNodes(editor, { at: childPath });
           return;
         }
@@ -107,11 +93,7 @@ const withListNormalization = (editor: Editor) => {
     if (Element.isElement(node) && isListType(node.type)) {
       for (const [child, childPath] of Node.children(editor, path)) {
         if (Element.isElement(child) && isTextType(child.type)) {
-          Transforms.setNodes(
-            editor,
-            { type: ElementType.ListItem },
-            { at: childPath }
-          );
+          Transforms.setNodes(editor, { type: ElementType.ListItem }, { at: childPath });
           return;
         }
       }
@@ -131,7 +113,7 @@ const isAtLineEnd = (editor: Editor, selection: Selection) => {
 
   const { anchor } = selection;
   const block = Editor.above(editor, {
-    match: (n) => Editor.isBlock(editor, n),
+    match: n => Editor.isBlock(editor, n),
   });
   const linePath = block ? block[1] : [];
 

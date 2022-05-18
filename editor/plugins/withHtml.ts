@@ -3,10 +3,7 @@ import { jsx } from 'slate-hyperscript';
 import { ElementType, Mark } from 'types/slate';
 import { PickPartial } from 'types/utils';
 
-const ELEMENT_TAGS: Record<
-  string,
-  (el: HTMLElement) => PickPartial<Element, 'id' | 'children'>
-> = {
+const ELEMENT_TAGS: Record<string, (el: HTMLElement) => PickPartial<Element, 'id' | 'children'>> = {
   A: (el: HTMLElement) => ({
     type: ElementType.ExternalLink,
     url: el.getAttribute('href') ?? '',
@@ -31,10 +28,7 @@ const ELEMENT_TAGS: Record<
 };
 
 // COMPAT: `B` is omitted here because Google Docs uses `<b>` in weird ways.
-const TEXT_TAGS: Record<
-  string,
-  (el: HTMLElement) => Partial<Record<Mark, boolean>>
-> = {
+const TEXT_TAGS: Record<string, (el: HTMLElement) => Partial<Record<Mark, boolean>>> = {
   CODE: () => ({ [Mark.Code]: true }),
   DEL: () => ({ [Mark.Strikethrough]: true }),
   EM: () => ({ [Mark.Italic]: true }),
@@ -51,10 +45,7 @@ export const deserialize = (el: HTMLElement): Node[] => {
     // This will preserve whitespace around inlines and strip out extraneous newlines
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    return el.textContent &&
-      (!el.textContent.includes('\n') || el.textContent.trim())
-      ? el.textContent
-      : null;
+    return el.textContent && (!el.textContent.includes('\n') || el.textContent.trim()) ? el.textContent : null;
   } else if (el.nodeType !== 1 || el.nodeName === 'BR') {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -64,11 +55,7 @@ export const deserialize = (el: HTMLElement): Node[] => {
   const { nodeName } = el;
   let parent = el;
 
-  if (
-    nodeName === 'PRE' &&
-    el.childNodes[0] &&
-    el.childNodes[0].nodeName === 'CODE'
-  ) {
+  if (nodeName === 'PRE' && el.childNodes[0] && el.childNodes[0].nodeName === 'CODE') {
     parent = el.childNodes[0] as HTMLElement;
   }
 
@@ -94,7 +81,7 @@ export const deserialize = (el: HTMLElement): Node[] => {
 
   if (TEXT_TAGS[nodeName]) {
     const attrs = TEXT_TAGS[nodeName](el);
-    return children.map((child) => jsx('text', attrs, child));
+    return children.map(child => jsx('text', attrs, child));
   }
 
   return children;
@@ -103,7 +90,7 @@ export const deserialize = (el: HTMLElement): Node[] => {
 const withHtml = (editor: Editor) => {
   const { insertData } = editor;
 
-  editor.insertData = (data) => {
+  editor.insertData = (data: any) => {
     const html = data.getData('text/html');
     const isSlateFragment = data.types.includes('application/x-slate-fragment');
 

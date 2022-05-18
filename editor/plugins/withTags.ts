@@ -4,7 +4,7 @@ import { ElementType } from 'types/slate';
 const withTags = (editor: Editor) => {
   const { isInline } = editor;
 
-  editor.isInline = (element) => {
+  editor.isInline = (element: any) => {
     return element.type === ElementType.Tag ? true : isInline(element);
   };
 

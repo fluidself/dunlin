@@ -21,7 +21,7 @@ const withBlockBreakout = (editor: Editor) => {
 
     const { anchor } = selection;
     const block = Editor.above(editor, {
-      match: (n) => Editor.isBlock(editor, n),
+      match: n => Editor.isBlock(editor, n),
     });
 
     if (!block) {
@@ -70,33 +70,24 @@ const withBlockBreakout = (editor: Editor) => {
     // The element is a list item and the line is empty
     if (lineElementType === ElementType.ListItem && lineText.length === 0) {
       Transforms.unwrapNodes(editor, {
-        match: (n) =>
-          !Editor.isEditor(n) && Element.isElement(n) && isListType(n.type),
+        match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
         split: true,
       });
 
       const isInList = Editor.above(editor, {
-        match: (n) =>
-          !Editor.isEditor(n) && Element.isElement(n) && isListType(n.type),
+        match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
       });
       if (!isInList) {
         Transforms.setNodes(editor, { type: ElementType.Paragraph });
       }
     }
     // The element is a check list item and the line is empty
-    else if (
-      lineElementType === ElementType.CheckListItem &&
-      lineText.length === 0
-    ) {
+    else if (lineElementType === ElementType.CheckListItem && lineText.length === 0) {
       // Turn the element into a paragraph
       Transforms.setNodes(editor, { type: ElementType.Paragraph });
     }
     // The cursor is at the end of the line, or the line element is a void and block element
-    else if (
-      isAtLineEnd ||
-      (Editor.isBlock(editor, lineElement) &&
-        Editor.isVoid(editor, lineElement))
-    ) {
+    else if (isAtLineEnd || (Editor.isBlock(editor, lineElement) && Editor.isVoid(editor, lineElement))) {
       // We insert after the current node
       Transforms.select(editor, lineEnd);
       Transforms.insertNodes(editor, nodeToInsert);
@@ -116,10 +107,7 @@ const withBlockBreakout = (editor: Editor) => {
       if (Element.isElement(ancestorNode) && editor.isInline(ancestorNode)) {
         const endPoint = Range.end(selection);
         const [selectedLeaf] = Editor.node(editor, endPoint);
-        if (
-          Text.isText(selectedLeaf) &&
-          selectedLeaf.text.length === endPoint.offset
-        ) {
+        if (Text.isText(selectedLeaf) && selectedLeaf.text.length === endPoint.offset) {
           if (Range.isExpanded(selection)) {
             Transforms.delete(editor);
           }
