@@ -1,11 +1,12 @@
 import { useCallback, useMemo, useState, KeyboardEvent, useEffect, memo } from 'react';
 import { createEditor, Range, Editor as SlateEditor, Transforms, Descendant, Path } from 'slate';
 import { withReact, Editable, ReactEditor, Slate } from 'slate-react';
-import { SyncElement, toSharedType, withYjs } from 'slate-yjs';
+import { SyncElement, toSharedType, withYjs, withCursor, useCursors } from 'slate-yjs';
 import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
 import { withHistory } from 'slate-history';
 import { isHotkey } from 'is-hotkey';
+import randomColor from 'randomcolor';
 import colors from 'tailwindcss/colors';
 import { handleEnter, handleIndent, handleUnindent, isElementActive, toggleElement, toggleMark } from 'editor/formatting';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
@@ -24,6 +25,8 @@ import { store, useStore } from 'lib/store';
 import { DeckEditor } from 'types/slate';
 import { ElementType, Mark } from 'types/slate';
 import useIsMounted from 'utils/useIsMounted';
+import { useAuth } from 'utils/useAuth';
+import { addEllipsis } from 'utils/string';
 import HoveringToolbar from './HoveringToolbar';
 import AddLinkPopover from './AddLinkPopover';
 import EditorElement from './elements/EditorElement';
@@ -53,9 +56,20 @@ const WEBSOCKET_ENDPOINT =
 function Editor(props: Props) {
   const { noteId, onChange, className = '', highlightedPath } = props;
   const isMounted = useIsMounted();
+  const { user } = useAuth();
 
   const value = useStore(state => state.notes[noteId]?.content ?? getDefaultEditorValue());
   const setValue = useCallback((value: Descendant[]) => store.getState().updateNote({ id: noteId, content: value }), [noteId]);
+
+  const color = useMemo(
+    () =>
+      randomColor({
+        luminosity: 'dark',
+        format: 'rgba',
+        alpha: 1,
+      }),
+    [],
+  );
 
   const [sharedType, provider] = useMemo(() => {
     const doc = new Y.Doc();
@@ -68,25 +82,30 @@ function Editor(props: Props) {
   }, [noteId]);
 
   const editor = useMemo(() => {
-    const editor = withYjs(
-      withNormalization(
-        withCustomDeleteBackward(
-          withAutoMarkdown(
-            withHtml(
-              withBlockBreakout(
-                withVoidElements(
-                  withBlockReferences(withTags(withLinks(withNodeId(withHistory(withReact(createEditor() as DeckEditor)))))),
+    const editor = withCursor(
+      withYjs(
+        withNormalization(
+          withCustomDeleteBackward(
+            withAutoMarkdown(
+              withHtml(
+                withBlockBreakout(
+                  withVoidElements(
+                    withBlockReferences(withTags(withLinks(withNodeId(withHistory(withReact(createEditor() as DeckEditor)))))),
+                  ),
                 ),
               ),
             ),
           ),
         ),
+        sharedType,
       ),
-      sharedType,
+      provider.awareness,
     );
 
     return editor;
   }, [sharedType]);
+
+  const { decorate } = useCursors(editor);
 
   useEffect(() => {
     provider.on('sync', (isSynced: boolean) => {
@@ -95,13 +114,19 @@ function Editor(props: Props) {
       }
     });
 
+    provider.awareness.setLocalState({
+      alphaColor: color.slice(0, -2) + '0.2)',
+      color,
+      name: user ? addEllipsis(user.id) : 'Unnamed',
+    });
+
     provider.connect();
 
     return () => {
       provider.disconnect();
     };
     // eslint-disable-next-line
-  }, [provider, sharedType]);
+  }, [provider]);
 
   const renderElement = useMemo(() => {
     const ElementWithSideMenu = withBlockSideMenu(withVerticalSpacing(EditorElement));
@@ -302,6 +327,7 @@ function Editor(props: Props) {
         className={`overflow-hidden placeholder-gray-300 ${className}`}
         renderElement={renderElement}
         renderLeaf={EditorLeaf}
+        decorate={decorate}
         placeholder="Start typing here…"
         onKeyDown={onKeyDown}
         onPointerDown={() => setToolbarCanBeVisible(false)}
