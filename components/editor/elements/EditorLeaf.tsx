@@ -1,7 +1,9 @@
 import { RenderLeafProps } from 'slate-react';
+import Caret from './Caret';
 
 export type EditorLeafProps = {
   attributes: { contentEditable?: boolean };
+  leaf: { isCaret?: boolean; data?: any };
 } & RenderLeafProps;
 
 const EditorLeaf = ({ attributes, children, leaf }: EditorLeafProps) => {
@@ -11,9 +13,7 @@ const EditorLeaf = ({ attributes, children, leaf }: EditorLeafProps) => {
 
   if (leaf.code) {
     children = (
-      <code className="p-0.25 bg-gray-100 border border-gray-200 rounded dark:bg-gray-800 dark:border-gray-700">
-        {children}
-      </code>
+      <code className="p-0.25 bg-gray-100 border border-gray-200 rounded dark:bg-gray-800 dark:border-gray-700">{children}</code>
     );
   }
 
@@ -30,14 +30,29 @@ const EditorLeaf = ({ attributes, children, leaf }: EditorLeafProps) => {
   }
 
   if (leaf.highlight) {
-    children = (
-      <mark className="bg-yellow-100 dark:bg-yellow-900 dark:text-white">
-        {children}
-      </mark>
-    );
+    children = <mark className="bg-yellow-100 dark:bg-yellow-900 dark:text-white">{children}</mark>;
   }
 
-  return <span {...attributes}>{children}</span>;
+  const data = leaf.data as any;
+
+  return (
+    <span {...attributes}>
+      {leaf.isCaret ? (
+        <span
+          style={
+            {
+              position: 'relative',
+              backgroundColor: data?.alphaColor,
+            } as any
+          }
+        >
+          {/* {leaf.isCaret ? <Caret {...(leaf as any)} /> : null} */}
+          {<Caret {...(leaf as any)} />}
+        </span>
+      ) : null}
+      {children}
+    </span>
+  );
 };
 
 export default EditorLeaf;
