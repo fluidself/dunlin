@@ -103,7 +103,7 @@ function Editor(props: Props) {
     );
 
     return editor;
-  }, [sharedType]);
+  }, [sharedType, provider]);
 
   const { decorate } = useCursors(editor);
 
@@ -117,12 +117,13 @@ function Editor(props: Props) {
     provider.awareness.setLocalState({
       alphaColor: color.slice(0, -2) + '0.2)',
       color,
-      name: user ? addEllipsis(user.id) : 'Unnamed',
+      name: user ? addEllipsis(user.id) : 'Anonymous',
     });
 
     provider.connect();
 
     return () => {
+      provider.awareness.destroy();
       provider.disconnect();
     };
     // eslint-disable-next-line
