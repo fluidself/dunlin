@@ -46,7 +46,6 @@ const EditorLeaf = ({ attributes, children, leaf }: EditorLeafProps) => {
             } as any
           }
         >
-          {/* {leaf.isCaret ? <Caret {...(leaf as any)} /> : null} */}
           {<Caret {...(leaf as any)} />}
         </span>
       ) : null}

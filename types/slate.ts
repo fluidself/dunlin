@@ -158,7 +158,6 @@ export type ListElement = BulletedList | NumberedList;
 export type DeckElement = ReferenceableBlockElement | ListElement | InlineElement;
 
 export type FormattedText = { text: string } & Partial<Record<Mark, boolean>>;
-// export type FormattedText = any;
 
 export type DeckText = FormattedText;
 
