@@ -7,5 +7,6 @@ declare module 'iron-session' {
     nonce?: string;
     user?: User;
     allowedDeck?: string;
+    recentDeck?: string;
   }
 }

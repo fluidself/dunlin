@@ -61,7 +61,12 @@ export default function Home() {
 }
 
 export const getServerSideProps = withIronSessionSsr(async function ({ req }) {
-  const { user } = req.session;
+  const { user, recentDeck } = req.session;
+
+  if (user && recentDeck) {
+    return { redirect: { destination: `/app/${recentDeck}`, permanent: false } };
+  }
+
   const decks = await selectDecks(user?.id);
 
   if (decks.length) {

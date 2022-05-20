@@ -16,6 +16,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { data: deck, error } = await supabase.from<Deck>('decks').select('*').match({ id: deckId }).single();
 
   if (deck) {
+    req.session.recentDeck = deckId;
+    await req.session.save();
+
     res.status(200).json({ deck });
   } else if (error) {
     res.status(500).json({ message: error.message });

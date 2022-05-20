@@ -114,7 +114,6 @@ export default function AppHome() {
       }
 
       toast.success('Access to DECK is granted.');
-      setRequestingAccess(false);
       router.push(`/app/${requestedDeck}`);
     } catch (e: any) {
       toast.error('Unable to verify access.');
@@ -171,7 +170,12 @@ export default function AppHome() {
 }
 
 export const getServerSideProps = withIronSessionSsr(async function ({ req }) {
-  const { user } = req.session;
+  const { user, recentDeck } = req.session;
+
+  if (user && recentDeck) {
+    return { redirect: { destination: `/app/${recentDeck}`, permanent: false } };
+  }
+
   const decks = await selectDecks(user?.id);
 
   if (decks.length) {
