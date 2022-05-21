@@ -57,12 +57,9 @@ export default function NoteHeader() {
       id: deck.id,
       value: deck.id,
     }));
-    if (deck && decksToOptions?.findIndex(d => d.id === deck.id) === -1) {
-      decksToOptions?.unshift({ label: `${deck.deck_name} (${deck.id})`, id: deck.id, value: deck.id });
-    }
     setDeckOptions(decksToOptions);
     setSelectedDeck(decksToOptions?.filter(deckOption => deckOption.id === deck?.id)[0]);
-  }, [decks, deck]);
+  }, [decks, deck?.id]);
 
   const isSidebarButtonVisible = useStore(state => !state.isSidebarOpen && state.openNoteIds?.[0] === currentNote.id);
   const isCloseButtonVisible = useStore(state => state.openNoteIds.length > 1);

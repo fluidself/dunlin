@@ -12,7 +12,11 @@ import { queryParamToArray } from 'utils/url';
 import useBlockBacklinks from 'editor/backlinks/useBlockBacklinks';
 import checkProtectedPageAuth from 'utils/checkProtectedPageAuth';
 
-export default function NotePage() {
+type Props = {
+  allowedDeck?: string;
+};
+
+export default function NotePage(props: Props) {
   const router = useRouter();
   const {
     query: { id: noteId, stack: stackQuery },
@@ -21,6 +25,7 @@ export default function NotePage() {
   const openNoteIds = useStore(state => state.openNoteIds);
   const setOpenNoteIds = useStore(state => state.setOpenNoteIds);
   const prevOpenNoteIds = usePrevious(openNoteIds);
+  const setAllowedDeck = useStore(state => state.setAllowedDeck);
 
   const pageTitle = useStore(state => {
     if (!noteId || typeof noteId !== 'string' || !state.notes[noteId]?.title) {
@@ -48,7 +53,11 @@ export default function NotePage() {
     // We use router.asPath specifically so we handle any route change (even if asPath is the same)
     const newHighlightedPath = getHighlightedPath(router.asPath);
     setHighlightedPath(newHighlightedPath);
-  }, [setOpenNoteIds, router, noteId, stackQuery]);
+
+    if (props.allowedDeck) {
+      setAllowedDeck(props.allowedDeck);
+    }
+  }, [setOpenNoteIds, router, noteId, stackQuery, props.allowedDeck, setAllowedDeck]);
 
   useEffect(() => {
     // Scroll the last open note into view if:
@@ -134,5 +143,7 @@ export const getServerSideProps = withIronSessionSsr(async function ({ params, r
   const deckId = params?.deckId;
   const authorized = await checkProtectedPageAuth(deckId, user, allowedDeck);
 
-  return authorized ? { props: {} } : { redirect: { destination: '/', permanent: false } };
+  return authorized
+    ? { props: { allowedDeck: typeof allowedDeck !== 'undefined' ? allowedDeck : null } }
+    : { redirect: { destination: '/', permanent: false } };
 }, ironOptions);

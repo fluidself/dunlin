@@ -68,6 +68,8 @@ export type Store = {
   setSidebarSearchQuery: Setter<string>;
   deckId: string;
   setDeckId: Setter<string>;
+  allowedDeck: string;
+  setAllowedDeck: Setter<string>;
 } & UserSettings;
 
 type FunctionPropertyNames<T> = {
@@ -209,6 +211,8 @@ export const store = createVanilla<Store, SetState<Store>, GetState<Store>, Stor
       setSidebarSearchQuery: setter(set, 'sidebarSearchQuery'),
       deckId: '',
       setDeckId: setter(set, 'deckId'),
+      allowedDeck: '',
+      setAllowedDeck: setter(set, 'allowedDeck'),
       ...createUserSettingsSlice(set),
     })),
     {

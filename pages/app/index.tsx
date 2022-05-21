@@ -62,7 +62,6 @@ export default function AppHome() {
     }
 
     toast.success(`Successfully created ${deck.deck_name}`);
-    setCreatingDeck(false);
     router.push(`/app/${deck.id}`);
   };
 
