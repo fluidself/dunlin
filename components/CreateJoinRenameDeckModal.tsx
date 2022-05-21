@@ -78,6 +78,9 @@ export default function CreateJoinRenameDeckModal(props: Props) {
       await supabase.from<Note>('notes').delete().eq('deck_id', deck.id);
       await supabase.from<Deck>('decks').delete().eq('id', deck.id);
 
+      const response = await fetch('/api/reset-recent-deck', { method: 'POST' });
+      if (!response.ok) toast.error('There was an error deleting the DECK');
+
       toast.success(`Successfully deleted ${deck.deck_name}`);
       setProcessing(false);
       closeModal();

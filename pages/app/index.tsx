@@ -123,11 +123,11 @@ export default function AppHome() {
     <div id="app-container" className="h-screen font-display">
       <div className="flex flex-col w-full h-full bg-gray-900 text-gray-100">
         <div className="flex flex-col items-end text-white min-h-[27px] pr-8 mt-2">{isLoaded && user && <HomeHeader />}</div>
-        <div className="flex flex-col flex-1 overflow-y-hidden container">
-          <div className="flex flex-col items-center flex-1 w-full p-12">
-            <h1 className="mb-12 text-3xl text-center mt-24 lg:mt-36">Welcome aboard</h1>
+        <div className="flex flex-col flex-1 lg:overflow-y-hidden container">
+          <div className="flex flex-col items-center flex-1 w-full lg:p-12">
+            <h1 className="mb-12 text-3xl text-center mt-12 lg:mt-36">Welcome aboard</h1>
             {creatingDeck && (
-              <div className="w-1/2 mt-20">
+              <div className="lg:w-1/2 mt-20">
                 <ProvideDeckName
                   onCancel={() => setCreatingDeck(false)}
                   onDeckNameProvided={async (deckName: string) => await createNewDeck(deckName)}
@@ -135,7 +135,7 @@ export default function AppHome() {
               </div>
             )}
             {requestingAccess && (
-              <div className="w-1/2 mt-20">
+              <div className="lg:w-1/2 mt-20">
                 <RequestDeckAccess
                   onCancel={() => setRequestingAccess(false)}
                   onDeckAccessRequested={async (requestedDeck: string) => await verifyAccess(requestedDeck)}
@@ -143,12 +143,12 @@ export default function AppHome() {
               </div>
             )}
             {!creatingDeck && !requestingAccess && (
-              <div className="flex lg:flex-row space-x-10 justify-center mt-[20px]">
+              <div className="flex flex-wrap gap-10 justify-center lg:mt-6">
                 <button
                   className="flex flex-col justify-between items-center py-4 w-[280px] h-[260px] border border-white cursor-pointer box-border text-white hover:bg-gray-800 focus:bg-gray-800"
                   onClick={() => setCreatingDeck(true)}
                 >
-                  <Image src={create} width={256} height={256} alt="Create DECK" layout="fixed" className="" />
+                  <Image src={create} width={256} height={256} alt="Create DECK" layout="fixed" priority />
                   <div className="mt-2">Create a new DECK</div>
                 </button>
 
@@ -156,7 +156,7 @@ export default function AppHome() {
                   className="flex flex-col justify-between items-center py-4 w-[280px] h-[260px] border border-white cursor-pointer box-border text-white hover:bg-gray-800 focus:bg-gray-800"
                   onClick={() => setRequestingAccess(true)}
                 >
-                  <Image src={join} width={256} height={256} alt="Join DECK" layout="fixed" className="" />
+                  <Image src={join} width={256} height={256} alt="Join DECK" layout="fixed" priority />
                   <div className="mt-2">Join a DECK</div>
                 </button>
               </div>
