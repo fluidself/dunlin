@@ -117,7 +117,9 @@ export const getOrCreateNoteId = (noteTitle: string): string | null => {
   if (matchingNote) {
     noteId = matchingNote.id;
   } else {
-    const deckId = store.getState().deckId;
+    // const deckId = store.getState().deckId;
+    const regexMatch = window.location.pathname.match(/app\/(.*)\/note/i);
+    const deckId = regexMatch?.length ? regexMatch[1] : null;
     noteId = uuidv4();
     if (deckId) {
       upsertNote({ id: noteId, deck_id: deckId, title: noteTitle });
