@@ -7,6 +7,8 @@ import * as Y from 'yjs';
 import { withHistory } from 'slate-history';
 import { isHotkey } from 'is-hotkey';
 import randomColor from 'randomcolor';
+import _pick from 'lodash/pick';
+import _isEqual from 'lodash/isEqual';
 import colors from 'tailwindcss/colors';
 import { handleEnter, handleIndent, handleUnindent, isElementActive, toggleElement, toggleMark } from 'editor/formatting';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
@@ -271,7 +273,9 @@ function Editor(props: Props) {
       setSelection(editor.selection);
       // We need this check because this function is called every time
       // the selection changes
-      if (newValue !== value) {
+      const valueNormalized = value.map(v => _pick(v, ['type', 'children']));
+      const newValueNormalized = newValue.map(v => _pick(v, ['type', 'children']));
+      if (!_isEqual(valueNormalized, newValueNormalized)) {
         setValue(newValue);
         onChange(newValue);
       }
