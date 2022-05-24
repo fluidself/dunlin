@@ -14,13 +14,11 @@ import withBlockBreakout from 'editor/plugins/withBlockBreakout';
 import withLinks from 'editor/plugins/withLinks';
 import withNormalization from 'editor/plugins/withNormalization';
 import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
-// import withImages from 'editor/plugins/withImages';
 import withVoidElements from 'editor/plugins/withVoidElements';
 import withNodeId from 'editor/plugins/withNodeId';
 import withBlockReferences from 'editor/plugins/withBlockReferences';
 import withTags from 'editor/plugins/withTags';
 import withHtml from 'editor/plugins/withHtml';
-import { getDefaultEditorValue } from 'editor/constants';
 import { store, useStore } from 'lib/store';
 import { DeckEditor } from 'types/slate';
 import { ElementType, Mark } from 'types/slate';
@@ -58,7 +56,7 @@ function Editor(props: Props) {
   const isMounted = useIsMounted();
   const { user } = useAuth();
 
-  const value = useStore(state => state.notes[noteId]?.content ?? getDefaultEditorValue());
+  const value = useStore(state => state.notes[noteId]?.content);
   const setValue = useCallback((value: Descendant[]) => store.getState().updateNote({ id: noteId, content: value }), [noteId]);
 
   const color = useMemo(
@@ -269,6 +267,7 @@ function Editor(props: Props) {
 
   const onSlateChange = useCallback(
     (newValue: Descendant[]) => {
+      if (!newValue.length || !value.length) return;
       setSelection(editor.selection);
       // We need this check because this function is called every time
       // the selection changes
