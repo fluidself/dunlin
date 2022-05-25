@@ -12,10 +12,11 @@ import { isMobile } from 'utils/device';
 import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
+import { encryptWithLit } from 'utils/encryption';
 import { useStore } from 'lib/store';
 import supabase from 'lib/supabase';
 import { SPRING_CONFIG } from 'constants/spring';
-import { AccessControlCondition, AuthSig, ResourceId } from 'types/lit';
+import { AccessControlCondition, BooleanCondition, AuthSig, ResourceId } from 'types/lit';
 import { Deck, AccessParams } from 'types/supabase';
 import { ShareModal } from 'components/ShareModal';
 import CreateJoinRenameDeckModal from 'components/CreateJoinRenameDeckModal';
@@ -32,7 +33,7 @@ function Sidebar(props: Props) {
   const { setIsFindOrCreateModalOpen, className } = props;
 
   const { user } = useAuth();
-  const { id: deckId } = useCurrentDeck();
+  const { id: deckId, key } = useCurrentDeck();
   const isSidebarOpen = useStore(state => state.isSidebarOpen);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
   const hideSidebarOnMobile = useCallback(() => {
@@ -57,38 +58,42 @@ function Sidebar(props: Props) {
     }
   }, [isMounted, user]);
 
-  const provisionAccess = async (accessControlConditions: AccessControlCondition[]) => {
-    if (!deckId || !accessControlConditions) return;
+  const provisionAccess = async (acc: AccessControlCondition[]) => {
+    if (!user || !deckId || !acc) return;
 
     try {
       // TODO: hotfix to only allow EVM chains for now
-      // const chain = accessControlConditions[0].chain;
-      const chain = 'ethereum';
-      const authSig: AuthSig = await LitJsSdk.checkAndSignAuthMessage({ chain });
+      const accessControlConditions: (AccessControlCondition | BooleanCondition)[] = [
+        {
+          contractAddress: '',
+          standardContractType: '',
+          chain: 'ethereum',
+          method: '',
+          parameters: [':userAddress'],
+          returnValueTest: {
+            comparator: '=',
+            value: user.id,
+          },
+        },
+        { operator: 'or' },
+        ...acc,
+      ];
+      const [encryptedStringBase64, encryptedSymmetricKeyBase64] = await encryptWithLit(key, accessControlConditions);
 
-      if (!authSig) {
+      const { data: deck, error } = await supabase
+        .from<Deck>('decks')
+        .update({
+          encrypted_string: encryptedStringBase64,
+          encrypted_symmetric_key: encryptedSymmetricKeyBase64,
+          access_control_conditions: accessControlConditions,
+        })
+        .eq('id', deckId)
+        .single();
+
+      if (!deck || error) {
         toast.error('Provisioning access failed.');
         return false;
       }
-
-      const resourceId: ResourceId = {
-        baseUrl: process.env.BASE_URL ?? '',
-        path: `/app/${deckId}`,
-        orgId: '',
-        role: '',
-        extraData: '',
-      };
-
-      await window.litNodeClient.saveSigningCondition({
-        accessControlConditions,
-        chain,
-        authSig,
-        resourceId,
-        permanent: false,
-      });
-
-      const accessParamsToSave: AccessParams = { resource_id: resourceId, access_control_conditions: accessControlConditions };
-      await supabase.from<Deck>('decks').update({ access_params: accessParamsToSave }).eq('id', deck.id);
 
       toast.success('Access to your DECK was configured');
       return true;
