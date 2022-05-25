@@ -1,9 +1,10 @@
 import type { PickPartial } from 'types/utils';
 import supabase from 'lib/supabase';
 import type { Note } from 'types/supabase';
+import type { DecryptedNote } from 'types/decrypted';
 import { store } from 'lib/store';
 
-export type NoteUpdate = PickPartial<Note, 'deck_id' | 'content' | 'title' | 'created_at' | 'updated_at'>;
+export type NoteUpdate = PickPartial<DecryptedNote, 'deck_id' | 'content' | 'title' | 'created_at' | 'updated_at'>;
 
 export default async function updateNote(note: NoteUpdate) {
   const response = await supabase

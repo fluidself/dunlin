@@ -1,40 +1,34 @@
 import { useState, useEffect, useContext, createContext, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import { Deck } from 'types/supabase';
+import { User } from 'types/supabase';
+import { DecryptedDeck } from 'types/decrypted';
+import { NoteTreeItem } from 'lib/store';
 
-type CurrentDeck = {
-  deck: Deck | null;
-};
+const DeckContext = createContext<DecryptedDeck | undefined>(undefined);
 
-const DeckContext = createContext<CurrentDeck | undefined>(undefined);
-
-function useProvideDeck(deckId: string): CurrentDeck {
-  const [deck, setDeck] = useState<Deck | null>(null);
-
+function setRecentDeck(deckId: string) {
   const initDeck = async (deckId: string) => {
-    const res = await fetch('/api/deck', {
+    const response = await fetch('/api/recent-deck', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ deckId }),
     });
-    const { deck } = await res.json();
+    if (!response.ok) throw new Error('Could not initiate DECK');
 
-    setDeck(deck);
+    return;
   };
 
   useEffect(() => {
     initDeck(deckId);
   }, []);
-
-  return {
-    deck,
-  };
 }
 
-export function ProvideCurrentDeck({ children, deckId }: { children: ReactNode; deckId: string }) {
-  const deck = useProvideDeck(deckId);
+export function ProvideCurrentDeck({ children, deck }: { children: ReactNode; deck?: DecryptedDeck }) {
+  if (deck?.id) {
+    setRecentDeck(deck.id);
+  }
 
   return <DeckContext.Provider value={deck}>{children}</DeckContext.Provider>;
 }

@@ -7,11 +7,14 @@ import { useRouter } from 'next/router';
 import { useAccount } from 'wagmi';
 import useSWR from 'swr';
 import { toast } from 'react-toastify';
+import { encrypt } from '@metamask/browser-passworder';
 import { ironOptions } from 'constants/iron-session';
 import supabase from 'lib/supabase';
 import insertDeck from 'lib/api/insertDeck';
 import selectDecks from 'lib/api/selectDecks';
-import { Deck } from 'types/supabase';
+import { Deck, Note } from 'types/supabase';
+import { encryptWithLit, decryptWithLit } from 'utils/encryption';
+import createOnboardingNotes from 'utils/createOnboardingNotes';
 import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';
 import { AuthSig } from 'types/lit';
@@ -54,70 +57,113 @@ export default function AppHome() {
   const createNewDeck = async (deckName: string) => {
     if (!user) return;
 
-    const deck = await insertDeck({ user_id: user.id, deck_name: deckName });
+    const array = new Uint8Array(32);
+    global.crypto.getRandomValues(array);
+    const deckKey = Buffer.from(array).toString('hex');
+    const accessControlConditions = [
+      {
+        contractAddress: '',
+        standardContractType: '',
+        chain: 'ethereum',
+        method: '',
+        parameters: [':userAddress'],
+        returnValueTest: {
+          comparator: '=',
+          value: user.id,
+        },
+      },
+    ];
+    const [encryptedStringBase64, encryptedSymmetricKeyBase64] = await encryptWithLit(
+      JSON.stringify({ name: deckName, key: deckKey }),
+      accessControlConditions,
+    );
+
+    const deck = await insertDeck({
+      user_id: user.id,
+      details: {
+        encrypted_string: encryptedStringBase64,
+        encrypted_symmetric_key: encryptedSymmetricKeyBase64,
+        access_control_conditions: accessControlConditions,
+      },
+    });
 
     if (!deck) {
       toast.error('There was an error creating the DECK');
       return;
     }
 
-    toast.success(`Successfully created ${deck.deck_name}`);
+    const onboardingNotes = createOnboardingNotes();
+    // TODO: make sure 'getting started' is first note so that's where user lands on first load
+    const promises = [];
+    for (const note of onboardingNotes) {
+      const encryptedTitle = await encrypt(deckKey, note.title);
+      const encryptedContent = await encrypt(deckKey, note.content);
+      promises.push(
+        supabase
+          .from<Note>('notes')
+          .upsert({ ...note, title: encryptedTitle, content: encryptedContent, deck_id: deck.id })
+          .single(),
+      );
+    }
+    await Promise.all(promises);
+
+    toast.success(`Successfully created ${deckName}`);
     router.push(`/app/${deck.id}`);
   };
 
-  const verifyAccess = async (requestedDeck: string) => {
-    if (!requestedDeck) return;
+  // const verifyAccess = async (requestedDeck: string) => {
+  //   if (!requestedDeck) return;
 
-    if (decks?.find(deck => deck.id === requestedDeck)) {
-      toast.success('You own that DECK!');
-      setRequestingAccess(false);
-      router.push(`/app/${requestedDeck}`);
-      return;
-    }
+  //   if (decks?.find(deck => deck.id === requestedDeck)) {
+  //     toast.success('You own that DECK!');
+  //     setRequestingAccess(false);
+  //     router.push(`/app/${requestedDeck}`);
+  //     return;
+  //   }
 
-    const { data: accessParams } = await supabase.from<Deck>('decks').select('access_params').eq('id', requestedDeck).single();
-    if (!accessParams?.access_params) {
-      toast.error('Unable to verify access.');
-      return;
-    }
+  //   const { data: accessParams } = await supabase.from<Deck>('decks').select('access_params').eq('id', requestedDeck).single();
+  //   if (!accessParams?.access_params) {
+  //     toast.error('Unable to verify access.');
+  //     return;
+  //   }
 
-    const { resource_id: resourceId, access_control_conditions: accessControlConditions } = accessParams?.access_params || {};
-    if (!resourceId || !accessControlConditions || !accessControlConditions[0].chain) {
-      toast.error('Unable to verify access.');
-      return;
-    }
+  //   const { resource_id: resourceId, access_control_conditions: accessControlConditions } = accessParams?.access_params || {};
+  //   if (!resourceId || !accessControlConditions || !accessControlConditions[0].chain) {
+  //     toast.error('Unable to verify access.');
+  //     return;
+  //   }
 
-    try {
-      // TODO: hotfix to only allow EVM chains for now
-      // const chain = accessControlConditions[0].chain;
-      const chain = 'ethereum';
-      const authSig: AuthSig = await LitJsSdk.checkAndSignAuthMessage({ chain });
-      const jwt = await window.litNodeClient.getSignedToken({
-        accessControlConditions,
-        chain,
-        authSig,
-        resourceId,
-      });
+  //   try {
+  //     // TODO: hotfix to only allow EVM chains for now
+  //     // const chain = accessControlConditions[0].chain;
+  //     const chain = 'ethereum';
+  //     const authSig: AuthSig = await LitJsSdk.checkAndSignAuthMessage({ chain });
+  //     const jwt = await window.litNodeClient.getSignedToken({
+  //       accessControlConditions,
+  //       chain,
+  //       authSig,
+  //       resourceId,
+  //     });
 
-      const response = await fetch('/api/verify-jwt', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ jwt, requestedDeck }),
-      });
+  //     const response = await fetch('/api/verify-jwt', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ jwt, requestedDeck }),
+  //     });
 
-      if (!response.ok) {
-        toast.error('Unable to verify access.');
-        return;
-      }
+  //     if (!response.ok) {
+  //       toast.error('Unable to verify access.');
+  //       return;
+  //     }
 
-      toast.success('Access to DECK is granted.');
-      router.push(`/app/${requestedDeck}`);
-    } catch (e: any) {
-      toast.error('Unable to verify access.');
-    }
-  };
+  //     toast.success('Access to DECK is granted.');
+  //     router.push(`/app/${requestedDeck}`);
+  //   } catch (e: any) {
+  //     toast.error('Unable to verify access.');
+  //   }
+  // };
 
   return (
     <div id="app-container" className="h-screen font-display">
@@ -138,7 +184,8 @@ export default function AppHome() {
               <div className="lg:w-1/2 mt-20">
                 <RequestDeckAccess
                   onCancel={() => setRequestingAccess(false)}
-                  onDeckAccessRequested={async (requestedDeck: string) => await verifyAccess(requestedDeck)}
+                  // onDeckAccessRequested={async (requestedDeck: string) => await verifyAccess(requestedDeck)}
+                  onDeckAccessRequested={async (requestedDeck: string) => {}}
                 />
               </div>
             )}
