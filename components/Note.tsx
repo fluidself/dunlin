@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { encrypt } from '@metamask/browser-passworder';
 import type { Path } from 'slate';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
@@ -9,13 +10,11 @@ import type { NoteUpdate } from 'lib/api/updateNote';
 import updateDbNote from 'lib/api/updateNote';
 import { ProvideCurrentNote } from 'utils/useCurrentNote';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
-import { encryptNote } from 'utils/encryption';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import updateBacklinks from 'editor/backlinks/updateBacklinks';
 import Backlinks from './editor/backlinks/Backlinks';
 import NoteHeader from './editor/NoteHeader';
 import ErrorBoundary from './ErrorBoundary';
-import { encrypt } from '@metamask/browser-passworder';
 import { Note } from 'types/supabase';
 
 const SYNC_DEBOUNCE_MS = 1000;

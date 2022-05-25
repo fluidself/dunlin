@@ -256,11 +256,11 @@ export default function AppLayout(props: Props) {
       })
       .subscribe();
 
-    // window.addEventListener('focus', initData);
+    window.addEventListener('focus', initData);
 
     return () => {
       subscription.unsubscribe();
-      // window.removeEventListener('focus', initData);
+      window.removeEventListener('focus', initData);
     };
   }, [deckId, upsertNote, updateNote, deleteNote, initData]);
 

@@ -13,6 +13,7 @@ import supabase from 'lib/supabase';
 import { Note } from 'types/supabase';
 import useDebounce from 'utils/useDebounce';
 import EditorPopover from './EditorPopover';
+import { encrypt } from '@metamask/browser-passworder';
 
 const DEBOUNCE_MS = 100;
 
@@ -32,7 +33,7 @@ type Option = {
 };
 
 export default function BlockAutocompletePopover() {
-  const { deck } = useCurrentDeck();
+  const { key } = useCurrentDeck();
   const editor = useSlate();
 
   const [isVisible, setIsVisible] = useState(false);
@@ -110,7 +111,7 @@ export default function BlockAutocompletePopover() {
 
   const onOptionClick = useCallback(
     async (option?: Option) => {
-      if (!option || !deck) {
+      if (!option || !key) {
         return;
       }
 
@@ -153,7 +154,8 @@ export default function BlockAutocompletePopover() {
           });
 
           // Update note in database
-          await supabase.from<Note>('notes').update({ content: noteEditor.children }).eq('id', option.noteId);
+          const encryptedContent = await encrypt(key, noteEditor.children);
+          await supabase.from<Note>('notes').update({ content: encryptedContent }).eq('id', option.noteId);
         } else {
           blockId = option.blockId;
         }
@@ -165,7 +167,7 @@ export default function BlockAutocompletePopover() {
 
       hidePopover();
     },
-    [editor, deck, hidePopover, getRegexResult],
+    [editor, hidePopover, getRegexResult],
   );
 
   const onKeyDown = useCallback(

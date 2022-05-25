@@ -13,7 +13,7 @@ import supabase from 'lib/supabase';
 import insertDeck from 'lib/api/insertDeck';
 import selectDecks from 'lib/api/selectDecks';
 import { Deck, Note } from 'types/supabase';
-import { encryptWithLit, decryptWithLit } from 'utils/encryption';
+import { encryptWithLit } from 'utils/encryption';
 import createOnboardingNotes from 'utils/createOnboardingNotes';
 import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';

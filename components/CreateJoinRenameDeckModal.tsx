@@ -3,6 +3,7 @@ import LitJsSdk from 'lit-js-sdk';
 import { useMemo, useState } from 'react';
 import { IconFolderPlus, IconGitPullRequest, IconPencil, IconTrash } from '@tabler/icons';
 import { toast } from 'react-toastify';
+import { encrypt } from '@metamask/browser-passworder';
 import useSWR from 'swr';
 import supabase from 'lib/supabase';
 import insertDeck from 'lib/api/insertDeck';
@@ -11,8 +12,10 @@ import { Deck, Note } from 'types/supabase';
 import { useAuth } from 'utils/useAuth';
 import { AuthSig } from 'types/lit';
 import useHotkeys from 'utils/useHotkeys';
-import Button from 'components/home/Button';
+import { encryptWithLit } from 'utils/encryption';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
+import createOnboardingNotes from 'utils/createOnboardingNotes';
+import Button from 'components/home/Button';
 
 type Props = {
   type: 'create' | 'join' | 'rename' | 'delete';
@@ -23,7 +26,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
   const { type, closeModal } = props;
 
   const { user } = useAuth();
-  const { deck } = useCurrentDeck();
+  const { id: deckId, deck_name } = useCurrentDeck();
   const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
   const [inputText, setInputText] = useState<string>('');
   const [processing, setProcessing] = useState<boolean>(false);
@@ -42,12 +45,50 @@ export default function CreateJoinRenameDeckModal(props: Props) {
   const createNewDeck = async () => {
     if (!user || !inputText) return;
 
-    const deck = await insertDeck({ user_id: user.id, deck_name: inputText });
+    const array = new Uint8Array(32);
+    global.crypto.getRandomValues(array);
+    const deckKey = Buffer.from(array).toString('hex');
+    const accessControlConditions = [
+      {
+        contractAddress: '',
+        standardContractType: '',
+        chain: 'ethereum',
+        method: '',
+        parameters: [':userAddress'],
+        returnValueTest: {
+          comparator: '=',
+          value: user.id,
+        },
+      },
+    ];
+    const [encryptedStringBase64, encryptedSymmetricKeyBase64] = await encryptWithLit(deckKey, accessControlConditions);
+
+    const deck = await insertDeck({
+      user_id: user.id,
+      deck_name: inputText,
+      encrypted_string: encryptedStringBase64,
+      encrypted_symmetric_key: encryptedSymmetricKeyBase64,
+      access_control_conditions: accessControlConditions,
+    });
 
     if (!deck) {
       toast.error('There was an error creating the DECK');
       return;
     }
+
+    const onboardingNotes = createOnboardingNotes();
+    const promises = [];
+    for (const note of onboardingNotes) {
+      const encryptedTitle = await encrypt(deckKey, note.title);
+      const encryptedContent = await encrypt(deckKey, note.content);
+      promises.push(
+        supabase
+          .from<Note>('notes')
+          .upsert({ ...note, title: encryptedTitle, content: encryptedContent, deck_id: deck.id })
+          .single(),
+      );
+    }
+    await Promise.all(promises);
 
     toast.success(`Successfully created ${deck.deck_name}`);
     setProcessing(false);
@@ -56,9 +97,9 @@ export default function CreateJoinRenameDeckModal(props: Props) {
   };
 
   const renameDeck = async () => {
-    if (!user || !deck || !inputText) return;
+    if (!user || !deckId || !inputText) return;
 
-    const { data, error } = await supabase.from<Deck>('decks').update({ deck_name: inputText }).eq('id', deck.id).single();
+    const { data, error } = await supabase.from<Deck>('decks').update({ deck_name: inputText }).eq('id', deckId).single();
 
     if (error || !data) {
       toast.error('There was an error updating the DECK');
@@ -68,20 +109,20 @@ export default function CreateJoinRenameDeckModal(props: Props) {
     toast.success(`Successfully renamed ${data.deck_name}`);
     setProcessing(false);
     closeModal();
-    window.location.assign(`${process.env.BASE_URL}/app/${deck.id}`);
+    window.location.assign(`${process.env.BASE_URL}/app/${deckId}`);
   };
 
   const deleteDeck = async () => {
-    if (!user || !deck) return;
+    if (!user || !deckId || !deck_name) return;
 
     try {
-      await supabase.from<Note>('notes').delete().eq('deck_id', deck.id);
-      await supabase.from<Deck>('decks').delete().eq('id', deck.id);
+      await supabase.from<Note>('notes').delete().eq('deck_id', deckId);
+      await supabase.from<Deck>('decks').delete().eq('id', deckId);
 
       const response = await fetch('/api/reset-recent-deck', { method: 'POST' });
       if (!response.ok) toast.error('There was an error deleting the DECK');
 
-      toast.success(`Successfully deleted ${deck.deck_name}`);
+      toast.success(`Successfully deleted ${deck_name}`);
       setProcessing(false);
       closeModal();
       window.location.assign(`${process.env.BASE_URL}/app`);
@@ -182,10 +223,10 @@ export default function CreateJoinRenameDeckModal(props: Props) {
                 <div>Are you sure you want to delete this DECK?</div>
                 <div className="flex my-2 m-[-4px] flex-wrap">
                   <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
-                    {deck?.deck_name}
+                    {deck_name}
                   </span>
                   <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
-                    {deck?.id}
+                    {deckId}
                   </span>
                 </div>
               </>
