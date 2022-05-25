@@ -1,5 +1,5 @@
 // @ts-ignore
-import LitJsSdk from 'lit-js-sdk';
+// import LitJsSdk from 'lit-js-sdk';
 import { useMemo, useState } from 'react';
 import { IconFolderPlus, IconGitPullRequest, IconPencil, IconTrash } from '@tabler/icons';
 import { toast } from 'react-toastify';
@@ -10,9 +10,9 @@ import insertDeck from 'lib/api/insertDeck';
 import selectDecks from 'lib/api/selectDecks';
 import { Deck, Note } from 'types/supabase';
 import { useAuth } from 'utils/useAuth';
-import { AuthSig } from 'types/lit';
+// import { AuthSig } from 'types/lit';
 import useHotkeys from 'utils/useHotkeys';
-import { encryptWithLit } from 'utils/encryption';
+import { encryptWithLit, decryptWithLit } from 'utils/encryption';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import createOnboardingNotes from 'utils/createOnboardingNotes';
 import Button from 'components/home/Button';
@@ -142,41 +142,33 @@ export default function CreateJoinRenameDeckModal(props: Props) {
       return;
     }
 
-    const { data: accessParams } = await supabase.from<Deck>('decks').select('access_params').eq('id', inputText).single();
-    if (!accessParams?.access_params) {
-      toast.error('Unable to verify access.');
-      return;
-    }
-
-    const { resource_id: resourceId, access_control_conditions: accessControlConditions } = accessParams?.access_params || {};
-    if (!resourceId || !accessControlConditions || !accessControlConditions[0].chain) {
+    const { data, error } = await supabase
+      .from<Deck>('decks')
+      .select('encrypted_string, encrypted_symmetric_key, access_control_conditions')
+      .eq('id', inputText)
+      .single();
+    if (!data || error) {
       toast.error('Unable to verify access.');
       return;
     }
 
     try {
       // TODO: hotfix to only allow EVM chains for now
-      // const chain = accessControlConditions[0].chain;
-      const chain = 'ethereum';
-      const authSig: AuthSig = await LitJsSdk.checkAndSignAuthMessage({ chain });
-      const jwt = await window.litNodeClient.getSignedToken({
-        accessControlConditions,
-        chain,
-        authSig,
-        resourceId,
-      });
+      const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = data;
+      const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
+      if (!deckKey) {
+        toast.error('Unable to verify access.');
+        return;
+      }
 
-      const response = await fetch('/api/verify-jwt', {
+      // TODO: keep / refactor this?
+      const response = await fetch('/api/verify-deck', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ jwt, requestedDeck: inputText }),
+        body: JSON.stringify({ allowedDeck: inputText }),
       });
-      if (!response.ok) {
-        toast.error('Unable to verify access.');
-        return;
-      }
 
       toast.success('Access to DECK is granted.');
       setProcessing(false);

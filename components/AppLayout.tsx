@@ -232,7 +232,7 @@ export default function AppLayout(props: Props) {
   }, [setIsSidebarOpen, setIsPageStackingOn, hasHydrated]);
 
   useEffect(() => {
-    if (!deckId || !deck) {
+    if (!deckId) {
       return;
     }
 
@@ -241,9 +241,11 @@ export default function AppLayout(props: Props) {
       .from<Note>(`notes:deck_id=eq.${deckId}`)
       .on('*', async payload => {
         if (payload.eventType === 'INSERT') {
+          if (!deck?.key) return;
           const note = await decryptNote(deck.key, payload.new);
           upsertNote(note);
         } else if (payload.eventType === 'UPDATE') {
+          if (!deck?.key) return;
           // Don't update the note if it is currently open
           const openNoteIds = store.getState().openNoteIds;
           if (!openNoteIds.includes(payload.new.id)) {
@@ -262,7 +264,7 @@ export default function AppLayout(props: Props) {
       subscription.unsubscribe();
       window.removeEventListener('focus', initData);
     };
-  }, [deckId, upsertNote, updateNote, deleteNote, initData]);
+  }, [deckId, deck, upsertNote, updateNote, deleteNote, initData]);
 
   const hotkeys = useMemo(
     () => [
