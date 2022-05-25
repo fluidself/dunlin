@@ -28,7 +28,7 @@ type Props = {
 
 function MoveToInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
   const { noteId, onOptionClick: onOptionClickCallback, className = '' } = props;
-  const { deck } = useCurrentDeck();
+  const { id: deckId } = useCurrentDeck();
 
   const [inputText, setInputText] = useState('');
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0);
@@ -77,7 +77,7 @@ function MoveToInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
 
   const onOptionClick = useCallback(
     async (option: Option) => {
-      if (!deck) {
+      if (!deckId) {
         return;
       }
 
@@ -91,9 +91,9 @@ function MoveToInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
 
-      await supabase.from<Deck>('decks').update({ note_tree: store.getState().noteTree }).eq('id', deck.id);
+      await supabase.from<Deck>('decks').update({ note_tree: store.getState().noteTree }).eq('id', deckId);
     },
-    [deck, onOptionClickCallback, noteId, moveNoteTreeItem],
+    [deckId, onOptionClickCallback, noteId, moveNoteTreeItem],
   );
 
   const onKeyDown = useCallback(

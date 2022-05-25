@@ -3,10 +3,12 @@ import { Transforms } from 'slate';
 import { ReactEditor, useSlate } from 'slate-react';
 import type { TablerIcon } from '@tabler/icons';
 import { IconUnlink, IconLink, IconFilePlus } from '@tabler/icons';
+import { encrypt } from '@metamask/browser-passworder';
 import { v4 as uuidv4 } from 'uuid';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import upsertNote from 'lib/api/upsertNote';
 import { insertExternalLink, insertNoteLink, removeLink } from 'editor/formatting';
+import { getDefaultEditorValue } from 'editor/constants';
 import { isUrl } from 'utils/url';
 import useNoteSearch from 'utils/useNoteSearch';
 import { caseInsensitiveStringEqual } from 'utils/string';
@@ -34,7 +36,7 @@ type Props = {
 
 export default function AddLinkPopover(props: Props) {
   const { addLinkPopoverState, setAddLinkPopoverState } = props;
-  const { deck } = useCurrentDeck();
+  const { id: deckId, key } = useCurrentDeck();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [linkText, setLinkText] = useState<string>('');
   const editor = useSlate();
@@ -103,7 +105,7 @@ export default function AddLinkPopover(props: Props) {
 
   const onOptionClick = useCallback(
     async (option?: Option) => {
-      if (!option || !deck) {
+      if (!option || !deckId) {
         return;
       }
 
@@ -121,8 +123,10 @@ export default function AddLinkPopover(props: Props) {
       } else if (option.type === OptionType.NEW_NOTE) {
         // Add a new note and insert a link to it with the note title as the link text
         const noteId = uuidv4();
+        const encryptedTitle = await encrypt(key, linkText);
+        const encryptedContent = await encrypt(key, getDefaultEditorValue());
         insertNoteLink(editor, noteId, linkText);
-        upsertNote({ id: noteId, deck_id: deck.id, title: linkText });
+        upsertNote(key, { id: noteId, deck_id: deckId, title: encryptedTitle, content: encryptedContent });
         Transforms.move(editor, { distance: 1, unit: 'offset' }); // Focus after the note link
       } else if (option.type === OptionType.REMOVE_LINK) {
         // Remove the link
@@ -131,7 +135,7 @@ export default function AddLinkPopover(props: Props) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [editor, deck, hidePopover, linkText],
+    [editor, deckId, hidePopover, linkText],
   );
 
   const onKeyDown = useCallback(
