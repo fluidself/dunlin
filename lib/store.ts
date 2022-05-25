@@ -7,8 +7,11 @@ import localforage from 'localforage';
 import type { DecryptedNote } from 'types/decrypted';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { Backlink } from 'editor/backlinks/useBacklinks';
+import type { PickPartial } from 'types/utils';
 import createUserSettingsSlice, { UserSettings } from './createUserSettingsSlice';
-import type { NoteUpdate } from './api/updateNote';
+// import type { NoteUpdate } from './api/updateNote';
+
+type NoteUpdate = PickPartial<DecryptedNote, 'deck_id' | 'content' | 'title' | 'created_at' | 'updated_at'>;
 
 export { default as shallowEqual } from 'zustand/shallow';
 

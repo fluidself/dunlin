@@ -4,11 +4,10 @@ import { AccessControlCondition } from 'types/lit';
 
 type DeckInsert = {
   user_id: string;
-  details: {
-    encrypted_string: string;
-    encrypted_symmetric_key: string;
-    access_control_conditions: AccessControlCondition[];
-  };
+  deck_name: string;
+  encrypted_string: string;
+  encrypted_symmetric_key: string;
+  access_control_conditions: AccessControlCondition[];
 };
 
 export default async function insertDeck(deck: DeckInsert) {

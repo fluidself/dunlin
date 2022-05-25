@@ -8,11 +8,15 @@ import { store, useStore } from 'lib/store';
 import type { NoteUpdate } from 'lib/api/updateNote';
 import updateDbNote from 'lib/api/updateNote';
 import { ProvideCurrentNote } from 'utils/useCurrentNote';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
+import { encryptNote } from 'utils/encryption';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import updateBacklinks from 'editor/backlinks/updateBacklinks';
 import Backlinks from './editor/backlinks/Backlinks';
 import NoteHeader from './editor/NoteHeader';
 import ErrorBoundary from './ErrorBoundary';
+import { encrypt } from '@metamask/browser-passworder';
+import { Note } from 'types/supabase';
 
 const SYNC_DEBOUNCE_MS = 1000;
 
@@ -28,6 +32,7 @@ type Props = {
 function Note(props: Props) {
   const { noteId, highlightedPath, className } = props;
   const router = useRouter();
+  const { key } = useCurrentDeck();
 
   const updateNote = useStore(state => state.updateNote);
 
@@ -58,7 +63,11 @@ function Note(props: Props) {
   }, []);
 
   const handleNoteUpdate = useCallback(async (note: NoteUpdate) => {
-    const { error } = await updateDbNote(note);
+    let encryptedNote: any = { ...note };
+    if (note.title) encryptedNote.title = await encrypt(key, note.title);
+    if (note.content) encryptedNote.content = await encrypt(key, note.content);
+
+    const { error } = await updateDbNote(encryptedNote);
 
     if (error) {
       switch (error.code) {
@@ -74,34 +83,32 @@ function Note(props: Props) {
       }
     }
     if (note.title) {
-      await updateBacklinks(note.title, note.id);
+      await updateBacklinks(note.title, note.id, key);
     }
     setSyncState({ isTitleSynced: true, isContentSynced: true });
   }, []);
 
   // Save the note in the database if it changes and it hasn't been saved yet
-  // useEffect(() => {
-  //   const note = store.getState().notes[noteId];
-  //   if (!note) {
-  //     return;
-  //   }
+  useEffect(() => {
+    const note = store.getState().notes[noteId];
+    if (!note || !key) {
+      console.log('no key');
+      return;
+    }
 
-  //   const noteUpdate: NoteUpdate = { id: noteId };
-  //   if (!syncState.isContentSynced) {
-  //     noteUpdate.content = note.content;
-  //   }
-  //   if (!syncState.isTitleSynced) {
-  //     noteUpdate.title = note.title;
-  //   }
+    const noteUpdate: any = { id: noteId };
+    if (!syncState.isContentSynced) {
+      noteUpdate.content = note.content;
+    }
+    if (!syncState.isTitleSynced) {
+      noteUpdate.title = note.title;
+    }
 
-  //   if (noteUpdate.title || noteUpdate.content) {
-  //     const handler = setTimeout(
-  //       () => handleNoteUpdate(noteUpdate),
-  //       SYNC_DEBOUNCE_MS
-  //     );
-  //     return () => clearTimeout(handler);
-  //   }
-  // }, [noteId, syncState, handleNoteUpdate]);
+    if (noteUpdate.title || noteUpdate.content) {
+      const handler = setTimeout(() => handleNoteUpdate(noteUpdate), SYNC_DEBOUNCE_MS);
+      return () => clearTimeout(handler);
+    }
+  }, [noteId, syncState, handleNoteUpdate]);
 
   // Prompt the user with a dialog box about unsaved changes if they navigate away
   useEffect(() => {

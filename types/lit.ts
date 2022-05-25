@@ -12,6 +12,10 @@ export type AccessControlCondition = {
   returnValueTest: ReturnValueTest;
 };
 
+export type BooleanCondition = {
+  operator: 'and' | 'or';
+};
+
 export type AuthSig = {
   sig: string;
   derivedVia: string;

@@ -20,7 +20,7 @@ import Portal from 'components/Portal';
 import { useCurrentNote } from 'utils/useCurrentNote';
 import { store, useStore } from 'lib/store';
 import serialize from 'editor/serialization/serialize';
-import { Note } from 'types/supabase';
+import { DecryptedNote } from 'types/decrypted';
 import useImport from 'utils/useImport';
 import { queryParamToArray } from 'utils/url';
 import { addEllipsis } from 'utils/string';
@@ -42,7 +42,7 @@ export default function NoteHeader() {
   const currentNote = useCurrentNote();
   const onImport = useImport();
   const { user } = useAuth();
-  const { deck } = useCurrentDeck();
+  const { id: currentDeckId } = useCurrentDeck();
   const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
   const [deckOptions, setDeckOptions] = useState<any>(null);
   const [selectedDeck, setSelectedDeck] = useState<any>(null);
@@ -58,8 +58,8 @@ export default function NoteHeader() {
       value: deck.id,
     }));
     setDeckOptions(decksToOptions);
-    setSelectedDeck(decksToOptions?.filter(deckOption => deckOption.id === deck?.id)[0]);
-  }, [decks, deck?.id]);
+    setSelectedDeck(decksToOptions?.filter(deckOption => deckOption.id === currentDeckId)[0]);
+  }, [decks, currentDeckId]);
 
   const isSidebarButtonVisible = useStore(state => !state.isSidebarOpen && state.openNoteIds?.[0] === currentNote.id);
   const isCloseButtonVisible = useStore(state => state.openNoteIds.length > 1);
@@ -236,9 +236,9 @@ export default function NoteHeader() {
   );
 }
 
-export const getSerializedNote = (note: Note) => note.content.map(n => serialize(n)).join('');
+export const getSerializedNote = (note: DecryptedNote) => note.content.map(n => serialize(n)).join('');
 
-const getNoteAsBlob = (note: Note) => {
+const getNoteAsBlob = (note: DecryptedNote) => {
   const serializedContent = getSerializedNote(note);
   const blob = new Blob([serializedContent], {
     type: 'text/markdown;charset=utf-8',

@@ -1,8 +1,8 @@
-import { Note } from 'types/supabase';
+import { DecryptedNote } from 'types/decrypted';
 import { getReadableDatetime } from 'utils/date';
 
 type Props = {
-  note: Note;
+  note: DecryptedNote;
 };
 
 export default function NoteMetadata(props: Props) {

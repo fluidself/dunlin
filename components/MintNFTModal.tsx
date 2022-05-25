@@ -5,7 +5,8 @@ import fleekStorage from '@fleekhq/fleek-storage-js';
 // import { useSigner, useContract } from 'wagmi';
 // import { Contract } from 'ethers';
 import { toast } from 'react-toastify';
-import { Note } from 'types/supabase';
+// import { Note } from 'types/supabase';
+import { DecryptedNote } from 'types/decrypted';
 import useHotkeys from 'utils/useHotkeys';
 import { getSerializedNote } from 'components/editor/NoteHeader';
 import Button from 'components/home/Button';
@@ -13,7 +14,7 @@ import Button from 'components/home/Button';
 // import { CONTRACT_ADDRESS } from 'constants/nft-contract';
 
 type Props = {
-  note: Note;
+  note: DecryptedNote;
   userId: string | undefined;
   setIsOpen: (isOpen: boolean) => void;
 };

@@ -3,11 +3,13 @@ import { forwardRef, useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import type { TablerIcon } from '@tabler/icons';
 import { IconFilePlus, IconSearch } from '@tabler/icons';
+import { encrypt } from '@metamask/browser-passworder';
 import { toast } from 'react-toastify';
 import upsertNote from 'lib/api/upsertNote';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import useNoteSearch from 'utils/useNoteSearch';
 import { caseInsensitiveStringEqual } from 'utils/string';
+import { getDefaultEditorValue } from 'editor/constants';
 
 enum OptionType {
   NOTE,
@@ -29,7 +31,7 @@ type Props = {
 function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
   const { onOptionClick: onOptionClickCallback, className = '' } = props;
   const router = useRouter();
-  const { deck } = useCurrentDeck();
+  const { id: deckId, key } = useCurrentDeck();
 
   const [inputText, setInputText] = useState('');
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0);
@@ -62,27 +64,29 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
 
   const onOptionClick = useCallback(
     async (option: Option) => {
-      if (!deck) {
+      if (!deckId) {
         return;
       }
 
       onOptionClickCallback?.();
 
       if (option.type === OptionType.NEW_NOTE) {
-        const note = await upsertNote({ deck_id: deck.id, title: inputText });
+        const encryptedTitle = await encrypt(key, inputText);
+        const encryptedContent = await encrypt(key, getDefaultEditorValue());
+        const note = await upsertNote(key, { deck_id: deckId, title: encryptedTitle, content: encryptedContent });
         if (!note) {
           toast.error(`There was an error creating the note ${inputText}.`);
           return;
         }
 
-        router.push(`/app/${deck.id}/note/${note.id}`);
+        router.push(`/app/${deckId}/note/${note.id}`);
       } else if (option.type === OptionType.NOTE) {
-        router.push(`/app/${deck.id}/note/${option.id}`);
+        router.push(`/app/${deckId}/note/${option.id}`);
       } else {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [deck, router, inputText, onOptionClickCallback],
+    [deckId, router, inputText, onOptionClickCallback],
   );
 
   const onKeyDown = useCallback(

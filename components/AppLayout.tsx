@@ -9,13 +9,12 @@ import { IconAlertTriangle } from '@tabler/icons';
 import { toast } from 'react-toastify';
 import colors from 'tailwindcss/colors';
 import { useAccount } from 'wagmi';
-import { decrypt } from '@metamask/browser-passworder';
 import { useStore, store, NoteTreeItem, getNoteTreeItem, Notes, SidebarTab } from 'lib/store';
 import supabase from 'lib/supabase';
 import { Note, Deck } from 'types/supabase';
 import { DecryptedDeck, DecryptedNote } from 'types/decrypted';
 import { ProvideCurrentDeck } from 'utils/useCurrentDeck';
-import { decryptWithLit } from 'utils/encryption';
+import { decryptWithLit, decryptNote } from 'utils/encryption';
 import useIsMounted from 'utils/useIsMounted';
 import useHotkeys from 'utils/useHotkeys';
 import { useAuth } from 'utils/useAuth';
@@ -24,7 +23,6 @@ import Sidebar from './sidebar/Sidebar';
 import FindOrCreateModal from './FindOrCreateModal';
 import PageLoading from './PageLoading';
 import OfflineBanner from './OfflineBanner';
-import { Descendant } from 'slate';
 
 type Props = {
   children: ReactNode;
@@ -121,15 +119,16 @@ export default function AppLayout(props: Props) {
       body: JSON.stringify({ deckId }),
     });
     const { deck } = await res.json();
-    const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = deck.details;
-    const decryptedDetails = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
-    const { name, key } = JSON.parse(decryptedDetails);
+    if (!deck) throw new Error();
+
+    const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = deck;
+    const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
     const decryptedDeck: DecryptedDeck = {
       id: deck.id,
       user_id: deck.user_id,
       note_tree: deck.note_tree,
-      deck_name: name,
-      key: key,
+      deck_name: deck.deck_name,
+      key: deckKey,
     };
 
     setDeck(decryptedDeck);
@@ -146,13 +145,8 @@ export default function AppLayout(props: Props) {
 
     const notes: DecryptedNote[] = [];
     for (const note of encryptedNotes) {
-      const decryptedTitle: string = await decrypt(key, note.title);
-      const decryptedContent: Descendant[] = await decrypt(key, note.content);
-      notes.push({
-        ...note,
-        title: decryptedTitle,
-        content: decryptedContent,
-      });
+      const decryptedNote = await decryptNote(deckKey, note);
+      notes.push(decryptedNote);
     }
     notes.sort((a, b) => (a.title < b.title ? -1 : 1));
 
@@ -181,8 +175,6 @@ export default function AppLayout(props: Props) {
     setNotes(notesAsObj);
 
     // Set note tree
-    // const { data: deckData } = await supabase.from<Deck>('decks').select('note_tree').eq('id', deckId).single();
-
     if (decryptedDeck.note_tree) {
       const noteTree: NoteTreeItem[] = [...decryptedDeck.note_tree];
       // This is a sanity check for removing notes in the noteTree that do not exist
@@ -239,36 +231,39 @@ export default function AppLayout(props: Props) {
     }
   }, [setIsSidebarOpen, setIsPageStackingOn, hasHydrated]);
 
-  // useEffect(() => {
-  //   if (!deckId) {
-  //     return;
-  //   }
+  useEffect(() => {
+    if (!deckId || !deck) {
+      return;
+    }
 
-  //   // Subscribe to changes on the notes table for the current DECK
-  //   const subscription = supabase
-  //     .from<Note>(`notes:deck_id=eq.${deckId}`)
-  //     .on('*', payload => {
-  //       if (payload.eventType === 'INSERT') {
-  //         upsertNote(payload.new);
-  //       } else if (payload.eventType === 'UPDATE') {
-  //         // Don't update the note if it is currently open
-  //         const openNoteIds = store.getState().openNoteIds;
-  //         if (!openNoteIds.includes(payload.new.id)) {
-  //           updateNote(payload.new);
-  //         }
-  //       } else if (payload.eventType === 'DELETE') {
-  //         deleteNote(payload.old.id);
-  //       }
-  //     })
-  //     .subscribe();
+    // Subscribe to changes on the notes table for the current DECK
+    const subscription = supabase
+      .from<Note>(`notes:deck_id=eq.${deckId}`)
+      .on('*', async payload => {
+        console.log('subscription firing', payload);
+        if (payload.eventType === 'INSERT') {
+          const note = await decryptNote(deck.key, payload.new);
+          upsertNote(note);
+        } else if (payload.eventType === 'UPDATE') {
+          // Don't update the note if it is currently open
+          const openNoteIds = store.getState().openNoteIds;
+          if (!openNoteIds.includes(payload.new.id)) {
+            const note = await decryptNote(deck.key, payload.new);
+            updateNote(note);
+          }
+        } else if (payload.eventType === 'DELETE') {
+          deleteNote(payload.old.id);
+        }
+      })
+      .subscribe();
 
-  //   window.addEventListener('focus', initData);
+    // window.addEventListener('focus', initData);
 
-  //   return () => {
-  //     subscription.unsubscribe();
-  //     window.removeEventListener('focus', initData);
-  //   };
-  // }, [deckId, upsertNote, updateNote, deleteNote, initData]);
+    return () => {
+      subscription.unsubscribe();
+      // window.removeEventListener('focus', initData);
+    };
+  }, [deckId, upsertNote, updateNote, deleteNote, initData]);
 
   const hotkeys = useMemo(
     () => [

@@ -5,15 +5,17 @@ import { Note } from 'types/supabase';
 import { store } from 'lib/store';
 import updateNote from 'lib/api/updateNote';
 import { computeLinkedBacklinks } from './useBacklinks';
+import { encrypt } from '@metamask/browser-passworder';
 
 /**
  * Updates the link properties of the backlinks on each backlinked note when the
  * current note title has changed.
  */
-const updateBacklinks = async (newTitle: string, noteId: string) => {
+const updateBacklinks = async (newTitle: string, noteId: string, key: string) => {
   const notes = store.getState().notes;
   const backlinks = computeLinkedBacklinks(notes, noteId);
-  const updateData: Pick<Note, 'id' | 'content'>[] = [];
+  // const updateData: Pick<Note, 'id' | 'content'>[] = [];
+  const updateData: any[] = [];
 
   for (const backlink of backlinks) {
     const note = notes[backlink.id];
@@ -24,7 +26,7 @@ const updateBacklinks = async (newTitle: string, noteId: string) => {
 
     let newBacklinkContent = note.content;
     for (const match of backlink.matches) {
-      newBacklinkContent = produce(newBacklinkContent, (draftState) => {
+      newBacklinkContent = produce(newBacklinkContent, draftState => {
         // Path should not be empty
         const path = match.path;
         if (path.length <= 0) {
@@ -38,10 +40,7 @@ const updateBacklinks = async (newTitle: string, noteId: string) => {
         }
 
         // Assert that linkNode is a note link
-        if (
-          !Element.isElement(linkNode) ||
-          linkNode.type !== ElementType.NoteLink
-        ) {
+        if (!Element.isElement(linkNode) || linkNode.type !== ElementType.NoteLink) {
           return;
         }
 
@@ -57,19 +56,20 @@ const updateBacklinks = async (newTitle: string, noteId: string) => {
     updateData.push({
       id: backlink.id,
       content: newBacklinkContent,
+      encryptedContent: await encrypt(key, newBacklinkContent),
     });
   }
 
   // Make sure backlinks are updated locally
   for (const newNote of updateData) {
-    store.getState().updateNote(newNote);
+    store.getState().updateNote({ id: newNote.id, content: newNote.content });
   }
 
   // It would be better if we could consolidate the update requests into one request
   // See https://github.com/supabase/supabase-js/issues/156
   const promises = [];
   for (const data of updateData) {
-    promises.push(updateNote(data));
+    promises.push(updateNote({ id: data.id, content: data.encryptedContent }));
   }
   await Promise.all(promises);
 };

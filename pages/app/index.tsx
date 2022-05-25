@@ -73,18 +73,14 @@ export default function AppHome() {
         },
       },
     ];
-    const [encryptedStringBase64, encryptedSymmetricKeyBase64] = await encryptWithLit(
-      JSON.stringify({ name: deckName, key: deckKey }),
-      accessControlConditions,
-    );
+    const [encryptedStringBase64, encryptedSymmetricKeyBase64] = await encryptWithLit(deckKey, accessControlConditions);
 
     const deck = await insertDeck({
       user_id: user.id,
-      details: {
-        encrypted_string: encryptedStringBase64,
-        encrypted_symmetric_key: encryptedSymmetricKeyBase64,
-        access_control_conditions: accessControlConditions,
-      },
+      deck_name: deckName,
+      encrypted_string: encryptedStringBase64,
+      encrypted_symmetric_key: encryptedSymmetricKeyBase64,
+      access_control_conditions: accessControlConditions,
     });
 
     if (!deck) {
@@ -93,7 +89,6 @@ export default function AppHome() {
     }
 
     const onboardingNotes = createOnboardingNotes();
-    // TODO: make sure 'getting started' is first note so that's where user lands on first load
     const promises = [];
     for (const note of onboardingNotes) {
       const encryptedTitle = await encrypt(deckKey, note.title);
