@@ -3,7 +3,8 @@ import createVanilla from 'zustand/vanilla';
 import { persist, StateStorage, StoreApiWithPersist } from 'zustand/middleware';
 import produce, { Draft } from 'immer';
 import localforage from 'localforage';
-import type { Note } from 'types/supabase';
+// import type { Note } from 'types/supabase';
+import type { DecryptedNote } from 'types/decrypted';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { Backlink } from 'editor/backlinks/useBacklinks';
 import createUserSettingsSlice, { UserSettings } from './createUserSettingsSlice';
@@ -34,10 +35,10 @@ const storage: StateStorage = {
   },
 };
 
-export type Notes = Record<Note['id'], Note>;
+export type Notes = Record<DecryptedNote['id'], DecryptedNote>;
 
 export type NoteTreeItem = {
-  id: Note['id'];
+  id: DecryptedNote['id'];
   children: NoteTreeItem[];
   collapsed: boolean;
 };
@@ -51,7 +52,7 @@ export type Store = {
   _hasHydrated: boolean; // TODO: temporary until https://github.com/pmndrs/zustand/issues/562 gets fixed
   notes: Notes;
   setNotes: Setter<Notes>;
-  upsertNote: (note: Note) => void;
+  upsertNote: (note: DecryptedNote) => void;
   updateNote: (note: NoteUpdate) => void;
   deleteNote: (noteId: string) => void;
   openNoteIds: string[];
@@ -109,7 +110,7 @@ export const store = createVanilla<Store, SetState<Store>, GetState<Store>, Stor
       /**
        * If the note id exists, then update the note. Otherwise, insert it
        */
-      upsertNote: (note: Note) => {
+      upsertNote: (note: DecryptedNote) => {
         set(state => {
           if (state.notes[note.id]) {
             state.notes[note.id] = { ...state.notes[note.id], ...note };

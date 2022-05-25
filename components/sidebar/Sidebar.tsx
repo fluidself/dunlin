@@ -32,7 +32,7 @@ function Sidebar(props: Props) {
   const { setIsFindOrCreateModalOpen, className } = props;
 
   const { user } = useAuth();
-  const { deck } = useCurrentDeck();
+  const { id: deckId } = useCurrentDeck();
   const isSidebarOpen = useStore(state => state.isSidebarOpen);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
   const hideSidebarOnMobile = useCallback(() => {
@@ -58,7 +58,7 @@ function Sidebar(props: Props) {
   }, [isMounted, user]);
 
   const provisionAccess = async (accessControlConditions: AccessControlCondition[]) => {
-    if (!deck || !accessControlConditions) return;
+    if (!deckId || !accessControlConditions) return;
 
     try {
       // TODO: hotfix to only allow EVM chains for now
@@ -73,7 +73,7 @@ function Sidebar(props: Props) {
 
       const resourceId: ResourceId = {
         baseUrl: process.env.BASE_URL ?? '',
-        path: `/app/${deck?.id}`,
+        path: `/app/${deckId}`,
         orgId: '',
         role: '',
         extraData: '',
@@ -168,7 +168,7 @@ function Sidebar(props: Props) {
                   setIsFindOrCreateModalOpen(isOpen => !isOpen);
                 }}
               />
-              {deck && <GraphButton onClick={hideSidebarOnMobile} deckId={deck?.id} />}
+              {deckId && <GraphButton onClick={hideSidebarOnMobile} deckId={deckId} />}
               <SidebarContent
                 className="flex-1 mt-3 overflow-x-hidden overflow-y-auto"
                 setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen}
@@ -178,7 +178,7 @@ function Sidebar(props: Props) {
           {isShareModalOpen && (
             <ShareModal
               onClose={() => setIsShareModalOpen(false)}
-              deckToShare={deck?.id}
+              deckToShare={deckId}
               processingAccess={processingAccess}
               onAccessControlConditionsSelected={async (acc: AccessControlCondition[]) => {
                 setProcessingAccess(true);

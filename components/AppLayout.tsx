@@ -1,3 +1,5 @@
+// @ts-ignore
+import LitJsSdk from 'lit-js-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useRouter } from 'next/router';
@@ -7,10 +9,14 @@ import { IconAlertTriangle } from '@tabler/icons';
 import { toast } from 'react-toastify';
 import colors from 'tailwindcss/colors';
 import { useAccount } from 'wagmi';
+import { decrypt } from '@metamask/browser-passworder';
 import { useStore, store, NoteTreeItem, getNoteTreeItem, Notes, SidebarTab } from 'lib/store';
 import supabase from 'lib/supabase';
 import { Note, Deck } from 'types/supabase';
+import { DecryptedDeck, DecryptedNote } from 'types/decrypted';
 import { ProvideCurrentDeck } from 'utils/useCurrentDeck';
+import { decryptWithLit } from 'utils/encryption';
+import useIsMounted from 'utils/useIsMounted';
 import useHotkeys from 'utils/useHotkeys';
 import { useAuth } from 'utils/useAuth';
 import { isMobile } from 'utils/device';
@@ -18,6 +24,7 @@ import Sidebar from './sidebar/Sidebar';
 import FindOrCreateModal from './FindOrCreateModal';
 import PageLoading from './PageLoading';
 import OfflineBanner from './OfflineBanner';
+import { Descendant } from 'slate';
 
 type Props = {
   children: ReactNode;
@@ -32,7 +39,9 @@ export default function AppLayout(props: Props) {
   } = router;
   const { user, isLoaded, signOut } = useAuth();
   const [{ data: accountData }] = useAccount();
+  const isMounted = useIsMounted();
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const [deck, setDeck] = useState<DecryptedDeck>();
 
   const UpgradeMsg = () => (
     <div>
@@ -87,18 +96,65 @@ export default function AppLayout(props: Props) {
   const setNoteTree = useStore(state => state.setNoteTree);
   const setDeckId = useStore(state => state.setDeckId);
 
+  const initLit = async () => {
+    const client = new LitJsSdk.LitNodeClient({ alertWhenUnauthorized: false, debug: false });
+    await client.connect();
+    window.litNodeClient = client;
+  };
+
   const initData = useCallback(async () => {
+    if (!window.litNodeClient && isMounted()) {
+      await initLit();
+    }
+
     if (!deckId || typeof deckId !== 'string') {
       return;
     }
 
     setDeckId(deckId);
 
-    const { data: notes } = await supabase
+    const res = await fetch('/api/deck', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ deckId }),
+    });
+    const { deck } = await res.json();
+    const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = deck.details;
+    const decryptedDetails = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
+    const { name, key } = JSON.parse(decryptedDetails);
+    const decryptedDeck: DecryptedDeck = {
+      id: deck.id,
+      user_id: deck.user_id,
+      note_tree: deck.note_tree,
+      deck_name: name,
+      key: key,
+    };
+
+    setDeck(decryptedDeck);
+
+    const { data: encryptedNotes } = await supabase
       .from<Note>('notes')
       .select('id, title, content, created_at, updated_at')
-      .eq('deck_id', deckId)
-      .order('title');
+      .eq('deck_id', deckId);
+
+    if (!encryptedNotes) {
+      setIsPageLoaded(true);
+      return;
+    }
+
+    const notes: DecryptedNote[] = [];
+    for (const note of encryptedNotes) {
+      const decryptedTitle: string = await decrypt(key, note.title);
+      const decryptedContent: Descendant[] = await decrypt(key, note.content);
+      notes.push({
+        ...note,
+        title: decryptedTitle,
+        content: decryptedContent,
+      });
+    }
+    notes.sort((a, b) => (a.title < b.title ? -1 : 1));
 
     // Redirect to most recent note or first note in database
     if (router.pathname.match(/^\/app\/[^/]+$/i)) {
@@ -118,17 +174,17 @@ export default function AppLayout(props: Props) {
     }
 
     // Set notes
-    const notesAsObj = notes.reduce<Record<Note['id'], Note>>((acc, note) => {
+    const notesAsObj = notes.reduce<Record<Note['id'], DecryptedNote>>((acc, note) => {
       acc[note.id] = note;
       return acc;
     }, {});
     setNotes(notesAsObj);
 
     // Set note tree
-    const { data: deckData } = await supabase.from<Deck>('decks').select('note_tree').eq('id', deckId).single();
+    // const { data: deckData } = await supabase.from<Deck>('decks').select('note_tree').eq('id', deckId).single();
 
-    if (deckData?.note_tree) {
-      const noteTree: NoteTreeItem[] = [...deckData.note_tree];
+    if (decryptedDeck.note_tree) {
+      const noteTree: NoteTreeItem[] = [...decryptedDeck.note_tree];
       // This is a sanity check for removing notes in the noteTree that do not exist
       removeNonexistentNotes(noteTree, notesAsObj);
       // If there are notes that are not in the note tree, add them
@@ -183,36 +239,36 @@ export default function AppLayout(props: Props) {
     }
   }, [setIsSidebarOpen, setIsPageStackingOn, hasHydrated]);
 
-  useEffect(() => {
-    if (!deckId) {
-      return;
-    }
+  // useEffect(() => {
+  //   if (!deckId) {
+  //     return;
+  //   }
 
-    // Subscribe to changes on the notes table for the current DECK
-    const subscription = supabase
-      .from<Note>(`notes:deck_id=eq.${deckId}`)
-      .on('*', payload => {
-        if (payload.eventType === 'INSERT') {
-          upsertNote(payload.new);
-        } else if (payload.eventType === 'UPDATE') {
-          // Don't update the note if it is currently open
-          const openNoteIds = store.getState().openNoteIds;
-          if (!openNoteIds.includes(payload.new.id)) {
-            updateNote(payload.new);
-          }
-        } else if (payload.eventType === 'DELETE') {
-          deleteNote(payload.old.id);
-        }
-      })
-      .subscribe();
+  //   // Subscribe to changes on the notes table for the current DECK
+  //   const subscription = supabase
+  //     .from<Note>(`notes:deck_id=eq.${deckId}`)
+  //     .on('*', payload => {
+  //       if (payload.eventType === 'INSERT') {
+  //         upsertNote(payload.new);
+  //       } else if (payload.eventType === 'UPDATE') {
+  //         // Don't update the note if it is currently open
+  //         const openNoteIds = store.getState().openNoteIds;
+  //         if (!openNoteIds.includes(payload.new.id)) {
+  //           updateNote(payload.new);
+  //         }
+  //       } else if (payload.eventType === 'DELETE') {
+  //         deleteNote(payload.old.id);
+  //       }
+  //     })
+  //     .subscribe();
 
-    window.addEventListener('focus', initData);
+  //   window.addEventListener('focus', initData);
 
-    return () => {
-      subscription.unsubscribe();
-      window.removeEventListener('focus', initData);
-    };
-  }, [deckId, upsertNote, updateNote, deleteNote, initData]);
+  //   return () => {
+  //     subscription.unsubscribe();
+  //     window.removeEventListener('focus', initData);
+  //   };
+  // }, [deckId, upsertNote, updateNote, deleteNote, initData]);
 
   const hotkeys = useMemo(
     () => [
@@ -262,7 +318,7 @@ export default function AppLayout(props: Props) {
       <Head>
         <meta name="theme-color" content={darkMode ? colors.neutral[900] : colors.white} />
       </Head>
-      <ProvideCurrentDeck deckId={deckId}>
+      <ProvideCurrentDeck deck={deck}>
         <div id="app-container" className={appContainerClassName}>
           <div className="flex w-full h-full dark:bg-gray-900">
             <Sidebar setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen} />

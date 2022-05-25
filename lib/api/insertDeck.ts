@@ -1,9 +1,14 @@
 import supabase from 'lib/supabase';
 import type { Deck } from 'types/supabase';
+import { AccessControlCondition } from 'types/lit';
 
 type DeckInsert = {
   user_id: string;
-  deck_name?: string;
+  details: {
+    encrypted_string: string;
+    encrypted_symmetric_key: string;
+    access_control_conditions: AccessControlCondition[];
+  };
 };
 
 export default async function insertDeck(deck: DeckInsert) {
