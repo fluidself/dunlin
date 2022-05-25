@@ -7,12 +7,12 @@ import { useCurrentDeck } from 'utils/useCurrentDeck';
 
 export default function useDeleteNote(noteId: string) {
   const router = useRouter();
-  const { deck } = useCurrentDeck();
+  const { id: deckId, key } = useCurrentDeck();
 
   const openNoteIds = useStore(state => state.openNoteIds);
 
   const onDeleteClick = useCallback(async () => {
-    if (!deck) return;
+    if (!deckId) return;
     const deletedNoteIndex = openNoteIds.findIndex(openNoteId => openNoteId === noteId);
 
     if (deletedNoteIndex !== -1) {
@@ -23,18 +23,18 @@ export default function useDeleteNote(noteId: string) {
         for (const id of noteIds) {
           // We haven't deleted the note yet, so we need to check the id
           if (noteId !== id) {
-            router.push(`/app/${deck.id}/note/${id}`, undefined, { shallow: true });
+            router.push(`/app/${deckId}/note/${id}`, undefined, { shallow: true });
             break;
           }
         }
       } else {
         // No note ids to redirect to, redirect to app
-        router.push(`/app/${deck.id}`);
+        router.push(`/app/${deckId}`);
       }
     }
 
-    await deleteNote(noteId, deck.id);
-    await deleteBacklinks(noteId);
+    await deleteNote(noteId, deckId);
+    await deleteBacklinks(noteId, key);
   }, [router, noteId, openNoteIds]);
 
   return onDeleteClick;

@@ -240,7 +240,6 @@ export default function AppLayout(props: Props) {
     const subscription = supabase
       .from<Note>(`notes:deck_id=eq.${deckId}`)
       .on('*', async payload => {
-        console.log('subscription firing', payload);
         if (payload.eventType === 'INSERT') {
           const note = await decryptNote(deck.key, payload.new);
           upsertNote(note);
