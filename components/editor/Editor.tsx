@@ -275,6 +275,7 @@ function Editor(props: Props) {
       // the selection changes
       const valueNormalized = value.map(v => _pick(v, ['type', 'children']));
       const newValueNormalized = newValue.map(v => _pick(v, ['type', 'children']));
+      // TODO: debug
       if (!_isEqual(valueNormalized, newValueNormalized)) {
         setValue(newValue);
         onChange(newValue);

@@ -2,10 +2,11 @@ import { store } from 'lib/store';
 import supabase from 'lib/supabase';
 import type { Note, Deck } from 'types/supabase';
 import type { PickPartial } from 'types/utils';
+import { decryptNote } from 'utils/encryption';
 
 export type NoteUpsert = PickPartial<Note, 'id' | 'content' | 'created_at' | 'updated_at'>;
 
-export default async function upsertNote(note: NoteUpsert) {
+export default async function upsertNote(key: string, note: NoteUpsert) {
   const { data, error } = await supabase
     .from<Note>('notes')
     .upsert({ ...note, updated_at: new Date().toISOString() }, { onConflict: 'deck_id, title' })
@@ -13,7 +14,8 @@ export default async function upsertNote(note: NoteUpsert) {
 
   // Refreshes the list of notes in the sidebar
   if (data) {
-    store.getState().upsertNote(data);
+    const decryptedNote = await decryptNote(key, data);
+    store.getState().upsertNote(decryptedNote);
 
     await supabase.from<Deck>('decks').update({ note_tree: store.getState().noteTree }).eq('id', note.deck_id);
   } else if (error) {

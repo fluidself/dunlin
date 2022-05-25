@@ -1,11 +1,11 @@
 // @ts-ignore
 import LitJsSdk from 'lit-js-sdk';
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string';
-// import _map from 'lodash/map';
-// import _omit from 'lodash/omit';
-// import _zipObject from 'lodash/zipObject';
-// import _isArrayLike from 'lodash/isArrayLike';
+import { Descendant } from 'slate';
+import { decrypt, encrypt } from '@metamask/browser-passworder';
 import type { AuthSig } from 'types/lit';
+import type { Note } from 'types/supabase';
+import { DecryptedNote } from 'types/decrypted';
 
 export function encodeb64(uintarray: any) {
   const b64 = Buffer.from(uintarray).toString('base64');
@@ -75,3 +75,17 @@ export async function decryptWithLit(
 
   return decryptedString;
 }
+
+export const encryptNote = async (key: string, note: any) => {
+  const encryptedTitle: string = await encrypt(key, note.title);
+  const encryptedContent: string = await encrypt(key, note.content);
+
+  return { ...note, title: encryptedTitle, content: encryptedContent };
+};
+
+export const decryptNote = async (key: string, encryptedNote: Note) => {
+  const decryptedTitle: string = await decrypt(key, encryptedNote.title);
+  const decryptedContent: Descendant[] = await decrypt(key, encryptedNote.content);
+
+  return { ...encryptedNote, title: decryptedTitle, content: decryptedContent };
+};

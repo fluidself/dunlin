@@ -24,7 +24,7 @@ type Props = {
 export default function Header(props: Props) {
   const { setIsShareModalOpen, setCreateJoinRenameModal } = props;
   const { user, signOut } = useAuth();
-  const { deck } = useCurrentDeck();
+  const { user_id } = useCurrentDeck();
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
 
   return (
@@ -49,7 +49,7 @@ export default function Header(props: Props) {
             </Tooltip>
           </Menu.Button>
           <Menu.Items className="absolute z-20 w-56 overflow-hidden bg-white rounded left-6 top-full shadow-popover dark:bg-gray-800 focus:outline-none border border-gray-500">
-            {user?.id === deck?.user_id && (
+            {user?.id === user_id && (
               <>
                 <DropdownItem className="" onClick={() => setIsShareModalOpen(true)}>
                   <IconShare size={18} className="mr-1" />
