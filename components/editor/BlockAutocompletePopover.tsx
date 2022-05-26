@@ -167,7 +167,7 @@ export default function BlockAutocompletePopover() {
 
       hidePopover();
     },
-    [editor, hidePopover, getRegexResult],
+    [editor, hidePopover, getRegexResult, key],
   );
 
   const onKeyDown = useCallback(

@@ -187,7 +187,7 @@ export default function AppLayout(props: Props) {
       // TODO: handle decryption error
       // redirect somewhere?
     }
-  }, [deckId, router, setNotes, setNoteTree, setDeckId]);
+  }, [deckId, isMounted, router, setNotes, setNoteTree, setDeckId]);
 
   useEffect(() => {
     if (isLoaded && !user) {

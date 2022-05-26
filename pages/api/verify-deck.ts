@@ -1,5 +1,3 @@
-// @ts-ignore
-import LitJsSdk from 'lit-js-sdk';
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { ironOptions } from 'constants/iron-session';

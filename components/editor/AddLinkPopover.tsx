@@ -135,7 +135,7 @@ export default function AddLinkPopover(props: Props) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [editor, deckId, hidePopover, linkText],
+    [editor, deckId, hidePopover, linkText, key],
   );
 
   const onKeyDown = useCallback(
