@@ -34,10 +34,9 @@ DROP TABLE IF EXISTS public.decks;
 CREATE TABLE public.decks (
   user_id text NOT NULL,
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  deck_name text NOT NULL,
   note_tree jsonb NULL,
-  encrypted_string text NOT NULL,
-  encrypted_symmetric_key text NOT NULL,
-  access_control_conditions jsonb NOT NULL,
+  access_params jsonb NOT NULL,
   CONSTRAINT decks_pkey PRIMARY KEY (id)
 );
 
