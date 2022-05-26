@@ -15,7 +15,7 @@ export default async function upsertNote(key: string, note: NoteUpsert) {
   // Refreshes the list of notes in the sidebar
   if (data) {
     const decryptedNote = await decryptNote(key, data);
-    store.getState().upsertNote(decryptedNote);
+    if (decryptedNote) store.getState().upsertNote(decryptedNote);
 
     await supabase.from<Deck>('decks').update({ note_tree: store.getState().noteTree }).eq('id', note.deck_id);
   } else if (error) {

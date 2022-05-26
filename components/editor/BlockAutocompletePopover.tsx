@@ -12,8 +12,8 @@ import { store } from 'lib/store';
 import supabase from 'lib/supabase';
 import { Note } from 'types/supabase';
 import useDebounce from 'utils/useDebounce';
+import { encrypt } from 'utils/browser-passworder';
 import EditorPopover from './EditorPopover';
-import { encrypt } from '@metamask/browser-passworder';
 
 const DEBOUNCE_MS = 100;
 

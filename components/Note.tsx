@@ -1,16 +1,16 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { encrypt } from '@metamask/browser-passworder';
 import type { Path } from 'slate';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 import Editor from 'components/editor/Editor';
 import Title from 'components/editor/Title';
 import { store, useStore } from 'lib/store';
-import type { NoteUpdate } from 'lib/api/updateNote';
+// import type { NoteUpdate } from 'lib/api/updateNote';
 import updateDbNote from 'lib/api/updateNote';
 import { ProvideCurrentNote } from 'utils/useCurrentNote';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { caseInsensitiveStringEqual } from 'utils/string';
+import { encrypt } from 'utils/browser-passworder';
 import updateBacklinks from 'editor/backlinks/updateBacklinks';
 import Backlinks from './editor/backlinks/Backlinks';
 import NoteHeader from './editor/NoteHeader';
@@ -61,7 +61,7 @@ function Note(props: Props) {
     setSyncState(syncState => ({ ...syncState, isContentSynced: false }));
   }, []);
 
-  const handleNoteUpdate = useCallback(async (note: NoteUpdate) => {
+  const handleNoteUpdate = useCallback(async (note: any) => {
     let encryptedNote: any = { ...note };
     if (note.title) encryptedNote.title = await encrypt(key, note.title);
     if (note.content) encryptedNote.content = await encrypt(key, note.content);
@@ -90,10 +90,7 @@ function Note(props: Props) {
   // Save the note in the database if it changes and it hasn't been saved yet
   useEffect(() => {
     const note = store.getState().notes[noteId];
-    if (!note || !key) {
-      console.log('no key');
-      return;
-    }
+    if (!note || !key) return;
 
     const noteUpdate: any = { id: noteId };
     if (!syncState.isContentSynced) {
@@ -107,7 +104,7 @@ function Note(props: Props) {
       const handler = setTimeout(() => handleNoteUpdate(noteUpdate), SYNC_DEBOUNCE_MS);
       return () => clearTimeout(handler);
     }
-  }, [noteId, syncState, handleNoteUpdate]);
+  }, [noteId, key, syncState, handleNoteUpdate]);
 
   // Prompt the user with a dialog box about unsaved changes if they navigate away
   useEffect(() => {

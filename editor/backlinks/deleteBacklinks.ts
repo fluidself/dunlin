@@ -1,7 +1,6 @@
 import { createEditor, Editor, Element, Transforms } from 'slate';
-import { encrypt } from '@metamask/browser-passworder';
+import { encrypt } from 'utils/browser-passworder';
 import { ElementType } from 'types/slate';
-import { Note } from 'types/supabase';
 import { store } from 'lib/store';
 import updateNote from 'lib/api/updateNote';
 import { computeLinkedBacklinks } from './useBacklinks';

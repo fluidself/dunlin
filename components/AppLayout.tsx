@@ -108,85 +108,85 @@ export default function AppLayout(props: Props) {
     if (!deckId || typeof deckId !== 'string') {
       return;
     }
-
     setDeckId(deckId);
 
-    const { data: deck, error } = await supabase.from<Deck>('decks').select('*').match({ id: deckId }).single();
-    if (!deck || error) throw new Error(error?.message);
+    try {
+      const { data: deck, error } = await supabase.from<Deck>('decks').select('*').match({ id: deckId }).single();
+      if (!deck || error) throw new Error(error?.message);
 
-    const {
-      access_params: { encrypted_string, encrypted_symmetric_key, access_control_conditions },
-      ...rest
-    } = deck;
-    const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
-    const decryptedDeck: DecryptedDeck = {
-      ...rest,
-      key: deckKey,
-    };
+      const {
+        access_params: { encrypted_string, encrypted_symmetric_key, access_control_conditions },
+        ...rest
+      } = deck;
+      const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
+      const decryptedDeck: DecryptedDeck = {
+        ...rest,
+        key: deckKey,
+      };
 
-    setDeck(decryptedDeck);
+      setDeck(decryptedDeck);
 
-    const { data: encryptedNotes } = await supabase
-      .from<Note>('notes')
-      .select('id, title, content, created_at, updated_at')
-      .eq('deck_id', deckId);
+      const { data: encryptedNotes } = await supabase
+        .from<Note>('notes')
+        .select('id, title, content, created_at, updated_at')
+        .eq('deck_id', deckId);
 
-    if (!encryptedNotes) {
-      setIsPageLoaded(true);
-      return;
-    }
-
-    const notes: DecryptedNote[] = [];
-    for (const note of encryptedNotes) {
-      const decryptedNote = await decryptNote(deckKey, note);
-      notes.push(decryptedNote);
-    }
-    notes.sort((a, b) => (a.title < b.title ? -1 : 1));
-
-    // Redirect to most recent note or first note in database
-    if (router.pathname.match(/^\/app\/[^/]+$/i)) {
-      const openNoteIds = store.getState().openNoteIds;
-      if (openNoteIds.length > 0 && notes && notes.findIndex(note => note.id === openNoteIds[0]) > -1) {
-        router.replace(`/app/${deckId}/note/${openNoteIds[0]}`);
-        return;
-      } else if (notes && notes.length > 0) {
-        router.replace(`/app/${deckId}/note/${notes[0].id}`);
+      if (!encryptedNotes) {
+        setIsPageLoaded(true);
         return;
       }
-    }
 
-    if (!notes) {
-      setIsPageLoaded(true);
-      return;
-    }
+      const notes: DecryptedNote[] = [];
+      for (const note of encryptedNotes) {
+        const decryptedNote = await decryptNote(deckKey, note);
+        if (decryptedNote) notes.push(decryptedNote);
+      }
+      notes.sort((a, b) => (a.title < b.title ? -1 : 1));
 
-    // Set notes
-    const notesAsObj = notes.reduce<Record<Note['id'], DecryptedNote>>((acc, note) => {
-      acc[note.id] = note;
-      return acc;
-    }, {});
-    setNotes(notesAsObj);
-
-    // Set note tree
-    if (decryptedDeck.note_tree) {
-      const noteTree: NoteTreeItem[] = [...decryptedDeck.note_tree];
-      // This is a sanity check for removing notes in the noteTree that do not exist
-      removeNonexistentNotes(noteTree, notesAsObj);
-      // If there are notes that are not in the note tree, add them
-      // This is a sanity check to make sure there are no orphaned notes
-      for (const note of notes) {
-        if (getNoteTreeItem(noteTree, note.id) === null) {
-          noteTree.push({ id: note.id, children: [], collapsed: true });
+      // Redirect to most recent note or first note in database
+      if (router.pathname.match(/^\/app\/[^/]+$/i)) {
+        const openNoteIds = store.getState().openNoteIds;
+        if (openNoteIds.length > 0 && notes && notes.findIndex(note => note.id === openNoteIds[0]) > -1) {
+          router.replace(`/app/${deckId}/note/${openNoteIds[0]}`);
+          return;
+        } else if (notes && notes.length > 0) {
+          router.replace(`/app/${deckId}/note/${notes[0].id}`);
+          return;
         }
       }
-      // Use the note tree saved in the database
-      setNoteTree(noteTree);
-    } else {
-      // No note tree in database, just use notes
-      setNoteTree(notes.map(note => ({ id: note.id, children: [], collapsed: true })));
-    }
 
-    setIsPageLoaded(true);
+      // Set notes
+      const notesAsObj = notes.reduce<Record<Note['id'], DecryptedNote>>((acc, note) => {
+        acc[note.id] = note;
+        return acc;
+      }, {});
+      setNotes(notesAsObj);
+
+      // Set note tree
+      if (decryptedDeck.note_tree) {
+        const noteTree: NoteTreeItem[] = [...decryptedDeck.note_tree];
+        // This is a sanity check for removing notes in the noteTree that do not exist
+        removeNonexistentNotes(noteTree, notesAsObj);
+        // If there are notes that are not in the note tree, add them
+        // This is a sanity check to make sure there are no orphaned notes
+        for (const note of notes) {
+          if (getNoteTreeItem(noteTree, note.id) === null) {
+            noteTree.push({ id: note.id, children: [], collapsed: true });
+          }
+        }
+        // Use the note tree saved in the database
+        setNoteTree(noteTree);
+      } else {
+        // No note tree in database, just use notes
+        setNoteTree(notes.map(note => ({ id: note.id, children: [], collapsed: true })));
+      }
+
+      setIsPageLoaded(true);
+    } catch (error) {
+      console.error(error);
+      // TODO: handle decryption error
+      // redirect somewhere?
+    }
   }, [deckId, router, setNotes, setNoteTree, setDeckId]);
 
   useEffect(() => {
@@ -236,14 +236,14 @@ export default function AppLayout(props: Props) {
         if (payload.eventType === 'INSERT') {
           if (!deck?.key) return;
           const note = await decryptNote(deck.key, payload.new);
-          upsertNote(note);
+          if (note) upsertNote(note);
         } else if (payload.eventType === 'UPDATE') {
           if (!deck?.key) return;
           // Don't update the note if it is currently open
           const openNoteIds = store.getState().openNoteIds;
           if (!openNoteIds.includes(payload.new.id)) {
             const note = await decryptNote(deck.key, payload.new);
-            updateNote(note);
+            if (note) updateNote(note);
           }
         } else if (payload.eventType === 'DELETE') {
           deleteNote(payload.old.id);

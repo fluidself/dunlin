@@ -3,11 +3,11 @@ import { forwardRef, useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import type { TablerIcon } from '@tabler/icons';
 import { IconFilePlus, IconSearch } from '@tabler/icons';
-import { encrypt } from '@metamask/browser-passworder';
 import { toast } from 'react-toastify';
 import upsertNote from 'lib/api/upsertNote';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import useNoteSearch from 'utils/useNoteSearch';
+import { encrypt } from 'utils/browser-passworder';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { getDefaultEditorValue } from 'editor/constants';
 

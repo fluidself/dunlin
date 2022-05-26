@@ -13,14 +13,16 @@ import { getDefaultEditorValue } from 'editor/constants';
 import remarkToSlate from 'editor/serialization/remarkToSlate';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
+import { encrypt } from 'utils/browser-passworder';
 import { ElementType, NoteLink } from 'types/slate';
 import { Note } from 'types/supabase';
+import { DecryptedNote } from 'types/decrypted';
 
 export default function useImport() {
-  const { deck } = useCurrentDeck();
+  const { id: deckId, key } = useCurrentDeck();
 
   const onImport = useCallback(() => {
-    if (!deck) {
+    if (!deckId || !key) {
       return;
     }
 
@@ -47,8 +49,8 @@ export default function useImport() {
       });
 
       // Add a new note for each imported note
-      const upsertData: NoteUpsert[] = [];
-      const noteLinkUpsertData: NoteUpsert[] = [];
+      const upsertData: any[] = [];
+      const noteLinkUpsertData: any[] = [];
       const noteTitleToIdCache: Record<string, string | undefined> = {};
       for (const file of inputElement.files) {
         const fileName = file.name.replace(/\.[^/.]+$/, '');
@@ -67,24 +69,31 @@ export default function useImport() {
         const { content: slateContent, upsertData: newUpsertData } = fixNoteLinks(
           result as Descendant[],
           noteTitleToIdCache,
-          deck.id,
+          deckId,
         );
 
-        noteLinkUpsertData.push(...newUpsertData);
+        for (const data of newUpsertData) {
+          let encryptedNote: any = { ...data };
+          encryptedNote.title = await encrypt(key, data.title);
+          encryptedNote.content = await encrypt(key, data.content ? data.content : getDefaultEditorValue());
+          noteLinkUpsertData.push(encryptedNote);
+        }
+
+        const content = slateContent.length > 0 ? slateContent : getDefaultEditorValue();
+        const encryptedTitle = await encrypt(key, fileName);
+        const encryptedContent = await encrypt(key, content);
         upsertData.push({
-          deck_id: deck.id,
-          title: fileName,
-          content: slateContent.length > 0 ? slateContent : getDefaultEditorValue(),
+          deck_id: deckId,
+          title: encryptedTitle,
+          content: encryptedContent,
         });
       }
 
       // Create new notes that are linked to
-      const { data: newLinkedNotes } = await supabase
-        .from<Note>('notes')
-        .upsert(noteLinkUpsertData, { onConflict: 'deck_id, title' });
+      const { data: newLinkedNotes } = await supabase.from<Note>('notes').upsert(noteLinkUpsertData);
 
       // Create new notes from files
-      const { data: newNotes } = await supabase.from<Note>('notes').upsert(upsertData, { onConflict: 'deck_id, title' });
+      const { data: newNotes } = await supabase.from<Note>('notes').upsert(upsertData);
 
       // Show a toast with the number of successfully imported notes
       toast.dismiss(importingToast);
@@ -99,7 +108,7 @@ export default function useImport() {
     };
 
     input.click();
-  }, [deck]);
+  }, [deckId, key]);
 
   return onImport;
 }
@@ -124,9 +133,9 @@ const fixNoteLinks = (
 
 const getNoteId = (
   node: NoteLink,
-  notes: Note[],
+  notes: DecryptedNote[],
   noteTitleToIdCache: Record<string, string | undefined>,
-  upsertData: NoteUpsert[],
+  upsertData: any[],
   deckId: string,
 ): string => {
   const noteTitle = node.noteTitle;
@@ -149,9 +158,9 @@ const getNoteId = (
 
 const setNoteLinkIds = (
   node: Descendant,
-  notes: Note[],
+  notes: DecryptedNote[],
   noteTitleToIdCache: Record<string, string | undefined>,
-  upsertData: NoteUpsert[],
+  upsertData: any[],
   deckId: string,
 ): Descendant => {
   if (Element.isElement(node)) {

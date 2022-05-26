@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react';
 import { IconFolderPlus, IconGitPullRequest, IconPencil, IconTrash } from '@tabler/icons';
 import { toast } from 'react-toastify';
-import { encrypt } from '@metamask/browser-passworder';
 import useSWR from 'swr';
 import supabase from 'lib/supabase';
 import insertDeck from 'lib/api/insertDeck';
@@ -13,6 +12,7 @@ import { useAuth } from 'utils/useAuth';
 // import { AuthSig } from 'types/lit';
 import useHotkeys from 'utils/useHotkeys';
 import { encryptWithLit, decryptWithLit } from 'utils/encryption';
+import { encrypt } from 'utils/browser-passworder';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import createOnboardingNotes from 'utils/createOnboardingNotes';
 import Button from 'components/home/Button';

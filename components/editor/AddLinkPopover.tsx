@@ -3,7 +3,6 @@ import { Transforms } from 'slate';
 import { ReactEditor, useSlate } from 'slate-react';
 import type { TablerIcon } from '@tabler/icons';
 import { IconUnlink, IconLink, IconFilePlus } from '@tabler/icons';
-import { encrypt } from '@metamask/browser-passworder';
 import { v4 as uuidv4 } from 'uuid';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import upsertNote from 'lib/api/upsertNote';
@@ -12,6 +11,7 @@ import { getDefaultEditorValue } from 'editor/constants';
 import { isUrl } from 'utils/url';
 import useNoteSearch from 'utils/useNoteSearch';
 import { caseInsensitiveStringEqual } from 'utils/string';
+import { encrypt } from 'utils/browser-passworder';
 import EditorPopover from './EditorPopover';
 import type { AddLinkPopoverState } from './Editor';
 
