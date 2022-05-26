@@ -17,7 +17,7 @@ import { decryptWithLit, encryptWithLit } from 'utils/encryption';
 import createOnboardingNotes from 'utils/createOnboardingNotes';
 import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';
-import { AuthSig } from 'types/lit';
+// import { AuthSig } from 'types/lit';
 import HomeHeader from 'components/home/HomeHeader';
 import RequestDeckAccess from 'components/home/RequestDeckAccess';
 import ProvideDeckName from 'components/home/ProvideDeckName';
@@ -74,13 +74,16 @@ export default function AppHome() {
       },
     ];
     const [encryptedStringBase64, encryptedSymmetricKeyBase64] = await encryptWithLit(deckKey, accessControlConditions);
+    const accessParams = {
+      encrypted_string: encryptedStringBase64,
+      encrypted_symmetric_key: encryptedSymmetricKeyBase64,
+      access_control_conditions: accessControlConditions,
+    };
 
     const deck = await insertDeck({
       user_id: user.id,
       deck_name: deckName,
-      encrypted_string: encryptedStringBase64,
-      encrypted_symmetric_key: encryptedSymmetricKeyBase64,
-      access_control_conditions: accessControlConditions,
+      access_params: accessParams,
     });
 
     if (!deck) {
@@ -116,11 +119,7 @@ export default function AppHome() {
       return;
     }
 
-    const { data, error } = await supabase
-      .from<Deck>('decks')
-      .select('encrypted_string, encrypted_symmetric_key, access_control_conditions')
-      .eq('id', requestedDeck)
-      .single();
+    const { data, error } = await supabase.from<Deck>('decks').select('access_params').eq('id', requestedDeck).single();
     if (!data || error) {
       toast.error('Unable to verify access.');
       return;
@@ -128,7 +127,7 @@ export default function AppHome() {
 
     try {
       // TODO: hotfix to only allow EVM chains for now
-      const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = data;
+      const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = data.access_params;
       const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
       if (!deckKey) {
         toast.error('Unable to verify access.');
@@ -136,7 +135,7 @@ export default function AppHome() {
       }
 
       // TODO: keep / refactor this?
-      const response = await fetch('/api/verify-deck', {
+      await fetch('/api/verify-deck', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

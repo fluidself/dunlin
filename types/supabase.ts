@@ -1,5 +1,5 @@
 import { NoteTreeItem } from 'lib/store';
-import { AccessControlCondition, BooleanCondition, ResourceId } from './lit';
+import { AccessControlCondition, BooleanCondition } from './lit';
 
 export type User = {
   id: string;
@@ -10,9 +10,11 @@ export type Deck = {
   user_id: User['id'];
   note_tree: NoteTreeItem[];
   deck_name: string;
-  encrypted_string: string;
-  encrypted_symmetric_key: string;
-  access_control_conditions: (AccessControlCondition | BooleanCondition)[];
+  access_params: {
+    encrypted_string: string;
+    encrypted_symmetric_key: string;
+    access_control_conditions: (AccessControlCondition | BooleanCondition)[];
+  };
 };
 
 export type Note = {
@@ -22,9 +24,4 @@ export type Note = {
   title: string;
   created_at: string;
   updated_at: string;
-};
-
-export type AccessParams = {
-  resource_id: ResourceId;
-  access_control_conditions: AccessControlCondition[];
 };

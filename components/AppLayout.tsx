@@ -111,23 +111,16 @@ export default function AppLayout(props: Props) {
 
     setDeckId(deckId);
 
-    const res = await fetch('/api/deck', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ deckId }),
-    });
-    const { deck } = await res.json();
-    if (!deck) throw new Error();
+    const { data: deck, error } = await supabase.from<Deck>('decks').select('*').match({ id: deckId }).single();
+    if (!deck || error) throw new Error(error?.message);
 
-    const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = deck;
+    const {
+      access_params: { encrypted_string, encrypted_symmetric_key, access_control_conditions },
+      ...rest
+    } = deck;
     const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
     const decryptedDeck: DecryptedDeck = {
-      id: deck.id,
-      user_id: deck.user_id,
-      note_tree: deck.note_tree,
-      deck_name: deck.deck_name,
+      ...rest,
       key: deckKey,
     };
 

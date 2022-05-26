@@ -16,8 +16,8 @@ import { encryptWithLit } from 'utils/encryption';
 import { useStore } from 'lib/store';
 import supabase from 'lib/supabase';
 import { SPRING_CONFIG } from 'constants/spring';
-import { AccessControlCondition, BooleanCondition, AuthSig, ResourceId } from 'types/lit';
-import { Deck, AccessParams } from 'types/supabase';
+import { AccessControlCondition, BooleanCondition } from 'types/lit';
+import { Deck } from 'types/supabase';
 import { ShareModal } from 'components/ShareModal';
 import CreateJoinRenameDeckModal from 'components/CreateJoinRenameDeckModal';
 import SidebarItem from './SidebarItem';
@@ -79,14 +79,15 @@ function Sidebar(props: Props) {
         ...acc,
       ];
       const [encryptedStringBase64, encryptedSymmetricKeyBase64] = await encryptWithLit(key, accessControlConditions);
+      const accessParams = {
+        encrypted_string: encryptedStringBase64,
+        encrypted_symmetric_key: encryptedSymmetricKeyBase64,
+        access_control_conditions: accessControlConditions,
+      };
 
       const { data: deck, error } = await supabase
         .from<Deck>('decks')
-        .update({
-          encrypted_string: encryptedStringBase64,
-          encrypted_symmetric_key: encryptedSymmetricKeyBase64,
-          access_control_conditions: accessControlConditions,
-        })
+        .update({ access_params: accessParams })
         .eq('id', deckId)
         .single();
 

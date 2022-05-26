@@ -62,15 +62,17 @@ export default function CreateJoinRenameDeckModal(props: Props) {
       },
     ];
     const [encryptedStringBase64, encryptedSymmetricKeyBase64] = await encryptWithLit(deckKey, accessControlConditions);
+    const accessParams = {
+      encrypted_string: encryptedStringBase64,
+      encrypted_symmetric_key: encryptedSymmetricKeyBase64,
+      access_control_conditions: accessControlConditions,
+    };
 
     const deck = await insertDeck({
       user_id: user.id,
       deck_name: inputText,
-      encrypted_string: encryptedStringBase64,
-      encrypted_symmetric_key: encryptedSymmetricKeyBase64,
-      access_control_conditions: accessControlConditions,
+      access_params: accessParams,
     });
-
     if (!deck) {
       toast.error('There was an error creating the DECK');
       return;
@@ -142,11 +144,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
       return;
     }
 
-    const { data, error } = await supabase
-      .from<Deck>('decks')
-      .select('encrypted_string, encrypted_symmetric_key, access_control_conditions')
-      .eq('id', inputText)
-      .single();
+    const { data, error } = await supabase.from<Deck>('decks').select('access_params').eq('id', inputText).single();
     if (!data || error) {
       toast.error('Unable to verify access.');
       return;
@@ -154,7 +152,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
 
     try {
       // TODO: hotfix to only allow EVM chains for now
-      const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = data;
+      const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = data.access_params;
       const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
       if (!deckKey) {
         toast.error('Unable to verify access.');
@@ -162,7 +160,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
       }
 
       // TODO: keep / refactor this?
-      const response = await fetch('/api/verify-deck', {
+      await fetch('/api/verify-deck', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
