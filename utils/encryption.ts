@@ -2,9 +2,10 @@
 import LitJsSdk from 'lit-js-sdk';
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string';
 import { Descendant } from 'slate';
-import { decrypt, encrypt } from 'utils/browser-passworder';
+import { encrypt, encryptWithKey, decrypt, decryptWithKey } from 'utils/browser-passworder';
 import type { AuthSig } from 'types/lit';
 import type { Note } from 'types/supabase';
+import { DecryptedNote } from 'types/decrypted';
 // import { DecryptedNote } from 'types/decrypted';
 
 export function encodeb64(uintarray: any) {
@@ -76,11 +77,17 @@ export async function decryptWithLit(
   return decryptedString;
 }
 
+// TODO: clean up, also use with key
 export const encryptNote = async (key: string, note: any) => {
-  const encryptedTitle: string = await encrypt(key, note.title);
-  const encryptedContent: string = await encrypt(key, note.content);
+  try {
+    const encryptedTitle = await encrypt(key, note.title);
+    const encryptedContent = await encrypt(key, note.content);
 
-  return { ...note, title: encryptedTitle, content: encryptedContent };
+    return { ...note, title: encryptedTitle, content: encryptedContent };
+  } catch (error) {
+    console.error(error);
+    console.log(note);
+  }
 };
 
 export const decryptNote = async (key: string, encryptedNote: Note) => {

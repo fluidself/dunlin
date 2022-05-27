@@ -1,5 +1,3 @@
-// @ts-ignore
-// import LitJsSdk from 'lit-js-sdk';
 import { useMemo, useState } from 'react';
 import { IconFolderPlus, IconGitPullRequest, IconPencil, IconTrash } from '@tabler/icons';
 import { toast } from 'react-toastify';
@@ -9,7 +7,6 @@ import insertDeck from 'lib/api/insertDeck';
 import selectDecks from 'lib/api/selectDecks';
 import { Deck, Note } from 'types/supabase';
 import { useAuth } from 'utils/useAuth';
-// import { AuthSig } from 'types/lit';
 import useHotkeys from 'utils/useHotkeys';
 import { encryptWithLit, decryptWithLit } from 'utils/encryption';
 import { encrypt } from 'utils/browser-passworder';

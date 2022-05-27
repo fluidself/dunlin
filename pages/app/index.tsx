@@ -58,7 +58,7 @@ export default function AppHome() {
 
     const array = new Uint8Array(32);
     global.crypto.getRandomValues(array);
-    const deckKey = Buffer.from(array).toString('hex');
+    const deckPass = Buffer.from(array).toString('hex');
     const accessControlConditions = [
       {
         contractAddress: '',
@@ -72,7 +72,7 @@ export default function AppHome() {
         },
       },
     ];
-    const [encryptedStringBase64, encryptedSymmetricKeyBase64] = await encryptWithLit(deckKey, accessControlConditions);
+    const [encryptedStringBase64, encryptedSymmetricKeyBase64] = await encryptWithLit(deckPass, accessControlConditions);
     const accessParams = {
       encrypted_string: encryptedStringBase64,
       encrypted_symmetric_key: encryptedSymmetricKeyBase64,
@@ -93,8 +93,8 @@ export default function AppHome() {
     const onboardingNotes = createOnboardingNotes();
     const promises = [];
     for (const note of onboardingNotes) {
-      const encryptedTitle = await encrypt(deckKey, note.title);
-      const encryptedContent = await encrypt(deckKey, note.content);
+      const encryptedTitle = await encrypt(deckPass, note.title);
+      const encryptedContent = await encrypt(deckPass, note.content);
       promises.push(
         supabase
           .from<Note>('notes')

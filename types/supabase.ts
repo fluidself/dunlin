@@ -1,5 +1,6 @@
 import { NoteTreeItem } from 'lib/store';
 import { AccessControlCondition, BooleanCondition } from './lit';
+import { EncryptionResult } from 'utils/browser-passworder';
 
 export type User = {
   id: string;
@@ -20,16 +21,8 @@ export type Deck = {
 export type Note = {
   id: string;
   deck_id: Deck['id'];
-  // content: EncryptedNoteEntry;
-  // title: EncryptedNoteEntry;
-  content: string;
-  title: string;
+  content: EncryptionResult;
+  title: EncryptionResult;
   created_at: string;
   updated_at: string;
-};
-
-export type EncryptedNoteEntry = {
-  data: string;
-  iv: string;
-  salt: string;
 };
