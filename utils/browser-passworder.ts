@@ -1,4 +1,4 @@
-interface EncryptionResult {
+export interface EncryptionResult {
   data: string;
   iv: string;
   salt?: string;
@@ -10,9 +10,9 @@ interface EncryptionResult {
  *
  * @param {string} password - password to use for encryption
  * @param {R} dataObj - data to encrypt
- * @returns {Promise<string>} cypher text
+ * @returns {Promise<EncryptionResult>} cypher text
  */
-export function encrypt<R>(password: string, dataObj: R): Promise<string> {
+export function encrypt<R>(password: string, dataObj: R): Promise<EncryptionResult> {
   const salt = generateSalt();
 
   return keyFromPassword(password, salt)
@@ -21,7 +21,7 @@ export function encrypt<R>(password: string, dataObj: R): Promise<string> {
     })
     .then(function (payload) {
       payload.salt = salt;
-      return JSON.stringify(payload);
+      return payload;
     });
 }
 
@@ -121,54 +121,11 @@ function keyFromPassword(password: string, salt: string): Promise<CryptoKey> {
 }
 
 /**
- * Converts a hex string into a buffer.
- * @param {string} str - hex encoded string
- * @returns {Uint8Array}
- */
-function serializeBufferFromStorage(str: string): Uint8Array {
-  const stripStr = str.slice(0, 2) === '0x' ? str.slice(2) : str;
-  const buf = new Uint8Array(stripStr.length / 2);
-  for (let i = 0; i < stripStr.length; i += 2) {
-    const seg = stripStr.substr(i, 2);
-    buf[i / 2] = parseInt(seg, 16);
-  }
-  return buf;
-}
-
-/**
- * Converts a buffer into a hex string ready for storage
- * @param {Uint8Array} buffer - Buffer to serialize
- * @returns {string} hex encoded string
- */
-function serializeBufferForStorage(buffer: Uint8Array): string {
-  let result = '0x';
-  const len = buffer.length || buffer.byteLength;
-  for (let i = 0; i < len; i++) {
-    result += unprefixedHex(buffer[i]);
-  }
-  return result;
-}
-
-/**
- * Converts a number into hex value, and ensures proper leading 0
- * for single characters strings.
- * @param {number} num - number to convert to string
- * @returns {string} hex string
- */
-function unprefixedHex(num: number): string {
-  let hex = num.toString(16);
-  while (hex.length < 2) {
-    hex = `0${hex}`;
-  }
-  return hex;
-}
-
-/**
  * Generates a random string for use as a salt in CryptoKey generation
  * @param {number} byteCount - Number of bytes to generate
  * @returns {string} randomly generated string
  */
-export function generateSalt(byteCount = 32): string {
+function generateSalt(byteCount = 32): string {
   const view = new Uint8Array(byteCount);
   global.crypto.getRandomValues(view);
   // Uint8Array is a fixed length array and thus does not have methods like pop, etc
