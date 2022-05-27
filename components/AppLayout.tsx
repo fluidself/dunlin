@@ -9,6 +9,7 @@ import { IconAlertTriangle } from '@tabler/icons';
 import { toast } from 'react-toastify';
 import colors from 'tailwindcss/colors';
 import { useAccount } from 'wagmi';
+import { toast } from 'react-toastify';
 import { useStore, store, NoteTreeItem, getNoteTreeItem, Notes, SidebarTab } from 'lib/store';
 import supabase from 'lib/supabase';
 import { Note, Deck } from 'types/supabase';
@@ -31,6 +32,7 @@ type Props = {
 
 export default function AppLayout(props: Props) {
   const { children, className = '' } = props;
+
   const router = useRouter();
   const deckId = Array.isArray(router.query.deckId) ? router.query.deckId[0] : router.query.deckId;
   const { user, isLoaded, signOut } = useAuth();
@@ -116,7 +118,10 @@ export default function AppLayout(props: Props) {
 
       return decryptedDeck;
     } catch (error) {
-      throw new Error('Unable to decrypt');
+      toast.error('Unable to decrypt DECK');
+      await fetch('/api/reset-recent-deck', { method: 'POST' });
+      router.push('/app');
+      return;
     }
   }, [deckId]);
 
@@ -130,6 +135,7 @@ export default function AppLayout(props: Props) {
 
     const decryptedDeck = deck ?? (await decryptDeck());
     setDeck(decryptedDeck);
+    if (!decryptedDeck?.key) return;
     setDeckKey(decryptedDeck.key);
 
     const { data: encryptedNotes } = await supabase
@@ -242,7 +248,7 @@ export default function AppLayout(props: Props) {
             updateNote(note);
           }
         } else if (payload.eventType === 'DELETE') {
-          deleteNote(payload.old.id);
+          initData();
         }
       })
       .subscribe();
