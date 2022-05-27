@@ -1,8 +1,9 @@
 import { createEditor, Editor, Element, Transforms } from 'slate';
 import { encrypt } from 'utils/encryption';
 import { ElementType } from 'types/slate';
+import { Note } from 'types/supabase';
+import supabase from 'lib/supabase';
 import { store } from 'lib/store';
-import updateNote from 'lib/api/updateNote';
 import { computeLinkedBacklinks } from './useBacklinks';
 
 /**
@@ -45,7 +46,12 @@ const deleteBacklinks = async (noteId: string, key: string) => {
   // See https://github.com/supabase/supabase-js/issues/156
   const promises = [];
   for (const data of updateData) {
-    promises.push(updateNote({ id: data.id, content: data.encryptedContent }));
+    promises.push(
+      supabase
+        .from<Note>('notes')
+        .update({ content: data.encryptedContent, updated_at: new Date().toISOString() })
+        .eq('id', data.id),
+    );
   }
   await Promise.all(promises);
 };

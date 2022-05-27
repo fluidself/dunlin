@@ -123,7 +123,7 @@ export default function AppLayout(props: Props) {
       router.push('/app');
       return;
     }
-  }, [deckId]);
+  }, [deckId, router]);
 
   const initData = useCallback(async () => {
     if (!window.litNodeClient && isMounted()) {
@@ -189,7 +189,7 @@ export default function AppLayout(props: Props) {
     }
 
     setIsPageLoaded(true);
-  }, [deckId, deck, isMounted, router, setNotes, setNoteTree, setDeckId, decryptDeck]);
+  }, [deckId, deck, isMounted, router, setNotes, setNoteTree, setDeckId, decryptDeck, setDeckKey]);
 
   useEffect(() => {
     if (isLoaded && !user) {

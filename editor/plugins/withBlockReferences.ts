@@ -3,12 +3,14 @@ import { BlockReference, ElementType } from 'types/slate';
 import { computeBlockBacklinks } from 'editor/backlinks/useBlockBacklinks';
 import { store } from 'lib/store';
 import supabase from 'lib/supabase';
+import { encrypt } from 'utils/encryption';
 import { isReferenceableBlockElement } from 'editor/checks';
 import { Note } from 'types/supabase';
 import { isPartialElement } from './withNodeId';
 
 const replaceBlockRefs = async (editor: Editor, blockId: string) => {
   const notes = store.getState().notes;
+  const key = store.getState().deckKey;
   const backlinks = computeBlockBacklinks(notes)[blockId] ?? [];
 
   // Update the block refs in the current editor to be paragraphs
@@ -23,7 +25,8 @@ const replaceBlockRefs = async (editor: Editor, blockId: string) => {
   }
 
   // Update the block refs in the other notes to be paragraphs
-  const updateData: Pick<Note, 'id' | 'content'>[] = [];
+  // const updateData: Pick<Note, 'id' | 'content'>[] = [];
+  const updateData: any[] = [];
   backlinks: for (const backlink of backlinks) {
     const noteEditor = createEditor();
     noteEditor.children = notes[backlink.id].content;
@@ -40,19 +43,20 @@ const replaceBlockRefs = async (editor: Editor, blockId: string) => {
     updateData.push({
       id: backlink.id,
       content: noteEditor.children,
+      encryptedContent: encrypt(noteEditor.children, key),
     });
   }
 
   // Make sure block refs are updated locally
   for (const newNote of updateData) {
-    store.getState().updateNote(newNote);
+    store.getState().updateNote({ id: newNote.id, content: newNote.cont });
   }
 
   // It would be better if we could consolidate the update requests into one request
   // See https://github.com/supabase/supabase-js/issues/156
   const promises = [];
   for (const data of updateData) {
-    promises.push(supabase.from<Note>('notes').update({ content: data.content }).eq('id', data.id));
+    promises.push(supabase.from<Note>('notes').update({ content: data.encryptedContent }).eq('id', data.id));
   }
   await Promise.all(promises);
 };
