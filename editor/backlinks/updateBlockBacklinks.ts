@@ -1,4 +1,5 @@
 import { createEditor, Transforms } from 'slate';
+import { encrypt } from 'utils/encryption';
 import { Note } from 'types/supabase';
 import supabase from 'lib/supabase';
 import { store } from 'lib/store';
@@ -8,12 +9,10 @@ import { Backlink } from './useBacklinks';
  * Updates the block text for each block reference. This is necessary for
  * full-text search.
  */
-const updateBlockBacklinks = async (
-  blockBacklinks: Backlink[],
-  newText: string
-) => {
+const updateBlockBacklinks = async (blockBacklinks: Backlink[], newText: string, key: string) => {
   const notes = store.getState().notes;
-  const updateData: Pick<Note, 'id' | 'content'>[] = [];
+  // const updateData: Pick<Note, 'id' | 'content'>[] = [];
+  const updateData: any[] = [];
 
   for (const backlink of blockBacklinks) {
     const note = notes[backlink.id];
@@ -36,12 +35,13 @@ const updateBlockBacklinks = async (
     updateData.push({
       id: backlink.id,
       content: editor.children,
+      encryptedContent: encrypt(editor.children, key),
     });
   }
 
   // Make sure backlinks are updated locally
   for (const newNote of updateData) {
-    store.getState().updateNote(newNote);
+    store.getState().updateNote({ id: newNote.id, content: newNote.content });
   }
 
   // It would be better if we could consolidate the update requests into one request
@@ -51,8 +51,8 @@ const updateBlockBacklinks = async (
     promises.push(
       supabase
         .from<Note>('notes')
-        .update({ content: data.content })
-        .eq('id', data.id)
+        .update({ content: data.encryptedContent, updated_at: new Date().toISOString() })
+        .eq('id', data.id),
     );
   }
   await Promise.all(promises);

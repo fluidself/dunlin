@@ -2,7 +2,7 @@ import { memo, useCallback, useRef, useState } from 'react';
 import { Menu } from '@headlessui/react';
 import { IconCornerDownRight, IconDots, IconTrash } from '@tabler/icons';
 import { usePopper } from 'react-popper';
-import { Note } from 'types/supabase';
+import { DecryptedNote } from 'types/decrypted';
 import { DropdownItem } from 'components/Dropdown';
 import MoveToModal from 'components/MoveToModal';
 import NoteMetadata from 'components/NoteMetadata';
@@ -10,7 +10,7 @@ import useDeleteNote from 'utils/useDeleteNote';
 import Portal from '../Portal';
 
 type Props = {
-  note: Note;
+  note: DecryptedNote;
   className?: string;
 };
 
