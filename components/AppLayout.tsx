@@ -32,9 +32,7 @@ type Props = {
 export default function AppLayout(props: Props) {
   const { children, className = '' } = props;
   const router = useRouter();
-  const {
-    query: { deckId },
-  } = router;
+  const deckId = Array.isArray(router.query.deckId) ? router.query.deckId[0] : router.query.deckId;
   const { user, isLoaded, signOut } = useAuth();
   const [{ data: accountData }] = useAccount();
   const isMounted = useIsMounted();
@@ -93,12 +91,34 @@ export default function AppLayout(props: Props) {
   const setNotes = useStore(state => state.setNotes);
   const setNoteTree = useStore(state => state.setNoteTree);
   const setDeckId = useStore(state => state.setDeckId);
+  const setDeckKey = useStore(state => state.setDeckKey);
 
   const initLit = async () => {
     const client = new LitJsSdk.LitNodeClient({ alertWhenUnauthorized: false, debug: false });
     await client.connect();
     window.litNodeClient = client;
   };
+
+  const decryptDeck = useCallback(async () => {
+    try {
+      const { data: dbDeck, error } = await supabase.from<Deck>('decks').select('*').match({ id: deckId }).single();
+      if (!dbDeck || error) throw new Error(error?.message);
+
+      const {
+        access_params: { encrypted_string, encrypted_symmetric_key, access_control_conditions },
+        ...rest
+      } = dbDeck;
+      const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
+      const decryptedDeck: DecryptedDeck = {
+        ...rest,
+        key: deckKey,
+      };
+
+      return decryptedDeck;
+    } catch (error) {
+      throw new Error('Unable to decrypt');
+    }
+  }, [deckId]);
 
   const initData = useCallback(async () => {
     if (!window.litNodeClient && isMounted()) {
@@ -108,45 +128,21 @@ export default function AppLayout(props: Props) {
     if (!deckId || typeof deckId !== 'string') return;
     setDeckId(deckId);
 
-    if (!deck) {
-      try {
-        const { data: dbDeck, error } = await supabase.from<Deck>('decks').select('*').match({ id: deckId }).single();
-        if (!dbDeck || error) throw new Error(error?.message);
-
-        const {
-          access_params: { encrypted_string, encrypted_symmetric_key, access_control_conditions },
-          ...rest
-        } = dbDeck;
-        const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
-        const decryptedDeck: DecryptedDeck = {
-          ...rest,
-          key: deckKey,
-        };
-
-        setDeck(decryptedDeck);
-      } catch (error) {
-        console.error(error);
-        // TODO: handle decryption error
-      }
-    }
+    const decryptedDeck = deck ?? (await decryptDeck());
+    setDeck(decryptedDeck);
+    setDeckKey(decryptedDeck.key);
 
     const { data: encryptedNotes } = await supabase
       .from<Note>('notes')
       .select('id, title, content, created_at, updated_at')
       .eq('deck_id', deckId);
 
-    if (!encryptedNotes || !deck) {
+    if (!encryptedNotes) {
       setIsPageLoaded(true);
       return;
     }
 
-    const notes: DecryptedNote[] = [];
-    for (const note of encryptedNotes) {
-      const decryptedNote = await decryptNote(deck.key, note);
-      if (decryptedNote) notes.push(decryptedNote);
-    }
-
-    notes.sort((a, b) => (a.title < b.title ? -1 : 1));
+    const notes = encryptedNotes.map(note => decryptNote(note, decryptedDeck.key)).sort((a, b) => (a.title < b.title ? -1 : 1));
 
     // Redirect to most recent note or first note in database
     if (router.pathname.match(/^\/app\/[^/]+$/i)) {
@@ -168,8 +164,8 @@ export default function AppLayout(props: Props) {
     setNotes(notesAsObj);
 
     // Set note tree
-    if (deck.note_tree) {
-      const noteTree: NoteTreeItem[] = [...deck.note_tree];
+    if (decryptedDeck.note_tree) {
+      const noteTree: NoteTreeItem[] = [...decryptedDeck.note_tree];
       // This is a sanity check for removing notes in the noteTree that do not exist
       removeNonexistentNotes(noteTree, notesAsObj);
       // If there are notes that are not in the note tree, add them
@@ -187,7 +183,7 @@ export default function AppLayout(props: Props) {
     }
 
     setIsPageLoaded(true);
-  }, [deckId, deck, isMounted, router, setNotes, setNoteTree, setDeckId]);
+  }, [deckId, deck, isMounted, router, setNotes, setNoteTree, setDeckId, decryptDeck]);
 
   useEffect(() => {
     if (isLoaded && !user) {
@@ -235,15 +231,15 @@ export default function AppLayout(props: Props) {
       .on('*', async payload => {
         if (payload.eventType === 'INSERT') {
           if (!deck?.key) return;
-          const note = await decryptNote(deck.key, payload.new);
-          if (note) upsertNote(note);
+          const note = decryptNote(payload.new, deck.key);
+          upsertNote(note);
         } else if (payload.eventType === 'UPDATE') {
           if (!deck?.key) return;
           // Don't update the note if it is currently open
           const openNoteIds = store.getState().openNoteIds;
           if (!openNoteIds.includes(payload.new.id)) {
-            const note = await decryptNote(deck.key, payload.new);
-            if (note) updateNote(note);
+            const note = decryptNote(payload.new, deck.key);
+            updateNote(note);
           }
         } else if (payload.eventType === 'DELETE') {
           deleteNote(payload.old.id);

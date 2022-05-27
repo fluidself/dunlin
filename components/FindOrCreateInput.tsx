@@ -7,8 +7,8 @@ import { toast } from 'react-toastify';
 import upsertNote from 'lib/api/upsertNote';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import useNoteSearch from 'utils/useNoteSearch';
-import { encrypt } from 'utils/browser-passworder';
 import { caseInsensitiveStringEqual } from 'utils/string';
+import { encryptNote } from 'utils/encryption';
 import { getDefaultEditorValue } from 'editor/constants';
 
 enum OptionType {
@@ -71,9 +71,13 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
       onOptionClickCallback?.();
 
       if (option.type === OptionType.NEW_NOTE) {
-        const encryptedTitle = await encrypt(key, inputText);
-        const encryptedContent = await encrypt(key, getDefaultEditorValue());
-        const note = await upsertNote(key, { deck_id: deckId, title: encryptedTitle, content: encryptedContent });
+        const newNote = {
+          deck_id: deckId,
+          title: inputText,
+          content: getDefaultEditorValue(),
+        };
+        const encryptedNote = encryptNote(newNote, key);
+        const note = await upsertNote(encryptedNote, key);
         if (!note) {
           toast.error(`There was an error creating the note ${inputText}.`);
           return;

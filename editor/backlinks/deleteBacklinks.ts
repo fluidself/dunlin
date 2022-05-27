@@ -1,5 +1,5 @@
 import { createEditor, Editor, Element, Transforms } from 'slate';
-import { encrypt } from 'utils/browser-passworder';
+import { encrypt } from 'utils/encryption';
 import { ElementType } from 'types/slate';
 import { store } from 'lib/store';
 import updateNote from 'lib/api/updateNote';
@@ -32,7 +32,7 @@ const deleteBacklinks = async (noteId: string, key: string) => {
     updateData.push({
       id: backlink.id,
       content: editor.children,
-      encryptedContent: await encrypt(key, editor.children),
+      encryptedContent: encrypt(editor.children, key),
     });
   }
 

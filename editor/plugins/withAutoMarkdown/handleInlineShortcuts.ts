@@ -5,7 +5,9 @@ import { isMark } from 'editor/formatting';
 import { store } from 'lib/store';
 import upsertNote from 'lib/api/upsertNote';
 import { caseInsensitiveStringEqual } from 'utils/string';
+import { encryptNote } from 'utils/encryption';
 import { deleteText } from 'editor/transforms';
+import { getDefaultEditorValue } from 'editor/constants';
 import handleMark from './handleMark';
 import handleExternalLink from './handleExternalLink';
 import handleNoteLink from './handleNoteLink';
@@ -117,12 +119,18 @@ export const getOrCreateNoteId = (noteTitle: string): string | null => {
   if (matchingNote) {
     noteId = matchingNote.id;
   } else {
-    // const deckId = store.getState().deckId;
-    const regexMatch = window.location.pathname.match(/app\/(.*)\/note/i);
-    const deckId = regexMatch?.length ? regexMatch[1] : null;
+    const deckId = store.getState().deckId;
+    const deckKey = store.getState().deckKey;
     noteId = uuidv4();
-    if (deckId) {
-      upsertNote({ id: noteId, deck_id: deckId, title: noteTitle });
+    if (deckId && deckKey) {
+      const newNote = {
+        id: noteId,
+        deck_id: deckId,
+        title: noteTitle,
+        content: getDefaultEditorValue(),
+      };
+      const encryptedNote = encryptNote(newNote, deckKey);
+      upsertNote(encryptedNote, deckKey);
     }
   }
 

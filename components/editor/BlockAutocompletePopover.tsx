@@ -12,7 +12,7 @@ import { store } from 'lib/store';
 import supabase from 'lib/supabase';
 import { Note } from 'types/supabase';
 import useDebounce from 'utils/useDebounce';
-import { encrypt } from 'utils/browser-passworder';
+import { encrypt } from 'utils/encryption';
 import EditorPopover from './EditorPopover';
 
 const DEBOUNCE_MS = 100;
@@ -154,7 +154,7 @@ export default function BlockAutocompletePopover() {
           });
 
           // Update note in database
-          const encryptedContent = await encrypt(key, noteEditor.children);
+          const encryptedContent = encrypt(noteEditor.children, key);
           await supabase.from<Note>('notes').update({ content: encryptedContent }).eq('id', option.noteId);
         } else {
           blockId = option.blockId;

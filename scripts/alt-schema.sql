@@ -8,8 +8,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" with SCHEMA public;
 
 DROP TABLE IF EXISTS public.notes;
 CREATE TABLE public.notes (
-  "content" jsonb NOT NULL,
-  title jsonb NOT NULL,
+  "content" text NOT NULL,
+  title text NOT NULL,
   deck_id uuid NOT NULL,
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
