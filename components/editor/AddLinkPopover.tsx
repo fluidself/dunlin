@@ -11,7 +11,7 @@ import { getDefaultEditorValue } from 'editor/constants';
 import { isUrl } from 'utils/url';
 import useNoteSearch from 'utils/useNoteSearch';
 import { caseInsensitiveStringEqual } from 'utils/string';
-import { encrypt } from 'utils/browser-passworder';
+import { encryptNote } from 'utils/encryption';
 import EditorPopover from './EditorPopover';
 import type { AddLinkPopoverState } from './Editor';
 
@@ -123,10 +123,15 @@ export default function AddLinkPopover(props: Props) {
       } else if (option.type === OptionType.NEW_NOTE) {
         // Add a new note and insert a link to it with the note title as the link text
         const noteId = uuidv4();
-        const encryptedTitle = await encrypt(key, linkText);
-        const encryptedContent = await encrypt(key, getDefaultEditorValue());
+        const newNote = {
+          id: noteId,
+          deck_id: deckId,
+          title: linkText,
+          content: getDefaultEditorValue(),
+        };
+        const encryptedNote = encryptNote(newNote, key);
         insertNoteLink(editor, noteId, linkText);
-        upsertNote(key, { id: noteId, deck_id: deckId, title: encryptedTitle, content: encryptedContent });
+        upsertNote(encryptedNote, key);
         Transforms.move(editor, { distance: 1, unit: 'offset' }); // Focus after the note link
       } else if (option.type === OptionType.REMOVE_LINK) {
         // Remove the link

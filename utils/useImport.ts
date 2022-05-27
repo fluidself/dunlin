@@ -13,7 +13,7 @@ import { getDefaultEditorValue } from 'editor/constants';
 import remarkToSlate from 'editor/serialization/remarkToSlate';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
-import { encrypt } from 'utils/browser-passworder';
+import { encryptNote } from 'utils/encryption';
 import { ElementType, NoteLink } from 'types/slate';
 import { Note } from 'types/supabase';
 import { DecryptedNote } from 'types/decrypted';
@@ -73,20 +73,17 @@ export default function useImport() {
         );
 
         for (const data of newUpsertData) {
-          let encryptedNote: any = { ...data };
-          encryptedNote.title = await encrypt(key, data.title);
-          encryptedNote.content = await encrypt(key, data.content ? data.content : getDefaultEditorValue());
+          let noteToEncrypt: any = { ...data };
+          if (!noteToEncrypt.content) {
+            noteToEncrypt.content = getDefaultEditorValue();
+          }
+          const encryptedNote = encryptNote(noteToEncrypt, key);
           noteLinkUpsertData.push(encryptedNote);
         }
 
         const content = slateContent.length > 0 ? slateContent : getDefaultEditorValue();
-        const encryptedTitle = await encrypt(key, fileName);
-        const encryptedContent = await encrypt(key, content);
-        upsertData.push({
-          deck_id: deckId,
-          title: encryptedTitle,
-          content: encryptedContent,
-        });
+        const encryptedNote = encryptNote({ title: fileName, content, deck_id: deckId }, key);
+        upsertData.push(encryptedNote);
       }
 
       // Create new notes that are linked to

@@ -1,6 +1,6 @@
 import { Element } from 'slate';
 import produce from 'immer';
-import { encrypt } from 'utils/browser-passworder';
+import { encrypt } from 'utils/encryption';
 import { ElementType } from 'types/slate';
 // import { Note } from 'types/supabase';
 import { store } from 'lib/store';
@@ -56,7 +56,7 @@ const updateBacklinks = async (newTitle: string, noteId: string, key: string) =>
     updateData.push({
       id: backlink.id,
       content: newBacklinkContent,
-      encryptedContent: await encrypt(key, newBacklinkContent),
+      encryptedContent: encrypt(newBacklinkContent, key),
     });
   }
 

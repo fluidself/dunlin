@@ -8,8 +8,7 @@ import selectDecks from 'lib/api/selectDecks';
 import { Deck, Note } from 'types/supabase';
 import { useAuth } from 'utils/useAuth';
 import useHotkeys from 'utils/useHotkeys';
-import { encryptWithLit, decryptWithLit } from 'utils/encryption';
-import { encrypt } from 'utils/browser-passworder';
+import { generateKey, encryptNote, encryptWithLit, decryptWithLit } from 'utils/encryption';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import createOnboardingNotes from 'utils/createOnboardingNotes';
 import Button from 'components/home/Button';
@@ -42,9 +41,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
   const createNewDeck = async () => {
     if (!user || !inputText) return;
 
-    const array = new Uint8Array(32);
-    global.crypto.getRandomValues(array);
-    const deckKey = Buffer.from(array).toString('hex');
+    const deckKey = generateKey();
     const accessControlConditions = [
       {
         contractAddress: '',
@@ -76,18 +73,9 @@ export default function CreateJoinRenameDeckModal(props: Props) {
     }
 
     const onboardingNotes = createOnboardingNotes();
-    const promises = [];
-    for (const note of onboardingNotes) {
-      const encryptedTitle = await encrypt(deckKey, note.title);
-      const encryptedContent = await encrypt(deckKey, note.content);
-      promises.push(
-        supabase
-          .from<Note>('notes')
-          .upsert({ ...note, title: encryptedTitle, content: encryptedContent, deck_id: deck.id })
-          .single(),
-      );
-    }
-    await Promise.all(promises);
+    const upsertData = onboardingNotes.map(note => encryptNote({ ...note, deck_id: deck.id }, deckKey));
+
+    await supabase.from<Note>('notes').upsert(upsertData);
 
     toast.success(`Successfully created ${deck.deck_name}`);
     setProcessing(false);

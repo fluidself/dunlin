@@ -12,8 +12,7 @@ import supabase from 'lib/supabase';
 import insertDeck from 'lib/api/insertDeck';
 import selectDecks from 'lib/api/selectDecks';
 import { Deck, Note } from 'types/supabase';
-import { decryptWithLit, encryptWithLit } from 'utils/encryption';
-import { encrypt } from 'utils/browser-passworder';
+import { generateKey, decryptWithLit, encryptWithLit, encryptNote } from 'utils/encryption';
 import createOnboardingNotes from 'utils/createOnboardingNotes';
 import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';
@@ -56,9 +55,7 @@ export default function AppHome() {
   const createNewDeck = async (deckName: string) => {
     if (!user) return;
 
-    const array = new Uint8Array(32);
-    global.crypto.getRandomValues(array);
-    const deckPass = Buffer.from(array).toString('hex');
+    const deckKey = generateKey();
     const accessControlConditions = [
       {
         contractAddress: '',
@@ -72,7 +69,7 @@ export default function AppHome() {
         },
       },
     ];
-    const [encryptedStringBase64, encryptedSymmetricKeyBase64] = await encryptWithLit(deckPass, accessControlConditions);
+    const [encryptedStringBase64, encryptedSymmetricKeyBase64] = await encryptWithLit(deckKey, accessControlConditions);
     const accessParams = {
       encrypted_string: encryptedStringBase64,
       encrypted_symmetric_key: encryptedSymmetricKeyBase64,
@@ -91,18 +88,9 @@ export default function AppHome() {
     }
 
     const onboardingNotes = createOnboardingNotes();
-    const promises = [];
-    for (const note of onboardingNotes) {
-      const encryptedTitle = await encrypt(deckPass, note.title);
-      const encryptedContent = await encrypt(deckPass, note.content);
-      promises.push(
-        supabase
-          .from<Note>('notes')
-          .upsert({ ...note, title: encryptedTitle, content: encryptedContent, deck_id: deck.id })
-          .single(),
-      );
-    }
-    await Promise.all(promises);
+    const upsertData = onboardingNotes.map(note => encryptNote({ ...note, deck_id: deck.id }, deckKey));
+
+    await supabase.from<Note>('notes').upsert(upsertData);
 
     toast.success(`Successfully created ${deckName}`);
     router.push(`/app/${deck.id}`);

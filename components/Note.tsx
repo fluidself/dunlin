@@ -5,13 +5,12 @@ import { useRouter } from 'next/router';
 import Editor from 'components/editor/Editor';
 import Title from 'components/editor/Title';
 import { store, useStore } from 'lib/store';
-// import type { NoteUpdate } from 'lib/api/updateNote';
 import { Note } from 'types/supabase';
 import updateDbNote from 'lib/api/updateNote';
 import { ProvideCurrentNote } from 'utils/useCurrentNote';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { caseInsensitiveStringEqual } from 'utils/string';
-import { encrypt } from 'utils/browser-passworder';
+import { encryptNote } from 'utils/encryption';
 import updateBacklinks from 'editor/backlinks/updateBacklinks';
 import Backlinks from './editor/backlinks/Backlinks';
 import NoteHeader from './editor/NoteHeader';
@@ -63,9 +62,7 @@ function Note(props: Props) {
 
   const handleNoteUpdate = useCallback(
     async (note: any) => {
-      const encryptedNote: any = { ...note };
-      if (note.title) encryptedNote.title = await encrypt(key, note.title);
-      if (note.content) encryptedNote.content = await encrypt(key, note.content);
+      const encryptedNote = encryptNote(note, key);
 
       const { error } = await updateDbNote(encryptedNote);
 

@@ -1,19 +1,48 @@
 // @ts-ignore
 import LitJsSdk from 'lit-js-sdk';
+const { secretbox, randomBytes } = require('tweetnacl');
+const { decodeUTF8, encodeUTF8, encodeBase64, decodeBase64 } = require('tweetnacl-util');
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string';
 import { Descendant } from 'slate';
-import { encrypt, encryptWithKey, decrypt, decryptWithKey } from 'utils/browser-passworder';
 import type { AuthSig } from 'types/lit';
 import type { Note } from 'types/supabase';
 import { DecryptedNote } from 'types/decrypted';
-// import { DecryptedNote } from 'types/decrypted';
 
-export function encodeb64(uintarray: any) {
-  const b64 = Buffer.from(uintarray).toString('base64');
-  return b64;
-}
+const newNonce = () => randomBytes(secretbox.nonceLength);
+export const generateKey = () => encodeBase64(randomBytes(secretbox.keyLength));
 
-export function blobToBase64(blob: Blob) {
+export const encrypt = (toEncrypt: any, key: string) => {
+  const keyUint8Array = decodeBase64(key);
+
+  const nonce = newNonce();
+  const messageUint8 = decodeUTF8(JSON.stringify(toEncrypt));
+  const box = secretbox(messageUint8, nonce, keyUint8Array);
+
+  const fullMessage = new Uint8Array(nonce.length + box.length);
+  fullMessage.set(nonce);
+  fullMessage.set(box, nonce.length);
+
+  const base64FullMessage = encodeBase64(fullMessage);
+  return base64FullMessage;
+};
+
+export const decrypt = (messageWithNonce: string, key: string) => {
+  const keyUint8Array = decodeBase64(key);
+  const messageWithNonceAsUint8Array = decodeBase64(messageWithNonce);
+  const nonce = messageWithNonceAsUint8Array.slice(0, secretbox.nonceLength);
+  const message = messageWithNonceAsUint8Array.slice(secretbox.nonceLength, messageWithNonce.length);
+
+  const decrypted = secretbox.open(message, nonce, keyUint8Array);
+
+  if (!decrypted) {
+    throw new Error('Could not decrypt message');
+  }
+
+  const base64DecryptedMessage = encodeUTF8(decrypted);
+  return JSON.parse(base64DecryptedMessage);
+};
+
+function blobToBase64(blob: Blob) {
   return new Promise((resolve, _) => {
     const reader = new FileReader();
     reader.onloadend = () =>
@@ -23,10 +52,6 @@ export function blobToBase64(blob: Blob) {
       );
     reader.readAsDataURL(blob);
   });
-}
-
-export function decodeb64(b64String: any) {
-  return new Uint8Array(Buffer.from(b64String, 'base64'));
 }
 
 export async function encryptWithLit(
@@ -45,7 +70,7 @@ export async function encryptWithLit(
   });
 
   const encryptedStringBase64 = await blobToBase64(encryptedString);
-  const encryptedSymmetricKeyBase64 = encodeb64(encryptedSymmetricKey);
+  const encryptedSymmetricKeyBase64 = encodeBase64(encryptedSymmetricKey);
 
   return [encryptedStringBase64, encryptedSymmetricKeyBase64];
 }
@@ -56,8 +81,8 @@ export async function decryptWithLit(
   accessControlConditions: Array<Object>,
   chain: string = 'ethereum',
 ): Promise<string> {
-  const decodedString = decodeb64(encryptedString);
-  const decodedSymmetricKey = decodeb64(encryptedSymmetricKey);
+  const decodedString = decodeBase64(encryptedString);
+  const decodedSymmetricKey = decodeBase64(encryptedSymmetricKey);
 
   if (!decodedString || !decodedSymmetricKey) {
     throw new Error('Decryption failed');
@@ -77,27 +102,18 @@ export async function decryptWithLit(
   return decryptedString;
 }
 
-// TODO: clean up, also use with key
-export const encryptNote = async (key: string, note: any) => {
-  try {
-    const encryptedTitle = await encrypt(key, note.title);
-    const encryptedContent = await encrypt(key, note.content);
+export const encryptNote = (note: any, key: string) => {
+  const encryptedNote = { ...note };
+  if (note.title) encryptedNote.title = encrypt(note.title, key);
+  if (note.content) encryptedNote.content = encrypt(note.content, key);
 
-    return { ...note, title: encryptedTitle, content: encryptedContent };
-  } catch (error) {
-    console.error(error);
-    console.log(note);
-  }
+  return encryptedNote;
 };
 
-export const decryptNote = async (key: string, encryptedNote: Note) => {
-  try {
-    const decryptedTitle: string = await decrypt(key, encryptedNote.title);
-    const decryptedContent: Descendant[] = await decrypt(key, encryptedNote.content);
+export const decryptNote = (encryptedNote: Note, key: string): DecryptedNote => {
+  const { title, content, ...rest } = encryptedNote;
+  const decryptedTitle: string = decrypt(title, key);
+  const decryptedContent: Descendant[] = decrypt(content, key);
 
-    return { ...encryptedNote, title: decryptedTitle, content: decryptedContent };
-  } catch (error) {
-    console.error(error);
-    console.log(encryptedNote);
-  }
+  return { title: decryptedTitle, content: decryptedContent, ...rest };
 };
