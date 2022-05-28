@@ -113,7 +113,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
       setProcessing(false);
       closeModal();
       window.location.assign(`${process.env.BASE_URL}/app`);
-    } catch (e: any) {
+    } catch (error) {
       toast.error('There was an error deleting the DECK');
     }
   };
@@ -136,7 +136,6 @@ export default function CreateJoinRenameDeckModal(props: Props) {
     }
 
     try {
-      // TODO: hotfix to only allow EVM chains for now
       const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = data.access_params;
       const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
       if (!deckKey) {
@@ -144,7 +143,6 @@ export default function CreateJoinRenameDeckModal(props: Props) {
         return;
       }
 
-      // TODO: keep / refactor this?
       await fetch('/api/verify-deck', {
         method: 'POST',
         headers: {
@@ -157,7 +155,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
       setProcessing(false);
       closeModal();
       window.location.assign(`${process.env.BASE_URL}/app/${inputText}`);
-    } catch (e: any) {
+    } catch (error) {
       toast.error('Unable to verify access.');
     }
   };

@@ -43,7 +43,7 @@ const cursorStyleBase = {
   color: 'white',
   background: 'palevioletred',
   whiteSpace: 'nowrap',
-} as any;
+} as React.CSSProperties;
 
 const caretStyleBase = {
   position: 'absolute',
@@ -52,4 +52,4 @@ const caretStyleBase = {
   height: '1.2em',
   width: 2,
   background: 'palevioletred',
-} as any;
+} as React.CSSProperties;

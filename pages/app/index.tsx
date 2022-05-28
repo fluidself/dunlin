@@ -113,7 +113,6 @@ export default function AppHome() {
     }
 
     try {
-      // TODO: hotfix to only allow EVM chains for now
       const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = data.access_params;
       const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
       if (!deckKey) {
@@ -121,7 +120,6 @@ export default function AppHome() {
         return;
       }
 
-      // TODO: keep / refactor this?
       await fetch('/api/verify-deck', {
         method: 'POST',
         headers: {
@@ -132,7 +130,7 @@ export default function AppHome() {
 
       toast.success('Access to DECK is granted.');
       router.push(`/app/${requestedDeck}`);
-    } catch (e: any) {
+    } catch (error) {
       toast.error('Unable to verify access.');
     }
   };

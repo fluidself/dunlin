@@ -1,14 +1,15 @@
 // @ts-ignore
 import LitJsSdk from 'lit-js-sdk';
-const { secretbox, randomBytes } = require('tweetnacl');
-const { decodeUTF8, encodeUTF8, encodeBase64, decodeBase64 } = require('tweetnacl-util');
+import { secretbox, randomBytes } from 'tweetnacl';
+import { decodeUTF8, encodeUTF8, encodeBase64, decodeBase64 } from 'tweetnacl-util';
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string';
 import { Descendant } from 'slate';
-import type { AuthSig } from 'types/lit';
+import type { AuthSig, AccessControlCondition, BooleanCondition } from 'types/lit';
 import type { Note } from 'types/supabase';
-import { DecryptedNote } from 'types/decrypted';
+import type { DecryptedNote } from 'types/decrypted';
 
 const newNonce = () => randomBytes(secretbox.nonceLength);
+
 export const generateKey = () => encodeBase64(randomBytes(secretbox.keyLength));
 
 export const encrypt = (toEncrypt: any, key: string) => {
@@ -23,6 +24,7 @@ export const encrypt = (toEncrypt: any, key: string) => {
   fullMessage.set(box, nonce.length);
 
   const base64FullMessage = encodeBase64(fullMessage);
+
   return base64FullMessage;
 };
 
@@ -39,11 +41,28 @@ export const decrypt = (messageWithNonce: string, key: string) => {
   }
 
   const base64DecryptedMessage = encodeUTF8(decrypted);
+
   return JSON.parse(base64DecryptedMessage);
 };
 
-function blobToBase64(blob: Blob) {
-  return new Promise((resolve, _) => {
+export const encryptNote = (note: any, key: string) => {
+  const encryptedNote = { ...note };
+  if (note.title) encryptedNote.title = encrypt(note.title, key);
+  if (note.content) encryptedNote.content = encrypt(note.content, key);
+
+  return encryptedNote;
+};
+
+export const decryptNote = (encryptedNote: Note, key: string): DecryptedNote => {
+  const { title, content, ...rest } = encryptedNote;
+  const decryptedTitle: string = decrypt(title, key);
+  const decryptedContent: Descendant[] = decrypt(content, key);
+
+  return { title: decryptedTitle, content: decryptedContent, ...rest };
+};
+
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise<string>((resolve, _) => {
     const reader = new FileReader();
     reader.onloadend = () =>
       resolve(
@@ -54,11 +73,12 @@ function blobToBase64(blob: Blob) {
   });
 }
 
-export async function encryptWithLit(
+export const encryptWithLit = async (
   toEncrypt: string,
-  accessControlConditions: Array<Object>,
+  accessControlConditions: (AccessControlCondition | BooleanCondition)[],
+  // TODO: allow other chains
   chain: string = 'ethereum',
-): Promise<Array<any>> {
+): Promise<string[]> => {
   const authSig: AuthSig = await LitJsSdk.checkAndSignAuthMessage({ chain });
   const { encryptedString, symmetricKey } = await LitJsSdk.encryptString(toEncrypt);
   const encryptedSymmetricKey = await window.litNodeClient.saveEncryptionKey({
@@ -73,14 +93,15 @@ export async function encryptWithLit(
   const encryptedSymmetricKeyBase64 = encodeBase64(encryptedSymmetricKey);
 
   return [encryptedStringBase64, encryptedSymmetricKeyBase64];
-}
+};
 
-export async function decryptWithLit(
+export const decryptWithLit = async (
   encryptedString: string,
   encryptedSymmetricKey: string,
-  accessControlConditions: Array<Object>,
+  accessControlConditions: (AccessControlCondition | BooleanCondition)[],
+  // TODO: allow other chains
   chain: string = 'ethereum',
-): Promise<string> {
+): Promise<string> => {
   const decodedString = decodeBase64(encryptedString);
   const decodedSymmetricKey = decodeBase64(encryptedSymmetricKey);
 
@@ -100,20 +121,4 @@ export async function decryptWithLit(
   const decryptedString = await LitJsSdk.decryptString(new Blob([decodedString]), decryptedSymmetricKey);
 
   return decryptedString;
-}
-
-export const encryptNote = (note: any, key: string) => {
-  const encryptedNote = { ...note };
-  if (note.title) encryptedNote.title = encrypt(note.title, key);
-  if (note.content) encryptedNote.content = encrypt(note.content, key);
-
-  return encryptedNote;
-};
-
-export const decryptNote = (encryptedNote: Note, key: string): DecryptedNote => {
-  const { title, content, ...rest } = encryptedNote;
-  const decryptedTitle: string = decrypt(title, key);
-  const decryptedContent: Descendant[] = decrypt(content, key);
-
-  return { title: decryptedTitle, content: decryptedContent, ...rest };
 };

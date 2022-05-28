@@ -2,7 +2,6 @@ import { Element } from 'slate';
 import produce from 'immer';
 import { encrypt } from 'utils/encryption';
 import { ElementType } from 'types/slate';
-// import { Note } from 'types/supabase';
 import { store } from 'lib/store';
 import updateNote from 'lib/api/updateNote';
 import { computeLinkedBacklinks } from './useBacklinks';
@@ -14,7 +13,6 @@ import { computeLinkedBacklinks } from './useBacklinks';
 const updateBacklinks = async (newTitle: string, noteId: string, key: string) => {
   const notes = store.getState().notes;
   const backlinks = computeLinkedBacklinks(notes, noteId);
-  // const updateData: Pick<Note, 'id' | 'content'>[] = [];
   const updateData: any[] = [];
 
   for (const backlink of backlinks) {

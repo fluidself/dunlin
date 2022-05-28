@@ -68,10 +68,10 @@ export default function MintNFTModal(props: Props) {
       setProcessing(false);
       setIsOpen(false);
       router.push(`/publications/${uploadedFile.hash}`);
-    } catch (e: any) {
+    } catch (error) {
+      console.error(error);
       // toast.error('Failed to mint the NFT.');
       toast.error('Failed to publish.');
-      console.error(e);
       setProcessing(false);
     }
   };

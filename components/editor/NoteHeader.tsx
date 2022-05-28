@@ -38,13 +38,19 @@ import Identicon from 'components/home/Identicon';
 import { NoteHeaderDivider } from './NoteHeaderDivider';
 // import { NFTIcon } from './NFTIcon';
 
+type DeckSelectOption = {
+  label: string;
+  id: string;
+  value: string;
+};
+
 export default function NoteHeader() {
   const currentNote = useCurrentNote();
   const onImport = useImport();
   const { user } = useAuth();
   const { id: currentDeckId } = useCurrentDeck();
   const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
-  const [deckOptions, setDeckOptions] = useState<any>(null);
+  const [deckOptions, setDeckOptions] = useState<DeckSelectOption[]>([]);
   const [selectedDeck, setSelectedDeck] = useState<any>(null);
   const router = useRouter();
   const {
@@ -57,8 +63,8 @@ export default function NoteHeader() {
       id: deck.id,
       value: deck.id,
     }));
-    setDeckOptions(decksToOptions);
-    setSelectedDeck(decksToOptions?.filter(deckOption => deckOption.id === currentDeckId)[0]);
+    if (decksToOptions) setDeckOptions(decksToOptions);
+    setSelectedDeck(decksToOptions?.find(deckOption => deckOption.id === currentDeckId));
   }, [decks, currentDeckId]);
 
   const isSidebarButtonVisible = useStore(state => !state.isSidebarOpen && state.openNoteIds?.[0] === currentNote.id);

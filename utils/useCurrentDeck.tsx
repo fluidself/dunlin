@@ -1,21 +1,18 @@
-import { useState, useEffect, useContext, createContext, useCallback } from 'react';
+import { useEffect, useContext, createContext } from 'react';
 import type { ReactNode } from 'react';
-import { User } from 'types/supabase';
 import { DecryptedDeck } from 'types/decrypted';
-import { NoteTreeItem } from 'lib/store';
 
 const DeckContext = createContext<DecryptedDeck | undefined>(undefined);
 
 function setRecentDeck(deckId: string) {
   const initDeck = async (deckId: string) => {
-    const response = await fetch('/api/recent-deck', {
+    await fetch('/api/recent-deck', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ deckId }),
     });
-    if (!response.ok) throw new Error('Could not initiate DECK');
 
     return;
   };

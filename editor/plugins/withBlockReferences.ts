@@ -25,7 +25,6 @@ const replaceBlockRefs = async (editor: Editor, blockId: string) => {
   }
 
   // Update the block refs in the other notes to be paragraphs
-  // const updateData: Pick<Note, 'id' | 'content'>[] = [];
   const updateData: any[] = [];
   backlinks: for (const backlink of backlinks) {
     const noteEditor = createEditor();
@@ -49,7 +48,7 @@ const replaceBlockRefs = async (editor: Editor, blockId: string) => {
 
   // Make sure block refs are updated locally
   for (const newNote of updateData) {
-    store.getState().updateNote({ id: newNote.id, content: newNote.cont });
+    store.getState().updateNote({ id: newNote.id, content: newNote.content });
   }
 
   // It would be better if we could consolidate the update requests into one request

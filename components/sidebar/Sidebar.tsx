@@ -62,7 +62,6 @@ function Sidebar(props: Props) {
     if (!user || !deckId || !acc) return;
 
     try {
-      // TODO: hotfix to only allow EVM chains for now
       const accessControlConditions: (AccessControlCondition | BooleanCondition)[] = [
         {
           contractAddress: '',
@@ -98,8 +97,8 @@ function Sidebar(props: Props) {
 
       toast.success('Access to your DECK was configured');
       return true;
-    } catch (e: any) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
       toast.error('Provisioning access failed.');
       return false;
     }

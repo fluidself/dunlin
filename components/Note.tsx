@@ -6,7 +6,7 @@ import Editor from 'components/editor/Editor';
 import Title from 'components/editor/Title';
 import { store, useStore } from 'lib/store';
 import { Note } from 'types/supabase';
-import updateDbNote from 'lib/api/updateNote';
+import updateDbNote, { NoteUpdate } from 'lib/api/updateNote';
 import { ProvideCurrentNote } from 'utils/useCurrentNote';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { caseInsensitiveStringEqual } from 'utils/string';
@@ -62,7 +62,7 @@ function Note(props: Props) {
 
   const handleNoteUpdate = useCallback(
     async (note: any) => {
-      const encryptedNote = encryptNote(note, key);
+      const encryptedNote: NoteUpdate = encryptNote(note, key);
 
       const { error } = await updateDbNote(encryptedNote);
 
