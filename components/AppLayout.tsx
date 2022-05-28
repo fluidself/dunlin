@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import classNames from 'classnames';
+import { IconAlertTriangle } from '@tabler/icons';
+import { toast } from 'react-toastify';
 import colors from 'tailwindcss/colors';
 import { useAccount } from 'wagmi';
 import { useStore, store, NoteTreeItem, getNoteTreeItem, Notes, SidebarTab } from 'lib/store';
@@ -31,6 +33,36 @@ export default function AppLayout(props: Props) {
   const { user, isLoaded, signOut } = useAuth();
   const [{ data: accountData }] = useAccount();
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+
+  const UpgradeMsg = () => (
+    <div>
+      <div className="flex items-center flex-shrink-0 w-full mb-2">
+        <IconAlertTriangle className="mr-2" size={24} />
+        <span className="text-lg ">Upcoming Breaking Release</span>
+      </div>
+      <p>
+        On June 1st, a new version of this app will be released with significant improvements to the storage layer. The good news
+        is that the app will become better. The bad news is that current DECKs and notes will not be transferred over.
+      </p>
+      <br />
+      <p>
+        If you want to conserve your notes, please use the export functionality found in the top right dropdown menu to save your
+        notes in markdown format. After the new release, you can then create a new DECK and import your notes.
+      </p>
+      <br />
+      <p>Thank you for using DECK and hope to see you on the other side.</p>
+    </div>
+  );
+
+  useEffect(() => {
+    toast.warn(<UpgradeMsg />, {
+      icon: false,
+      autoClose: false,
+      closeButton: true,
+      draggable: false,
+      style: { width: '510px' },
+    });
+  }, []);
 
   useEffect(() => {
     const onDisconnect = () => signOut();
