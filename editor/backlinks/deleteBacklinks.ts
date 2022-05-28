@@ -12,7 +12,6 @@ import { computeLinkedBacklinks } from './useBacklinks';
 const deleteBacklinks = async (noteId: string, key: string) => {
   const notes = store.getState().notes;
   const backlinks = computeLinkedBacklinks(notes, noteId);
-  // const updateData: Pick<Note, 'id' | 'content'>[] = [];
   const updateData: any[] = [];
 
   for (const backlink of backlinks) {

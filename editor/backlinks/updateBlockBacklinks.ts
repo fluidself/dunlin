@@ -11,7 +11,6 @@ import { Backlink } from './useBacklinks';
  */
 const updateBlockBacklinks = async (blockBacklinks: Backlink[], newText: string, key: string) => {
   const notes = store.getState().notes;
-  // const updateData: Pick<Note, 'id' | 'content'>[] = [];
   const updateData: any[] = [];
 
   for (const backlink of blockBacklinks) {

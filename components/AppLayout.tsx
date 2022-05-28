@@ -130,7 +130,7 @@ export default function AppLayout(props: Props) {
       await initLit();
     }
 
-    if (!deckId || typeof deckId !== 'string') return;
+    if (!deckId) return;
     setDeckId(deckId);
 
     const decryptedDeck = deck ?? (await decryptDeck());
@@ -148,7 +148,9 @@ export default function AppLayout(props: Props) {
       return;
     }
 
-    const notes = encryptedNotes.map(note => decryptNote(note, decryptedDeck.key)).sort((a, b) => (a.title < b.title ? -1 : 1));
+    const notes = encryptedNotes
+      .map(note => decryptNote(note, decryptedDeck.key))
+      .sort((a, b) => (a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1));
 
     // Redirect to most recent note or first note in database
     if (router.pathname.match(/^\/app\/[^/]+$/i)) {
@@ -234,7 +236,7 @@ export default function AppLayout(props: Props) {
     // Subscribe to changes on the notes table for the current DECK
     const subscription = supabase
       .from<Note>(`notes:deck_id=eq.${deckId}`)
-      .on('*', async payload => {
+      .on('*', payload => {
         if (payload.eventType === 'INSERT') {
           if (!deck?.key) return;
           const note = decryptNote(payload.new, deck.key);

@@ -23,7 +23,7 @@ const chains = defaultChains;
 
 type Config = { chainId?: number };
 
-const connectors = ({ chainId }: Config) => {
+const connectors = () => {
   return [new InjectedConnector({ chains })];
 };
 

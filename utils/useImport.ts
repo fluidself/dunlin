@@ -82,7 +82,7 @@ export default function useImport() {
         }
 
         const content = slateContent.length > 0 ? slateContent : getDefaultEditorValue();
-        const encryptedNote = encryptNote({ title: fileName, content, deck_id: deckId }, key);
+        const encryptedNote = encryptNote({ deck_id: deckId, title: fileName, content }, key);
         upsertData.push(encryptedNote);
       }
 

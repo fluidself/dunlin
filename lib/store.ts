@@ -3,13 +3,11 @@ import createVanilla from 'zustand/vanilla';
 import { persist, StateStorage, StoreApiWithPersist } from 'zustand/middleware';
 import produce, { Draft } from 'immer';
 import localforage from 'localforage';
-// import type { Note } from 'types/supabase';
 import type { DecryptedNote } from 'types/decrypted';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { Backlink } from 'editor/backlinks/useBacklinks';
 import type { PickPartial } from 'types/utils';
 import createUserSettingsSlice, { UserSettings } from './createUserSettingsSlice';
-// import type { NoteUpdate } from './api/updateNote';
 
 type NoteUpdate = PickPartial<DecryptedNote, 'deck_id' | 'content' | 'title' | 'created_at' | 'updated_at'>;
 
