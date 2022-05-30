@@ -234,7 +234,7 @@ export default function AppLayout(props: Props) {
     }
 
     // Subscribe to changes on the notes table for the current DECK
-    const subscription = supabase
+    const notesSubscription = supabase
       .from<Note>(`notes:deck_id=eq.${deckId}`)
       .on('*', payload => {
         if (payload.eventType === 'INSERT') {
@@ -250,7 +250,26 @@ export default function AppLayout(props: Props) {
             updateNote(note);
           }
         } else if (payload.eventType === 'DELETE') {
-          initData();
+          deleteNote(payload.old.id);
+        }
+      })
+      .subscribe();
+
+    const deckSubscription = supabase
+      .from<Deck>(`decks:id=eq.${deckId}`)
+      .on('UPDATE', payload => {
+        if (payload.new.note_tree) {
+          const noteTree: NoteTreeItem[] = [...payload.new.note_tree];
+          const notesAsObj = store.getState().notes;
+          const notes = Object.values(notesAsObj);
+          removeNonexistentNotes(noteTree, notesAsObj);
+          for (const note of notes) {
+            if (getNoteTreeItem(noteTree, note.id) === null) {
+              initData();
+              break;
+            }
+          }
+          setNoteTree(noteTree);
         }
       })
       .subscribe();
@@ -258,7 +277,8 @@ export default function AppLayout(props: Props) {
     window.addEventListener('focus', initData);
 
     return () => {
-      subscription.unsubscribe();
+      notesSubscription.unsubscribe();
+      deckSubscription.unsubscribe();
       window.removeEventListener('focus', initData);
     };
   }, [deckId, deck, upsertNote, updateNote, deleteNote, initData]);
