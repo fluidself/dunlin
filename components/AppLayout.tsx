@@ -237,6 +237,7 @@ export default function AppLayout(props: Props) {
     const notesSubscription = supabase
       .from<Note>(`notes:deck_id=eq.${deckId}`)
       .on('*', payload => {
+        const openNoteIds = store.getState().openNoteIds;
         if (payload.eventType === 'INSERT') {
           if (!deck?.key) return;
           const note = decryptNote(payload.new, deck.key);
@@ -244,17 +245,20 @@ export default function AppLayout(props: Props) {
         } else if (payload.eventType === 'UPDATE') {
           if (!deck?.key) return;
           // Don't update the note if it is currently open
-          const openNoteIds = store.getState().openNoteIds;
           if (!openNoteIds.includes(payload.new.id)) {
             const note = decryptNote(payload.new, deck.key);
             updateNote(note);
           }
         } else if (payload.eventType === 'DELETE') {
-          deleteNote(payload.old.id);
+          // Don't delete the note if it is currently open
+          if (!openNoteIds.includes(payload.old.id)) {
+            deleteNote(payload.old.id);
+          }
         }
       })
       .subscribe();
 
+    // Subscribe to changes in the note_tree for the current DECK
     const deckSubscription = supabase
       .from<Deck>(`decks:id=eq.${deckId}`)
       .on('UPDATE', payload => {
@@ -265,8 +269,7 @@ export default function AppLayout(props: Props) {
           removeNonexistentNotes(noteTree, notesAsObj);
           for (const note of notes) {
             if (getNoteTreeItem(noteTree, note.id) === null) {
-              initData();
-              break;
+              noteTree.push({ id: note.id, children: [], collapsed: true });
             }
           }
           setNoteTree(noteTree);
@@ -281,7 +284,7 @@ export default function AppLayout(props: Props) {
       deckSubscription.unsubscribe();
       window.removeEventListener('focus', initData);
     };
-  }, [deckId, deck, upsertNote, updateNote, deleteNote, initData]);
+  }, [deckId, deck, upsertNote, updateNote, deleteNote, setNoteTree, initData]);
 
   const hotkeys = useMemo(
     () => [

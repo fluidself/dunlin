@@ -18,9 +18,6 @@ import ErrorBoundary from './ErrorBoundary';
 
 const SYNC_DEBOUNCE_MS = 1000;
 
-const CHECK_VIOLATION_ERROR_CODE = '23514';
-const UNIQUE_VIOLATION_ERROR_CODE = '23505';
-
 type Props = {
   noteId: string;
   highlightedPath?: Path;
@@ -39,6 +36,8 @@ function Note(props: Props) {
     isContentSynced: true,
   });
   const isSynced = useMemo(() => syncState.isTitleSynced && syncState.isContentSynced, [syncState]);
+
+  const deletedNoteToastId = 'note-was-deleted';
 
   const onTitleChange = useCallback(
     (title: string) => {
@@ -62,22 +61,14 @@ function Note(props: Props) {
 
   const handleNoteUpdate = useCallback(
     async (note: any) => {
+      if (!key) return;
       const encryptedNote: NoteUpdate = encryptNote(note, key);
 
       const { error } = await updateDbNote(encryptedNote);
 
       if (error) {
-        switch (error.code) {
-          case CHECK_VIOLATION_ERROR_CODE:
-            toast.error(`This note cannot have an empty title. Please use a different title.`);
-            return;
-          case UNIQUE_VIOLATION_ERROR_CODE:
-            toast.error(`There's already a note called ${note.title}. Please use a different title.`);
-            return;
-          default:
-            toast.error('Something went wrong saving your note. Please try again later.');
-            return;
-        }
+        toast.error('Something went wrong saving your note. Please try again later.');
+        return;
       }
       if (note.title) {
         await updateBacklinks(note.title, note.id, key);
@@ -90,7 +81,13 @@ function Note(props: Props) {
   // Save the note in the database if it changes and it hasn't been saved yet
   useEffect(() => {
     const note = store.getState().notes[noteId];
-    if (!note || !key) return;
+    if (!note) {
+      // TODO: figure out a more elegant way to handle this?
+      toast.warn('Someone deleted this note. Please copy your content into a new note if you want to keep it.', {
+        toastId: deletedNoteToastId,
+      });
+      return;
+    }
 
     const noteUpdate: any = { id: noteId };
     if (!syncState.isContentSynced) {
@@ -104,7 +101,7 @@ function Note(props: Props) {
       const handler = setTimeout(() => handleNoteUpdate(noteUpdate), SYNC_DEBOUNCE_MS);
       return () => clearTimeout(handler);
     }
-  }, [noteId, key, syncState, handleNoteUpdate]);
+  }, [noteId, syncState, handleNoteUpdate]);
 
   // Prompt the user with a dialog box about unsaved changes if they navigate away
   useEffect(() => {
