@@ -237,7 +237,6 @@ export default function AppLayout(props: Props) {
     const notesSubscription = supabase
       .from<Note>(`notes:deck_id=eq.${deckId}`)
       .on('*', payload => {
-        const openNoteIds = store.getState().openNoteIds;
         if (payload.eventType === 'INSERT') {
           if (!deck?.key) return;
           const note = decryptNote(payload.new, deck.key);
@@ -245,15 +244,13 @@ export default function AppLayout(props: Props) {
         } else if (payload.eventType === 'UPDATE') {
           if (!deck?.key) return;
           // Don't update the note if it is currently open
+          const openNoteIds = store.getState().openNoteIds;
           if (!openNoteIds.includes(payload.new.id)) {
             const note = decryptNote(payload.new, deck.key);
             updateNote(note);
           }
         } else if (payload.eventType === 'DELETE') {
-          // Don't delete the note if it is currently open
-          if (!openNoteIds.includes(payload.old.id)) {
-            deleteNote(payload.old.id);
-          }
+          deleteNote(payload.old.id);
         }
       })
       .subscribe();

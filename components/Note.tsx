@@ -37,8 +37,6 @@ function Note(props: Props) {
   });
   const isSynced = useMemo(() => syncState.isTitleSynced && syncState.isContentSynced, [syncState]);
 
-  const deletedNoteToastId = 'note-was-deleted';
-
   const onTitleChange = useCallback(
     (title: string) => {
       // Only update note title in storage if there isn't already a note with that title
@@ -81,13 +79,7 @@ function Note(props: Props) {
   // Save the note in the database if it changes and it hasn't been saved yet
   useEffect(() => {
     const note = store.getState().notes[noteId];
-    if (!note) {
-      // TODO: figure out a more elegant way to handle this?
-      toast.warn('Someone deleted this note. Please copy your content into a new note if you want to keep it.', {
-        toastId: deletedNoteToastId,
-      });
-      return;
-    }
+    if (!note) return;
 
     const noteUpdate: any = { id: noteId };
     if (!syncState.isContentSynced) {

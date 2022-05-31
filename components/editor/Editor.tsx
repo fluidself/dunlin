@@ -9,6 +9,7 @@ import { isHotkey } from 'is-hotkey';
 import randomColor from 'randomcolor';
 import _pick from 'lodash/pick';
 import _isEqual from 'lodash/isEqual';
+import { toast } from 'react-toastify';
 import colors from 'tailwindcss/colors';
 import { handleEnter, handleIndent, handleUnindent, isElementActive, toggleElement, toggleMark } from 'editor/formatting';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
@@ -268,19 +269,25 @@ function Editor(props: Props) {
 
   const onSlateChange = useCallback(
     (newValue: Descendant[]) => {
-      if (!newValue?.length || !value?.length) return;
-      setSelection(editor.selection);
-      // We need this check because this function is called every time
-      // the selection changes
-      const valueNormalized = value.map(v => _pick(v, ['type', 'children']));
-      const newValueNormalized = newValue.map(v => _pick(v, ['type', 'children']));
-      // TODO: debug
-      if (!_isEqual(valueNormalized, newValueNormalized)) {
-        setValue(newValue);
-        onChange(newValue);
+      if (typeof value === 'undefined') {
+        toast.warn('Someone deleted this note. Please copy your content into a new note if you want to keep it.', {
+          toastId: noteId,
+        });
+        return;
+      }
+      if (newValue?.length && value?.length) {
+        setSelection(editor.selection);
+        // We need this check because this function is called every time
+        // the selection changes
+        const valueNormalized = value.map(v => _pick(v, ['type', 'children']));
+        const newValueNormalized = newValue.map(v => _pick(v, ['type', 'children']));
+        if (!_isEqual(valueNormalized, newValueNormalized)) {
+          setValue(newValue);
+          onChange(newValue);
+        }
       }
     },
-    [editor.selection, onChange, value, setValue],
+    [editor.selection, onChange, value, setValue, noteId],
   );
 
   // If highlightedPath is defined, highlight the path
