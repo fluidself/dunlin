@@ -268,7 +268,7 @@ function Editor(props: Props) {
 
   const onSlateChange = useCallback(
     (newValue: Descendant[]) => {
-      if (!newValue.length || !value.length) return;
+      if (!newValue?.length || !value?.length) return;
       setSelection(editor.selection);
       // We need this check because this function is called every time
       // the selection changes
