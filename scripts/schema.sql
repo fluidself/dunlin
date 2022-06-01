@@ -15,7 +15,7 @@ CREATE TABLE public.notes (
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT notes_pkey PRIMARY KEY (id),
-  CONSTRAINT notes_deck_id_title_key UNIQUE (deck_id, title)
+  CONSTRAINT notes_deck_id_key UNIQUE (deck_id)
 );
 
 

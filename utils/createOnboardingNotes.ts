@@ -128,8 +128,6 @@ export default function createOnboardingNotes() {
           ],
         },
       ],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     },
     {
       id: linkedNoteId,
@@ -160,8 +158,6 @@ export default function createOnboardingNotes() {
           ],
         },
       ],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     },
     {
       id: stackedNotedId,
@@ -177,8 +173,6 @@ export default function createOnboardingNotes() {
         },
         { type: 'paragraph', children: [{ text: 'Try creating your own notes and linking them together!' }] },
       ],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     },
   ];
 }
