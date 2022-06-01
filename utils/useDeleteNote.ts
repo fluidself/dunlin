@@ -28,7 +28,7 @@ export default function useDeleteNote(noteId: string) {
           }
         }
       } else {
-        // No note ids to redirect to, redirect to app
+        // No note ids to redirect to, redirect to DECK root
         router.push(`/app/${deckId}`);
       }
     }
