@@ -72,29 +72,27 @@ export default function useImport() {
           deckId,
         );
 
-        for (const data of newUpsertData) {
-          let noteToEncrypt: any = { ...data };
-          if (!noteToEncrypt.content) {
-            noteToEncrypt.content = getDefaultEditorValue();
-          }
-          const encryptedNote = encryptNote(noteToEncrypt, key);
-          noteLinkUpsertData.push(encryptedNote);
-        }
-
-        const content = slateContent.length > 0 ? slateContent : getDefaultEditorValue();
-        const encryptedNote = encryptNote({ deck_id: deckId, title: fileName, content }, key);
-        upsertData.push(encryptedNote);
+        noteLinkUpsertData.push(...newUpsertData);
+        upsertData.push({
+          title: fileName,
+          content: slateContent.length > 0 ? slateContent : getDefaultEditorValue(),
+        });
       }
 
-      // Create new notes that are linked to
-      const { data: newLinkedNotes } = await supabase.from<Note>('notes').upsert(noteLinkUpsertData);
+      const mergedAndEncryptedUpsertData = upsertData.map((data: any) => {
+        const matchingNoteLinkUpsertItem = noteLinkUpsertData.find(item => item.title === data.title);
+        const mergedData = matchingNoteLinkUpsertItem ? { ...data, ...matchingNoteLinkUpsertItem } : data;
+        const note = { id: uuidv4(), deck_id: deckId, ...mergedData };
 
-      // Create new notes from files
-      const { data: newNotes } = await supabase.from<Note>('notes').upsert(upsertData);
+        return encryptNote(note, key);
+      });
+
+      // Create new notes
+      const { data: newNotes } = await supabase.from<Note>('notes').upsert(mergedAndEncryptedUpsertData);
 
       // Show a toast with the number of successfully imported notes
       toast.dismiss(importingToast);
-      const numOfSuccessfulImports = [...(newLinkedNotes ?? []), ...(newNotes ?? [])]?.filter(note => !!note).length ?? 0;
+      const numOfSuccessfulImports = [...(newNotes ?? [])]?.filter(note => !!note).length ?? 0;
       if (numOfSuccessfulImports > 1) {
         toast.success(`${numOfSuccessfulImports} notes were successfully imported.`);
       } else if (numOfSuccessfulImports === 1) {

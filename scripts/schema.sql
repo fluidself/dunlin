@@ -14,8 +14,7 @@ CREATE TABLE public.notes (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
-  CONSTRAINT notes_pkey PRIMARY KEY (id),
-  CONSTRAINT notes_deck_id_key UNIQUE (deck_id)
+  CONSTRAINT notes_pkey PRIMARY KEY (id)
 );
 
 
