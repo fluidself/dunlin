@@ -232,12 +232,12 @@ export default function AppLayout(props: Props) {
           const notesAsObj = store.getState().notes;
           const notes = Object.values(notesAsObj);
           removeNonexistentNotes(noteTree, notesAsObj);
+          setNoteTree(noteTree);
           for (const note of notes) {
             if (getNoteTreeItem(noteTree, note.id) === null) {
-              noteTree.push({ id: note.id, children: [], collapsed: true });
+              initData();
             }
           }
-          setNoteTree(noteTree);
         }
       })
       .subscribe();

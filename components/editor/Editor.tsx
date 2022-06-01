@@ -24,6 +24,7 @@ import withTags from 'editor/plugins/withTags';
 import withHtml from 'editor/plugins/withHtml';
 import { store, useStore } from 'lib/store';
 import { DeckEditor, ElementType, Mark } from 'types/slate';
+import { getDefaultEditorValue } from 'editor/constants';
 import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';
 import { addEllipsis } from 'utils/string';
@@ -110,7 +111,7 @@ function Editor(props: Props) {
   useEffect(() => {
     provider.on('sync', (isSynced: boolean) => {
       if (isSynced && sharedType.length === 0) {
-        toSharedType(sharedType, value);
+        toSharedType(sharedType, getDefaultEditorValue());
       }
     });
 
