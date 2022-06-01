@@ -5,7 +5,6 @@ import fleekStorage from '@fleekhq/fleek-storage-js';
 // import { useSigner, useContract } from 'wagmi';
 // import { Contract } from 'ethers';
 import { toast } from 'react-toastify';
-// import { Note } from 'types/supabase';
 import { DecryptedNote } from 'types/decrypted';
 import useHotkeys from 'utils/useHotkeys';
 import { getSerializedNote } from 'components/editor/NoteHeader';
