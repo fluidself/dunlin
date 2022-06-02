@@ -22,9 +22,9 @@ import withNodeId from 'editor/plugins/withNodeId';
 import withBlockReferences from 'editor/plugins/withBlockReferences';
 import withTags from 'editor/plugins/withTags';
 import withHtml from 'editor/plugins/withHtml';
+import { getDefaultEditorValue } from 'editor/constants';
 import { store, useStore } from 'lib/store';
 import { DeckEditor, ElementType, Mark } from 'types/slate';
-import { getDefaultEditorValue } from 'editor/constants';
 import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';
 import { addEllipsis } from 'utils/string';
@@ -59,7 +59,8 @@ function Editor(props: Props) {
   const isMounted = useIsMounted();
   const { user } = useAuth();
 
-  const value = useStore(state => state.notes[noteId]?.content);
+  const note = useStore(state => state.notes[noteId]);
+  const value = note?.content ?? getDefaultEditorValue();
   const setValue = useCallback((value: Descendant[]) => store.getState().updateNote({ id: noteId, content: value }), [noteId]);
 
   const color = useMemo(
@@ -111,7 +112,7 @@ function Editor(props: Props) {
   useEffect(() => {
     provider.on('sync', (isSynced: boolean) => {
       if (isSynced && sharedType.length === 0) {
-        toSharedType(sharedType, getDefaultEditorValue());
+        toSharedType(sharedType, value);
       }
     });
 
@@ -270,7 +271,7 @@ function Editor(props: Props) {
 
   const onSlateChange = useCallback(
     (newValue: Descendant[]) => {
-      if (typeof value === 'undefined') {
+      if (!note) {
         toast.warn('Someone deleted this note. Please copy your content into a new note if you want to keep it.', {
           toastId: noteId,
         });
@@ -288,7 +289,7 @@ function Editor(props: Props) {
         }
       }
     },
-    [editor.selection, onChange, value, setValue, noteId],
+    [editor.selection, onChange, value, setValue, noteId, note],
   );
 
   // If highlightedPath is defined, highlight the path
