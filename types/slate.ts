@@ -22,6 +22,7 @@ export enum ElementType {
   ThematicBreak = 'thematic-break',
   Image = 'image',
   BlockReference = 'block-reference',
+  Collapsible = 'collapsible',
 }
 
 export enum Mark {
@@ -138,6 +139,13 @@ export type BlockReference = {
   children: Descendant[];
 };
 
+export type Collapsible = {
+  id: string;
+  type: ElementType.Collapsible;
+  open: boolean;
+  children: Descendant[];
+};
+
 export type ReferenceableBlockElement =
   | ParagraphElement
   | HeadingOneElement
@@ -149,7 +157,8 @@ export type ReferenceableBlockElement =
   | CodeBlock
   | ThematicBreak
   | Image
-  | BlockReference;
+  | BlockReference
+  | Collapsible;
 
 export type InlineElement = ExternalLink | NoteLink | Tag;
 

@@ -10,8 +10,9 @@ import {
   IconBraces,
   IconTypography,
   TablerIcon,
-  IconPhoto,
+  // IconPhoto,
   IconListCheck,
+  IconLayoutSidebarRightCollapse,
 } from '@tabler/icons';
 import { Element } from 'slate';
 import { toggleElement, isElementActive } from 'editor/formatting';
@@ -47,6 +48,12 @@ export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
           Icon={IconPhoto}
           tooltip="Image"
         /> */}
+        <BlockButton
+          format={ElementType.Collapsible}
+          element={element}
+          Icon={IconLayoutSidebarRightCollapse}
+          tooltip="Collapsible Section"
+        />
         <BlockButton format={ElementType.Blockquote} element={element} Icon={IconBlockquote} tooltip="Quote Block" />
         <BlockButton format={ElementType.CodeBlock} element={element} Icon={IconBraces} tooltip="Code Block" />
       </div>
