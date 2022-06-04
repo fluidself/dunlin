@@ -79,6 +79,39 @@ export const toggleElement = (editor: Editor, format: ElementType, path?: Path) 
     newProperties = { type: ElementType.ListItem };
   } else if (format === ElementType.CheckListItem) {
     newProperties = { type: ElementType.CheckListItem, checked: false };
+  } else if (format === ElementType.Details) {
+    console.log(format);
+    newProperties = {
+      type: ElementType.Details,
+      isOpen: false,
+      children: [{ text: '' }],
+      // summaryText: 'Enter Summary Text',
+      // children: [
+      //   {
+      //     type: ElementType.DetailsSummary,
+      //     children: [{ text: 'Enter Summary text' }],
+      //     // children: [
+      //     //   {
+      //     //     id: createNodeId(),
+      //     //     type: ElementType.Paragraph,
+      //     //     children: [{ text: 'Enter Summary Text' }],
+      //     //   },
+      //     // ],
+      //   },
+      //   {
+      //     type: ElementType.DetailsContent,
+      //     children: [{ text: 'Enter Details Content' }],
+      //     // children: [
+      //     //   {
+      //     //     id: createNodeId(),
+      //     //     type: ElementType.Paragraph,
+      //     //     children: [{ text: 'Enter Details Content' }],
+      //     //   },
+      //     // ],
+      //   },
+      // ],
+    };
+    console.log(newProperties);
   } else {
     newProperties = { type: format };
   }

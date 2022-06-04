@@ -168,3 +168,41 @@ button:focus {
 .publication a:hover {
   text-decoration-line: underline;
 }
+
+/** Details element **/
+details {
+  padding-left: 20px;
+}
+
+details[open] > summary::before {
+  content: '▼';
+  transform: rotate(0);
+  top: 1px;
+}
+
+details > summary {
+  outline: 0 none;
+  list-style: none;
+  display: flex;
+  margin-left: -20px;
+}
+
+details > summary::before {
+  content: '▼';
+  cursor: pointer;
+  transform: rotate(-90deg);
+  position: relative;
+  top: -3px;
+  min-width: 20px;
+  display: inline-block;
+}
+
+/* summary::-webkit-details-marker,
+    summary::marker {
+      color: var(--prop-gray);
+      display: none;
+    } */
+
+details > summary > * {
+  display: inline;
+}

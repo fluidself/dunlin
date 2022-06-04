@@ -22,7 +22,9 @@ export enum ElementType {
   ThematicBreak = 'thematic-break',
   Image = 'image',
   BlockReference = 'block-reference',
-  Collapsible = 'collapsible',
+  Details = 'details',
+  DetailsSummary = 'details-summary',
+  DetailsContent = 'details-content',
 }
 
 export enum Mark {
@@ -139,10 +141,21 @@ export type BlockReference = {
   children: Descendant[];
 };
 
-export type Collapsible = {
+export type Details = {
   id: string;
-  type: ElementType.Collapsible;
-  open: boolean;
+  type: ElementType.Details;
+  isOpen: boolean;
+  // summaryText: string;
+  children: Descendant[];
+};
+
+export type DetailsSummary = {
+  type: ElementType.DetailsSummary;
+  children: Descendant[];
+};
+
+export type DetailsContent = {
+  type: ElementType.DetailsContent;
   children: Descendant[];
 };
 
@@ -158,7 +171,9 @@ export type ReferenceableBlockElement =
   | ThematicBreak
   | Image
   | BlockReference
-  | Collapsible;
+  | Details
+  | DetailsSummary
+  | DetailsContent;
 
 export type InlineElement = ExternalLink | NoteLink | Tag;
 

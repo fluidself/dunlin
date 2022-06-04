@@ -8,7 +8,8 @@ import ExternalLinkElement from './ExternalLinkElement';
 import NoteLinkElement from './NoteLinkElement';
 import CheckListItemElement from './CheckListItemElement';
 import TagElement from './TagElement';
-import CollapsibleElement from './CollapsibleElement';
+import CollapsibleElement from './DetailsElement';
+import DetailsElement from './DetailsElement';
 
 export type EditorElementProps = {
   className?: string;
@@ -112,11 +113,31 @@ export default function EditorElement(props: EditorElementProps) {
           {children}
         </BlockRefElement>
       );
-    case ElementType.Collapsible:
+    case ElementType.Details:
       return (
-        <CollapsibleElement className={className} element={element} attributes={attributes}>
+        <DetailsElement className={className} element={element} attributes={attributes}>
           {children}
-        </CollapsibleElement>
+        </DetailsElement>
+      );
+    // case ElementType.Details:
+    //   return (
+    //     <details className={className} {...attributes}>
+    //       {children}
+    //     </details>
+    //   );
+    case ElementType.DetailsSummary:
+      console.log('summary', attributes, children);
+      return (
+        <summary className={className} {...attributes}>
+          {children}
+        </summary>
+      );
+    case ElementType.DetailsContent:
+      console.log('content', attributes, children);
+      return (
+        <div className={className} {...attributes}>
+          {children}
+        </div>
       );
     default:
       return (

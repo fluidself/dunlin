@@ -7,7 +7,7 @@ const VOID_ELEMENTS: Array<ElementType> = [
   ElementType.ThematicBreak,
   ElementType.Image,
   ElementType.BlockReference,
-  ElementType.Collapsible,
+  // ElementType.Details,
 ];
 
 const withVoidElements = (editor: Editor) => {

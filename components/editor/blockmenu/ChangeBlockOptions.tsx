@@ -49,10 +49,10 @@ export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
           tooltip="Image"
         /> */}
         <BlockButton
-          format={ElementType.Collapsible}
+          format={ElementType.Details}
           element={element}
           Icon={IconLayoutSidebarRightCollapse}
-          tooltip="Collapsible Section"
+          tooltip="Details Section"
         />
         <BlockButton format={ElementType.Blockquote} element={element} Icon={IconBlockquote} tooltip="Quote Block" />
         <BlockButton format={ElementType.CodeBlock} element={element} Icon={IconBraces} tooltip="Code Block" />
