@@ -170,7 +170,7 @@ button:focus {
 }
 
 /** Details element **/
-details {
+/* details {
   padding-left: 20px;
 }
 
@@ -197,12 +197,56 @@ details > summary::before {
   display: inline-block;
 }
 
-/* summary::-webkit-details-marker,
+summary::-webkit-details-marker,
     summary::marker {
       color: var(--prop-gray);
       display: none;
-    } */
+    }
 
 details > summary > * {
   display: inline;
+} */
+
+/** Details element **/
+.details {
+  display: flex;
+  margin: 1rem 0;
+  /* border: 1px solid black; */
+  border-radius: 0.5rem;
+  padding: 0.5rem;
 }
+
+.details > button {
+  display: flex;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.details > button::before {
+  content: '\25B6';
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.5em;
+  height: 1.5em;
+}
+
+.details.is-open > button::before {
+  content: '\25BC';
+}
+
+.details > div {
+  flex: 1 1 auto;
+}
+
+summary::-webkit-details-marker,
+summary::marker {
+  color: transparent;
+  display: none !important;
+}
+
+/* :last-child {
+    margin-bottom: 0;
+  } */

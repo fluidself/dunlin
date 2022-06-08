@@ -10,6 +10,7 @@ import CheckListItemElement from './CheckListItemElement';
 import TagElement from './TagElement';
 import CollapsibleElement from './DetailsElement';
 import DetailsElement from './DetailsElement';
+import DetailsSummaryElement from './DetailsSummaryElement';
 
 export type EditorElementProps = {
   className?: string;
@@ -18,7 +19,7 @@ export type EditorElementProps = {
 
 export default function EditorElement(props: EditorElementProps) {
   const { className = '', attributes, children, element } = props;
-
+  console.log(element.type);
   switch (element.type) {
     case ElementType.HeadingOne:
       return (
@@ -116,6 +117,8 @@ export default function EditorElement(props: EditorElementProps) {
     case ElementType.Details:
       return (
         <DetailsElement className={className} element={element} attributes={attributes}>
+          {/* <DetailsSummaryElement attributes={attributes}>summary placeholder</DetailsSummaryElement> */}
+          {/* <summary>summary placeholder</summary> */}
           {children}
         </DetailsElement>
       );

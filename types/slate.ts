@@ -23,7 +23,8 @@ export enum ElementType {
   Image = 'image',
   BlockReference = 'block-reference',
   Details = 'details',
-  DetailsSummary = 'details-summary',
+  // DetailsSummary = 'details-summary',
+  DetailsSummary = 'summary',
   DetailsContent = 'details-content',
 }
 
@@ -172,10 +173,10 @@ export type ReferenceableBlockElement =
   | Image
   | BlockReference
   | Details
-  | DetailsSummary
+  // | DetailsSummary
   | DetailsContent;
 
-export type InlineElement = ExternalLink | NoteLink | Tag;
+export type InlineElement = ExternalLink | NoteLink | Tag | DetailsSummary;
 
 export type ListElement = BulletedList | NumberedList;
 

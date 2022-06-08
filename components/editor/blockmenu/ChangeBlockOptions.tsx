@@ -15,7 +15,7 @@ import {
   IconLayoutSidebarRightCollapse,
 } from '@tabler/icons';
 import { Element } from 'slate';
-import { toggleElement, isElementActive } from 'editor/formatting';
+import { toggleElement, isElementActive, insertDetails } from 'editor/formatting';
 import { ElementType } from 'types/slate';
 import Tooltip from 'components/Tooltip';
 import { DropdownItem } from 'components/Dropdown';
@@ -79,7 +79,7 @@ const BlockButton = ({ format, element, Icon, tooltip, className = '' }: BlockBu
       <span>
         <DropdownItem
           className={`flex items-center px-2 py-2 cursor-pointer rounded hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${className}`}
-          onClick={() => toggleElement(editor, format, path)}
+          onClick={() => (format === ElementType.Details ? insertDetails(editor, path) : toggleElement(editor, format, path))}
         >
           <Icon size={18} className={isActive ? 'text-primary-500 dark:text-primary-400' : 'text-gray-800 dark:text-gray-200'} />
         </DropdownItem>
