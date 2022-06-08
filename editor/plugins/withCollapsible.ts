@@ -6,7 +6,6 @@ const withCollapsible = (editor: Editor) => {
 
   editor.isVoid = (element: any) => {
     return element.type === ElementType.Details ? !element.isOpen : isVoid(element);
-    // return isVoid(element);
   };
 
   return editor;

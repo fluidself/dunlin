@@ -8,9 +8,7 @@ import ExternalLinkElement from './ExternalLinkElement';
 import NoteLinkElement from './NoteLinkElement';
 import CheckListItemElement from './CheckListItemElement';
 import TagElement from './TagElement';
-import CollapsibleElement from './DetailsElement';
 import DetailsElement from './DetailsElement';
-import DetailsSummaryElement from './DetailsSummaryElement';
 
 export type EditorElementProps = {
   className?: string;
@@ -19,7 +17,7 @@ export type EditorElementProps = {
 
 export default function EditorElement(props: EditorElementProps) {
   const { className = '', attributes, children, element } = props;
-  console.log(element.type);
+
   switch (element.type) {
     case ElementType.HeadingOne:
       return (
@@ -117,30 +115,8 @@ export default function EditorElement(props: EditorElementProps) {
     case ElementType.Details:
       return (
         <DetailsElement className={className} element={element} attributes={attributes}>
-          {/* <DetailsSummaryElement attributes={attributes}>summary placeholder</DetailsSummaryElement> */}
-          {/* <summary>summary placeholder</summary> */}
           {children}
         </DetailsElement>
-      );
-    // case ElementType.Details:
-    //   return (
-    //     <details className={className} {...attributes}>
-    //       {children}
-    //     </details>
-    //   );
-    case ElementType.DetailsSummary:
-      console.log('summary', attributes, children);
-      return (
-        <summary className={className} {...attributes}>
-          {children}
-        </summary>
-      );
-    case ElementType.DetailsContent:
-      console.log('content', attributes, children);
-      return (
-        <div className={className} {...attributes}>
-          {children}
-        </div>
       );
     default:
       return (

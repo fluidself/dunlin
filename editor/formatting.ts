@@ -1,6 +1,6 @@
 import { Editor, Element, Transforms, Range, Text, Node, Path } from 'slate';
 import { store } from 'lib/store';
-import type { ExternalLink, NoteLink, ListElement, Image, BlockReference, Tag, Details, DetailsSummary } from 'types/slate';
+import type { ExternalLink, NoteLink, ListElement, Image, BlockReference, Tag, Details } from 'types/slate';
 import { ElementType, Mark } from 'types/slate';
 import { computeBlockReference } from './backlinks/useBlockReference';
 import { createNodeId } from './plugins/withNodeId';
@@ -273,29 +273,13 @@ export const insertBlockReference = (editor: Editor, blockId: string, onOwnLine:
 };
 
 export const insertDetails = (editor: Editor, path?: Path) => {
-  const detailsSummary: DetailsSummary = {
-    type: ElementType.DetailsSummary,
-    children: [{ text: 'Summary Placeholder' }],
-  };
   const details: Details = {
     id: createNodeId(),
     type: ElementType.Details,
     isOpen: false,
-    children: [
-      detailsSummary,
-      // { text: 'hehehe' },
-      // {
-      //   type: ElementType.DetailsSummary,
-      //   children: [{ text: 'Summary Placeholder' }],
-      // },
-      // {
-      //   type: ElementType.DetailsContent,
-      //   children: [{ text: 'Content Placeholder' }],
-      // },
-    ],
+    summaryText: 'Details',
+    children: [{ text: '' }],
   };
-  console.log(path);
-  console.log(details);
 
   if (path) {
     // Set the node at the given path to be a details node

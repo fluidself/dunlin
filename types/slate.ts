@@ -23,9 +23,6 @@ export enum ElementType {
   Image = 'image',
   BlockReference = 'block-reference',
   Details = 'details',
-  // DetailsSummary = 'details-summary',
-  DetailsSummary = 'summary',
-  DetailsContent = 'details-content',
 }
 
 export enum Mark {
@@ -146,17 +143,7 @@ export type Details = {
   id: string;
   type: ElementType.Details;
   isOpen: boolean;
-  // summaryText: string;
-  children: Descendant[];
-};
-
-export type DetailsSummary = {
-  type: ElementType.DetailsSummary;
-  children: Descendant[];
-};
-
-export type DetailsContent = {
-  type: ElementType.DetailsContent;
+  summaryText: string;
   children: Descendant[];
 };
 
@@ -172,11 +159,9 @@ export type ReferenceableBlockElement =
   | ThematicBreak
   | Image
   | BlockReference
-  | Details
-  // | DetailsSummary
-  | DetailsContent;
+  | Details;
 
-export type InlineElement = ExternalLink | NoteLink | Tag | DetailsSummary;
+export type InlineElement = ExternalLink | NoteLink | Tag;
 
 export type ListElement = BulletedList | NumberedList;
 
