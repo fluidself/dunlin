@@ -277,7 +277,7 @@ export const insertDetails = (editor: Editor, path?: Path) => {
     id: createNodeId(),
     type: ElementType.Details,
     isOpen: false,
-    summaryText: 'Details',
+    summaryText: '',
     children: [{ text: '' }],
   };
 
