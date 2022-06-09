@@ -1,10 +1,10 @@
 import { Editor, Path } from 'slate';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'react-toastify';
+import fleekStorage from '@fleekhq/fleek-storage-js';
 import { insertImage } from 'editor/formatting';
 import { isUrl } from 'utils/url';
 import imageExtensions from 'utils/image-extensions';
-import supabase from 'lib/supabase';
 import { store } from 'lib/store';
 
 const withImages = (editor: Editor) => {
@@ -48,7 +48,6 @@ const isImageUrl = (url: string) => {
 
 export const uploadAndInsertImage = async (editor: Editor, file: File, path?: Path) => {
   const deckId = store.getState().deckId;
-
   if (!deckId) {
     return;
   }
@@ -59,22 +58,17 @@ export const uploadAndInsertImage = async (editor: Editor, file: File, path?: Pa
     draggable: false,
   });
   const key = `${deckId}/${uuidv4()}.png`;
-  const { error: uploadError } = await supabase.storage.from('deck-assets').upload(key, file, { upsert: false });
-
-  if (uploadError) {
-    toast.dismiss(uploadingToast);
-    toast.error(uploadError);
-    return;
-  }
-
-  const expiresIn = 60 * 60 * 24 * 365 * 100; // 100 year expiry
-  const { signedURL, error: signedUrlError } = await supabase.storage.from('deck-assets').createSignedUrl(key, expiresIn);
+  const uploadedFile = await fleekStorage.upload({
+    apiKey: process.env.NEXT_PUBLIC_FLEEK_API_KEY ?? '',
+    apiSecret: process.env.NEXT_PUBLIC_FLEEK_API_SECRET ?? '',
+    key,
+    data: file,
+  });
 
   toast.dismiss(uploadingToast);
-  if (signedURL) {
-    insertImage(editor, signedURL, path);
-  } else if (signedUrlError) {
-    toast.error(signedUrlError);
+  if (uploadedFile) {
+    const url = `https://ipfs.infura.io/ipfs/${uploadedFile.hash}`;
+    insertImage(editor, url, path);
   } else {
     toast.error('There was a problem uploading your image. Please try again later.');
   }
