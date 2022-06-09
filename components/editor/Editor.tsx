@@ -14,6 +14,7 @@ import colors from 'tailwindcss/colors';
 import { handleEnter, handleIndent, handleUnindent, isElementActive, toggleElement, toggleMark } from 'editor/formatting';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
+import withImages from 'editor/plugins/withImages';
 import withLinks from 'editor/plugins/withLinks';
 import withNormalization from 'editor/plugins/withNormalization';
 import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
@@ -94,7 +95,9 @@ function Editor(props: Props) {
                 withBlockBreakout(
                   withCollapsible(
                     withVoidElements(
-                      withBlockReferences(withTags(withLinks(withNodeId(withHistory(withReact(createEditor() as DeckEditor)))))),
+                      withBlockReferences(
+                        withImages(withTags(withLinks(withNodeId(withHistory(withReact(createEditor() as DeckEditor)))))),
+                      ),
                     ),
                   ),
                 ),

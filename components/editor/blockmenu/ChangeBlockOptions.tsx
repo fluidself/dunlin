@@ -10,7 +10,7 @@ import {
   IconBraces,
   IconTypography,
   TablerIcon,
-  // IconPhoto,
+  IconPhoto,
   IconListCheck,
   IconLayoutSidebarRightCollapse,
 } from '@tabler/icons';
@@ -42,20 +42,15 @@ export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
         <BlockButton format={ElementType.CheckListItem} element={element} Icon={IconListCheck} tooltip="Checklist" />
       </div>
       <div className="flex items-center justify-center">
-        {/* <ImageButton
-          format={ElementType.Image}
-          element={element}
-          Icon={IconPhoto}
-          tooltip="Image"
-        /> */}
+        <ImageButton format={ElementType.Image} element={element} Icon={IconPhoto} tooltip="Image" />
+        <BlockButton format={ElementType.Blockquote} element={element} Icon={IconBlockquote} tooltip="Quote Block" />
+        <BlockButton format={ElementType.CodeBlock} element={element} Icon={IconBraces} tooltip="Code Block" />
         <BlockButton
           format={ElementType.DetailsDisclosure}
           element={element}
           Icon={IconLayoutSidebarRightCollapse}
           tooltip="Details Disclosure"
         />
-        <BlockButton format={ElementType.Blockquote} element={element} Icon={IconBlockquote} tooltip="Quote Block" />
-        <BlockButton format={ElementType.CodeBlock} element={element} Icon={IconBraces} tooltip="Code Block" />
       </div>
     </div>
   );
