@@ -90,6 +90,16 @@
   }
 }
 
+/** Details/summary editor element **/
+.details-summary > button::before {
+  @apply flex justify-center items-center w-6 h-6;
+  content: '\25B6';
+}
+
+.details.is-open > .details-summary > button::before {
+  content: '\25BC';
+}
+
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -167,18 +177,4 @@ button:focus {
 
 .publication a:hover {
   text-decoration-line: underline;
-}
-
-/** Details/summary element **/
-.details-summary > button::before {
-  content: '\25B6';
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 1.5em;
-  height: 1.5em;
-}
-
-.details.is-open > .details-summary > button::before {
-  content: '\25BC';
 }
