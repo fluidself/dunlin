@@ -8,7 +8,7 @@ import ExternalLinkElement from './ExternalLinkElement';
 import NoteLinkElement from './NoteLinkElement';
 import CheckListItemElement from './CheckListItemElement';
 import TagElement from './TagElement';
-import DetailsElement from './DetailsElement';
+import DetailsDisclosureElement from './DetailsDisclosureElement';
 
 export type EditorElementProps = {
   className?: string;
@@ -112,11 +112,11 @@ export default function EditorElement(props: EditorElementProps) {
           {children}
         </BlockRefElement>
       );
-    case ElementType.Details:
+    case ElementType.DetailsDisclosure:
       return (
-        <DetailsElement className={className} element={element} attributes={attributes}>
+        <DetailsDisclosureElement className={className} element={element} attributes={attributes}>
           {children}
-        </DetailsElement>
+        </DetailsDisclosureElement>
       );
     default:
       return (

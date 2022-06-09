@@ -1,27 +1,28 @@
 import { ReactNode, useCallback, useState } from 'react';
 import { ReactEditor, RenderElementProps, useSlateStatic } from 'slate-react';
 import { Transforms } from 'slate';
-import { Details, ElementType, ParagraphElement } from 'types/slate';
+import { DetailsDisclosure, ElementType, ParagraphElement } from 'types/slate';
 
-type DetailsElementProps = {
+type DetailsDisclosureElementProps = {
   children: ReactNode;
-  element: Details;
+  element: DetailsDisclosure;
   attributes: RenderElementProps['attributes'];
   className?: string;
 };
 
-export default function DetailsElement(props: DetailsElementProps) {
+export default function DetailsDisclosureElement(props: DetailsDisclosureElementProps) {
   const { attributes, children, element, className } = props;
   const { isOpen, summaryText } = element;
   const editor = useSlateStatic();
 
   const toggleOpen = useCallback(() => {
     const path = ReactEditor.findPath(editor, element);
-    const newProperties: Partial<Details> = {
+    const newProperties: Partial<DetailsDisclosure> = {
       isOpen: isOpen ? false : true,
     };
+
     Transforms.setNodes(editor, newProperties, { at: path });
-  }, [editor, isOpen]);
+  }, [editor, element, isOpen]);
 
   const deleteElement = useCallback(() => {
     const path = ReactEditor.findPath(editor, element);
@@ -30,7 +31,7 @@ export default function DetailsElement(props: DetailsElementProps) {
     Transforms.setNodes<ParagraphElement>(editor, newProperties, {
       at: path,
     });
-  }, [editor]);
+  }, [editor, element]);
 
   return (
     <div className={`details ${className} ${isOpen ? 'is-open' : ''}`} {...attributes}>
@@ -41,9 +42,9 @@ export default function DetailsElement(props: DetailsElementProps) {
           onDelete={deleteElement}
           onChange={(val: string) => {
             const path = ReactEditor.findPath(editor, element);
-            const newProperties: Partial<Details> = { summaryText: val };
+            const newProperties: Partial<DetailsDisclosure> = { summaryText: val };
 
-            Transforms.setNodes<Details>(editor, newProperties, {
+            Transforms.setNodes<DetailsDisclosure>(editor, newProperties, {
               at: path,
             });
           }}

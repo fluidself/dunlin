@@ -90,7 +90,7 @@
   }
 }
 
-/** Details/summary editor element **/
+/** Details disclosure editor element **/
 .details-summary > button::before {
   @apply flex justify-center items-center w-6 h-6;
   content: '\25B6';
