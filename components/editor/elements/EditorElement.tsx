@@ -8,6 +8,7 @@ import ExternalLinkElement from './ExternalLinkElement';
 import NoteLinkElement from './NoteLinkElement';
 import CheckListItemElement from './CheckListItemElement';
 import TagElement from './TagElement';
+import DetailsDisclosureElement from './DetailsDisclosureElement';
 
 export type EditorElementProps = {
   className?: string;
@@ -56,11 +57,7 @@ export default function EditorElement(props: EditorElementProps) {
       );
     case ElementType.CheckListItem:
       return (
-        <CheckListItemElement
-          className={className}
-          element={element}
-          attributes={attributes}
-        >
+        <CheckListItemElement className={className} element={element} attributes={attributes}>
           {children}
         </CheckListItemElement>
       );
@@ -87,61 +84,43 @@ export default function EditorElement(props: EditorElementProps) {
       );
     case ElementType.ExternalLink:
       return (
-        <ExternalLinkElement
-          className={className}
-          element={element}
-          attributes={attributes}
-        >
+        <ExternalLinkElement className={className} element={element} attributes={attributes}>
           {children}
         </ExternalLinkElement>
       );
     case ElementType.NoteLink:
       return (
-        <NoteLinkElement
-          className={className}
-          element={element}
-          attributes={attributes}
-        >
+        <NoteLinkElement className={className} element={element} attributes={attributes}>
           {children}
         </NoteLinkElement>
       );
     case ElementType.Tag:
       return (
-        <TagElement
-          className={className}
-          element={element}
-          attributes={attributes}
-        >
+        <TagElement className={className} element={element} attributes={attributes}>
           {children}
         </TagElement>
       );
     case ElementType.Image:
       return (
-        <ImageElement
-          className={className}
-          element={element}
-          attributes={attributes}
-        >
+        <ImageElement className={className} element={element} attributes={attributes}>
           {children}
         </ImageElement>
       );
     case ElementType.BlockReference:
       return (
-        <BlockRefElement
-          className={className}
-          element={element}
-          attributes={attributes}
-        >
+        <BlockRefElement className={className} element={element} attributes={attributes}>
           {children}
         </BlockRefElement>
       );
+    case ElementType.DetailsDisclosure:
+      return (
+        <DetailsDisclosureElement className={className} element={element} attributes={attributes}>
+          {children}
+        </DetailsDisclosureElement>
+      );
     default:
       return (
-        <ParagraphElement
-          className={className}
-          element={element}
-          attributes={attributes}
-        >
+        <ParagraphElement className={className} element={element} attributes={attributes}>
           {children}
         </ParagraphElement>
       );

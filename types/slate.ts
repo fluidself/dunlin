@@ -22,6 +22,7 @@ export enum ElementType {
   ThematicBreak = 'thematic-break',
   Image = 'image',
   BlockReference = 'block-reference',
+  DetailsDisclosure = 'details-disclosure',
 }
 
 export enum Mark {
@@ -138,6 +139,14 @@ export type BlockReference = {
   children: Descendant[];
 };
 
+export type DetailsDisclosure = {
+  id: string;
+  type: ElementType.DetailsDisclosure;
+  isOpen: boolean;
+  summaryText: string;
+  children: Descendant[];
+};
+
 export type ReferenceableBlockElement =
   | ParagraphElement
   | HeadingOneElement
@@ -149,7 +158,8 @@ export type ReferenceableBlockElement =
   | CodeBlock
   | ThematicBreak
   | Image
-  | BlockReference;
+  | BlockReference
+  | DetailsDisclosure;
 
 export type InlineElement = ExternalLink | NoteLink | Tag;
 

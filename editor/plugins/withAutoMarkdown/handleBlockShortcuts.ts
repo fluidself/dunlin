@@ -67,6 +67,13 @@ const handleBlockShortcuts = (editor: Editor, text: string): boolean => {
       continue;
     }
 
+    // TODO: properly handle block shortcuts in details disclosure element
+    const blockNode: any = block ? block[0] : {};
+    if (blockNode?.type === ElementType.DetailsDisclosure && type === ElementType.ListItem) {
+      Transforms.insertText(editor, ' ');
+      return true;
+    }
+
     // Delete markdown text
     Transforms.select(editor, beforeRange);
     Transforms.delete(editor);

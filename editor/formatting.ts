@@ -1,6 +1,6 @@
 import { Editor, Element, Transforms, Range, Text, Node, Path } from 'slate';
 import { store } from 'lib/store';
-import type { ExternalLink, NoteLink, ListElement, Image, BlockReference, Tag } from 'types/slate';
+import type { ExternalLink, NoteLink, ListElement, Image, BlockReference, Tag, DetailsDisclosure } from 'types/slate';
 import { ElementType, Mark } from 'types/slate';
 import { computeBlockReference } from './backlinks/useBlockReference';
 import { createNodeId } from './plugins/withNodeId';
@@ -270,4 +270,22 @@ export const insertBlockReference = (editor: Editor, blockId: string, onOwnLine:
     anchor: { ...editor.selection.anchor, offset: 0 },
     focus: { ...editor.selection.focus, offset: 0 },
   });
+};
+
+export const insertDetailsDisclosure = (editor: Editor, path?: Path) => {
+  const details: DetailsDisclosure = {
+    id: createNodeId(),
+    type: ElementType.DetailsDisclosure,
+    isOpen: false,
+    summaryText: '',
+    children: [{ text: '' }],
+  };
+
+  if (path) {
+    // Set the node at the given path to be a details disclosure node
+    Transforms.setNodes(editor, details, { at: path });
+  } else {
+    // Insert a new details disclosure node
+    Transforms.insertNodes(editor, details);
+  }
 };

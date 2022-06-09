@@ -90,6 +90,16 @@
   }
 }
 
+/** Details disclosure editor element **/
+.details-summary > button::before {
+  @apply flex justify-center items-center w-6 h-6;
+  content: '\25B6';
+}
+
+.details.is-open > .details-summary > button::before {
+  content: '\25BC';
+}
+
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {
     display: none;
