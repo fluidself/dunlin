@@ -16,6 +16,7 @@ import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
 import withImages from 'editor/plugins/withImages';
 import withLinks from 'editor/plugins/withLinks';
+import withTables from 'editor/plugins/withTables';
 import withNormalization from 'editor/plugins/withNormalization';
 import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
 import withVoidElements from 'editor/plugins/withVoidElements';
@@ -35,6 +36,7 @@ import EditorElement from './elements/EditorElement';
 import withVerticalSpacing from './elements/withVerticalSpacing';
 import withBlockSideMenu from './blockmenu/withBlockSideMenu';
 import EditorLeaf from './elements/EditorLeaf';
+import { insertTable } from './elements/table/commands';
 import LinkAutocompletePopover from './LinkAutocompletePopover';
 import BlockAutocompletePopover from './BlockAutocompletePopover';
 import TagAutocompletePopover from './TagAutocompletePopover';
@@ -93,8 +95,10 @@ function Editor(props: Props) {
               withHtml(
                 withBlockBreakout(
                   withVoidElements(
-                    withBlockReferences(
-                      withImages(withTags(withLinks(withNodeId(withHistory(withReact(createEditor() as DeckEditor)))))),
+                    withTables(
+                      withBlockReferences(
+                        withImages(withTags(withLinks(withNodeId(withHistory(withReact(createEditor() as DeckEditor)))))),
+                      ),
                     ),
                   ),
                 ),
@@ -234,6 +238,10 @@ function Editor(props: Props) {
             });
           }
         },
+      },
+      {
+        hotkey: 'mod+e',
+        callback: () => insertTable(editor),
       },
       {
         hotkey: 'tab',

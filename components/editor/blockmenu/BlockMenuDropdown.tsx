@@ -28,7 +28,7 @@ export default function BlockMenuDropdown(props: BlockMenuDropdownProps) {
         type: ElementType.Paragraph,
         children: [{ text: '' }],
       },
-      { at: location ?? Editor.end(editor, []) }
+      { at: location ?? Editor.end(editor, []) },
     );
   }, [editor, element]);
 
@@ -45,11 +45,8 @@ export default function BlockMenuDropdown(props: BlockMenuDropdownProps) {
         { id: blockId },
         {
           at: path,
-          match: (n) =>
-            Element.isElement(n) &&
-            isReferenceableBlockElement(n) &&
-            n.type === element.type,
-        }
+          match: n => Element.isElement(n) && isReferenceableBlockElement(n) && n.type === element.type,
+        },
       );
     } else {
       // Use the existing block id
@@ -62,13 +59,10 @@ export default function BlockMenuDropdown(props: BlockMenuDropdownProps) {
   const buttonChildren = useMemo(
     () => (
       <span className="flex items-center justify-center w-6 h-6">
-        <IconDotsVertical
-          className="text-gray-500 dark:text-gray-400"
-          size={18}
-        />
+        <IconDotsVertical className="text-gray-500 dark:text-gray-400" size={18} />
       </span>
     ),
-    []
+    [],
   );
 
   const buttonClassName = useMemo(() => {
@@ -97,10 +91,7 @@ export default function BlockMenuDropdown(props: BlockMenuDropdownProps) {
         <IconLink size={18} className="mr-1" />
         <span>Copy block reference</span>
       </DropdownItem>
-      <ChangeBlockOptions
-        element={element}
-        className="px-8 border-t dark:border-gray-700"
-      />
+      <ChangeBlockOptions element={element} className="px-8 border-t dark:border-gray-700" />
     </Dropdown>
   );
 }

@@ -4,8 +4,6 @@ import { ElementType, Mark } from 'types/slate';
 import { isMark } from 'editor/formatting';
 import { store } from 'lib/store';
 import upsertNote from 'lib/api/upsertNote';
-import supabase from 'lib/supabase';
-import { Deck } from 'types/supabase';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { encryptNote } from 'utils/encryption';
 import { deleteText } from 'editor/transforms';
