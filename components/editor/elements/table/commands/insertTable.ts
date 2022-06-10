@@ -1,0 +1,18 @@
+import { Transforms, Editor, Range } from 'slate';
+import { ElementType } from 'types/slate';
+import { createTable } from '../creator';
+
+export function insertTable(editor: Editor) {
+  if (!editor.selection) return;
+
+  const node = Editor.above(editor, {
+    match: n => n.type === ElementType.Table,
+  });
+
+  const isCollapsed = Range.isCollapsed(editor.selection);
+
+  if (!node && isCollapsed) {
+    const table = createTable(3, 3);
+    Transforms.insertNodes(editor, table);
+  }
+}

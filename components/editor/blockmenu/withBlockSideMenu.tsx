@@ -4,9 +4,7 @@ import { EditorElementProps } from '../elements/EditorElement';
 import BacklinksPopover from './BacklinksPopover';
 import BlockMenuDropdown from './BlockMenuDropdown';
 
-export default function withBlockSideMenu(
-  EditorElement: ComponentType<EditorElementProps>
-) {
+export default function withBlockSideMenu(EditorElement: ComponentType<EditorElementProps>) {
   const ElementWithSideMenu = (props: EditorElementProps) => {
     const { element } = props;
 

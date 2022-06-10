@@ -1,4 +1,4 @@
-import { Editor, Element, Node, Selection, Text, Transforms } from 'slate';
+import { Editor, Element, Node, Selection, Text, Transforms, NodeEntry, Path, Point } from 'slate';
 import { ElementType, Mark, ParagraphElement } from 'types/slate';
 import { isListType } from 'editor/formatting';
 import { isTextType } from 'editor/checks';
@@ -12,6 +12,7 @@ const withLayoutNormalization = (editor: Editor) => {
   const { normalizeNode } = editor;
 
   editor.normalizeNode = (entry: any) => {
+    if (maybePreserveSpace(editor, entry)) return;
     const [, path] = entry;
 
     // Make sure there is at least a paragraph in the editor
@@ -118,6 +119,51 @@ const isAtLineEnd = (editor: Editor, selection: Selection) => {
   const linePath = block ? block[1] : [];
 
   return Editor.isEnd(editor, anchor, linePath);
+};
+
+export const PreserveSpaceAfter = new Set([ElementType.Table]);
+export const PreserveSpaceBefore = new Set([ElementType.Table]);
+
+export const insertParagraph = (editor: Editor, at: Path | Point) => {
+  const paragraph: ParagraphElement = {
+    id: createNodeId(),
+    type: ElementType.Paragraph,
+    children: [{ text: '' }],
+  };
+  Transforms.insertNodes(editor, paragraph, {
+    at,
+  });
+};
+
+const maybePreserveSpace = (editor: Editor, entry: NodeEntry): boolean | void => {
+  const [node, path] = entry;
+  const { type } = node;
+  let preserved = false;
+
+  if (PreserveSpaceAfter.has(type)) {
+    const next = Editor.next(editor, { at: path });
+    // @ts-ignore
+    if (!next || PreserveSpaceBefore.has(next[0].type)) {
+      insertParagraph(editor, Path.next(path));
+      preserved = true;
+    }
+  }
+
+  if (PreserveSpaceBefore.has(type)) {
+    if (path[path.length - 1] === 0) {
+      insertParagraph(editor, path);
+      preserved = true;
+    } else {
+      const prev = Editor.previous(editor, { at: path });
+      // @ts-ignore
+      if (!prev || PreserveSpaceAfter.has(prev[0].type)) {
+        insertParagraph(editor, path);
+        preserved = true;
+      }
+    }
+  }
+
+  return preserved;
 };
 
 export default withNormalization;

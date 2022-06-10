@@ -31,6 +31,7 @@ import {
   FormattedText,
   Image,
   NoteLink,
+  Table,
   Tag,
 } from 'types/slate';
 import { isVoid } from 'editor/plugins/withVoidElements';
@@ -193,6 +194,29 @@ export default function serialize(chunk: BlockType | LeafType, opts: Options = {
     case ElementType.DetailsDisclosure: {
       const detailsDisclosure = chunk as DetailsDisclosure;
       return `<details><summary>${detailsDisclosure.summaryText}</summary>\n\n${children}\n\n</details>\n\n`;
+    }
+
+    case ElementType.Table:
+    case ElementType.TableRow:
+    case ElementType.TableCell:
+    case ElementType.TableContent: {
+      if (type === ElementType.Table) {
+        const table = chunk as Table;
+        let tableHtmlString = `<table><tbody>`;
+
+        table.children.forEach(row => {
+          tableHtmlString += `<tr>`;
+          row.children.forEach(cell => {
+            tableHtmlString += `<td>`;
+            cell.children.forEach(content => {
+              tableHtmlString += `${content.children[0].text}</td>`;
+            });
+          });
+          tableHtmlString += `</tr>`;
+        });
+
+        return `${tableHtmlString}</tbody></table>`;
+      }
     }
 
     default:

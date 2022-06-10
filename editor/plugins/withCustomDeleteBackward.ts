@@ -25,7 +25,8 @@ const withCustomDeleteBackward = (editor: Editor) => {
       isAtLineStart &&
       Element.isElement(lineElement) &&
       lineElement.type !== ElementType.Paragraph &&
-      lineElement.type !== ElementType.BlockReference
+      lineElement.type !== ElementType.BlockReference &&
+      lineElement.type !== ElementType.TableContent
     ) {
       // If it is a list item, unwrap the list
       if (lineElement.type === ElementType.ListItem) {

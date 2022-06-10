@@ -9,6 +9,8 @@ import NoteLinkElement from './NoteLinkElement';
 import CheckListItemElement from './CheckListItemElement';
 import TagElement from './TagElement';
 import DetailsDisclosureElement from './DetailsDisclosureElement';
+import TableElement from './table/TableElement';
+import TableCellElement from './table/TableCellElement';
 
 export type EditorElementProps = {
   className?: string;
@@ -118,6 +120,33 @@ export default function EditorElement(props: EditorElementProps) {
           {children}
         </DetailsDisclosureElement>
       );
+    case ElementType.Table:
+      return (
+        <TableElement element={element} attributes={attributes}>
+          {children}
+        </TableElement>
+      );
+    case ElementType.TableRow: {
+      return (
+        <tr slate-table-element="tr" data-key={element.id} onDrag={e => e.preventDefault()} {...attributes}>
+          {children}
+        </tr>
+      );
+    }
+    case ElementType.TableCell: {
+      return (
+        <TableCellElement element={element} attributes={attributes}>
+          {children}
+        </TableCellElement>
+      );
+    }
+    case ElementType.TableContent: {
+      return (
+        <div slate-table-element="content" className="overflow-auto" {...attributes}>
+          {children}
+        </div>
+      );
+    }
     default:
       return (
         <ParagraphElement className={className} element={element} attributes={attributes}>

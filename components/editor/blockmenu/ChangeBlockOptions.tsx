@@ -12,6 +12,7 @@ import {
   TablerIcon,
   IconPhoto,
   IconListCheck,
+  IconTable,
   IconLayoutSidebarRightCollapse,
 } from '@tabler/icons';
 import { Element } from 'slate';
@@ -20,6 +21,7 @@ import { ElementType } from 'types/slate';
 import Tooltip from 'components/Tooltip';
 import { DropdownItem } from 'components/Dropdown';
 import { uploadAndInsertImage } from 'editor/plugins/withImages';
+import { insertTable } from '../elements/table/commands';
 
 type ChangeBlockOptionsProps = {
   element: Element;
@@ -40,17 +42,18 @@ export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
         <BlockButton format={ElementType.BulletedList} element={element} Icon={IconList} tooltip="Bulleted List" />
         <BlockButton format={ElementType.NumberedList} element={element} Icon={IconListNumbers} tooltip="Numbered List" />
         <BlockButton format={ElementType.CheckListItem} element={element} Icon={IconListCheck} tooltip="Checklist" />
-      </div>
-      <div className="flex items-center justify-center">
-        <ImageButton format={ElementType.Image} element={element} Icon={IconPhoto} tooltip="Image" />
-        <BlockButton format={ElementType.Blockquote} element={element} Icon={IconBlockquote} tooltip="Quote Block" />
-        <BlockButton format={ElementType.CodeBlock} element={element} Icon={IconBraces} tooltip="Code Block" />
         <BlockButton
           format={ElementType.DetailsDisclosure}
           element={element}
           Icon={IconLayoutSidebarRightCollapse}
           tooltip="Details Disclosure"
         />
+      </div>
+      <div className="flex items-center justify-center">
+        <ImageButton format={ElementType.Image} element={element} Icon={IconPhoto} tooltip="Image" />
+        <BlockButton format={ElementType.Blockquote} element={element} Icon={IconBlockquote} tooltip="Quote Block" />
+        <BlockButton format={ElementType.CodeBlock} element={element} Icon={IconBraces} tooltip="Code Block" />
+        <BlockButton format={ElementType.Table} element={element} Icon={IconTable} tooltip="Table" />
       </div>
     </div>
   );
@@ -74,9 +77,18 @@ const BlockButton = ({ format, element, Icon, tooltip, className = '' }: BlockBu
       <span>
         <DropdownItem
           className={`flex items-center px-2 py-2 cursor-pointer rounded hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${className}`}
-          onClick={() =>
-            format === ElementType.DetailsDisclosure ? insertDetailsDisclosure(editor, path) : toggleElement(editor, format, path)
-          }
+          onClick={() => {
+            switch (format) {
+              case ElementType.DetailsDisclosure:
+                insertDetailsDisclosure(editor, path);
+                break;
+              case ElementType.Table:
+                insertTable(editor);
+                break;
+              default:
+                toggleElement(editor, format, path);
+            }
+          }}
         >
           <Icon size={18} className={isActive ? 'text-primary-500 dark:text-primary-400' : 'text-gray-800 dark:text-gray-200'} />
         </DropdownItem>
