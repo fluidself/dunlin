@@ -1,19 +1,36 @@
 import { MouseEvent, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { Path } from 'slate';
+import { getDefaultEditorValue } from 'editor/constants';
+import { encryptNote } from 'utils/encryption';
+import upsertNote from 'lib/api/upsertNote';
 import { useStore } from 'lib/store';
 import { queryParamToArray } from 'utils/url';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
 
-export default function useOnNoteLinkClick(currentNoteId: string) {
+export default function useOnNoteLinkClick(currentNoteId: string, linkText?: string) {
   const router = useRouter();
   const {
     query: { deckId, stack: stackQuery },
   } = router;
+  const { key } = useCurrentDeck();
+  const notes = useStore(state => state.notes);
   const openNoteIds = useStore(state => state.openNoteIds);
   const isPageStackingOn = useStore(state => state.isPageStackingOn);
 
   const onClick = useCallback(
-    (noteId: string, stackNote: boolean, highlightedPath?: Path) => {
+    async (noteId: string, stackNote: boolean, highlightedPath?: Path) => {
+      if (!notes[noteId] && linkText) {
+        const note = {
+          id: noteId,
+          deck_id: deckId,
+          title: linkText,
+          content: getDefaultEditorValue(),
+        };
+        const encryptedNote = encryptNote(note, key);
+        await upsertNote(encryptedNote, key);
+      }
+
       // If stackNote is false, open the note in its own page
       if (!stackNote) {
         const hash = highlightedPath ? `0-${highlightedPath}` : undefined;
