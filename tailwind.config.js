@@ -98,6 +98,31 @@ module.exports = {
                 color: colors.pink[500],
               },
             },
+            pre: {
+              color: colors.gray[100],
+              backgroundColor: colors.gray[500],
+            },
+            'pre code::before': {
+              'padding-left': 'unset',
+            },
+            'pre code::after': {
+              'padding-right': 'unset',
+            },
+            code: {
+              backgroundColor: colors.gray[700],
+              color: colors.gray[100],
+              fontWeight: '400',
+              fontSize: '1em',
+              'border-radius': '0.25rem',
+            },
+            'code::before': {
+              content: '""',
+              'padding-left': '0.25rem',
+            },
+            'code::after': {
+              content: '""',
+              'padding-right': '0.25rem',
+            },
           },
         },
       },
