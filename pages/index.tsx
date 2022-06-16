@@ -23,12 +23,7 @@ export default function Home() {
 
   return (
     <div className="mt-2">
-      <a
-        href="https://github.com/fluidself/deck#deck"
-        rel="noopener noreferrer"
-        target="_blank"
-        className="focus:outline-none absolute top-3 right-6"
-      >
+      <a href={`${process.env.BASE_URL}/docs`} className="focus:outline-none absolute top-3 right-6">
         <IconInfoCircle size={20} className="hover:text-gray-500" />
       </a>
       <main className="container mt-28 lg:mt-48 flex flex-col">

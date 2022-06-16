@@ -9,6 +9,7 @@ import {
   IconFolderPlus,
   IconPencil,
   IconTrash,
+  IconInfoCircle,
 } from '@tabler/icons';
 import { useAuth } from 'utils/useAuth';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
@@ -76,10 +77,14 @@ export default function Header(props: Props) {
             <DropdownItem
               as="a"
               className="border-t dark:border-gray-700"
-              href="https://github.com/fluidself/deck"
+              href={`${process.env.BASE_URL}/docs`}
               rel="noopener noreferrer"
               target="_blank"
             >
+              <IconInfoCircle size={18} className="mr-1" />
+              <span>Docs</span>
+            </DropdownItem>
+            <DropdownItem as="a" href="https://github.com/fluidself/deck" rel="noopener noreferrer" target="_blank">
               <IconCode size={18} className="mr-1" />
               <span>Code</span>
             </DropdownItem>
