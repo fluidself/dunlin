@@ -100,28 +100,15 @@ module.exports = {
             },
             pre: {
               color: colors.gray[100],
-              backgroundColor: colors.gray[500],
-            },
-            'pre code::before': {
-              'padding-left': 'unset',
-            },
-            'pre code::after': {
-              'padding-right': 'unset',
+              backgroundColor: colors.gray[800],
             },
             code: {
-              backgroundColor: colors.gray[700],
               color: colors.gray[100],
+              backgroundColor: colors.gray[800],
               fontWeight: '400',
               fontSize: '1em',
+              padding: '0.10rem',
               'border-radius': '0.25rem',
-            },
-            'code::before': {
-              content: '""',
-              'padding-left': '0.25rem',
-            },
-            'code::after': {
-              content: '""',
-              'padding-right': '0.25rem',
             },
           },
         },

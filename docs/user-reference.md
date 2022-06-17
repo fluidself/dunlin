@@ -19,7 +19,7 @@
 | `Ctrl` + `b`           | `⌘` + `b`           | Bold          |
 | `Ctrl` + `i`           | `⌘` + `i`           | Italic        |
 | `Ctrl` + `u`           | `⌘` + `u`           | Underline     |
-| `Ctrl` + `` ` ``       | `⌘` + `` ` ``       | Inline code   |
+| `Ctrl` + `Shift` + `h` | `⌘` + `Shift` + `h` | Highlight     |
 | `Ctrl` + `Shift` + `s` | `⌘` + `Shift` + `s` | Strikethrough |
 
 ## Markdown Shortcuts
@@ -29,7 +29,7 @@
 - Type `` ` `` on either side of your text to create inline code.
 - Type `~~` on either side of your text to strikethrough.
 - Type `[[Linked Note]]` to insert a link to the note "Linked Note". This will create a new note with that title if it does not already exist.
-- Type `[title](https://www.external.com)` to insert an external link.
+- Type `[title](https://external.com)` to insert an external link.
 - Type `[custom title]([[Linked Note]])` to insert a link to the note "Linked Note" with a custom title.
 - Type `#Tag` followed by a `space` to insert a tag called Tag.
 - Type `((` followed by some text to search for a block across all of your notes that contains that text. Clicking on that block will insert a block reference.
