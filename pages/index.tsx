@@ -2,6 +2,7 @@ import { withIronSessionSsr } from 'iron-session/next';
 import { IconInfoCircle } from '@tabler/icons';
 import { useEffect } from 'react';
 import { useAccount } from 'wagmi';
+import Link from 'next/link';
 import { ironOptions } from 'constants/iron-session';
 import selectDecks from 'lib/api/selectDecks';
 import { useAuth } from 'utils/useAuth';
@@ -23,9 +24,11 @@ export default function Home() {
 
   return (
     <div className="mt-2">
-      <a href={`${process.env.BASE_URL}/docs`} className="focus:outline-none absolute top-3 right-6">
-        <IconInfoCircle size={20} className="hover:text-gray-500" />
-      </a>
+      <Link href={`${process.env.BASE_URL}/docs`}>
+        <a className="focus:outline-none absolute top-3 right-6">
+          <IconInfoCircle size={24} className="hover:text-gray-500" />
+        </a>
+      </Link>
       <main className="container mt-28 lg:mt-48 flex flex-col">
         <div className="mx-auto pl-2 mb-16">
           <h1 className="text-5xl space-y-4 tracking-wider">
