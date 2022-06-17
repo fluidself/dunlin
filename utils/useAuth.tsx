@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import { useConnect } from 'wagmi';
 import { SiweMessage } from 'siwe';
+import { box } from 'tweetnacl';
+import { encodeBase64 } from 'tweetnacl-util';
 import { User } from 'types/supabase';
 
 type AuthContextType = {
@@ -63,7 +65,8 @@ function useProvideAuth(): AuthContextType {
       });
 
       const signer = await connector.getSigner();
-      const signature = await signer.signMessage(message.prepareMessage());
+      const messageBody = message.prepareMessage();
+      const signature = await signer.signMessage(messageBody);
 
       const verificationResponse = await fetch('/api/verify', {
         method: 'POST',
@@ -73,6 +76,24 @@ function useProvideAuth(): AuthContextType {
         body: JSON.stringify({ message, signature }),
       });
       if (!verificationResponse.ok) throw new Error('Error verifying message');
+
+      localStorage.setItem(
+        'lit-auth-signature',
+        JSON.stringify({
+          sig: signature,
+          derivedVia: 'web3.eth.personal.sign',
+          signedMessage: messageBody,
+          address,
+        }),
+      );
+      const commsKeyPair = box.keyPair();
+      localStorage.setItem(
+        'lit-comms-keypair',
+        JSON.stringify({
+          publicKey: encodeBase64(commsKeyPair.publicKey),
+          secretKey: encodeBase64(commsKeyPair.secretKey),
+        }),
+      );
 
       await initUser();
 
@@ -87,6 +108,7 @@ function useProvideAuth(): AuthContextType {
     await fetch('/api/signout', {
       method: 'POST',
     });
+    localStorage.removeItem('lit-auth-signature');
     await initUser();
     router.push('/');
   };

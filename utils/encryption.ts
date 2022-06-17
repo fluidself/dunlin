@@ -79,7 +79,13 @@ export const encryptWithLit = async (
   // TODO: allow other chains
   chain: string = 'ethereum',
 ): Promise<string[]> => {
-  const authSig: AuthSig = await LitJsSdk.checkAndSignAuthMessage({ chain });
+  const storedAuthSig = localStorage.getItem('lit-auth-signature');
+
+  if (!storedAuthSig) {
+    throw new Error('Encryption failed');
+  }
+
+  const authSig: AuthSig = JSON.parse(storedAuthSig);
   const { encryptedString, symmetricKey } = await LitJsSdk.encryptString(toEncrypt);
   const encryptedSymmetricKey = await window.litNodeClient.saveEncryptionKey({
     accessControlConditions,
@@ -88,7 +94,6 @@ export const encryptWithLit = async (
     chain,
     permanent: false,
   });
-
   const encryptedStringBase64 = await blobToBase64(encryptedString);
   const encryptedSymmetricKeyBase64 = encodeBase64(encryptedSymmetricKey);
 
@@ -104,14 +109,14 @@ export const decryptWithLit = async (
 ): Promise<string> => {
   const decodedString = decodeBase64(encryptedString);
   const decodedSymmetricKey = decodeBase64(encryptedSymmetricKey);
+  const storedAuthSig = localStorage.getItem('lit-auth-signature');
 
-  if (!decodedString || !decodedSymmetricKey) {
+  if (!decodedString || !decodedSymmetricKey || !storedAuthSig) {
     throw new Error('Decryption failed');
   }
 
-  const authSig: AuthSig = await LitJsSdk.checkAndSignAuthMessage({ chain });
+  const authSig: AuthSig = JSON.parse(storedAuthSig);
   const toDecrypt = uint8ArrayToString(decodedSymmetricKey, 'base16');
-
   const decryptedSymmetricKey = await window.litNodeClient.getEncryptionKey({
     accessControlConditions,
     toDecrypt,
