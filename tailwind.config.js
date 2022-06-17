@@ -99,16 +99,30 @@ module.exports = {
               },
             },
             pre: {
-              color: colors.gray[100],
-              backgroundColor: colors.gray[800],
+              color: colors.neutral[100],
+              backgroundColor: colors.neutral[800],
+            },
+            'pre code::before': {
+              'padding-left': 'unset',
+            },
+            'pre code::after': {
+              'padding-right': 'unset',
+              backgroundColor: colors.neutral[800],
             },
             code: {
-              color: colors.gray[100],
-              backgroundColor: colors.gray[800],
+              color: colors.neutral[100],
+              backgroundColor: colors.neutral[800],
               fontWeight: '400',
               fontSize: '1em',
               padding: '0.10rem',
-              'border-radius': '0.25rem',
+            },
+            'code::before': {
+              content: '""',
+              'padding-left': '0.25rem',
+            },
+            'code::after': {
+              content: '""',
+              'padding-right': '0.25rem',
             },
           },
         },
