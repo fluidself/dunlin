@@ -12,7 +12,7 @@ type DetailsDisclosureElementProps = {
 
 export default function DetailsDisclosureElement(props: DetailsDisclosureElementProps) {
   const { attributes, children, element, className } = props;
-  const { isOpen, summaryText } = element;
+  const { isOpen = false, summaryText } = element;
   const editor = useSlateStatic();
 
   const toggleOpen = useCallback(() => {

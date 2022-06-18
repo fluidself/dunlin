@@ -17,4 +17,5 @@ export interface MdastNode {
   spread?: unknown;
   checked?: unknown;
   indent?: unknown;
+  detailsSummaryText?: string;
 }
