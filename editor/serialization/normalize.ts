@@ -4,7 +4,7 @@ import { MdastNode } from './types';
  * This plugin normalizes the MdastNode format to conform to app's slate schema.
  */
 export default function normalize(node: MdastNode): MdastNode {
-  return normalizeImages(normalizeCheckListItems(normalizeLists(node)));
+  return normalizeDetailsDisclosure(normalizeImages(normalizeCheckListItems(normalizeLists(node))));
 }
 
 /**
@@ -157,6 +157,39 @@ const normalizeImages = (node: MdastNode): MdastNode => {
       newChildren.push(...blocks);
     } else {
       newChildren.push(normalizedChild);
+    }
+  }
+
+  return { ...node, children: newChildren };
+};
+
+/**
+ * This function converts <details><summary> content into custom DetailsDisclosureElement
+ */
+const normalizeDetailsDisclosure = (node: MdastNode): MdastNode => {
+  if (!node.children) {
+    return node;
+  }
+
+  const newChildren = [];
+  let detailsDisclosureNode: MdastNode = { type: 'detailsDisclosure', detailsSummaryText: '', children: [] };
+  let partsCounter = 0;
+
+  for (const child of node.children) {
+    if (child.type === 'html' && child.value?.startsWith('<details><summary>')) {
+      partsCounter++;
+      // @ts-ignore
+      detailsDisclosureNode.detailsSummaryText = child.value?.match('<summary>(.*)</summary>')[1];
+      detailsDisclosureNode.position = child.position;
+    } else if (partsCounter === 1) {
+      partsCounter++;
+      detailsDisclosureNode.children = child.children;
+    } else if (partsCounter === 2) {
+      newChildren.push(detailsDisclosureNode);
+      partsCounter = 0;
+      detailsDisclosureNode = { type: 'detailsDisclosure', detailsSummaryText: '', children: [] };
+    } else {
+      newChildren.push(child);
     }
   }
 

@@ -28,17 +28,10 @@ import { MdastNode } from './types';
 
 export type OptionType = Record<string, never>;
 
-export default function deserialize(
-  node: MdastNode,
-  opts?: OptionType
-): Descendant {
+export default function deserialize(node: MdastNode, opts?: OptionType): Descendant {
   let children = [{ text: '' }];
 
-  if (
-    node.children &&
-    Array.isArray(node.children) &&
-    node.children.length > 0
-  ) {
+  if (node.children && Array.isArray(node.children) && node.children.length > 0) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     children = node.children.map((c: MdastNode) =>
@@ -48,8 +41,8 @@ export default function deserialize(
           ordered: node.ordered || false,
           parentType: node.type,
         },
-        opts
-      )
+        opts,
+      ),
     );
   }
 
@@ -66,9 +59,7 @@ export default function deserialize(
     case 'list':
       return {
         id: createNodeId(),
-        type: node.ordered
-          ? ElementType.NumberedList
-          : ElementType.BulletedList,
+        type: node.ordered ? ElementType.NumberedList : ElementType.BulletedList,
         children,
       };
 
@@ -96,19 +87,19 @@ export default function deserialize(
         url: node.url ?? '',
         children,
       };
-    case 'wikiLink':
+    case 'wikiLink': {
+      const noteTitle = node.value?.split('/').pop() ?? ''; // Handle pathnames by removing the last slash and everything before it
       // Note ids are omitted and are added later
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       return {
         id: createNodeId(),
         type: ElementType.NoteLink,
-        noteTitle: node.value ?? '',
-        ...(node.data?.alias && node.data.alias !== node.value
-          ? { customText: node.data.alias }
-          : {}),
-        children: [{ text: node.value ?? '' }],
+        noteTitle,
+        ...(node.data?.alias && node.data.alias !== node.value ? { customText: node.data.alias } : {}),
+        children: [{ text: noteTitle }],
       };
+    }
 
     case 'image':
       return {
@@ -126,6 +117,14 @@ export default function deserialize(
         type: ElementType.CodeBlock,
         // language: node.lang,
         children: [{ text: node.value ?? '' }],
+      };
+    case 'detailsDisclosure':
+      return {
+        id: createNodeId(),
+        type: ElementType.DetailsDisclosure,
+        summaryText: node.detailsSummaryText ?? '',
+        isOpen: false,
+        children,
       };
 
     case 'html':
@@ -169,12 +168,12 @@ export default function deserialize(
 }
 
 const forceLeafNode = (children: Array<{ text?: string }>) => ({
-  text: children.map((k) => k?.text).join(''),
+  text: children.map(k => k?.text).join(''),
 });
 
-// This function is will take any unknown keys, and bring them up a level
-// allowing leaf nodes to have many different formats at once
-// for example, bold and italic on the same node
+// This function will take any unknown keys and bring them up a level,
+// allowing leaf nodes to have many different formats at once,
+// e.g. bold and italic on the same node
 function persistLeafFormats(children: Array<MdastNode>) {
   return children.reduce((acc, node) => {
     Object.keys(node).forEach(function (key) {

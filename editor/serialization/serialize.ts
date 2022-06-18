@@ -25,6 +25,7 @@ import { Element, Text } from 'slate';
 import {
   BlockReference,
   CheckListItem,
+  DetailsDisclosure,
   ElementType,
   ExternalLink,
   FormattedText,
@@ -51,10 +52,7 @@ const isLeafNode = (node: BlockType | LeafType): node is LeafType => {
 
 const BREAK_TAG = '';
 
-export default function serialize(
-  chunk: BlockType | LeafType,
-  opts: Options = {}
-): string | undefined {
+export default function serialize(chunk: BlockType | LeafType, opts: Options = {}): string | undefined {
   const { listDepth = 0 } = opts;
   const text: string = (chunk as LeafType).text || '';
   const type: ElementType = (chunk as BlockType).type || '';
@@ -68,22 +66,15 @@ export default function serialize(
           { ...c, parentType: type },
           {
             // track depth of nested lists so we can add proper spacing
-            listDepth: isListType((c as BlockType).type || '')
-              ? listDepth + 1
-              : listDepth,
-          }
+            listDepth: isListType((c as BlockType).type || '') ? listDepth + 1 : listDepth,
+          },
         );
       })
       .join('');
   }
 
   // Keep empty paragraphs and void elements, but strip out other empty elements
-  if (
-    children === '' &&
-    type !== ElementType.Paragraph &&
-    !isLeafNode(chunk) &&
-    !isVoid(chunk)
-  ) {
+  if (children === '' && type !== ElementType.Paragraph && !isLeafNode(chunk) && !isVoid(chunk)) {
     return;
   }
 
@@ -148,9 +139,7 @@ export default function serialize(
       if (!noteLink.noteTitle) {
         return '';
       } else {
-        return noteLink.customText
-          ? `[[${noteLink.noteTitle}|${noteLink.customText}]]`
-          : `[[${noteLink.noteTitle}]]`;
+        return noteLink.customText ? `[[${noteLink.noteTitle}|${noteLink.customText}]]` : `[[${noteLink.noteTitle}]]`;
       }
     }
     case ElementType.ExternalLink:
@@ -165,14 +154,12 @@ export default function serialize(
 
     case ElementType.BulletedList:
     case ElementType.NumberedList: {
-      const newLine =
-        chunk.parentType && isListType(chunk.parentType) ? '' : '\n';
+      const newLine = chunk.parentType && isListType(chunk.parentType) ? '' : '\n';
       return `${children}${newLine}`;
     }
 
     case ElementType.ListItem: {
-      const isNumberedList =
-        chunk && chunk.parentType === ElementType.NumberedList;
+      const isNumberedList = chunk && chunk.parentType === ElementType.NumberedList;
 
       let spacer = '';
       for (let k = 0; listDepth > k; k++) {
@@ -195,15 +182,17 @@ export default function serialize(
 
     case ElementType.BlockReference: {
       const blockRef = chunk as BlockReference;
-      const reference = computeBlockReference(
-        store.getState().notes,
-        blockRef.blockId
-      );
+      const reference = computeBlockReference(store.getState().notes, blockRef.blockId);
       if (reference) {
         return serialize(reference.element);
       } else {
         return children;
       }
+    }
+
+    case ElementType.DetailsDisclosure: {
+      const detailsDisclosure = chunk as DetailsDisclosure;
+      return `<details><summary>${detailsDisclosure.summaryText}</summary>\n\n${children}\n\n</details>\n\n`;
     }
 
     default:
