@@ -142,7 +142,6 @@ export type BlockReference = {
 export type DetailsDisclosure = {
   id: string;
   type: ElementType.DetailsDisclosure;
-  isOpen: boolean;
   summaryText: string;
   children: Descendant[];
 };

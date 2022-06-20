@@ -12,17 +12,9 @@ type DetailsDisclosureElementProps = {
 
 export default function DetailsDisclosureElement(props: DetailsDisclosureElementProps) {
   const { attributes, children, element, className } = props;
-  const { isOpen = false, summaryText } = element;
+  const { summaryText } = element;
   const editor = useSlateStatic();
-
-  const toggleOpen = useCallback(() => {
-    const path = ReactEditor.findPath(editor, element);
-    const newProperties: Partial<DetailsDisclosure> = {
-      isOpen: isOpen ? false : true,
-    };
-
-    Transforms.setNodes(editor, newProperties, { at: path });
-  }, [editor, element, isOpen]);
+  const [open, setOpen] = useState(false);
 
   const deleteElement = useCallback(() => {
     const path = ReactEditor.findPath(editor, element);
@@ -34,9 +26,12 @@ export default function DetailsDisclosureElement(props: DetailsDisclosureElement
   }, [editor, element]);
 
   return (
-    <div className={`details ${className} ${isOpen ? 'is-open' : ''}`} {...attributes}>
+    <div className={`details ${className} ${open ? 'is-open' : ''}`} {...attributes}>
       <div className="details-summary flex" contentEditable={false}>
-        <button className="flex cursor-pointer bg-transparent border-none p-0 focus:outline-none" onClick={toggleOpen}></button>
+        <button
+          className="flex cursor-pointer bg-transparent border-none p-0 focus:outline-none"
+          onClick={() => (open ? setOpen(false) : setOpen(true))}
+        ></button>
         <Summary
           summaryText={summaryText}
           onDelete={deleteElement}
@@ -50,7 +45,7 @@ export default function DetailsDisclosureElement(props: DetailsDisclosureElement
           }}
         />
       </div>
-      <div className="ml-[22px] mt-1 outline-none" hidden={!isOpen} contentEditable={isOpen} suppressContentEditableWarning>
+      <div className="ml-[22px] mt-1 outline-none" hidden={!open} contentEditable={open} suppressContentEditableWarning>
         {children}
       </div>
     </div>

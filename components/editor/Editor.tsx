@@ -23,7 +23,6 @@ import withNodeId from 'editor/plugins/withNodeId';
 import withBlockReferences from 'editor/plugins/withBlockReferences';
 import withTags from 'editor/plugins/withTags';
 import withHtml from 'editor/plugins/withHtml';
-import withCollapsible from 'editor/plugins/withCollapsible';
 import { getDefaultEditorValue } from 'editor/constants';
 import { store, useStore } from 'lib/store';
 import { DeckEditor, ElementType, Mark } from 'types/slate';
@@ -93,11 +92,9 @@ function Editor(props: Props) {
             withAutoMarkdown(
               withHtml(
                 withBlockBreakout(
-                  withCollapsible(
-                    withVoidElements(
-                      withBlockReferences(
-                        withImages(withTags(withLinks(withNodeId(withHistory(withReact(createEditor() as DeckEditor)))))),
-                      ),
+                  withVoidElements(
+                    withBlockReferences(
+                      withImages(withTags(withLinks(withNodeId(withHistory(withReact(createEditor() as DeckEditor)))))),
                     ),
                   ),
                 ),

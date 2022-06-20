@@ -123,7 +123,6 @@ export default function deserialize(node: MdastNode, opts?: OptionType): Descend
         id: createNodeId(),
         type: ElementType.DetailsDisclosure,
         summaryText: node.detailsSummaryText ?? '',
-        isOpen: false,
         children,
       };
 
