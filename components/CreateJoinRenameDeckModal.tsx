@@ -183,7 +183,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
             {type !== 'delete' ? (
               <input
                 type="text"
-                className="w-full py-4 px-2 text-xl border-none rounded-tl rounded-tr focus:ring-0 bg-gray-800 text-gray-200"
+                className="w-full py-4 px-2 text-xl border-none rounded focus:ring-0 bg-gray-800 text-gray-200"
                 placeholder={placeholders[type]}
                 value={inputText}
                 onChange={e => setInputText(e.target.value)}
@@ -204,15 +204,20 @@ export default function CreateJoinRenameDeckModal(props: Props) {
                 </div>
               </>
             )}
-            <Button
-              className={`my-4 ${processing ? 'bg-gray-800 text-gray-400 hover:bg-gray-800 hover:text-gray-400' : ''}`}
-              primary
-              onClick={onClickHandlers[type]}
-              disabled={processing}
-              loading={processing}
-            >
-              {type}
-            </Button>
+            <div className="flex space-x-8">
+              <Button
+                className={`my-4 ${processing ? 'bg-gray-800 text-gray-400 hover:bg-gray-800 hover:text-gray-400' : ''}`}
+                primary
+                onClick={onClickHandlers[type]}
+                disabled={processing}
+                loading={processing}
+              >
+                {type}
+              </Button>
+              <Button className="my-4" onClick={closeModal}>
+                Cancel
+              </Button>
+            </div>
           </div>
         </div>
       </div>

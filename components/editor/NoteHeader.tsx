@@ -10,6 +10,7 @@ import {
   IconTrash,
   IconCornerDownRight,
   IconSend,
+  IconCopy,
 } from '@tabler/icons';
 import { usePopper } from 'react-popper';
 import { saveAs } from 'file-saver';
@@ -25,6 +26,7 @@ import useImport from 'utils/useImport';
 import { queryParamToArray } from 'utils/url';
 import { addEllipsis } from 'utils/string';
 import { useAuth } from 'utils/useAuth';
+import copyToClipboard from 'utils/copyToClipboard';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import selectDecks from 'lib/api/selectDecks';
 import Tooltip from 'components/Tooltip';
@@ -153,7 +155,7 @@ export default function NoteHeader() {
         <div className="inline-flex justify-center">
           {!isCloseButtonVisible && user && (
             <div className="flex items-center">
-              <div className="mr-3">
+              <div className="mr-1">
                 <Select
                   className="react-select-container-header"
                   classNamePrefix="react-select-header"
@@ -166,6 +168,13 @@ export default function NoteHeader() {
                   }}
                 />
               </div>
+              <Tooltip content="Copy DECK ID">
+                <button className={buttonClassName} onClick={async () => await copyToClipboard(selectedDeck.id)}>
+                  <span className="flex items-center justify-center w-8 h-8">
+                    <IconCopy className={iconClassName} />
+                  </span>
+                </button>
+              </Tooltip>
               <NoteHeaderDivider />
               <div className="px-2 pt-1 pb-1 text-sm text-gray-600 overflow-ellipsis dark:text-gray-400">
                 {user ? addEllipsis(user?.id) : ''}
