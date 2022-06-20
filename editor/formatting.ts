@@ -276,10 +276,10 @@ export const insertDetailsDisclosure = (editor: Editor, path?: Path) => {
   const details: DetailsDisclosure = {
     id: createNodeId(),
     type: ElementType.DetailsDisclosure,
-    isOpen: false,
     summaryText: '',
     children: [{ text: '' }],
   };
+  const documentEnd = Editor.end(editor, []);
 
   if (path) {
     // Set the node at the given path to be a details disclosure node
@@ -287,5 +287,18 @@ export const insertDetailsDisclosure = (editor: Editor, path?: Path) => {
   } else {
     // Insert a new details disclosure node
     Transforms.insertNodes(editor, details);
+  }
+
+  // Insert new paragraph after the node if it's at end of document
+  if (path && path[0] === documentEnd.path[0]) {
+    Transforms.insertNodes(
+      editor,
+      {
+        id: createNodeId(),
+        type: ElementType.Paragraph,
+        children: [{ text: '' }],
+      },
+      { at: Editor.end(editor, []) },
+    );
   }
 };
