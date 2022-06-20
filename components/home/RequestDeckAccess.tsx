@@ -5,9 +5,10 @@ import Button from 'components/home/Button';
 type Props = {
   onDeckAccessRequested: (arg0: string) => void;
   onCancel: () => void;
+  processing: boolean;
 };
 
-const RequestDeckAccess = ({ onDeckAccessRequested, onCancel }: Props) => {
+const RequestDeckAccess = ({ onDeckAccessRequested, onCancel, processing }: Props) => {
   const [inputValue, setInputValue] = useState<string>('');
 
   const handleSubmit = () => {
@@ -26,7 +27,7 @@ const RequestDeckAccess = ({ onDeckAccessRequested, onCancel }: Props) => {
         autoComplete="off"
       />
 
-      <Button className="mx-2 px-3" disabled={!inputValue} primary onClick={handleSubmit}>
+      <Button className="mx-2 px-3" disabled={!inputValue || processing} primary onClick={handleSubmit}>
         Join
       </Button>
       <Button className="px-2" onClick={onCancel}>

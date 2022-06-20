@@ -29,6 +29,7 @@ export default function AppHome() {
   const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
   const [requestingAccess, setRequestingAccess] = useState<boolean>(false);
   const [creatingDeck, setCreatingDeck] = useState<boolean>(false);
+  const [processing, setProcessing] = useState<boolean>(false);
   const isMounted = useIsMounted();
 
   useEffect(() => {
@@ -54,6 +55,7 @@ export default function AppHome() {
 
   const createNewDeck = async (deckName: string) => {
     if (!user) return;
+    setProcessing(true);
 
     const deckKey = generateKey();
     const accessControlConditions = [
@@ -84,6 +86,7 @@ export default function AppHome() {
 
     if (!deck) {
       toast.error('There was an error creating the DECK');
+      setProcessing(false);
       return;
     }
 
@@ -94,14 +97,17 @@ export default function AppHome() {
 
     toast.success(`Successfully created ${deckName}`);
     router.push(`/app/${deck.id}`);
+    setProcessing(false);
   };
 
   const verifyAccess = async (requestedDeck: string) => {
     if (!requestedDeck) return;
+    setProcessing(true);
 
     if (decks?.find(deck => deck.id === requestedDeck)) {
       toast.success('You own that DECK!');
       setRequestingAccess(false);
+      setProcessing(false);
       router.push(`/app/${requestedDeck}`);
       return;
     }
@@ -109,6 +115,7 @@ export default function AppHome() {
     const { data, error } = await supabase.from<Deck>('decks').select('access_params').eq('id', requestedDeck).single();
     if (!data || error) {
       toast.error('Unable to verify access.');
+      setProcessing(false);
       return;
     }
 
@@ -117,6 +124,7 @@ export default function AppHome() {
       const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
       if (!deckKey) {
         toast.error('Unable to verify access.');
+        setProcessing(false);
         return;
       }
 
@@ -130,8 +138,10 @@ export default function AppHome() {
 
       toast.success('Access to DECK is granted.');
       router.push(`/app/${requestedDeck}`);
+      setProcessing(false);
     } catch (error) {
       toast.error('Unable to verify access.');
+      setProcessing(false);
     }
   };
 
@@ -146,6 +156,7 @@ export default function AppHome() {
               <div className="lg:w-1/2 mt-20">
                 <ProvideDeckName
                   onCancel={() => setCreatingDeck(false)}
+                  processing={processing}
                   onDeckNameProvided={async (deckName: string) => await createNewDeck(deckName)}
                 />
               </div>
@@ -154,6 +165,7 @@ export default function AppHome() {
               <div className="lg:w-1/2 mt-20">
                 <RequestDeckAccess
                   onCancel={() => setRequestingAccess(false)}
+                  processing={processing}
                   onDeckAccessRequested={async (requestedDeck: string) => await verifyAccess(requestedDeck)}
                 />
               </div>

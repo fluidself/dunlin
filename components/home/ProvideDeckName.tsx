@@ -5,9 +5,10 @@ import Button from 'components/home/Button';
 type Props = {
   onDeckNameProvided: (arg0: string) => void;
   onCancel: () => void;
+  processing: boolean;
 };
 
-const RequestDeckAccess = ({ onDeckNameProvided, onCancel }: Props) => {
+const RequestDeckAccess = ({ onDeckNameProvided, onCancel, processing }: Props) => {
   const [inputValue, setInputValue] = useState<string>('');
 
   const handleSubmit = () => {
@@ -27,7 +28,7 @@ const RequestDeckAccess = ({ onDeckNameProvided, onCancel }: Props) => {
         maxLength={20}
       />
 
-      <Button className="mx-2 px-3" disabled={!inputValue} primary onClick={handleSubmit}>
+      <Button className="mx-2 px-3" disabled={!inputValue || processing} primary onClick={handleSubmit}>
         Create
       </Button>
       <Button className="px-2" onClick={onCancel}>
