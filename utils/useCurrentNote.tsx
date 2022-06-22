@@ -7,13 +7,7 @@ type CurrentNote = {
 
 const NoteContext = createContext<CurrentNote | undefined>(undefined);
 
-export function ProvideCurrentNote({
-  children,
-  value,
-}: {
-  children: ReactNode;
-  value: CurrentNote;
-}) {
+export function ProvideCurrentNote({ children, value }: { children: ReactNode; value: CurrentNote }) {
   return <NoteContext.Provider value={value}>{children}</NoteContext.Provider>;
 }
 

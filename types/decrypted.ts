@@ -13,8 +13,10 @@ export type DecryptedDeck = {
 export type DecryptedNote = {
   id: string;
   deck_id: DecryptedDeck['id'];
+  user_id: User['id'];
   content: Descendant[];
   title: string;
+  view_only: boolean;
   created_at: string;
   updated_at: string;
 };

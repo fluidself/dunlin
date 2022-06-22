@@ -14,15 +14,17 @@ import remarkToSlate from 'editor/serialization/remarkToSlate';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { encryptNote } from 'utils/encryption';
+import { useAuth } from 'utils/useAuth';
 import { ElementType, NoteLink } from 'types/slate';
 import { Note } from 'types/supabase';
 import { DecryptedNote } from 'types/decrypted';
 
 export default function useImport() {
   const { id: deckId, key } = useCurrentDeck();
+  const { user } = useAuth();
 
   const onImport = useCallback(() => {
-    if (!deckId || !key) {
+    if (!deckId || !key || !user) {
       return;
     }
 
@@ -82,7 +84,7 @@ export default function useImport() {
       const mergedAndEncryptedUpsertData = upsertData.map((data: any) => {
         const matchingNoteLinkUpsertItem = noteLinkUpsertData.find(item => item.title === data.title);
         const mergedData = matchingNoteLinkUpsertItem ? { ...data, ...matchingNoteLinkUpsertItem } : data;
-        const note = { id: uuidv4(), deck_id: deckId, ...mergedData };
+        const note = { id: uuidv4(), deck_id: deckId, user_id: user.id, view_only: true, ...mergedData };
 
         return encryptNote(note, key);
       });

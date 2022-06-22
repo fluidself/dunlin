@@ -6,6 +6,7 @@ import { IconFilePlus, IconSearch } from '@tabler/icons';
 import { toast } from 'react-toastify';
 import upsertNote from 'lib/api/upsertNote';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
+import { useAuth } from 'utils/useAuth';
 import useNoteSearch from 'utils/useNoteSearch';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { encryptNote } from 'utils/encryption';
@@ -32,6 +33,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
   const { onOptionClick: onOptionClickCallback, className = '' } = props;
   const router = useRouter();
   const { id: deckId, key } = useCurrentDeck();
+  const { user } = useAuth();
 
   const [inputText, setInputText] = useState('');
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0);
@@ -64,7 +66,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
 
   const onOptionClick = useCallback(
     async (option: Option) => {
-      if (!deckId) {
+      if (!deckId || !user) {
         return;
       }
 
@@ -73,8 +75,11 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
       if (option.type === OptionType.NEW_NOTE) {
         const newNote = {
           deck_id: deckId,
+          user_id: user.id,
           title: inputText,
           content: getDefaultEditorValue(),
+          // TODO: DECK-wide setting to default this to false?
+          view_only: true,
         };
         const encryptedNote = encryptNote(newNote, key);
         const note = await upsertNote(encryptedNote, key);
@@ -90,7 +95,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [deckId, key, router, inputText, onOptionClickCallback],
+    [deckId, key, user, router, inputText, onOptionClickCallback],
   );
 
   const onKeyDown = useCallback(

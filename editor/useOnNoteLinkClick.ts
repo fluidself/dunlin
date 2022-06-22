@@ -7,6 +7,7 @@ import upsertNote from 'lib/api/upsertNote';
 import { useStore } from 'lib/store';
 import { queryParamToArray } from 'utils/url';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
+import { useAuth } from 'utils/useAuth';
 
 export default function useOnNoteLinkClick(currentNoteId: string, linkText?: string) {
   const router = useRouter();
@@ -14,18 +15,22 @@ export default function useOnNoteLinkClick(currentNoteId: string, linkText?: str
     query: { deckId, stack: stackQuery },
   } = router;
   const { key } = useCurrentDeck();
+  const { user } = useAuth();
   const notes = useStore(state => state.notes);
   const openNoteIds = useStore(state => state.openNoteIds);
   const isPageStackingOn = useStore(state => state.isPageStackingOn);
 
   const onClick = useCallback(
     async (noteId: string, stackNote: boolean, highlightedPath?: Path) => {
-      if (!notes[noteId] && linkText) {
+      if (!notes[noteId] && linkText && user) {
         const note = {
           id: noteId,
           deck_id: deckId,
+          user_id: user.id,
           title: linkText,
           content: getDefaultEditorValue(),
+          // TODO: DECK-wide setting to default this to false?
+          view_only: true,
         };
         const encryptedNote = encryptNote(note, key);
         await upsertNote(encryptedNote, key);

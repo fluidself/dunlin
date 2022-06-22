@@ -20,8 +20,10 @@ export type Deck = {
 export type Note = {
   id: string;
   deck_id: Deck['id'];
+  user_id: User['id'];
   content: string;
   title: string;
+  view_only: boolean;
   created_at: string;
   updated_at: string;
 };

@@ -121,13 +121,17 @@ export const getOrCreateNoteId = (noteTitle: string): string | null => {
   } else {
     const deckId = store.getState().deckId;
     const deckKey = store.getState().deckKey;
+    const userId = store.getState().userId;
     noteId = uuidv4();
     if (deckId && deckKey) {
       const newNote = {
         id: noteId,
         deck_id: deckId,
+        user_id: userId,
         title: noteTitle,
         content: getDefaultEditorValue(),
+        // TODO: DECK-wide setting to default this to false?
+        view_only: true,
       };
       const encryptedNote = encryptNote(newNote, deckKey);
       upsertNote(encryptedNote, deckKey);

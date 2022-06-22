@@ -50,7 +50,7 @@ export default function NoteHeader() {
   const currentNote = useCurrentNote();
   const onImport = useImport();
   const { user } = useAuth();
-  const { id: currentDeckId } = useCurrentDeck();
+  const { id: currentDeckId, user_id: currentDeckOwner } = useCurrentDeck();
   const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
   const [deckOptions, setDeckOptions] = useState<DeckSelectOption[]>([]);
   const [selectedDeck, setSelectedDeck] = useState<any>(null);
@@ -220,14 +220,18 @@ export default function NoteHeader() {
                         <IconCloudDownload size={18} className="mr-1" />
                         <span>Export All</span>
                       </DropdownItem>
-                      <DropdownItem onClick={onDeleteClick} className="border-t dark:border-gray-700">
-                        <IconTrash size={18} className="mr-1" />
-                        <span>Delete</span>
-                      </DropdownItem>
-                      <DropdownItem onClick={onMoveToClick}>
-                        <IconCornerDownRight size={18} className="mr-1" />
-                        <span>Move to</span>
-                      </DropdownItem>
+                      {note.view_only && (note.user_id === user?.id || currentDeckOwner === user?.id) && (
+                        <>
+                          <DropdownItem onClick={onDeleteClick} className="border-t dark:border-gray-700">
+                            <IconTrash size={18} className="mr-1" />
+                            <span>Delete</span>
+                          </DropdownItem>
+                          <DropdownItem onClick={onMoveToClick}>
+                            <IconCornerDownRight size={18} className="mr-1" />
+                            <span>Move to</span>
+                          </DropdownItem>
+                        </>
+                      )}
                       <NoteMetadata note={note} />
                     </Menu.Items>
                   </Portal>

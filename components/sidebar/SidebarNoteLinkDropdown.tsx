@@ -7,6 +7,8 @@ import { DropdownItem } from 'components/Dropdown';
 import MoveToModal from 'components/MoveToModal';
 import NoteMetadata from 'components/NoteMetadata';
 import useDeleteNote from 'utils/useDeleteNote';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
+import { useAuth } from 'utils/useAuth';
 import Portal from '../Portal';
 
 type Props = {
@@ -17,6 +19,8 @@ type Props = {
 const SidebarNoteLinkDropdown = (props: Props) => {
   const { note, className } = props;
 
+  const { user } = useAuth();
+  const { user_id: deckOwner } = useCurrentDeck();
   const containerRef = useRef<HTMLButtonElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   const { styles, attributes } = usePopper(containerRef.current, popperElement, { placement: 'right-start' });
@@ -48,14 +52,18 @@ const SidebarNoteLinkDropdown = (props: Props) => {
                   style={styles.popper}
                   {...attributes.popper}
                 >
-                  <DropdownItem onClick={onDeleteClick}>
-                    <IconTrash size={18} className="mr-1" />
-                    <span>Delete</span>
-                  </DropdownItem>
-                  <DropdownItem onClick={onMoveToClick}>
-                    <IconCornerDownRight size={18} className="mr-1" />
-                    <span>Move to</span>
-                  </DropdownItem>
+                  {(note.user_id === user?.id || deckOwner === user?.id) && (
+                    <>
+                      <DropdownItem onClick={onDeleteClick}>
+                        <IconTrash size={18} className="mr-1" />
+                        <span>Delete</span>
+                      </DropdownItem>
+                      <DropdownItem onClick={onMoveToClick}>
+                        <IconCornerDownRight size={18} className="mr-1" />
+                        <span>Move to</span>
+                      </DropdownItem>
+                    </>
+                  )}
                   <NoteMetadata note={note} />
                 </Menu.Items>
               </Portal>

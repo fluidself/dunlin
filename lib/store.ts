@@ -9,7 +9,10 @@ import { Backlink } from 'editor/backlinks/useBacklinks';
 import type { PickPartial } from 'types/utils';
 import createUserSettingsSlice, { UserSettings } from './createUserSettingsSlice';
 
-type NoteUpdate = PickPartial<DecryptedNote, 'deck_id' | 'content' | 'title' | 'created_at' | 'updated_at'>;
+type NoteUpdate = PickPartial<
+  DecryptedNote,
+  'deck_id' | 'content' | 'title' | 'view_only' | 'user_id' | 'created_at' | 'updated_at'
+>;
 
 export { default as shallowEqual } from 'zustand/shallow';
 
@@ -68,6 +71,8 @@ export type Store = {
   setSidebarTab: Setter<SidebarTab>;
   sidebarSearchQuery: string;
   setSidebarSearchQuery: Setter<string>;
+  userId: string;
+  setUserId: Setter<string>;
   deckId: string;
   setDeckId: Setter<string>;
   deckKey: string;
@@ -213,6 +218,8 @@ export const store = createVanilla<Store, SetState<Store>, GetState<Store>, Stor
       setSidebarTab: setter(set, 'sidebarTab'),
       sidebarSearchQuery: '',
       setSidebarSearchQuery: setter(set, 'sidebarSearchQuery'),
+      userId: '',
+      setUserId: setter(set, 'userId'),
       deckId: '',
       setDeckId: setter(set, 'deckId'),
       deckKey: '',
