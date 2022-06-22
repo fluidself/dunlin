@@ -11,6 +11,8 @@ CREATE TABLE public.notes (
   "content" text NOT NULL,
   title text NOT NULL,
   deck_id uuid NOT NULL,
+  user_id text NOT NULL,
+  view_only boolean NOT NULL,
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),

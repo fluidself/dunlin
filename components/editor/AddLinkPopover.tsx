@@ -4,10 +4,11 @@ import { ReactEditor, useSlate } from 'slate-react';
 import type { TablerIcon } from '@tabler/icons';
 import { IconUnlink, IconLink, IconFilePlus } from '@tabler/icons';
 import { v4 as uuidv4 } from 'uuid';
-import { useCurrentDeck } from 'utils/useCurrentDeck';
 import upsertNote from 'lib/api/upsertNote';
 import { insertExternalLink, insertNoteLink, removeLink } from 'editor/formatting';
 import { getDefaultEditorValue } from 'editor/constants';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
+import { useAuth } from 'utils/useAuth';
 import { isUrl } from 'utils/url';
 import useNoteSearch from 'utils/useNoteSearch';
 import { caseInsensitiveStringEqual } from 'utils/string';
@@ -37,6 +38,7 @@ type Props = {
 export default function AddLinkPopover(props: Props) {
   const { addLinkPopoverState, setAddLinkPopoverState } = props;
   const { id: deckId, key } = useCurrentDeck();
+  const { user } = useAuth();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [linkText, setLinkText] = useState<string>('');
   const editor = useSlate();
@@ -105,7 +107,7 @@ export default function AddLinkPopover(props: Props) {
 
   const onOptionClick = useCallback(
     async (option?: Option) => {
-      if (!option || !deckId) {
+      if (!option || !deckId || !user) {
         return;
       }
 
@@ -126,8 +128,11 @@ export default function AddLinkPopover(props: Props) {
         const newNote = {
           id: noteId,
           deck_id: deckId,
+          user_id: user.id,
           title: linkText,
           content: getDefaultEditorValue(),
+          // TODO: DECK-wide setting to default this to false?
+          view_only: true,
         };
         const encryptedNote = encryptNote(newNote, key);
         insertNoteLink(editor, noteId, linkText);
@@ -140,7 +145,7 @@ export default function AddLinkPopover(props: Props) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [editor, deckId, hidePopover, linkText, key],
+    [editor, deckId, user, hidePopover, linkText, key],
   );
 
   const onKeyDown = useCallback(

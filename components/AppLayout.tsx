@@ -60,6 +60,7 @@ export default function AppLayout(props: Props) {
 
   const setNotes = useStore(state => state.setNotes);
   const setNoteTree = useStore(state => state.setNoteTree);
+  const setUserId = useStore(state => state.setUserId);
   const setDeckId = useStore(state => state.setDeckId);
   const setDeckKey = useStore(state => state.setDeckKey);
 
@@ -98,8 +99,9 @@ export default function AppLayout(props: Props) {
       await initLit();
     }
 
-    if (!deckId) return;
+    if (!deckId || !user) return;
     setDeckId(deckId);
+    setUserId(user.id);
 
     const decryptedDeck = deck ?? (await decryptDeck());
     setDeck(decryptedDeck);
@@ -108,7 +110,7 @@ export default function AppLayout(props: Props) {
 
     const { data: encryptedNotes } = await supabase
       .from<Note>('notes')
-      .select('id, title, content, created_at, updated_at')
+      .select('id, title, content, user_id, view_only, created_at, updated_at')
       .eq('deck_id', deckId);
 
     if (!encryptedNotes) {
@@ -159,7 +161,7 @@ export default function AppLayout(props: Props) {
     }
 
     setIsPageLoaded(true);
-  }, [deckId, deck, isMounted, router, setNotes, setNoteTree, setDeckId, decryptDeck, setDeckKey]);
+  }, [deckId, deck, user, isMounted, router, setNotes, setNoteTree, setDeckId, decryptDeck, setDeckKey, setUserId]);
 
   useEffect(() => {
     if (isLoaded && !user) {
