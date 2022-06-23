@@ -3,9 +3,7 @@ import { useSlateStatic } from 'slate-react';
 import { ElementType } from 'types/slate';
 import { EditorElementProps } from './EditorElement';
 
-export default function withVerticalSpacing(
-  EditorElement: ComponentType<EditorElementProps>
-) {
+export default function withVerticalSpacing(EditorElement: ComponentType<EditorElementProps>) {
   function WithVerticalSpacingComponent(props: EditorElementProps) {
     const { children, className = '', ...otherProps } = props;
     const editor = useSlateStatic();
@@ -24,21 +22,18 @@ export default function withVerticalSpacing(
       ) {
         return 'my-2';
       } else if (elementType === ElementType.HeadingOne) {
-        return 'mb-3 mt-8 first:mt-3';
+        return 'mb-3 mt-8';
       } else if (elementType === ElementType.HeadingTwo) {
-        return 'mb-3 mt-6 first:mt-3';
+        return 'mb-3 mt-6';
       } else if (elementType === ElementType.HeadingThree) {
-        return 'mb-3 mt-4 first:mt-3';
+        return 'mb-3 mt-4';
       } else {
         return 'my-3';
       }
     };
 
     return (
-      <EditorElement
-        className={`${getVerticalSpacing()} ${className}`}
-        {...otherProps}
-      >
+      <EditorElement className={`${getVerticalSpacing()} ${className}`} {...otherProps}>
         {children}
       </EditorElement>
     );
