@@ -17,6 +17,7 @@ import Backlinks from './editor/backlinks/Backlinks';
 import NoteHeader from './editor/NoteHeader';
 import ErrorBoundary from './ErrorBoundary';
 import ReadOnlyNoteEditor from './editor/ReadOnlyNoteEditor';
+import ReadOnlyTitle from './editor/ReadOnlyTitle';
 
 const SYNC_DEBOUNCE_MS = 1000;
 
@@ -126,6 +127,7 @@ function Note(props: Props) {
   const noteContainerClassName = 'flex flex-col flex-shrink-0 md:flex-shrink w-full bg-white dark:bg-gray-900 dark:text-gray-100';
   const errorContainerClassName = `${noteContainerClassName} items-center justify-center h-full p-4`;
   const editorClassName = 'flex-1 px-8 pt-2 pb-8 md:pb-12 md:px-12';
+  const titleClassName = 'px-8 pt-8 pb-1 md:pt-12 md:px-12';
 
   const currentNoteValue = useMemo(() => ({ id: noteId }), [noteId]);
 
@@ -154,16 +156,21 @@ function Note(props: Props) {
           <NoteHeader />
           <div className="flex flex-col flex-1 overflow-x-hidden overflow-y-auto">
             <div className="flex flex-col flex-1 w-full mx-auto md:w-128 lg:w-160 xl:w-192">
-              <Title className="px-8 pt-8 pb-1 md:pt-12 md:px-12" noteId={noteId} onChange={onTitleChange} />
               {noteIsViewOnly ? (
-                <ReadOnlyNoteEditor className={editorClassName} noteId={noteId} />
+                <>
+                  <ReadOnlyTitle className={titleClassName} noteId={noteId} />
+                  <ReadOnlyNoteEditor className={editorClassName} noteId={noteId} />
+                </>
               ) : (
-                <Editor
-                  className={editorClassName}
-                  noteId={noteId}
-                  onChange={onEditorValueChange}
-                  highlightedPath={highlightedPath}
-                />
+                <>
+                  <Title className={titleClassName} noteId={noteId} onChange={onTitleChange} />
+                  <Editor
+                    className={editorClassName}
+                    noteId={noteId}
+                    onChange={onEditorValueChange}
+                    highlightedPath={highlightedPath}
+                  />
+                </>
               )}
               <Backlinks className="mx-4 mb-8 md:mx-8 md:mb-12" />
             </div>
