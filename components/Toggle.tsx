@@ -4,17 +4,15 @@ type Props = {
   isChecked: boolean;
   setIsChecked: (isChecked: boolean) => void;
   className?: string;
+  id?: string;
 };
 
 export default function Toggle(props: Props) {
-  const { className, isChecked, setIsChecked } = props;
+  const { className, isChecked, id, setIsChecked } = props;
 
   return (
     <div className={`flex flex-col ${className}`}>
-      <label
-        htmlFor="toggle"
-        className="inline-flex items-center cursor-pointer"
-      >
+      <label htmlFor={`toggle${id && `-${id}`}`} className="inline-flex items-center cursor-pointer">
         <span className="relative">
           <span
             className={`block w-10 h-6 rounded-full shadow-inner transition-colors ${
@@ -27,7 +25,7 @@ export default function Toggle(props: Props) {
             }`}
           >
             <input
-              id="toggle"
+              id={`toggle${id && `-${id}`}`}
               type="checkbox"
               className="absolute w-0 h-0 opacity-0"
               onClick={() => setIsChecked(!isChecked)}

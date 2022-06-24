@@ -28,6 +28,8 @@ export type UserSettings = {
   setIsPageStackingOn: Setter<boolean>;
   isViewOnlyOn: boolean;
   setIsViewOnlyOn: Setter<boolean>;
+  isAuthorControlOn: boolean;
+  setIsAuthorControlOn: Setter<boolean>;
   noteSort: Sort;
   setNoteSort: Setter<Sort>;
 };
@@ -41,6 +43,8 @@ const createUserSettingsSlice = (set: (fn: (draft: Draft<Store>) => void) => voi
   setIsPageStackingOn: setter(set, 'isPageStackingOn'),
   isViewOnlyOn: false,
   setIsViewOnlyOn: setter(set, 'isViewOnlyOn'),
+  isAuthorControlOn: false,
+  setIsAuthorControlOn: setter(set, 'isAuthorControlOn'),
   noteSort: Sort.TitleAscending,
   setNoteSort: setter(set, 'noteSort'),
 });
