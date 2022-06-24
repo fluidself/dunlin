@@ -115,6 +115,7 @@ export const getOrCreateNoteId = (noteTitle: string): string | null => {
   const notes = store.getState().notes;
   const notesArr = Object.values(notes);
   const matchingNote = notesArr.find(note => caseInsensitiveStringEqual(note.title, noteTitle));
+  const isViewOnlyOn = store.getState().isViewOnlyOn;
 
   if (matchingNote) {
     noteId = matchingNote.id;
@@ -130,8 +131,7 @@ export const getOrCreateNoteId = (noteTitle: string): string | null => {
         user_id: userId,
         title: noteTitle,
         content: getDefaultEditorValue(),
-        // TODO: DECK-wide setting to default this to false?
-        view_only: true,
+        view_only: isViewOnlyOn,
       };
       const encryptedNote = encryptNote(newNote, deckKey);
       upsertNote(encryptedNote, deckKey);
