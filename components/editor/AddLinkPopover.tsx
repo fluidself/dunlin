@@ -5,6 +5,7 @@ import type { TablerIcon } from '@tabler/icons';
 import { IconUnlink, IconLink, IconFilePlus } from '@tabler/icons';
 import { v4 as uuidv4 } from 'uuid';
 import upsertNote from 'lib/api/upsertNote';
+import { useStore } from 'lib/store';
 import { insertExternalLink, insertNoteLink, removeLink } from 'editor/formatting';
 import { getDefaultEditorValue } from 'editor/constants';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
@@ -47,6 +48,8 @@ export default function AddLinkPopover(props: Props) {
 
   const search = useNoteSearch({ numOfResults: 10 });
   const searchResults = useMemo(() => search(linkText), [search, linkText]);
+
+  const isViewOnlyOn = useStore(state => state.isViewOnlyOn);
 
   const options = useMemo(() => {
     const result: Array<Option> = [];
@@ -131,8 +134,7 @@ export default function AddLinkPopover(props: Props) {
           user_id: user.id,
           title: linkText,
           content: getDefaultEditorValue(),
-          // TODO: DECK-wide setting to default this to false?
-          view_only: true,
+          view_only: isViewOnlyOn,
         };
         const encryptedNote = encryptNote(newNote, key);
         insertNoteLink(editor, noteId, linkText);
@@ -145,7 +147,7 @@ export default function AddLinkPopover(props: Props) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [editor, deckId, user, hidePopover, linkText, key],
+    [editor, deckId, user, hidePopover, linkText, key, isViewOnlyOn],
   );
 
   const onKeyDown = useCallback(

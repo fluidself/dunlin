@@ -18,6 +18,7 @@ import useIsMounted from 'utils/useIsMounted';
 import useHotkeys from 'utils/useHotkeys';
 import { useAuth } from 'utils/useAuth';
 import { isMobile } from 'utils/device';
+import SettingsModal from './settings/SettingsModal';
 import Sidebar from './sidebar/Sidebar';
 import FindOrCreateModal from './FindOrCreateModal';
 import PageLoading from './PageLoading';
@@ -174,7 +175,7 @@ export default function AppLayout(props: Props) {
   }, [router, user, isLoaded, isPageLoaded, initData]);
 
   const [isFindOrCreateModalOpen, setIsFindOrCreateModalOpen] = useState(false);
-  // const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // const darkMode = useStore(state => state.darkMode);
   const darkMode = true;
@@ -304,11 +305,14 @@ export default function AppLayout(props: Props) {
       <ProvideCurrentDeck deck={deck}>
         <div id="app-container" className={appContainerClassName}>
           <div className="flex w-full h-full dark:bg-gray-900">
-            <Sidebar setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen} />
+            <Sidebar setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen} setIsSettingsOpen={setIsSettingsOpen} />
             <div className="relative flex flex-col flex-1 overflow-y-hidden">
               <OfflineBanner />
               {children}
             </div>
+            {isSettingsOpen ? (
+            <SettingsModal setIsOpen={setIsSettingsOpen} />
+          ) : null}
             {isFindOrCreateModalOpen ? <FindOrCreateModal setIsOpen={setIsFindOrCreateModalOpen} /> : null}
           </div>
         </div>

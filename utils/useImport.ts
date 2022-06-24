@@ -22,6 +22,7 @@ import { DecryptedNote } from 'types/decrypted';
 export default function useImport() {
   const { id: deckId, key } = useCurrentDeck();
   const { user } = useAuth();
+  const isViewOnlyOn = store.getState().isViewOnlyOn;
 
   const onImport = useCallback(() => {
     if (!deckId || !key || !user) {
@@ -84,7 +85,7 @@ export default function useImport() {
       const mergedAndEncryptedUpsertData = upsertData.map((data: any) => {
         const matchingNoteLinkUpsertItem = noteLinkUpsertData.find(item => item.title === data.title);
         const mergedData = matchingNoteLinkUpsertItem ? { ...data, ...matchingNoteLinkUpsertItem } : data;
-        const note = { id: uuidv4(), deck_id: deckId, user_id: user.id, view_only: true, ...mergedData };
+        const note = { id: uuidv4(), deck_id: deckId, user_id: user.id, view_only: isViewOnlyOn, ...mergedData };
 
         return encryptNote(note, key);
       });
@@ -105,7 +106,7 @@ export default function useImport() {
     };
 
     input.click();
-  }, [deckId, key]);
+  }, [deckId, key, isViewOnlyOn]);
 
   return onImport;
 }

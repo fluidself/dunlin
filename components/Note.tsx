@@ -33,6 +33,8 @@ function Note(props: Props) {
   const { key } = useCurrentDeck();
   const { user } = useAuth();
 
+  const note = store.getState().notes[noteId];
+  const noteIsViewOnly = useMemo(() => user && note && note.view_only && note.user_id !== user.id, [note, user]);
   const updateNote = useStore(state => state.updateNote);
 
   const [syncState, setSyncState] = useState({
@@ -82,8 +84,7 @@ function Note(props: Props) {
 
   // Save the note in the database if it changes and it hasn't been saved yet
   useEffect(() => {
-    const note = store.getState().notes[noteId];
-    if (!note) return;
+    if (!note || noteIsViewOnly) return;
 
     const noteUpdate: any = { id: noteId };
     if (!syncState.isContentSynced) {
@@ -97,10 +98,11 @@ function Note(props: Props) {
       const handler = setTimeout(() => handleNoteUpdate(noteUpdate), SYNC_DEBOUNCE_MS);
       return () => clearTimeout(handler);
     }
-  }, [noteId, syncState, handleNoteUpdate]);
+  }, [note, noteId, noteIsViewOnly, syncState, handleNoteUpdate]);
 
   // Prompt the user with a dialog box about unsaved changes if they navigate away
   useEffect(() => {
+    if (noteIsViewOnly) return;
     const warningText = 'You have unsaved changes — are you sure you wish to leave this page?';
 
     const handleWindowClose = (e: BeforeUnloadEvent) => {
@@ -122,7 +124,7 @@ function Note(props: Props) {
       window.removeEventListener('beforeunload', handleWindowClose);
       router.events.off('routeChangeStart', handleBrowseAway);
     };
-  }, [router, isSynced]);
+  }, [router, isSynced, noteIsViewOnly]);
 
   const noteContainerClassName = 'flex flex-col flex-shrink-0 md:flex-shrink w-full bg-white dark:bg-gray-900 dark:text-gray-100';
   const errorContainerClassName = `${noteContainerClassName} items-center justify-center h-full p-4`;
@@ -139,9 +141,6 @@ function Note(props: Props) {
       </div>
     );
   }
-
-  const note = store.getState().notes[noteId];
-  const noteIsViewOnly = useMemo(() => user && note.view_only && note.user_id !== user.id, [note]);
 
   return (
     <ErrorBoundary

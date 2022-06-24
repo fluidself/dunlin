@@ -19,6 +19,7 @@ export default function useOnNoteLinkClick(currentNoteId: string, linkText?: str
   const notes = useStore(state => state.notes);
   const openNoteIds = useStore(state => state.openNoteIds);
   const isPageStackingOn = useStore(state => state.isPageStackingOn);
+  const isViewOnlyOn = useStore(state => state.isViewOnlyOn);
 
   const onClick = useCallback(
     async (noteId: string, stackNote: boolean, highlightedPath?: Path) => {
@@ -29,8 +30,7 @@ export default function useOnNoteLinkClick(currentNoteId: string, linkText?: str
           user_id: user.id,
           title: linkText,
           content: getDefaultEditorValue(),
-          // TODO: DECK-wide setting to default this to false?
-          view_only: true,
+          view_only: isViewOnlyOn,
         };
         const encryptedNote = encryptNote(note, key);
         await upsertNote(encryptedNote, key);

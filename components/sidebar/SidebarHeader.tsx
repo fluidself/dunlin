@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction } from 'react';
 import { Menu } from '@headlessui/react';
 import {
   IconLogout,
@@ -10,20 +11,23 @@ import {
   IconPencil,
   IconTrash,
   IconInfoCircle,
+  IconSettings,
 } from '@tabler/icons';
 import { useAuth } from 'utils/useAuth';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
+import { isMobile } from 'utils/device';
 import { useStore } from 'lib/store';
 import Tooltip from 'components/Tooltip';
 import { DropdownItem } from 'components/Dropdown';
 
 type Props = {
+  setIsSettingsOpen: Dispatch<SetStateAction<boolean>>;
   setIsShareModalOpen: (arg0: boolean) => void;
   setCreateJoinRenameModal: (arg0: { open: boolean; type: string }) => void;
 };
 
 export default function Header(props: Props) {
-  const { setIsShareModalOpen, setCreateJoinRenameModal } = props;
+  const { setIsSettingsOpen, setIsShareModalOpen, setCreateJoinRenameModal } = props;
   const { user, signOut } = useAuth();
   const { user_id } = useCurrentDeck();
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
@@ -52,6 +56,17 @@ export default function Header(props: Props) {
           <Menu.Items className="absolute z-20 w-56 overflow-hidden bg-white rounded left-6 top-full shadow-popover dark:bg-gray-800 focus:outline-none border border-gray-500">
             {user?.id === user_id && (
               <>
+                <DropdownItem
+                  onClick={() => {
+                    if (isMobile()) {
+                      setIsSidebarOpen(false);
+                    }
+                    setIsSettingsOpen(true);
+                  }}
+                >
+                  <IconSettings size={18} className="mr-1" />
+                  <span>Settings</span>
+                </DropdownItem>
                 <DropdownItem className="" onClick={() => setIsShareModalOpen(true)}>
                   <IconShare size={18} className="mr-1" />
                   <span>Share</span>

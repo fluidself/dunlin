@@ -5,6 +5,7 @@ import type { TablerIcon } from '@tabler/icons';
 import { IconFilePlus, IconSearch } from '@tabler/icons';
 import { toast } from 'react-toastify';
 import upsertNote from 'lib/api/upsertNote';
+import { useStore } from 'lib/store';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useAuth } from 'utils/useAuth';
 import useNoteSearch from 'utils/useNoteSearch';
@@ -40,6 +41,8 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
 
   const search = useNoteSearch({ numOfResults: 10 });
   const searchResults = useMemo(() => search(inputText), [search, inputText]);
+
+  const isViewOnlyOn = useStore(state => state.isViewOnlyOn);
 
   const options = useMemo(() => {
     const result: Array<Option> = [];
@@ -78,8 +81,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
           user_id: user.id,
           title: inputText,
           content: getDefaultEditorValue(),
-          // TODO: DECK-wide setting to default this to false?
-          view_only: true,
+          view_only: isViewOnlyOn,
         };
         const encryptedNote = encryptNote(newNote, key);
         const note = await upsertNote(encryptedNote, key);
@@ -95,7 +97,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [deckId, key, user, router, inputText, onOptionClickCallback],
+    [deckId, isViewOnlyOn, key, user, router, inputText, onOptionClickCallback],
   );
 
   const onKeyDown = useCallback(
