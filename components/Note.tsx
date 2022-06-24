@@ -30,11 +30,14 @@ type Props = {
 function Note(props: Props) {
   const { noteId, highlightedPath, className } = props;
   const router = useRouter();
-  const { key } = useCurrentDeck();
+  const { key, user_id: deckOwner } = useCurrentDeck();
   const { user } = useAuth();
 
   const note = store.getState().notes[noteId];
-  const noteIsViewOnly = useMemo(() => user && note && note.view_only && note.user_id !== user.id, [note, user]);
+  const noteIsViewOnlyForUser = useMemo(
+    () => user && note && note.view_only && note.user_id !== user.id && user.id !== deckOwner,
+    [note, user, deckOwner],
+  );
   const updateNote = useStore(state => state.updateNote);
 
   const [syncState, setSyncState] = useState({
@@ -84,7 +87,7 @@ function Note(props: Props) {
 
   // Save the note in the database if it changes and it hasn't been saved yet
   useEffect(() => {
-    if (!note || noteIsViewOnly) return;
+    if (!note || noteIsViewOnlyForUser) return;
 
     const noteUpdate: any = { id: noteId };
     if (!syncState.isContentSynced) {
@@ -98,11 +101,11 @@ function Note(props: Props) {
       const handler = setTimeout(() => handleNoteUpdate(noteUpdate), SYNC_DEBOUNCE_MS);
       return () => clearTimeout(handler);
     }
-  }, [note, noteId, noteIsViewOnly, syncState, handleNoteUpdate]);
+  }, [note, noteId, noteIsViewOnlyForUser, syncState, handleNoteUpdate]);
 
   // Prompt the user with a dialog box about unsaved changes if they navigate away
   useEffect(() => {
-    if (noteIsViewOnly) return;
+    if (noteIsViewOnlyForUser) return;
     const warningText = 'You have unsaved changes — are you sure you wish to leave this page?';
 
     const handleWindowClose = (e: BeforeUnloadEvent) => {
@@ -124,7 +127,7 @@ function Note(props: Props) {
       window.removeEventListener('beforeunload', handleWindowClose);
       router.events.off('routeChangeStart', handleBrowseAway);
     };
-  }, [router, isSynced, noteIsViewOnly]);
+  }, [router, isSynced, noteIsViewOnlyForUser]);
 
   const noteContainerClassName = 'flex flex-col flex-shrink-0 md:flex-shrink w-full bg-white dark:bg-gray-900 dark:text-gray-100';
   const errorContainerClassName = `${noteContainerClassName} items-center justify-center h-full p-4`;
@@ -155,7 +158,7 @@ function Note(props: Props) {
           <NoteHeader />
           <div className="flex flex-col flex-1 overflow-x-hidden overflow-y-auto">
             <div className="flex flex-col flex-1 w-full mx-auto md:w-128 lg:w-160 xl:w-192">
-              {noteIsViewOnly ? (
+              {noteIsViewOnlyForUser ? (
                 <>
                   <ReadOnlyTitle className={titleClassName} noteId={noteId} />
                   <ReadOnlyNoteEditor className={editorClassName} noteId={noteId} />
