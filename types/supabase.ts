@@ -10,6 +10,8 @@ export type Deck = {
   user_id: User['id'];
   note_tree: NoteTreeItem[];
   deck_name: string;
+  author_only_notes: boolean;
+  author_control_notes: boolean;
   access_params: {
     encrypted_string: string;
     encrypted_symmetric_key: string;
@@ -23,7 +25,7 @@ export type Note = {
   user_id: User['id'];
   content: string;
   title: string;
-  view_only: boolean;
+  author_only: boolean;
   created_at: string;
   updated_at: string;
 };

@@ -50,7 +50,7 @@ export default function NoteHeader() {
   const currentNote = useCurrentNote();
   const onImport = useImport();
   const { user } = useAuth();
-  const { id: currentDeckId, user_id: currentDeckOwner } = useCurrentDeck();
+  const { id: currentDeckId, user_id: deckOwner } = useCurrentDeck();
   const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
   const [deckOptions, setDeckOptions] = useState<DeckSelectOption[]>([]);
   const [selectedDeck, setSelectedDeck] = useState<any>(null);
@@ -72,6 +72,10 @@ export default function NoteHeader() {
   const isSidebarButtonVisible = useStore(state => !state.isSidebarOpen && state.openNoteIds?.[0] === currentNote.id);
   const isCloseButtonVisible = useStore(state => state.openNoteIds.length > 1);
   const note = useStore(state => state.notes[currentNote.id]);
+  let userCanEditNote = false;
+  if (note) {
+    userCanEditNote = note.author_only ? note.user_id === user?.id || deckOwner === user?.id : true;
+  }
 
   const onClosePane = useCallback(() => {
     const currentNoteIndex = store.getState().openNoteIds.findIndex(openNoteId => openNoteId === currentNote.id);
@@ -220,7 +224,7 @@ export default function NoteHeader() {
                         <IconCloudDownload size={18} className="mr-1" />
                         <span>Export All</span>
                       </DropdownItem>
-                      {note.view_only && (note.user_id === user?.id || currentDeckOwner === user?.id) && (
+                      {userCanEditNote && (
                         <>
                           <DropdownItem onClick={onDeleteClick} className="border-t dark:border-gray-700">
                             <IconTrash size={18} className="mr-1" />

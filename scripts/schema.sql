@@ -12,7 +12,7 @@ CREATE TABLE public.notes (
   title text NOT NULL,
   deck_id uuid NOT NULL,
   user_id text NOT NULL,
-  view_only boolean NOT NULL,
+  author_only boolean NOT NULL,
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
@@ -38,6 +38,8 @@ CREATE TABLE public.decks (
   deck_name text NOT NULL,
   note_tree jsonb NULL,
   access_params jsonb NOT NULL,
+  author_only_notes boolean NOT NULL,
+  author_control_notes boolean NOT NULL,
   CONSTRAINT decks_pkey PRIMARY KEY (id)
 );
 
@@ -45,6 +47,7 @@ CREATE TABLE public.decks (
 -- public.notes foreign keys
 
 ALTER TABLE public.notes ADD CONSTRAINT note_deck_id_fkey FOREIGN KEY (deck_id) REFERENCES public.decks(id);
+ALTER TABLE public.notes ADD CONSTRAINT note_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 -- public.decks foreign keys

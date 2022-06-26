@@ -1,34 +1,70 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useStore } from 'lib/store';
+import { toast } from 'react-toastify';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
+import supabase from 'lib/supabase';
+import { Note, Deck } from 'types/supabase';
 import Toggle from 'components/Toggle';
 import Button from 'components/home/Button';
 
 export default function EditorSettings() {
-  const isViewOnlyOn = useStore(state => state.isViewOnlyOn);
-  const isAuthorControlOn = useStore(state => state.isAuthorControlOn);
-  const setIsViewOnlyOn = useStore(state => state.setIsViewOnlyOn);
-  const setIsAuthorControlOn = useStore(state => state.setIsAuthorControlOn);
-
-  const [viewOnly, setViewOnly] = useState(isViewOnlyOn);
-  const [authorControl, setAuthorControl] = useState(isAuthorControlOn);
+  const { id: deckId, author_only_notes, author_control_notes } = useCurrentDeck();
+  const [authorOnly, setAuthorOnly] = useState(author_only_notes);
+  const [authorControl, setAuthorControl] = useState(author_control_notes);
   const [hasChanges, setHasChanges] = useState(false);
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
-    if (viewOnly !== isViewOnlyOn || authorControl !== isAuthorControlOn) {
+    if (authorOnly !== author_only_notes || authorControl !== author_control_notes) {
       setHasChanges(true);
     } else {
       setHasChanges(false);
     }
-  }, [isViewOnlyOn, isAuthorControlOn, viewOnly, authorControl]);
+  }, [author_only_notes, author_control_notes, authorOnly, authorControl]);
 
-  const onSaveChanges = useCallback(async () => {
+  useEffect(() => {
+    if (authorOnly === false) {
+      setAuthorControl(false);
+    }
+  }, [authorOnly, authorControl]);
+
+  // const onSaveChanges = useCallback(async () => {
+  const onSaveChanges = async () => {
     setProcessing(true);
-    // read local state vars
-    // await supabase changes
-    // set store vars
+
+    try {
+      const { data: notes } = await supabase.from<Note>('notes').select('*').eq('deck_id', deckId);
+      const noteUpdates = [];
+      console.log(notes);
+      if (!notes) {
+        setProcessing(false);
+        return;
+      }
+
+      for (const note of notes) {
+        if (authorOnly && !note.author_only) {
+          noteUpdates?.push({ ...note, author_only: true });
+        } else if (!authorOnly && note.author_only) {
+          noteUpdates?.push({ ...note, author_only: false });
+        }
+      }
+      console.log(noteUpdates);
+
+      await supabase.from<Note>('notes').upsert(noteUpdates);
+      await supabase
+        .from<Deck>('decks')
+        .update({ author_only_notes: authorOnly, author_control_notes: authorControl })
+        .eq('id', deckId)
+        .single();
+
+      toast.success('Settings updated!');
+    } catch (error) {
+      toast.error('There was an error updating the settings');
+      setProcessing(false);
+    }
+
     setProcessing(false);
-  }, []);
+  };
+  // }, []);
 
   return (
     <div className="flex-1 w-full h-full p-6 flex flex-col justify-between overflow-y-auto dark:bg-gray-800 dark:text-gray-100">
@@ -41,10 +77,10 @@ export default function EditorSettings() {
         </div>
         <div className="flex items-center">
           <span className="text-sm text-gray-600 dark:text-gray-300">Off</span>
-          <Toggle className="mx-2" id="2" isChecked={viewOnly} setIsChecked={setViewOnly} />
+          <Toggle className="mx-2" id="2" isChecked={authorOnly} setIsChecked={setAuthorOnly} />
           <span className="text-sm text-gray-600 dark:text-gray-300">On</span>
         </div>
-        {viewOnly && (
+        {authorOnly && (
           <>
             <div className="my-4">
               <h4 className="text-sm font-medium">Allow Note Author Control</h4>
@@ -61,7 +97,7 @@ export default function EditorSettings() {
         )}
       </div>
       <div className={`flex justify-end ${!hasChanges && 'hidden'}`}>
-        <Button primary disabled={processing} onClick={onSaveChanges}>
+        <Button primary disabled={!hasChanges || processing} loading={processing} onClick={onSaveChanges}>
           Save Changes
         </Button>
       </div>
