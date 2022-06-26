@@ -38,7 +38,7 @@ type Props = {
 
 export default function AddLinkPopover(props: Props) {
   const { addLinkPopoverState, setAddLinkPopoverState } = props;
-  const { id: deckId, key } = useCurrentDeck();
+  const { id: deckId, key, author_only_notes } = useCurrentDeck();
   const { user } = useAuth();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [linkText, setLinkText] = useState<string>('');
@@ -48,8 +48,6 @@ export default function AddLinkPopover(props: Props) {
 
   const search = useNoteSearch({ numOfResults: 10 });
   const searchResults = useMemo(() => search(linkText), [search, linkText]);
-
-  const isViewOnlyOn = useStore(state => state.isViewOnlyOn);
 
   const options = useMemo(() => {
     const result: Array<Option> = [];
@@ -134,7 +132,7 @@ export default function AddLinkPopover(props: Props) {
           user_id: user.id,
           title: linkText,
           content: getDefaultEditorValue(),
-          view_only: isViewOnlyOn,
+          author_only: author_only_notes,
         };
         const encryptedNote = encryptNote(newNote, key);
         insertNoteLink(editor, noteId, linkText);
@@ -147,7 +145,7 @@ export default function AddLinkPopover(props: Props) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [editor, deckId, user, hidePopover, linkText, key, isViewOnlyOn],
+    [editor, deckId, user, hidePopover, linkText, key, author_only_notes],
   );
 
   const onKeyDown = useCallback(

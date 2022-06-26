@@ -33,7 +33,7 @@ type Props = {
 function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
   const { onOptionClick: onOptionClickCallback, className = '' } = props;
   const router = useRouter();
-  const { id: deckId, key } = useCurrentDeck();
+  const { id: deckId, key, author_only_notes } = useCurrentDeck();
   const { user } = useAuth();
 
   const [inputText, setInputText] = useState('');
@@ -41,8 +41,6 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
 
   const search = useNoteSearch({ numOfResults: 10 });
   const searchResults = useMemo(() => search(inputText), [search, inputText]);
-
-  const isViewOnlyOn = useStore(state => state.isViewOnlyOn);
 
   const options = useMemo(() => {
     const result: Array<Option> = [];
@@ -81,7 +79,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
           user_id: user.id,
           title: inputText,
           content: getDefaultEditorValue(),
-          view_only: isViewOnlyOn,
+          author_only: author_only_notes,
         };
         const encryptedNote = encryptNote(newNote, key);
         const note = await upsertNote(encryptedNote, key);
@@ -97,7 +95,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [deckId, isViewOnlyOn, key, user, router, inputText, onOptionClickCallback],
+    [deckId, author_only_notes, key, user, router, inputText, onOptionClickCallback],
   );
 
   const onKeyDown = useCallback(

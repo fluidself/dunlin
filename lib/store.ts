@@ -11,7 +11,7 @@ import createUserSettingsSlice, { UserSettings } from './createUserSettingsSlice
 
 type NoteUpdate = PickPartial<
   DecryptedNote,
-  'deck_id' | 'content' | 'title' | 'view_only' | 'user_id' | 'created_at' | 'updated_at'
+  'deck_id' | 'user_id' | 'content' | 'title' | 'author_only' | 'created_at' | 'updated_at'
 >;
 
 export { default as shallowEqual } from 'zustand/shallow';

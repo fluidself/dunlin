@@ -35,7 +35,7 @@ function Note(props: Props) {
 
   const note = store.getState().notes[noteId];
   const noteIsViewOnlyForUser = useMemo(
-    () => user && note && note.view_only && note.user_id !== user.id && user.id !== deckOwner,
+    () => user && note && note.author_only && note.user_id !== user.id && user.id !== deckOwner,
     [note, user, deckOwner],
   );
   const updateNote = useStore(state => state.updateNote);
@@ -87,7 +87,8 @@ function Note(props: Props) {
 
   // Save the note in the database if it changes and it hasn't been saved yet
   useEffect(() => {
-    if (!note || noteIsViewOnlyForUser) return;
+    // if (!note || noteIsViewOnlyForUser) return;
+    if (!note) return;
 
     const noteUpdate: any = { id: noteId };
     if (!syncState.isContentSynced) {
@@ -105,7 +106,7 @@ function Note(props: Props) {
 
   // Prompt the user with a dialog box about unsaved changes if they navigate away
   useEffect(() => {
-    if (noteIsViewOnlyForUser) return;
+    // if (noteIsViewOnlyForUser) return;
     const warningText = 'You have unsaved changes — are you sure you wish to leave this page?';
 
     const handleWindowClose = (e: BeforeUnloadEvent) => {

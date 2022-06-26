@@ -29,6 +29,10 @@ const SidebarNoteLinkDropdown = (props: Props) => {
   const onMoveToClick = useCallback(() => setIsMoveToModalOpen(true), []);
 
   const onDeleteClick = useDeleteNote(note?.id);
+  let userCanEditNote = false;
+  if (note) {
+    userCanEditNote = note.author_only ? note.user_id === user?.id || deckOwner === user?.id : true;
+  }
 
   return (
     <>
@@ -52,7 +56,7 @@ const SidebarNoteLinkDropdown = (props: Props) => {
                   style={styles.popper}
                   {...attributes.popper}
                 >
-                  {(note.user_id === user?.id || deckOwner === user?.id) && (
+                  {userCanEditNote && (
                     <>
                       <DropdownItem onClick={onDeleteClick}>
                         <IconTrash size={18} className="mr-1" />

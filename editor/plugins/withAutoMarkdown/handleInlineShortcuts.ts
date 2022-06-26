@@ -4,6 +4,8 @@ import { ElementType, Mark } from 'types/slate';
 import { isMark } from 'editor/formatting';
 import { store } from 'lib/store';
 import upsertNote from 'lib/api/upsertNote';
+import supabase from 'lib/supabase';
+import { Deck } from 'types/supabase';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { encryptNote } from 'utils/encryption';
 import { deleteText } from 'editor/transforms';
@@ -109,32 +111,32 @@ const handleInlineShortcuts = (editor: Editor, text: string): boolean => {
 
 // If the normalized note title exists, then returns the existing note id.
 // Otherwise, creates a new note id.
-export const getOrCreateNoteId = (noteTitle: string): string | null => {
+export const getOrCreateNoteId = async (noteTitle: string): Promise<string | null> => {
   let noteId;
 
+  const deckId = store.getState().deckId;
   const notes = store.getState().notes;
   const notesArr = Object.values(notes);
   const matchingNote = notesArr.find(note => caseInsensitiveStringEqual(note.title, noteTitle));
-  const isViewOnlyOn = store.getState().isViewOnlyOn;
+  const { data: deck } = await supabase.from<Deck>('decks').select('author_only_notes').eq('id', deckId).single();
 
   if (matchingNote) {
     noteId = matchingNote.id;
   } else {
-    const deckId = store.getState().deckId;
     const deckKey = store.getState().deckKey;
     const userId = store.getState().userId;
     noteId = uuidv4();
-    if (deckId && deckKey) {
+    if (deckId && deck && deckKey) {
       const newNote = {
         id: noteId,
         deck_id: deckId,
         user_id: userId,
         title: noteTitle,
         content: getDefaultEditorValue(),
-        view_only: isViewOnlyOn,
+        author_only: deck.author_only_notes,
       };
       const encryptedNote = encryptNote(newNote, deckKey);
-      upsertNote(encryptedNote, deckKey);
+      await upsertNote(encryptedNote, deckKey);
     }
   }
 

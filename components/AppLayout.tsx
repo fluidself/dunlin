@@ -111,7 +111,7 @@ export default function AppLayout(props: Props) {
 
     const { data: encryptedNotes } = await supabase
       .from<Note>('notes')
-      .select('id, title, content, user_id, view_only, created_at, updated_at')
+      .select('id, title, content, user_id, author_only, created_at, updated_at')
       .eq('deck_id', deckId);
 
     if (!encryptedNotes) {
@@ -310,9 +310,7 @@ export default function AppLayout(props: Props) {
               <OfflineBanner />
               {children}
             </div>
-            {isSettingsOpen ? (
-            <SettingsModal setIsOpen={setIsSettingsOpen} />
-          ) : null}
+            {isSettingsOpen ? <SettingsModal setIsOpen={setIsSettingsOpen} /> : null}
             {isFindOrCreateModalOpen ? <FindOrCreateModal setIsOpen={setIsFindOrCreateModalOpen} /> : null}
           </div>
         </div>
