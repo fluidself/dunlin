@@ -7,7 +7,7 @@ export default function handleCustomNoteLink(
   editor: Editor,
   result: RegExpMatchArray,
   endOfMatchPoint: Point,
-  textToInsertLength: number
+  textToInsertLength: number,
 ): boolean {
   const [, startMark, linkText, middleMark, noteTitle, endMark] = result;
 

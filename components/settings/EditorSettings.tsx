@@ -1,13 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import supabase from 'lib/supabase';
+import { useStore } from 'lib/store';
 import { Note, Deck } from 'types/supabase';
 import Toggle from 'components/Toggle';
 import Button from 'components/home/Button';
 
 export default function EditorSettings() {
   const { id: deckId, author_only_notes, author_control_notes } = useCurrentDeck();
+  const setAuthorOnlyNotes = useStore(state => state.setAuthorOnlyNotes);
+
   const [authorOnly, setAuthorOnly] = useState(author_only_notes);
   const [authorControl, setAuthorControl] = useState(author_control_notes);
   const [hasChanges, setHasChanges] = useState(false);
@@ -27,14 +30,13 @@ export default function EditorSettings() {
     }
   }, [authorOnly, authorControl]);
 
-  // const onSaveChanges = useCallback(async () => {
   const onSaveChanges = async () => {
     setProcessing(true);
 
     try {
       const { data: notes } = await supabase.from<Note>('notes').select('*').eq('deck_id', deckId);
       const noteUpdates = [];
-      console.log(notes);
+
       if (!notes) {
         setProcessing(false);
         return;
@@ -47,7 +49,6 @@ export default function EditorSettings() {
           noteUpdates?.push({ ...note, author_only: false });
         }
       }
-      console.log(noteUpdates);
 
       await supabase.from<Note>('notes').upsert(noteUpdates);
       await supabase
@@ -56,7 +57,10 @@ export default function EditorSettings() {
         .eq('id', deckId)
         .single();
 
+      setAuthorOnlyNotes(authorOnly);
+      setHasChanges(false);
       toast.success('Settings updated!');
+      window.location.assign(`${process.env.BASE_URL}/app/${deckId}`);
     } catch (error) {
       toast.error('There was an error updating the settings');
       setProcessing(false);
@@ -64,7 +68,6 @@ export default function EditorSettings() {
 
     setProcessing(false);
   };
-  // }, []);
 
   return (
     <div className="flex-1 w-full h-full p-6 flex flex-col justify-between overflow-y-auto dark:bg-gray-800 dark:text-gray-100">
