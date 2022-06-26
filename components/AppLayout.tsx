@@ -64,6 +64,7 @@ export default function AppLayout(props: Props) {
   const setUserId = useStore(state => state.setUserId);
   const setDeckId = useStore(state => state.setDeckId);
   const setDeckKey = useStore(state => state.setDeckKey);
+  const setAuthorOnlyNotes = useStore(state => state.setAuthorOnlyNotes);
 
   const initLit = async () => {
     const client = new LitJsSdk.LitNodeClient({ alertWhenUnauthorized: false, debug: false });
@@ -106,6 +107,7 @@ export default function AppLayout(props: Props) {
 
     const decryptedDeck = deck ?? (await decryptDeck());
     setDeck(decryptedDeck);
+    setAuthorOnlyNotes(decryptedDeck?.author_only_notes ?? false);
     if (!decryptedDeck?.key) return;
     setDeckKey(decryptedDeck.key);
 
@@ -162,7 +164,20 @@ export default function AppLayout(props: Props) {
     }
 
     setIsPageLoaded(true);
-  }, [deckId, deck, user, isMounted, router, setNotes, setNoteTree, setDeckId, decryptDeck, setDeckKey, setUserId]);
+  }, [
+    deckId,
+    deck,
+    user,
+    isMounted,
+    router,
+    setNotes,
+    setNoteTree,
+    setDeckId,
+    decryptDeck,
+    setDeckKey,
+    setUserId,
+    setAuthorOnlyNotes,
+  ]);
 
   useEffect(() => {
     if (isLoaded && !user) {

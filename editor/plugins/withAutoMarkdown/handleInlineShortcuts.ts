@@ -111,32 +111,33 @@ const handleInlineShortcuts = (editor: Editor, text: string): boolean => {
 
 // If the normalized note title exists, then returns the existing note id.
 // Otherwise, creates a new note id.
-export const getOrCreateNoteId = async (noteTitle: string): Promise<string | null> => {
+export const getOrCreateNoteId = (noteTitle: string): string => {
   let noteId;
 
-  const deckId = store.getState().deckId;
   const notes = store.getState().notes;
   const notesArr = Object.values(notes);
   const matchingNote = notesArr.find(note => caseInsensitiveStringEqual(note.title, noteTitle));
-  const { data: deck } = await supabase.from<Deck>('decks').select('author_only_notes').eq('id', deckId).single();
 
   if (matchingNote) {
     noteId = matchingNote.id;
   } else {
+    const deckId = store.getState().deckId;
     const deckKey = store.getState().deckKey;
     const userId = store.getState().userId;
+    const authorOnlyNotes = store.getState().authorOnlyNotes;
     noteId = uuidv4();
-    if (deckId && deck && deckKey) {
+
+    if (deckId && deckKey) {
       const newNote = {
         id: noteId,
         deck_id: deckId,
         user_id: userId,
         title: noteTitle,
         content: getDefaultEditorValue(),
-        author_only: deck.author_only_notes,
+        author_only: authorOnlyNotes,
       };
       const encryptedNote = encryptNote(newNote, deckKey);
-      await upsertNote(encryptedNote, deckKey);
+      upsertNote(encryptedNote, deckKey);
     }
   }
 
