@@ -13,8 +13,16 @@ import { useCurrentDeck } from 'utils/useCurrentDeck';
 import createOnboardingNotes from 'utils/createOnboardingNotes';
 import Button from 'components/home/Button';
 
+export enum CreateJoinRenameDeckType {
+  Create = 'create',
+  Join = 'join',
+  Rename = 'rename',
+  Delete = 'delete',
+  None = 'none',
+}
+
 type Props = {
-  type: 'create' | 'join' | 'rename' | 'delete';
+  type: CreateJoinRenameDeckType;
   closeModal: () => void;
 };
 
@@ -162,15 +170,31 @@ export default function CreateJoinRenameDeckModal(props: Props) {
     }
   };
 
-  const headings = { create: 'Create a new DECK', join: 'Join a DECK', rename: 'Rename this DECK', delete: 'Delete this DECK' };
-  const icons = {
-    create: <IconFolderPlus className="ml-4 mr-1 text-gray-200" size={32} />,
-    join: <IconGitPullRequest className="ml-4 mr-1 text-gray-200" size={32} />,
-    rename: <IconPencil className="ml-4 mr-1 text-gray-200" size={32} />,
-    delete: <IconTrash className="ml-4 mr-1 text-gray-200" size={32} />,
+  if (type === CreateJoinRenameDeckType.None) return null;
+
+  const headings = {
+    [CreateJoinRenameDeckType.Create]: 'Create a new DECK',
+    [CreateJoinRenameDeckType.Join]: 'Join a DECK',
+    [CreateJoinRenameDeckType.Rename]: 'Rename this DECK',
+    [CreateJoinRenameDeckType.Delete]: 'Delete this DECK',
   };
-  const placeholders = { create: 'Enter DECK name', join: 'Enter DECK ID', rename: 'Enter new DECK name' };
-  const onClickHandlers = { create: createNewDeck, join: verifyAccess, rename: renameDeck, delete: deleteDeck };
+  const icons = {
+    [CreateJoinRenameDeckType.Create]: <IconFolderPlus className="ml-4 mr-1 text-gray-200" size={32} />,
+    [CreateJoinRenameDeckType.Join]: <IconGitPullRequest className="ml-4 mr-1 text-gray-200" size={32} />,
+    [CreateJoinRenameDeckType.Rename]: <IconPencil className="ml-4 mr-1 text-gray-200" size={32} />,
+    [CreateJoinRenameDeckType.Delete]: <IconTrash className="ml-4 mr-1 text-gray-200" size={32} />,
+  };
+  const placeholders = {
+    [CreateJoinRenameDeckType.Create]: 'Enter DECK name',
+    [CreateJoinRenameDeckType.Join]: 'Enter DECK ID',
+    [CreateJoinRenameDeckType.Rename]: 'Enter new DECK name',
+  };
+  const onClickHandlers = {
+    [CreateJoinRenameDeckType.Create]: createNewDeck,
+    [CreateJoinRenameDeckType.Join]: verifyAccess,
+    [CreateJoinRenameDeckType.Rename]: renameDeck,
+    [CreateJoinRenameDeckType.Delete]: deleteDeck,
+  };
 
   return (
     <div className="fixed inset-0 z-20 overflow-y-auto">
@@ -182,7 +206,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
             <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0 bg-gray-800">{headings[type]}</span>
           </div>
           <div className="px-4 py-4 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br bg-gray-700 border-gray-700">
-            {type !== 'delete' ? (
+            {type !== CreateJoinRenameDeckType.Delete ? (
               <input
                 type="text"
                 className="w-full py-4 px-2 text-xl border-none rounded focus:ring-0 bg-gray-800 text-gray-200"
