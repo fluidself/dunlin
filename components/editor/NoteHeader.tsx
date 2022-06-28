@@ -11,15 +11,20 @@ import {
   IconCornerDownRight,
   IconSend,
   IconCopy,
+  IconPencil,
+  IconEye,
 } from '@tabler/icons';
 import { usePopper } from 'react-popper';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 import useSWR from 'swr';
+import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 import Portal from 'components/Portal';
 import { useCurrentNote } from 'utils/useCurrentNote';
 import { store, useStore } from 'lib/store';
+import supabase from 'lib/supabase';
+import { Note } from 'types/supabase';
 import serialize from 'editor/serialization/serialize';
 import { DecryptedNote } from 'types/decrypted';
 import useImport from 'utils/useImport';
@@ -50,7 +55,7 @@ export default function NoteHeader() {
   const currentNote = useCurrentNote();
   const onImport = useImport();
   const { user } = useAuth();
-  const { id: currentDeckId, user_id: deckOwner } = useCurrentDeck();
+  const { id: currentDeckId, user_id: deckOwner, author_control_notes } = useCurrentDeck();
   const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
   const [deckOptions, setDeckOptions] = useState<DeckSelectOption[]>([]);
   const [selectedDeck, setSelectedDeck] = useState<any>(null);
@@ -73,8 +78,10 @@ export default function NoteHeader() {
   const isCloseButtonVisible = useStore(state => state.openNoteIds.length > 1);
   const note = useStore(state => state.notes[currentNote.id]);
   let userCanEditNote = false;
+  let userCanControlNotePermission = false;
   if (note) {
     userCanEditNote = note.author_only ? note.user_id === user?.id || deckOwner === user?.id : true;
+    userCanControlNotePermission = author_control_notes ? note.user_id === user?.id : deckOwner === user?.id;
   }
 
   const onClosePane = useCallback(() => {
@@ -140,6 +147,51 @@ export default function NoteHeader() {
   const [isMintModalOpen, setIsMintModalOpen] = useState(false);
   const onMintClick = useCallback(() => setIsMintModalOpen(true), []);
 
+  const toggleAuthorOnly = async (newSetting: boolean) => {
+    store.getState().updateNote({ id: currentNote.id, author_only: newSetting });
+    await supabase.from<Note>('notes').update({ author_only: newSetting }).eq('id', currentNote.id);
+    toast.success('Permissions updated!');
+  };
+
+  const renderNotePermission = () => {
+    if (note.author_only) {
+      return (
+        <DropdownItem onClick={async () => await toggleAuthorOnly(false)} className="border-t dark:border-gray-700">
+          <IconPencil size={18} className="mr-1" />
+          <span>Allow editing</span>
+        </DropdownItem>
+      );
+    } else {
+      return (
+        <DropdownItem onClick={async () => await toggleAuthorOnly(true)} className="border-t dark:border-gray-700">
+          <IconEye size={18} className="mr-1" />
+          <span>Make view-only</span>
+        </DropdownItem>
+      );
+    }
+  };
+
+  const renderEditOptions = () => {
+    if (!userCanEditNote) return null;
+
+    return (
+      <>
+        {userCanControlNotePermission && renderNotePermission()}
+        <DropdownItem
+          onClick={onDeleteClick}
+          className={`${userCanControlNotePermission ? '' : 'border-t dark:border-gray-700'}`}
+        >
+          <IconTrash size={18} className="mr-1" />
+          <span>Delete</span>
+        </DropdownItem>
+        <DropdownItem onClick={onMoveToClick}>
+          <IconCornerDownRight size={18} className="mr-1" />
+          <span>Move to</span>
+        </DropdownItem>
+      </>
+    );
+  };
+
   const buttonClassName = 'rounded hover:bg-gray-300 active:bg-gray-400 dark:hover:bg-gray-700 dark:active:bg-gray-600';
   const iconClassName = 'text-gray-600 dark:text-gray-300';
 
@@ -190,13 +242,29 @@ export default function NoteHeader() {
           <Menu>
             {({ open }) => (
               <>
-                <Menu.Button ref={menuButtonRef} className={buttonClassName} title="Options (export, import, etc.)">
-                  <Tooltip content="Options (export, import, etc.)">
-                    <span className="flex items-center justify-center w-8 h-8">
-                      <IconDots className={iconClassName} />
-                    </span>
-                  </Tooltip>
-                </Menu.Button>
+                <div className="flex items-center">
+                  {note && note.author_only ? (
+                    <Tooltip content={`Only ${note.user_id === user?.id ? 'you' : 'note author'} can edit`}>
+                      <span className="flex items-center justify-center w-8 h-8">
+                        <IconEye className="text-gray-600 dark:text-gray-400" />
+                      </span>
+                    </Tooltip>
+                  ) : (
+                    <Tooltip content="Everyone can edit">
+                      <span className="flex items-center justify-center w-8 h-8">
+                        <IconPencil className="text-gray-600 dark:text-gray-400" />
+                      </span>
+                    </Tooltip>
+                  )}
+                  <NoteHeaderDivider />
+                  <Menu.Button ref={menuButtonRef} className={buttonClassName} title="Options (import, export, etc.)">
+                    <Tooltip content="Options (export, import, etc.)">
+                      <span className="flex items-center justify-center w-8 h-8">
+                        <IconDots className={iconClassName} />
+                      </span>
+                    </Tooltip>
+                  </Menu.Button>
+                </div>
                 {open && (
                   <Portal>
                     <Menu.Items
@@ -224,18 +292,7 @@ export default function NoteHeader() {
                         <IconCloudDownload size={18} className="mr-1" />
                         <span>Export All</span>
                       </DropdownItem>
-                      {userCanEditNote && (
-                        <>
-                          <DropdownItem onClick={onDeleteClick} className="border-t dark:border-gray-700">
-                            <IconTrash size={18} className="mr-1" />
-                            <span>Delete</span>
-                          </DropdownItem>
-                          <DropdownItem onClick={onMoveToClick}>
-                            <IconCornerDownRight size={18} className="mr-1" />
-                            <span>Move to</span>
-                          </DropdownItem>
-                        </>
-                      )}
+                      {renderEditOptions()}
                       <NoteMetadata note={note} />
                     </Menu.Items>
                   </Portal>

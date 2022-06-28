@@ -40,7 +40,7 @@ function ReadOnlyNoteEditor(props: Props) {
         /* Do nothing, this is a read only editor */
       }}
     >
-      <div contentEditable={false}>
+      <div contentEditable={false} className="flex-1">
         <Editable className={`overflow-hidden ${className}`} renderElement={renderElement} renderLeaf={EditorLeaf} readOnly />
       </div>
     </Slate>
