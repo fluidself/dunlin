@@ -35,8 +35,8 @@ function Note(props: Props) {
 
   const note = store.getState().notes[noteId];
   const noteIsViewOnlyForUser = useMemo(
-    () => user && note && note.author_only && note.user_id !== user.id && user.id !== deckOwner,
-    [note, user, deckOwner],
+    () => user && note && note.author_only && note.user_id !== user.id, // && user.id !== deckOwner
+    [note, user],
   );
   const updateNote = useStore(state => state.updateNote);
 
