@@ -52,7 +52,13 @@ export default function DetailsDisclosureElement(props: DetailsDisclosureElement
   );
 }
 
-const Summary = ({ summaryText, onChange, onDelete }: { summaryText: string; onChange: any; onDelete: any }) => {
+type SummaryProps = {
+  summaryText: string;
+  onChange: (value: string) => void;
+  onDelete: () => void;
+};
+
+const Summary = ({ summaryText, onChange, onDelete }: SummaryProps) => {
   const [value, setValue] = useState(summaryText);
 
   return (

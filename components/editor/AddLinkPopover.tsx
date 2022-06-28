@@ -5,7 +5,6 @@ import type { TablerIcon } from '@tabler/icons';
 import { IconUnlink, IconLink, IconFilePlus } from '@tabler/icons';
 import { v4 as uuidv4 } from 'uuid';
 import upsertNote from 'lib/api/upsertNote';
-import { useStore } from 'lib/store';
 import { insertExternalLink, insertNoteLink, removeLink } from 'editor/formatting';
 import { getDefaultEditorValue } from 'editor/constants';
 import { useCurrentDeck } from 'utils/useCurrentDeck';

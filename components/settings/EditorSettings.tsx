@@ -12,7 +12,7 @@ export default function EditorSettings() {
   const setAuthorOnlyNotes = useStore(state => state.setAuthorOnlyNotes);
   const updateNote = useStore(state => state.updateNote);
 
-  const [dbSettings, setDbSettings] = useState<any>({});
+  const [deckSettings, setDeckSettings] = useState<{ authorOnly: boolean; authorControl: boolean }>();
   const [authorOnly, setAuthorOnly] = useState<boolean>();
   const [authorControl, setAuthorControl] = useState<boolean>();
   const [hasChanges, setHasChanges] = useState(false);
@@ -25,7 +25,7 @@ export default function EditorSettings() {
       .eq('id', deckId)
       .single();
     if (!deckSettings) return;
-    setDbSettings({ authorOnly: deckSettings.author_only_notes, authorControl: deckSettings.author_control_notes });
+    setDeckSettings({ authorOnly: deckSettings.author_only_notes, authorControl: deckSettings.author_control_notes });
     setAuthorOnly(deckSettings.author_only_notes);
     setAuthorControl(deckSettings.author_control_notes);
   };
@@ -36,12 +36,14 @@ export default function EditorSettings() {
   }, []);
 
   useEffect(() => {
-    if (authorOnly !== dbSettings.authorOnly || authorControl !== dbSettings.authorControl) {
+    if (!deckSettings?.authorOnly || !deckSettings.authorControl) return;
+
+    if (authorOnly !== deckSettings.authorOnly || authorControl !== deckSettings.authorControl) {
       setHasChanges(true);
     } else {
       setHasChanges(false);
     }
-  }, [dbSettings, authorOnly, authorControl]);
+  }, [deckSettings, authorOnly, authorControl]);
 
   useEffect(() => {
     if (authorOnly === false) {

@@ -19,7 +19,7 @@ import { SPRING_CONFIG } from 'constants/spring';
 import { AccessControlCondition, BooleanCondition } from 'types/lit';
 import { Deck } from 'types/supabase';
 import { ShareModal } from 'components/ShareModal';
-import CreateJoinRenameDeckModal from 'components/CreateJoinRenameDeckModal';
+import CreateJoinRenameDeckModal, { CreateJoinRenameDeckType } from 'components/CreateJoinRenameDeckModal';
 import SidebarItem from './SidebarItem';
 import SidebarContent from './SidebarContent';
 import SidebarHeader from './SidebarHeader';
@@ -44,7 +44,10 @@ function Sidebar(props: Props) {
   }, [setIsSidebarOpen]);
   const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
   const [processingAccess, setProcessingAccess] = useState<boolean>(false);
-  const [createJoinRenameModal, setCreateJoinRenameModal] = useState<any>({ open: false, type: '' });
+  const [createJoinRenameModal, setCreateJoinRenameModal] = useState<{ open: boolean; type: CreateJoinRenameDeckType }>({
+    open: false,
+    type: CreateJoinRenameDeckType.None,
+  });
   const isMounted = useIsMounted();
 
   useEffect(() => {
@@ -202,7 +205,7 @@ function Sidebar(props: Props) {
           {createJoinRenameModal.open && (
             <CreateJoinRenameDeckModal
               type={createJoinRenameModal.type}
-              closeModal={() => setCreateJoinRenameModal({ open: false, type: '' })}
+              closeModal={() => setCreateJoinRenameModal({ open: false, type: CreateJoinRenameDeckType.None })}
             />
           )}
         </>

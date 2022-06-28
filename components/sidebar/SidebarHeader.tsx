@@ -19,11 +19,12 @@ import { isMobile } from 'utils/device';
 import { useStore } from 'lib/store';
 import Tooltip from 'components/Tooltip';
 import { DropdownItem } from 'components/Dropdown';
+import { CreateJoinRenameDeckType } from 'components/CreateJoinRenameDeckModal';
 
 type Props = {
   setIsSettingsOpen: Dispatch<SetStateAction<boolean>>;
   setIsShareModalOpen: (arg0: boolean) => void;
-  setCreateJoinRenameModal: (arg0: { open: boolean; type: string }) => void;
+  setCreateJoinRenameModal: (arg0: { open: boolean; type: CreateJoinRenameDeckType }) => void;
 };
 
 export default function Header(props: Props) {
@@ -71,21 +72,33 @@ export default function Header(props: Props) {
                   <IconShare size={18} className="mr-1" />
                   <span>Share</span>
                 </DropdownItem>
-                <DropdownItem className="" onClick={() => setCreateJoinRenameModal({ open: true, type: 'rename' })}>
+                <DropdownItem
+                  className=""
+                  onClick={() => setCreateJoinRenameModal({ open: true, type: CreateJoinRenameDeckType.Rename })}
+                >
                   <IconPencil size={18} className="mr-1" />
                   <span>Rename</span>
                 </DropdownItem>
-                <DropdownItem className="" onClick={() => setCreateJoinRenameModal({ open: true, type: 'delete' })}>
+                <DropdownItem
+                  className=""
+                  onClick={() => setCreateJoinRenameModal({ open: true, type: CreateJoinRenameDeckType.Delete })}
+                >
                   <IconTrash size={18} className="mr-1" />
                   <span>Delete</span>
                 </DropdownItem>
               </>
             )}
-            <DropdownItem className="" onClick={() => setCreateJoinRenameModal({ open: true, type: 'create' })}>
+            <DropdownItem
+              className=""
+              onClick={() => setCreateJoinRenameModal({ open: true, type: CreateJoinRenameDeckType.Create })}
+            >
               <IconFolderPlus size={18} className="mr-1" />
               <span>Create</span>
             </DropdownItem>
-            <DropdownItem className="" onClick={() => setCreateJoinRenameModal({ open: true, type: 'join' })}>
+            <DropdownItem
+              className=""
+              onClick={() => setCreateJoinRenameModal({ open: true, type: CreateJoinRenameDeckType.Join })}
+            >
               <IconGitPullRequest size={18} className="mr-1" />
               <span>Join</span>
             </DropdownItem>
