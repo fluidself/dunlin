@@ -6,7 +6,7 @@ import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import wikiLinkPlugin from 'remark-wiki-link';
 import { v4 as uuidv4 } from 'uuid';
-import { store } from 'lib/store';
+import { store, useStore } from 'lib/store';
 import { NoteUpsert } from 'lib/api/upsertNote';
 import supabase from 'lib/supabase';
 import { getDefaultEditorValue } from 'editor/constants';
@@ -20,8 +20,9 @@ import { Note } from 'types/supabase';
 import { DecryptedNote } from 'types/decrypted';
 
 export default function useImport() {
-  const { id: deckId, key, author_only_notes } = useCurrentDeck();
+  const { id: deckId, key } = useCurrentDeck();
   const { user } = useAuth();
+  const authorOnlyNotes = useStore(state => state.authorOnlyNotes);
 
   const onImport = useCallback(() => {
     if (!deckId || !key || !user) {
@@ -84,7 +85,7 @@ export default function useImport() {
       const mergedAndEncryptedUpsertData = upsertData.map((data: any) => {
         const matchingNoteLinkUpsertItem = noteLinkUpsertData.find(item => item.title === data.title);
         const mergedData = matchingNoteLinkUpsertItem ? { ...data, ...matchingNoteLinkUpsertItem } : data;
-        const note = { id: uuidv4(), deck_id: deckId, user_id: user.id, author_only: author_only_notes, ...mergedData };
+        const note = { id: uuidv4(), deck_id: deckId, user_id: user.id, author_only: authorOnlyNotes, ...mergedData };
 
         return encryptNote(note, key);
       });
@@ -105,7 +106,7 @@ export default function useImport() {
     };
 
     input.click();
-  }, [deckId, key, author_only_notes]);
+  }, [deckId, key, authorOnlyNotes]);
 
   return onImport;
 }

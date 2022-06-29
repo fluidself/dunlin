@@ -10,7 +10,6 @@ import updateDbNote, { NoteUpdate } from 'lib/api/updateNote';
 import { ProvideCurrentNote } from 'utils/useCurrentNote';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useAuth } from 'utils/useAuth';
-import { caseInsensitiveStringEqual } from 'utils/string';
 import { encryptNote } from 'utils/encryption';
 import updateBacklinks from 'editor/backlinks/updateBacklinks';
 import Backlinks from './editor/backlinks/Backlinks';
@@ -30,11 +29,13 @@ type Props = {
 function Note(props: Props) {
   const { noteId, highlightedPath, className } = props;
   const router = useRouter();
-  const { key } = useCurrentDeck();
+  const { key, user_id: deckOwner } = useCurrentDeck();
   const { user } = useAuth();
-
   const note = store.getState().notes[noteId];
-  const noteIsViewOnlyForUser = useMemo(() => user && note && note.author_only && note.user_id !== user.id, [note, user]);
+  const noteIsViewOnlyForUser = useMemo(
+    () => user && note && note.author_only && note.user_id !== user.id && deckOwner !== user.id,
+    [note, user, deckOwner],
+  );
   const updateNote = useStore(state => state.updateNote);
 
   const [syncState, setSyncState] = useState({
@@ -45,16 +46,10 @@ function Note(props: Props) {
 
   const onTitleChange = useCallback(
     (title: string) => {
-      // Only update note title in storage if there isn't already a note with that title
-      const newTitle = title || getUntitledTitle(noteId);
-      const notesArr = Object.values(store.getState().notes);
-      const isTitleUnique = notesArr.findIndex(n => n.id !== noteId && caseInsensitiveStringEqual(n.title, newTitle)) === -1;
-      if (isTitleUnique) {
-        updateNote({ id: noteId, title: newTitle });
-        setSyncState(syncState => ({ ...syncState, isTitleSynced: false }));
-      } else {
-        toast.error(`There's already a note called ${newTitle}. Please use a different title.`);
-      }
+      const newTitle = title || 'Untitled';
+
+      updateNote({ id: noteId, title: newTitle });
+      setSyncState(syncState => ({ ...syncState, isTitleSynced: false }));
     },
     [noteId, updateNote],
   );
@@ -64,7 +59,7 @@ function Note(props: Props) {
   }, []);
 
   const handleNoteUpdate = useCallback(
-    async (note: any) => {
+    async note => {
       if (!key) return;
       const encryptedNote: NoteUpdate = encryptNote(note, key);
 
@@ -181,18 +176,3 @@ function Note(props: Props) {
 }
 
 export default memo(Note);
-
-// Get a unique "Untitled" title, ignoring the specified noteId.
-const getUntitledTitle = (noteId: string) => {
-  const title = 'Untitled';
-
-  const getResult = () => (suffix > 0 ? `${title} ${suffix}` : title);
-
-  let suffix = 0;
-  const notesArr = Object.values(store.getState().notes);
-  while (notesArr.findIndex(note => note.id !== noteId && caseInsensitiveStringEqual(note.title, getResult())) > -1) {
-    suffix += 1;
-  }
-
-  return getResult();
-};

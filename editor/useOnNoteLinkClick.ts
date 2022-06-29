@@ -14,11 +14,12 @@ export default function useOnNoteLinkClick(currentNoteId: string, linkText?: str
   const {
     query: { deckId, stack: stackQuery },
   } = router;
-  const { key, author_only_notes } = useCurrentDeck();
+  const { key } = useCurrentDeck();
   const { user } = useAuth();
   const notes = useStore(state => state.notes);
   const openNoteIds = useStore(state => state.openNoteIds);
   const isPageStackingOn = useStore(state => state.isPageStackingOn);
+  const authorOnlyNotes = useStore(state => state.authorOnlyNotes);
 
   const onClick = useCallback(
     async (noteId: string, stackNote: boolean, highlightedPath?: Path) => {
@@ -27,9 +28,9 @@ export default function useOnNoteLinkClick(currentNoteId: string, linkText?: str
           id: noteId,
           deck_id: deckId,
           user_id: user.id,
+          author_only: authorOnlyNotes,
           title: linkText,
           content: getDefaultEditorValue(),
-          author_only: author_only_notes,
         };
         const encryptedNote = encryptNote(note, key);
         await upsertNote(encryptedNote, key);

@@ -82,7 +82,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
 
     const onboardingNotes = createOnboardingNotes();
     const upsertData = onboardingNotes.map(note =>
-      encryptNote({ ...note, deck_id: deck.id, user_id: user.id, view_only: false }, deckKey),
+      encryptNote({ ...note, deck_id: deck.id, user_id: user.id, author_only: false }, deckKey),
     );
 
     await supabase.from<Note>('notes').upsert(upsertData);

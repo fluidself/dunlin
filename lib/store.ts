@@ -81,6 +81,8 @@ export type Store = {
   setAllowedDeck: Setter<string>;
   authorOnlyNotes: boolean;
   setAuthorOnlyNotes: Setter<boolean>;
+  authorControlNotes: boolean;
+  setAuthorControlNotes: Setter<boolean>;
 } & UserSettings;
 
 type FunctionPropertyNames<T> = {
@@ -230,6 +232,8 @@ export const store = createVanilla<Store, SetState<Store>, GetState<Store>, Stor
       setAllowedDeck: setter(set, 'allowedDeck'),
       authorOnlyNotes: false,
       setAuthorOnlyNotes: setter(set, 'authorOnlyNotes'),
+      authorControlNotes: false,
+      setAuthorControlNotes: setter(set, 'authorControlNotes'),
       ...createUserSettingsSlice(set),
     })),
     {

@@ -72,10 +72,10 @@ const Summary = ({ summaryText, isReadOnly, onChange, onDelete }: SummaryProps) 
   return (
     <input
       value={value}
+      disabled={isReadOnly}
       className="bg-transparent outline-none block w-full"
       placeholder="Details"
       onKeyDown={e => {
-        if (isReadOnly) e.preventDefault();
         if (e.key === 'Backspace' && value === '') {
           onDelete();
         }

@@ -23,8 +23,8 @@ import { CreateJoinRenameDeckType } from 'components/CreateJoinRenameDeckModal';
 
 type Props = {
   setIsSettingsOpen: Dispatch<SetStateAction<boolean>>;
-  setIsShareModalOpen: (arg0: boolean) => void;
-  setCreateJoinRenameModal: (arg0: { open: boolean; type: CreateJoinRenameDeckType }) => void;
+  setIsShareModalOpen: (isOpen: boolean) => void;
+  setCreateJoinRenameModal: (modalStatus: { open: boolean; type: CreateJoinRenameDeckType }) => void;
 };
 
 export default function Header(props: Props) {
