@@ -5,6 +5,7 @@ import type { TablerIcon } from '@tabler/icons';
 import { IconUnlink, IconLink, IconFilePlus } from '@tabler/icons';
 import { v4 as uuidv4 } from 'uuid';
 import upsertNote from 'lib/api/upsertNote';
+import { useStore } from 'lib/store';
 import { insertExternalLink, insertNoteLink, removeLink } from 'editor/formatting';
 import { getDefaultEditorValue } from 'editor/constants';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
@@ -37,8 +38,9 @@ type Props = {
 
 export default function AddLinkPopover(props: Props) {
   const { addLinkPopoverState, setAddLinkPopoverState } = props;
-  const { id: deckId, key, author_only_notes } = useCurrentDeck();
+  const { id: deckId, key } = useCurrentDeck();
   const { user } = useAuth();
+  const authorOnlyNotes = useStore(state => state.authorOnlyNotes);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [linkText, setLinkText] = useState<string>('');
   const editor = useSlate();
@@ -129,9 +131,9 @@ export default function AddLinkPopover(props: Props) {
           id: noteId,
           deck_id: deckId,
           user_id: user.id,
+          author_only: authorOnlyNotes,
           title: linkText,
           content: getDefaultEditorValue(),
-          author_only: author_only_notes,
         };
         const encryptedNote = encryptNote(newNote, key);
         insertNoteLink(editor, noteId, linkText);
@@ -144,7 +146,7 @@ export default function AddLinkPopover(props: Props) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [editor, deckId, user, hidePopover, linkText, key, author_only_notes],
+    [editor, deckId, user, hidePopover, linkText, key, authorOnlyNotes],
   );
 
   const onKeyDown = useCallback(

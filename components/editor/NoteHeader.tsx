@@ -73,9 +73,9 @@ export default function NoteHeader() {
   const isCloseButtonVisible = useStore(state => state.openNoteIds.length > 1);
   const note = useStore(state => state.notes[currentNote.id]);
 
-  const authorControlNotes = decks?.find(deck => deck.id === currentDeckId)?.author_control_notes ?? false;
+  const authorControlNotes = useStore(state => state.authorControlNotes);
   const userCanEditNote = note ? (note.author_only ? note.user_id === user?.id || deckOwner === user?.id : true) : false;
-  const userCanControlNotePermission = note ? (authorControlNotes ? note.user_id === user?.id : deckOwner === user?.id) : false;
+  const userCanControlNotePermission = note ? (authorControlNotes && note.user_id === user?.id) || deckOwner === user?.id : false;
 
   const onClosePane = useCallback(() => {
     const currentNoteIndex = store.getState().openNoteIds.findIndex(openNoteId => openNoteId === currentNote.id);
@@ -138,16 +138,21 @@ export default function NoteHeader() {
   const onMintClick = useCallback(() => setIsMintModalOpen(true), []);
 
   const renderPermissionIcon = () => {
-    if (isCloseButtonVisible) return null;
+    if (!note || isCloseButtonVisible) return null;
 
-    return note && note.author_only ? (
-      <Tooltip content={`Only ${note.user_id === user?.id ? 'you' : 'note author'} can edit`}>
+    const viewOnlyTooltipContent =
+      deckOwner === user?.id
+        ? 'Note author and DECK owner can edit'
+        : `${note.user_id === user?.id ? 'Only you' : 'Note author'} and DECK owner can edit`;
+
+    return note.author_only ? (
+      <Tooltip content={viewOnlyTooltipContent}>
         <span className="flex items-center justify-center w-8 h-8">
           <IconEye className="text-gray-600 dark:text-gray-400" />
         </span>
       </Tooltip>
     ) : (
-      <Tooltip content="Everyone can edit">
+      <Tooltip content="All DECK members can edit">
         <span className="flex items-center justify-center w-8 h-8">
           <IconPencil className="text-gray-600 dark:text-gray-400" />
         </span>

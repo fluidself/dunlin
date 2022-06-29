@@ -37,7 +37,7 @@ export default function NoteEditMenu(props: Props) {
     ) : (
       <DropdownItem onClick={async () => await toggleAuthorOnly(true)} className="border-t dark:border-gray-700">
         <IconEye size={18} className="mr-1" />
-        <span>Make view-only</span>
+        <span>Restrict editing</span>
       </DropdownItem>
     );
 

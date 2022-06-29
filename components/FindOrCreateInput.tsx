@@ -5,10 +5,10 @@ import type { TablerIcon } from '@tabler/icons';
 import { IconFilePlus, IconSearch } from '@tabler/icons';
 import { toast } from 'react-toastify';
 import upsertNote from 'lib/api/upsertNote';
+import { useStore } from 'lib/store';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useAuth } from 'utils/useAuth';
 import useNoteSearch from 'utils/useNoteSearch';
-import { caseInsensitiveStringEqual } from 'utils/string';
 import { encryptNote } from 'utils/encryption';
 import { getDefaultEditorValue } from 'editor/constants';
 
@@ -32,8 +32,9 @@ type Props = {
 function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
   const { onOptionClick: onOptionClickCallback, className = '' } = props;
   const router = useRouter();
-  const { id: deckId, key, author_only_notes } = useCurrentDeck();
+  const { id: deckId, key } = useCurrentDeck();
   const { user } = useAuth();
+  const authorOnlyNotes = useStore(state => state.authorOnlyNotes);
 
   const [inputText, setInputText] = useState('');
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0);
@@ -43,9 +44,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
 
   const options = useMemo(() => {
     const result: Array<Option> = [];
-    // Show new note option if there isn't already a note called `inputText`
-    // (We assume if there is a note, then it will be the first result)
-    if (inputText && (searchResults.length <= 0 || !caseInsensitiveStringEqual(inputText, searchResults[0].item.title))) {
+    if (inputText) {
       result.push({
         id: 'NEW_NOTE',
         type: OptionType.NEW_NOTE,
@@ -76,9 +75,9 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
         const newNote = {
           deck_id: deckId,
           user_id: user.id,
+          author_only: authorOnlyNotes,
           title: inputText,
           content: getDefaultEditorValue(),
-          author_only: author_only_notes,
         };
         const encryptedNote = encryptNote(newNote, key);
         const note = await upsertNote(encryptedNote, key);
@@ -94,7 +93,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [deckId, author_only_notes, key, user, router, inputText, onOptionClickCallback],
+    [deckId, authorOnlyNotes, key, user, router, inputText, onOptionClickCallback],
   );
 
   const onKeyDown = useCallback(

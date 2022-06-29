@@ -10,12 +10,14 @@ import Button from 'components/home/Button';
 export default function EditorSettings() {
   const { id: deckId } = useCurrentDeck();
   const setAuthorOnlyNotes = useStore(state => state.setAuthorOnlyNotes);
+  const setAuthorControlNotes = useStore(state => state.setAuthorControlNotes);
   const updateNote = useStore(state => state.updateNote);
 
   const [deckSettings, setDeckSettings] = useState<{ authorOnly: boolean; authorControl: boolean }>();
   const [authorOnly, setAuthorOnly] = useState<boolean>();
   const [authorControl, setAuthorControl] = useState<boolean>();
-  const [hasChanges, setHasChanges] = useState(false);
+  const [initialized, setInitialized] = useState(false);
+  const [hasChanges, setHasChanges] = useState<boolean>();
   const [processing, setProcessing] = useState(false);
 
   const initSettings = async () => {
@@ -28,6 +30,7 @@ export default function EditorSettings() {
     setDeckSettings({ authorOnly: deckSettings.author_only_notes, authorControl: deckSettings.author_control_notes });
     setAuthorOnly(deckSettings.author_only_notes);
     setAuthorControl(deckSettings.author_control_notes);
+    setInitialized(true);
   };
 
   useEffect(() => {
@@ -83,6 +86,8 @@ export default function EditorSettings() {
         .single();
 
       if (typeof authorOnly !== 'undefined') setAuthorOnlyNotes(authorOnly);
+      if (typeof authorControl !== 'undefined') setAuthorControlNotes(authorControl);
+
       setHasChanges(false);
       await initSettings();
       toast.success('Settings updated!');
@@ -95,7 +100,9 @@ export default function EditorSettings() {
   };
 
   const renderSettings = () => {
-    if (typeof authorOnly === 'undefined' || typeof authorControl === 'undefined') return null;
+    if (!initialized || typeof authorOnly === 'undefined' || typeof authorControl === 'undefined') {
+      return null;
+    }
 
     return (
       <>
@@ -127,7 +134,7 @@ export default function EditorSettings() {
             </>
           )}
         </div>
-        <div className={`flex justify-end ${!hasChanges && 'hidden'}`}>
+        <div className={`flex justify-end ${(!initialized || !hasChanges) && 'hidden'}`}>
           <Button primary disabled={!hasChanges || processing} loading={processing} onClick={onSaveChanges}>
             Save Changes
           </Button>

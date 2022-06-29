@@ -132,9 +132,9 @@ export const getOrCreateNoteId = (noteTitle: string): string => {
         id: noteId,
         deck_id: deckId,
         user_id: userId,
+        author_only: authorOnlyNotes,
         title: noteTitle,
         content: getDefaultEditorValue(),
-        author_only: authorOnlyNotes,
       };
       const encryptedNote = encryptNote(newNote, deckKey);
       upsertNote(encryptedNote, deckKey);
