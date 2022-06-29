@@ -36,7 +36,7 @@ export default function EditorSettings() {
   }, []);
 
   useEffect(() => {
-    if (!deckSettings?.authorOnly || !deckSettings.authorControl) return;
+    if (typeof deckSettings?.authorOnly === 'undefined' || typeof deckSettings?.authorControl === 'undefined') return;
 
     if (authorOnly !== deckSettings.authorOnly || authorControl !== deckSettings.authorControl) {
       setHasChanges(true);

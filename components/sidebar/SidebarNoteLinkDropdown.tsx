@@ -2,12 +2,14 @@ import { memo, useRef, useState } from 'react';
 import { Menu } from '@headlessui/react';
 import { IconDots } from '@tabler/icons';
 import { usePopper } from 'react-popper';
+import useSWR from 'swr';
 import { DecryptedNote } from 'types/decrypted';
+import selectDecks from 'lib/api/selectDecks';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
+import { useAuth } from 'utils/useAuth';
 import MoveToModal from 'components/MoveToModal';
 import NoteEditMenu from 'components/NoteEditMenu';
 import NoteMetadata from 'components/NoteMetadata';
-import { useCurrentDeck } from 'utils/useCurrentDeck';
-import { useAuth } from 'utils/useAuth';
 import Portal from '../Portal';
 
 type Props = {
@@ -19,15 +21,17 @@ const SidebarNoteLinkDropdown = (props: Props) => {
   const { note, className } = props;
 
   const { user } = useAuth();
-  const { user_id: deckOwner, author_control_notes } = useCurrentDeck();
+  const { id: currentDeckId, user_id: deckOwner } = useCurrentDeck();
+  const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
   const containerRef = useRef<HTMLButtonElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   const { styles, attributes } = usePopper(containerRef.current, popperElement, { placement: 'right-start' });
 
   const [isMoveToModalOpen, setIsMoveToModalOpen] = useState(false);
 
+  const authorControlNotes = decks?.find(deck => deck.id === currentDeckId)?.author_control_notes ?? false;
   const userCanEditNote = note ? (note.author_only ? note.user_id === user?.id || deckOwner === user?.id : true) : false;
-  const userCanControlNotePermission = note ? (author_control_notes ? note.user_id === user?.id : deckOwner === user?.id) : false;
+  const userCanControlNotePermission = note ? (authorControlNotes ? note.user_id === user?.id : deckOwner === user?.id) : false;
 
   return (
     <>

@@ -53,9 +53,7 @@ type Props = {
 };
 
 const WEBSOCKET_ENDPOINT =
-  process.env.BASE_URL === 'http://localhost:3000'
-    ? 'ws://localhost:1234'
-    : (process.env.NEXT_PUBLIC_Y_WEBSOCKET_ENDPOINT as string);
+  process.env.NODE_ENV === 'development' ? 'ws://localhost:1234' : (process.env.NEXT_PUBLIC_Y_WEBSOCKET_ENDPOINT as string);
 
 function Editor(props: Props) {
   const { noteId, onChange, className = '', highlightedPath } = props;
