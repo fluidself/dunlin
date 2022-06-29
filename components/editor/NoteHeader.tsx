@@ -50,7 +50,7 @@ export default function NoteHeader() {
   const currentNote = useCurrentNote();
   const onImport = useImport();
   const { user } = useAuth();
-  const { id: currentDeckId, user_id: deckOwner, author_control_notes } = useCurrentDeck();
+  const { id: currentDeckId, user_id: deckOwner } = useCurrentDeck();
   const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
   const [deckOptions, setDeckOptions] = useState<DeckSelectOption[]>([]);
   const [selectedDeck, setSelectedDeck] = useState<any>(null);
@@ -73,8 +73,9 @@ export default function NoteHeader() {
   const isCloseButtonVisible = useStore(state => state.openNoteIds.length > 1);
   const note = useStore(state => state.notes[currentNote.id]);
 
+  const authorControlNotes = decks?.find(deck => deck.id === currentDeckId)?.author_control_notes ?? false;
   const userCanEditNote = note ? (note.author_only ? note.user_id === user?.id || deckOwner === user?.id : true) : false;
-  const userCanControlNotePermission = note ? (author_control_notes ? note.user_id === user?.id : deckOwner === user?.id) : false;
+  const userCanControlNotePermission = note ? (authorControlNotes ? note.user_id === user?.id : deckOwner === user?.id) : false;
 
   const onClosePane = useCallback(() => {
     const currentNoteIndex = store.getState().openNoteIds.findIndex(openNoteId => openNoteId === currentNote.id);

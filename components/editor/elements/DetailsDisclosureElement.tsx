@@ -15,6 +15,7 @@ export default function DetailsDisclosureElement(props: DetailsDisclosureElement
   const { summaryText } = element;
   const editor = useSlateStatic();
   const [open, setOpen] = useState(false);
+  const isReadOnly = ReactEditor.isReadOnly(editor);
 
   const deleteElement = useCallback(() => {
     const path = ReactEditor.findPath(editor, element);
@@ -34,10 +35,11 @@ export default function DetailsDisclosureElement(props: DetailsDisclosureElement
         ></button>
         <Summary
           summaryText={summaryText}
+          isReadOnly={isReadOnly}
           onDelete={deleteElement}
-          onChange={(val: string) => {
+          onChange={value => {
             const path = ReactEditor.findPath(editor, element);
-            const newProperties: Partial<DetailsDisclosure> = { summaryText: val };
+            const newProperties: Partial<DetailsDisclosure> = { summaryText: value };
 
             Transforms.setNodes<DetailsDisclosure>(editor, newProperties, {
               at: path,
@@ -45,7 +47,12 @@ export default function DetailsDisclosureElement(props: DetailsDisclosureElement
           }}
         />
       </div>
-      <div className="ml-[22px] mt-1 outline-none" hidden={!open} contentEditable={open} suppressContentEditableWarning>
+      <div
+        className="ml-[22px] mt-1 outline-none"
+        hidden={!open}
+        contentEditable={!isReadOnly && open}
+        suppressContentEditableWarning
+      >
         {children}
       </div>
     </div>
@@ -54,11 +61,12 @@ export default function DetailsDisclosureElement(props: DetailsDisclosureElement
 
 type SummaryProps = {
   summaryText: string;
+  isReadOnly: boolean;
   onChange: (value: string) => void;
   onDelete: () => void;
 };
 
-const Summary = ({ summaryText, onChange, onDelete }: SummaryProps) => {
+const Summary = ({ summaryText, isReadOnly, onChange, onDelete }: SummaryProps) => {
   const [value, setValue] = useState(summaryText);
 
   return (
@@ -67,6 +75,7 @@ const Summary = ({ summaryText, onChange, onDelete }: SummaryProps) => {
       className="bg-transparent outline-none block w-full"
       placeholder="Details"
       onKeyDown={e => {
+        if (isReadOnly) e.preventDefault();
         if (e.key === 'Backspace' && value === '') {
           onDelete();
         }
