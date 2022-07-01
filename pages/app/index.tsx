@@ -81,6 +81,8 @@ export default function AppHome() {
     const deck = await insertDeck({
       user_id: user.id,
       deck_name: deckName,
+      author_only_notes: false,
+      author_control_notes: false,
       access_params: accessParams,
     });
 

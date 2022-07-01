@@ -298,7 +298,7 @@ export const insertDetailsDisclosure = (editor: Editor, path?: Path) => {
         type: ElementType.Paragraph,
         children: [{ text: '' }],
       },
-      { at: Editor.end(editor, []) },
+      { at: documentEnd },
     );
   }
 };
