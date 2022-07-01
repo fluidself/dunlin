@@ -68,7 +68,7 @@ const SettingsModalSidebar = (props: SettingsModalSidebarProps) => {
           onClick={() => setCurrentTab(SettingsTab.Editor)}
         >
           <IconPencil size={18} className="mr-1 text-gray-800 dark:text-gray-200" />
-          <span>Editor</span>
+          <span>Editing</span>
         </button>
       </SidebarItem>
     </div>

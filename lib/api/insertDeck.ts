@@ -5,6 +5,8 @@ import { AccessControlCondition } from 'types/lit';
 type DeckInsert = {
   user_id: string;
   deck_name: string;
+  author_only_notes: boolean;
+  author_control_notes: boolean;
   access_params: {
     encrypted_string: string;
     encrypted_symmetric_key: string;
