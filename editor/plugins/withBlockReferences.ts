@@ -55,7 +55,12 @@ const replaceBlockRefs = async (editor: Editor, blockId: string) => {
   // See https://github.com/supabase/supabase-js/issues/156
   const promises = [];
   for (const data of updateData) {
-    promises.push(supabase.from<Note>('notes').update({ content: data.encryptedContent }).eq('id', data.id));
+    promises.push(
+      supabase
+        .from<Note>('notes')
+        .update({ content: data.encryptedContent, updated_at: new Date().toISOString() })
+        .eq('id', data.id),
+    );
   }
   await Promise.all(promises);
 };
