@@ -155,7 +155,10 @@ export default function BlockAutocompletePopover() {
 
           // Update note in database
           const encryptedContent = encrypt(noteEditor.children, key);
-          await supabase.from<Note>('notes').update({ content: encryptedContent }).eq('id', option.noteId);
+          await supabase
+            .from<Note>('notes')
+            .update({ content: encryptedContent, updated_at: new Date().toISOString() })
+            .eq('id', option.noteId);
         } else {
           blockId = option.blockId;
         }
