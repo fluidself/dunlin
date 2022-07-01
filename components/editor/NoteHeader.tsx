@@ -73,10 +73,6 @@ export default function NoteHeader() {
   const isCloseButtonVisible = useStore(state => state.openNoteIds.length > 1);
   const note = useStore(state => state.notes[currentNote.id]);
 
-  const authorControlNotes = useStore(state => state.authorControlNotes);
-  const userCanEditNote = note ? (note.author_only ? note.user_id === user?.id || deckOwner === user?.id : true) : false;
-  const userCanControlNotePermission = note ? (authorControlNotes && note.user_id === user?.id) || deckOwner === user?.id : false;
-
   const onClosePane = useCallback(() => {
     const currentNoteIndex = store.getState().openNoteIds.findIndex(openNoteId => openNoteId === currentNote.id);
     const stackedNoteIds = queryParamToArray(stackQuery);
@@ -248,12 +244,7 @@ export default function NoteHeader() {
                         <IconCloudDownload size={18} className="mr-1" />
                         <span>Export all</span>
                       </DropdownItem>
-                      <NoteEditMenu
-                        note={note}
-                        userCanEditNote={userCanEditNote}
-                        userCanControlNotePermission={userCanControlNotePermission}
-                        setIsMoveToModalOpen={setIsMoveToModalOpen}
-                      />
+                      <NoteEditMenu note={note} setIsMoveToModalOpen={setIsMoveToModalOpen} />
                       <NoteMetadata note={note} />
                     </Menu.Items>
                   </Portal>

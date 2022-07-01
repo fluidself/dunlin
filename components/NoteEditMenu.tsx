@@ -1,26 +1,41 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { IconCornerDownRight, IconTrash, IconPencil, IconEye } from '@tabler/icons';
 import { toast } from 'react-toastify';
 import { DecryptedNote } from 'types/decrypted';
-import { Note } from 'types/supabase';
+import { Note, Deck } from 'types/supabase';
 import { DropdownItem } from 'components/Dropdown';
 import useDeleteNote from 'utils/useDeleteNote';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
+import { useAuth } from 'utils/useAuth';
 import { store } from 'lib/store';
 import supabase from 'lib/supabase';
 
 type Props = {
   note: DecryptedNote;
-  userCanEditNote: boolean;
-  userCanControlNotePermission: boolean;
   setIsMoveToModalOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export default function NoteEditMenu(props: Props) {
-  const { note, userCanEditNote, userCanControlNotePermission, setIsMoveToModalOpen } = props;
+  const { note, setIsMoveToModalOpen } = props;
+
+  const { user } = useAuth();
+  const { id: deckId, user_id: deckOwner } = useCurrentDeck();
+  const [authorControlNotes, setAuthorControlNotes] = useState<boolean>();
+
+  useEffect(() => {
+    const initPermission = async () => {
+      const { data: deckSettings } = await supabase.from<Deck>('decks').select('author_control_notes').eq('id', deckId).single();
+      if (deckSettings) setAuthorControlNotes(deckSettings.author_control_notes);
+    };
+    initPermission();
+  }, [deckId]);
 
   const onMoveToClick = useCallback(() => setIsMoveToModalOpen(true), [setIsMoveToModalOpen]);
   const onDeleteClick = useDeleteNote(note.id);
+
+  const userCanEditNote = note.author_only ? note.user_id === user?.id || deckOwner === user?.id : true;
+  const userCanControlNotePermission = (authorControlNotes && note.user_id === user?.id) || deckOwner === user?.id;
 
   const toggleAuthorOnly = async (newSetting: boolean) => {
     store.getState().updateNote({ id: note.id, author_only: newSetting });

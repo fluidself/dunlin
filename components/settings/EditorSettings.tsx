@@ -10,7 +10,6 @@ import Button from 'components/home/Button';
 export default function EditorSettings() {
   const { id: deckId } = useCurrentDeck();
   const setAuthorOnlyNotes = useStore(state => state.setAuthorOnlyNotes);
-  const setAuthorControlNotes = useStore(state => state.setAuthorControlNotes);
   const updateNote = useStore(state => state.updateNote);
 
   const [deckSettings, setDeckSettings] = useState<{ authorOnly: boolean; authorControl: boolean }>();
@@ -86,7 +85,6 @@ export default function EditorSettings() {
         .single();
 
       if (typeof authorOnly !== 'undefined') setAuthorOnlyNotes(authorOnly);
-      if (typeof authorControl !== 'undefined') setAuthorControlNotes(authorControl);
 
       setHasChanges(false);
       await initSettings();
