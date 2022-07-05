@@ -133,7 +133,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
   const verifyAccess = async () => {
     if (!inputText) return;
 
-    if (decks?.find(deck => deck.id === inputText)) {
+    if (decks?.find(deck => deck.id === inputText && deck.user_id === user?.id)) {
       toast.success('You own that DECK!');
       setProcessing(false);
       closeModal();
