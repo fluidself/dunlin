@@ -2,11 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { IconX } from '@tabler/icons';
 import { toast } from 'react-toastify';
 import LitJsSdk from 'lit-js-sdk';
-import { AbleToAccess, WhichWallet, AssetWallet, DAOMembers, AccessCreated, SelectTokens, ChoosePOAP } from './ShareModalSteps';
+import {
+  AbleToAccess,
+  WhichWallet,
+  AssetWallet,
+  DAOMembers,
+  AccessCreated,
+  SelectTokens,
+  ChoosePOAP,
+  CurrentAccess,
+} from './ShareModalSteps';
 import UnsavedPopup from './UnsavedPopup';
 
 const ModalComponents = {
   ableToAccess: AbleToAccess,
+  currentAccess: CurrentAccess,
   whichWallet: WhichWallet,
   assetWallet: AssetWallet,
   DAOMembers: DAOMembers,
@@ -58,7 +68,7 @@ const ShareModal = props => {
   };
 
   const handleClose = () => {
-    if (!['ableToAccess', 'accessCreated'].includes(activeStep)) {
+    if (!['ableToAccess', 'currentAccess', 'accessCreated'].includes(activeStep)) {
       setShowUnsavedPopup(true);
     } else {
       onClose();
