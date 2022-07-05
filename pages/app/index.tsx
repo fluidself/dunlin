@@ -108,7 +108,7 @@ export default function AppHome() {
     if (!requestedDeck) return;
     setProcessing(true);
 
-    if (decks?.find(deck => deck.id === requestedDeck)) {
+    if (decks?.find(deck => deck.id === requestedDeck && deck.user_id === user?.id)) {
       toast.success('You own that DECK!');
       setRequestingAccess(false);
       setProcessing(false);

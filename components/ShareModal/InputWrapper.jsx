@@ -37,7 +37,7 @@ const InputWrapper = ({
           autoComplete="off"
         />
       </div>
-      {error && <span className="text-red-500 pl-4 mt-2">{error}</span>}
+      {error && <span className="text-red-500 pl-1 mt-1">{error}</span>}
     </div>
   );
 };

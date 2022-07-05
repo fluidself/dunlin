@@ -20,7 +20,7 @@ const ITEMS = [
   {
     type: 'whichWallet',
     icon: <WalletIcon />,
-    title: 'An Individual Wallet',
+    title: 'Individual Wallet(s)',
   },
   {
     type: 'selectTokens',
