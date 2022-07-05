@@ -1,8 +1,15 @@
-import React from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { WalletIcon, TokenIcon, DAOIcon, POAPIcon } from '../icons';
 
-const TypeButton = props => {
+type TypeButtonProps = {
+  type: string;
+  icon: JSX.Element;
+  title: string;
+  onClick: (type: string) => void;
+};
+
+const TypeButton = (props: TypeButtonProps) => {
   const { type, icon, title, onClick } = props;
 
   return (
@@ -39,7 +46,11 @@ const ITEMS = [
   },
 ];
 
-const AbleToAccess = props => {
+type Props = {
+  setActiveStep: Dispatch<SetStateAction<string>>;
+};
+
+const AbleToAccess = (props: Props) => {
   const { setActiveStep } = props;
   const { id, deck_name } = useCurrentDeck();
 
@@ -59,6 +70,11 @@ const AbleToAccess = props => {
         {ITEMS.map((item, i) => (
           <TypeButton key={i} {...item} onClick={setActiveStep} />
         ))}
+      </div>
+      <div className="w-full flex justify-center mt-8">
+        <a className="text-sm hover:underline cursor-pointer" onClick={() => setActiveStep('currentAccess')}>
+          See current conditions
+        </a>
       </div>
     </div>
   );
