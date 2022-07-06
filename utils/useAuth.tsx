@@ -40,8 +40,8 @@ function useProvideAuth(): AuthContextType {
   useEffect(() => {
     initUser();
 
-    window.addEventListener('focus', initUser);
-    return () => window.removeEventListener('focus', initUser);
+    // window.addEventListener('focus', initUser);
+    // return () => window.removeEventListener('focus', initUser);
   }, []);
 
   const signIn = useCallback(async () => {

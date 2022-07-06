@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import LitJsSdk from 'lit-js-sdk';
 import Button from 'components/home/Button';
 import InputWrapper from '../InputWrapper';
@@ -17,11 +17,6 @@ const WhichWallet = ({ setActiveStep, processingAccess, onAccessControlCondition
     let data = [...walletAddresses];
     data[index].value = value;
     setWalletAddresses(data);
-  };
-
-  const insertAddressField = () => {
-    const newField = { value: '', error: '' };
-    setWalletAddresses([...walletAddresses, newField]);
   };
 
   const hasValidInput = () => {
@@ -94,6 +89,31 @@ const WhichWallet = ({ setActiveStep, processingAccess, onAccessControlCondition
     }
   };
 
+  const insertAddressField = () => setWalletAddresses([...walletAddresses, { value: '', error: '' }]);
+
+  const removeAddressField = () => {
+    const newFields = [...walletAddresses];
+    newFields.pop();
+    setWalletAddresses(newFields);
+  };
+
+  const renderFieldButtons = () => {
+    if (!walletAddresses[0].value) return null;
+
+    return (
+      <div className="mt-4 flex space-x-4">
+        <Button className="text-sm" onClick={insertAddressField} disabled={processing || processingAccess}>
+          Add another
+        </Button>
+        {walletAddresses.length > 1 && (
+          <Button className="text-sm" onClick={removeAddressField} disabled={processing || processingAccess}>
+            Remove last
+          </Button>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div>
       <div>
@@ -119,11 +139,7 @@ const WhichWallet = ({ setActiveStep, processingAccess, onAccessControlCondition
             error={field.error}
           />
         ))}
-        {walletAddresses[0].value && (
-          <Button className="mt-2" onClick={insertAddressField} disabled={processing || processingAccess}>
-            Add another
-          </Button>
-        )}
+        {renderFieldButtons()}
       </div>
 
       <Navigation

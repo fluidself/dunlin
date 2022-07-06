@@ -1,6 +1,7 @@
 import type { Descendant } from 'slate';
 import { User } from 'types/supabase';
 import { NoteTreeItem } from 'lib/store';
+import { AccessControlCondition, BooleanCondition } from './lit';
 
 export type DecryptedDeck = {
   id: string;
@@ -9,6 +10,7 @@ export type DecryptedDeck = {
   deck_name: string;
   author_only_notes: boolean;
   author_control_notes: boolean;
+  access_control_conditions: (AccessControlCondition | BooleanCondition)[];
   key: string;
 };
 

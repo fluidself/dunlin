@@ -84,6 +84,7 @@ export default function AppLayout(props: Props) {
       const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
       const decryptedDeck: DecryptedDeck = {
         ...rest,
+        access_control_conditions,
         key: deckKey,
       };
 

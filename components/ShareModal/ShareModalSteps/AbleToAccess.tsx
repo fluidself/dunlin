@@ -52,7 +52,7 @@ type Props = {
 
 const AbleToAccess = (props: Props) => {
   const { setActiveStep } = props;
-  const { id, deck_name } = useCurrentDeck();
+  const { id, deck_name, access_control_conditions } = useCurrentDeck();
 
   return (
     <div className="mb-4">
@@ -71,11 +71,13 @@ const AbleToAccess = (props: Props) => {
           <TypeButton key={i} {...item} onClick={setActiveStep} />
         ))}
       </div>
-      <div className="w-full flex justify-center mt-8">
-        <a className="text-sm hover:underline cursor-pointer" onClick={() => setActiveStep('currentAccess')}>
-          See current conditions
-        </a>
-      </div>
+      {access_control_conditions?.length > 1 && (
+        <div className="w-full flex justify-center mt-8">
+          <a className="text-sm hover:underline cursor-pointer" onClick={() => setActiveStep('currentAccess')}>
+            See current conditions
+          </a>
+        </div>
+      )}
     </div>
   );
 };
