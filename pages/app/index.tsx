@@ -1,4 +1,3 @@
-// @ts-ignore
 import LitJsSdk from 'lit-js-sdk';
 import { withIronSessionSsr } from 'iron-session/next';
 import { useState, useEffect } from 'react';

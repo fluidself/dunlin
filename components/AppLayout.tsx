@@ -1,4 +1,3 @@
-// @ts-ignore
 import LitJsSdk from 'lit-js-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';

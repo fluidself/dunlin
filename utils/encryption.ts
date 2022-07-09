@@ -1,4 +1,3 @@
-// @ts-ignore
 import LitJsSdk from 'lit-js-sdk';
 import { secretbox, randomBytes } from 'tweetnacl';
 import { decodeUTF8, encodeUTF8, encodeBase64, decodeBase64 } from 'tweetnacl-util';

@@ -6,6 +6,8 @@ import Editor from 'components/editor/Editor';
 import Title from 'components/editor/Title';
 import { store, useStore } from 'lib/store';
 import { Note } from 'types/supabase';
+import { DecryptedNote } from 'types/decrypted';
+import type { PickPartial } from 'types/utils';
 import updateDbNote, { NoteUpdate } from 'lib/api/updateNote';
 import { ProvideCurrentNote } from 'utils/useCurrentNote';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
@@ -19,6 +21,11 @@ import ReadOnlyNoteEditor from './editor/ReadOnlyNoteEditor';
 import ReadOnlyTitle from './editor/ReadOnlyTitle';
 
 const SYNC_DEBOUNCE_MS = 1000;
+
+type RawNoteUpdate = PickPartial<
+  DecryptedNote,
+  'deck_id' | 'user_id' | 'content' | 'title' | 'author_only' | 'created_at' | 'updated_at'
+>;
 
 type Props = {
   noteId: string;
@@ -81,7 +88,7 @@ function Note(props: Props) {
   useEffect(() => {
     if (!note || noteIsViewOnlyForUser) return;
 
-    const noteUpdate: any = { id: noteId };
+    const noteUpdate: RawNoteUpdate = { id: noteId };
     if (!syncState.isContentSynced) {
       noteUpdate.content = note.content;
     }

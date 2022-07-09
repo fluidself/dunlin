@@ -1,9 +1,10 @@
+import React from 'react';
 import { RenderLeafProps } from 'slate-react';
 import Caret from './Caret';
 
 export type EditorLeafProps = {
   attributes: { contentEditable?: boolean };
-  leaf: { isCaret?: boolean; data?: any };
+  leaf: { isCaret?: boolean; data?: { alphaColor: string; color: string; name: string } };
 } & RenderLeafProps;
 
 const EditorLeaf = ({ attributes, children, leaf }: EditorLeafProps) => {
@@ -33,7 +34,7 @@ const EditorLeaf = ({ attributes, children, leaf }: EditorLeafProps) => {
     children = <mark className="bg-yellow-100 dark:bg-yellow-900 dark:text-white">{children}</mark>;
   }
 
-  const data = leaf.data as any;
+  const data = leaf.data;
 
   return (
     <span {...attributes}>
@@ -43,7 +44,7 @@ const EditorLeaf = ({ attributes, children, leaf }: EditorLeafProps) => {
             {
               position: 'relative',
               backgroundColor: data?.alphaColor,
-            } as any
+            } as React.CSSProperties
           }
         >
           {<Caret {...(leaf as any)} />}
