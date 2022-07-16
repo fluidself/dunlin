@@ -96,7 +96,8 @@ const handleInlineShortcuts = (editor: Editor, text: string): boolean => {
     } else if (type === ElementType.Tag) {
       handled = handleTag(editor, result, endOfMatchPoint, text.length);
     } else if (type === ElementType.BlockReference) {
-      handled = handleBlockReference(editor, result, endOfMatchPoint, elementText === wholeMatch, text.length);
+      const inTable = Editor.above(editor, { match: n => n.type === ElementType.Table });
+      handled = inTable ? true : handleBlockReference(editor, result, endOfMatchPoint, elementText === wholeMatch, text.length);
     }
 
     if (handled) {

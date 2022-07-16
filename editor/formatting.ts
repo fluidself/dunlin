@@ -45,6 +45,11 @@ export const isElementActive = (editor: Editor, format: ElementType, path?: Path
 export const toggleElement = (editor: Editor, format: ElementType, path?: Path) => {
   const pathRef = path ? Editor.pathRef(editor, path) : null;
   const isActive = isElementActive(editor, format, path);
+  const inTable = Editor.above(editor, { match: n => n.type === ElementType.Table });
+
+  if (inTable) {
+    return;
+  }
 
   // Returns the current path
   const getCurrentLocation = () => pathRef?.current ?? undefined;

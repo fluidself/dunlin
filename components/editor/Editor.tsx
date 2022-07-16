@@ -269,7 +269,7 @@ function Editor(props: Props) {
 
   const onKeyDown = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {
-      // Handle keyboard shortcuts for adding marks
+      // Handle keyboard shortcuts
       for (const { hotkey, callback } of hotkeys) {
         if (isHotkey(hotkey, event.nativeEvent)) {
           event.preventDefault();

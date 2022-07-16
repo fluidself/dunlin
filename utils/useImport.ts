@@ -161,7 +161,6 @@ const setNoteLinkIds = (
   upsertData: any[],
   deckId: string,
 ): Descendant => {
-  // if (Element.isElement(node)) {
   if (Element.isElement(node) && node.type !== ElementType.Table && node.type !== ElementType.TableRow) {
     return {
       ...node,

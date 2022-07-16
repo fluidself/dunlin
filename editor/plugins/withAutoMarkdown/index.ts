@@ -35,8 +35,11 @@ const handleAutoMarkdown = (editor: Editor, text: string) => {
     return;
   }
 
-  // Handle shortcuts at the beginning of a line
-  const blockHandled = handleBlockShortcuts(editor, text);
+  // Handle shortcuts at the beginning of a line, except in tables
+  const inTable = Editor.above(editor, {
+    match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.Table,
+  });
+  const blockHandled = !inTable && handleBlockShortcuts(editor, text);
   if (blockHandled) {
     return blockHandled;
   }
