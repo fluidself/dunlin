@@ -142,7 +142,7 @@ export default function EditorElement(props: EditorElementProps) {
     }
     case ElementType.TableContent: {
       return (
-        <div slate-table-element="content" className="overflow-auto" {...attributes}>
+        <div slate-table-element="content" {...attributes}>
           {children}
         </div>
       );

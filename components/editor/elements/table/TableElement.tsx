@@ -14,9 +14,9 @@ import { ElementType, Table } from 'types/slate';
 import Tooltip from 'components/Tooltip';
 import { IconDeleteColumn, IconDeleteRow } from './icons';
 import { insertAbove, insertBelow, insertLeft, insertRight, removeColumn, removeRow, removeTable } from './commands';
-import { splitedTable } from './selection';
+import { splitTable } from './selection';
 
-const TABLE_OPTIONS = {
+const TABLE_CELL_OPTIONS = {
   defaultWidth: 50 as number,
   defaultHeight: 22 as number,
 };
@@ -144,7 +144,7 @@ const HorizontalToolbar: React.FC<{
   const widthFnObject: any = useMemo(() => ({}), []);
 
   useEffect(() => {
-    const { gridTable = [] } = splitedTable(editor, tableNode);
+    const { gridTable = [] } = splitTable(editor, tableNode);
     if (!gridTable.length) return;
 
     const colsArray = [] as { width: number; el: HTMLElement[] }[];
@@ -204,14 +204,14 @@ const HorizontalToolbar: React.FC<{
           if (!dragger) return;
           const draggerWidth = dragger.offsetWidth;
 
-          if (draggerWidth + changedWidth > TABLE_OPTIONS.defaultWidth) {
+          if (draggerWidth + changedWidth > TABLE_CELL_OPTIONS.defaultWidth) {
             dragger.style.width = `${draggerWidth + changedWidth}px`;
           }
 
           const savedChangedWidth = [];
           let moreThanMinWidth = true;
           for (const cell of item.el) {
-            if (cell.offsetWidth + changedWidth <= TABLE_OPTIONS.defaultWidth) {
+            if (cell.offsetWidth + changedWidth <= TABLE_CELL_OPTIONS.defaultWidth) {
               moreThanMinWidth = false;
               break;
             }
@@ -307,7 +307,7 @@ const VerticalToolbar: React.FC<{
   const heightFnObject: any = useMemo(() => ({}), []);
 
   useEffect(() => {
-    const { gridTable = [] } = splitedTable(editor, tableNode);
+    const { gridTable = [] } = splitTable(editor, tableNode);
     if (!gridTable.length) return;
 
     const rowsArray = [] as { height: number; el: HTMLElement[] }[];
@@ -353,7 +353,7 @@ const VerticalToolbar: React.FC<{
         }
 
         if (item.el) {
-          const minHeight = TABLE_OPTIONS.defaultHeight;
+          const minHeight = TABLE_CELL_OPTIONS.defaultHeight;
 
           const dragger = ref.current?.querySelector(`#vertical-dragger-item-${index}`) as HTMLElement;
 

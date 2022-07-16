@@ -1,6 +1,6 @@
 import { Editor, Transforms, NodeEntry } from 'slate';
 import { ElementType, TableCell } from 'types/slate';
-import { splitedTable, Col } from '../selection';
+import { splitTable, Col } from '../selection';
 import { createRow } from '../creator';
 
 export function insertAbove(table: NodeEntry, editor: Editor) {
@@ -9,7 +9,7 @@ export function insertAbove(table: NodeEntry, editor: Editor) {
 
   const yIndex = table[1].length;
 
-  const { gridTable, getCol } = splitedTable(editor, table);
+  const { gridTable, getCol } = splitTable(editor, table);
 
   const [startCell] = Editor.nodes<TableCell>(editor, {
     match: n => n.type === ElementType.TableCell,
@@ -43,7 +43,7 @@ export function insertAbove(table: NodeEntry, editor: Editor) {
   const newRow = createRow(insertCols.size);
 
   const [[, path]] = Editor.nodes(editor, {
-    match: n => n.type === 'table-row',
+    match: n => n.type === ElementType.TableRow,
   });
 
   Transforms.insertNodes(editor, newRow, {

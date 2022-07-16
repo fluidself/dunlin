@@ -9,7 +9,7 @@ export type Col = {
   isInsertPosition?: boolean;
 };
 
-export const splitedTable: (
+export const splitTable: (
   editor: Editor,
   table: NodeEntry,
   startKey?: string | undefined,
