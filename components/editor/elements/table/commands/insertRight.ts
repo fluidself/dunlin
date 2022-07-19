@@ -15,41 +15,23 @@ export function insertRight(table: NodeEntry, editor: Editor) {
     match: n => n.type === ElementType.TableCell,
   });
 
-  const [insertPositionCol] = getCol((c: Col) => c.cell.id === startCell[0].id && c.isReal);
-
-  const x = insertPositionCol.path[xIndex] + 1 - 1;
-
+  const [insertPositionCol] = getCol((c: Col) => c.cell.id === startCell[0].id);
+  const x = insertPositionCol.path[xIndex];
   const insertCols = new Map<string, Col>();
-  let checkInsertable = true;
 
   gridTable.forEach((row: Col[]) => {
     const col = row[x];
+    const [originCol] = getCol((n: Col) => n.cell.id === col.cell.id);
+    const { cell } = originCol;
 
-    const [originCol] = getCol((n: Col) => n.cell.id === col.cell.id && n.isReal);
-
-    const { cell, path } = originCol;
-
-    if (!row[x + 1] || col.isReal) {
-      insertCols.set(cell.id, originCol);
-    } else {
-      if (path[xIndex] + 1 - 1 === x) {
-        insertCols.set(cell.id, originCol);
-      } else {
-        checkInsertable = false;
-        return;
-      }
-    }
+    insertCols.set(cell.id, originCol);
   });
-
-  if (!checkInsertable) {
-    return;
-  }
 
   insertCols.forEach((col: Col) => {
     const newCell = createCell();
 
     Transforms.insertNodes(editor, newCell, {
-      at: Path.next(col.originPath),
+      at: Path.next(col.path),
     });
   });
 }

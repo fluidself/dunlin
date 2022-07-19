@@ -6,7 +6,7 @@ export function removeRow(table: NodeEntry, editor: Editor) {
   const { selection } = editor;
   if (!selection || !table) return;
 
-  const { gridTable, getCol } = splitTable(editor, table);
+  const { getCol } = splitTable(editor, table);
 
   const yIndex = table[1].length;
 
@@ -15,11 +15,11 @@ export function removeRow(table: NodeEntry, editor: Editor) {
     match: n => n.type === ElementType.TableCell,
     at: start,
   });
-
   const [endNode] = Editor.nodes<TableCell>(editor, {
     match: n => n.type === ElementType.TableCell,
     at: end,
   });
+  if (!startNode || !endNode) return;
 
   const [startCol] = getCol((col: Col) => col.cell.id === startNode[0].id);
   const [endCol] = getCol((col: Col) => col.cell.id === endNode[0].id);
@@ -27,17 +27,9 @@ export function removeRow(table: NodeEntry, editor: Editor) {
   const yTop = startCol.path[yIndex];
   const yBottom = endCol.path[yIndex];
 
-  const topLeftCol = gridTable[yTop][0];
-  const bottomRight = gridTable[yBottom][gridTable[yBottom].length - 1];
+  const { gridTable } = splitTable(editor, table);
 
-  Transforms.setSelection(editor, {
-    anchor: Editor.point(editor, topLeftCol.originPath),
-    focus: Editor.point(editor, bottomRight.originPath),
-  });
-
-  const { gridTable: splitedGridTable } = splitTable(editor, table);
-
-  const removeCols = splitedGridTable.slice(yTop, yBottom + 1).reduce((p: Col[], c: Col[]) => [...p, ...c], []) as Col[];
+  const removeCols = gridTable.slice(yTop, yBottom + 1).reduce((p: Col[], c: Col[]) => [...p, ...c], []) as Col[];
 
   removeCols.forEach((col: Col) => {
     Transforms.removeNodes(editor, {

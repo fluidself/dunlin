@@ -1,4 +1,4 @@
-import { ElementType, TableRow, TableCell, TableContent } from 'types/slate';
+import { ElementType, TableRow, TableCell } from 'types/slate';
 import { createNodeId } from 'editor/plugins/withNodeId';
 
 export function createTable(columns: number, rows: number) {
@@ -21,20 +21,10 @@ export function createRow(columns: number): TableRow {
   };
 }
 
-export function createCell(): TableCell {
-  const content = createContent();
-
+export function createCell(content?: string): TableCell {
   return {
     id: createNodeId(),
     type: ElementType.TableCell,
-    children: [content],
-  };
-}
-
-export function createContent(content?: string): TableContent {
-  return {
-    id: createNodeId(),
-    type: ElementType.TableContent,
     children: [{ text: content || '' }],
   };
 }

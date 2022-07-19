@@ -198,8 +198,7 @@ export default function serialize(chunk: BlockType | LeafType, opts: Options = {
 
     case ElementType.Table:
     case ElementType.TableRow:
-    case ElementType.TableCell:
-    case ElementType.TableContent: {
+    case ElementType.TableCell: {
       if (type === ElementType.Table) {
         const table = chunk as Table;
         let tableHtmlString = `<table><tbody>`;
@@ -207,15 +206,12 @@ export default function serialize(chunk: BlockType | LeafType, opts: Options = {
         table.children.forEach(row => {
           tableHtmlString += `<tr>`;
           row.children.forEach(cell => {
-            tableHtmlString += `<td>`;
-            cell.children.forEach(content => {
-              tableHtmlString += `${content.children[0].text}</td>`;
-            });
+            tableHtmlString += `<td>${cell.children.map((c: BlockType | LeafType) => serialize({ ...c })).join('')}</td>`;
           });
           tableHtmlString += `</tr>`;
         });
 
-        return `${tableHtmlString}</tbody></table>`;
+        return `${tableHtmlString}</tbody></table>\n\n`;
       }
     }
 

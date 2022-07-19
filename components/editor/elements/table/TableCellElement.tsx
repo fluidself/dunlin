@@ -15,18 +15,10 @@ export default function TableCellElement(props: Props) {
 
   return (
     <td
-      {...attributes}
-      className="border px-2 py-2 align-baseline box-border min-w-min"
+      className="relative min-w-[50px] min-h-[22px] w-auto h-auto border px-2 py-2 align-baseline box-border "
       slate-table-element="td"
       data-key={dataKey}
-      onDragStart={e => e.preventDefault()}
-      style={{
-        position: 'relative',
-        minWidth: '50px',
-        minHeight: '22px',
-        width: 'auto',
-        height: 'auto',
-      }}
+      {...attributes}
     >
       {children}
     </td>

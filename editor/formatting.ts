@@ -141,7 +141,7 @@ export const handleUnindent = (editor: Editor) => {
 };
 
 export const handleEnter = (editor: Editor) => {
-  if (isElementActive(editor, ElementType.CodeBlock)) {
+  if (isElementActive(editor, ElementType.CodeBlock) || isElementActive(editor, ElementType.TableCell)) {
     Transforms.insertText(editor, '\n');
   } else {
     editor.insertBreak();

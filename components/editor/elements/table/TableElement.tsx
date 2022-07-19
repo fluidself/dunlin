@@ -1,5 +1,5 @@
 import React, { HTMLAttributes, ReactNode, useCallback, useMemo, useEffect, useState, useRef } from 'react';
-import { RenderElementProps, useSelected, useSlateStatic, useSlate } from 'slate-react';
+import { RenderElementProps, useSelected, useSlate } from 'slate-react';
 import { Editor, NodeEntry, Transforms } from 'slate';
 import cx from 'classnames';
 import {
@@ -31,7 +31,7 @@ type TableElementProps = {
 export default function TableElement(props: TableElementProps) {
   const { children } = props;
   const selected = useSelected();
-  const editor = useSlateStatic();
+  const editor = useSlate();
   const ref = useRef<HTMLTableElement>(null);
 
   let table: NodeEntry | null = null;
@@ -139,7 +139,7 @@ const HorizontalToolbar: React.FC<{
   tableNode: NodeEntry;
 }> = ({ table, tableNode }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const editor = useSlateStatic();
+  const editor = useSlate();
   const [cols, setCols] = useState<{ width: number; el: HTMLElement[] }[]>([]);
   const widthFnObject: any = useMemo(() => ({}), []);
 
@@ -302,7 +302,7 @@ const VerticalToolbar: React.FC<{
   tableNode: NodeEntry;
 }> = ({ table, tableNode }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const editor = useSlateStatic();
+  const editor = useSlate();
   const [rows, setRows] = useState<{ height: number; el: HTMLElement[] }[]>([]);
   const heightFnObject: any = useMemo(() => ({}), []);
 
@@ -326,9 +326,7 @@ const VerticalToolbar: React.FC<{
           };
         }
 
-        if (currCell.isReal) {
-          rowsArray[i].height = !rowsArray[i].height ? td.offsetHeight : Math.min(rowsArray[i].height, td.offsetHeight);
-        }
+        rowsArray[i].height = !rowsArray[i].height ? td.offsetHeight : Math.min(rowsArray[i].height, td.offsetHeight);
 
         if (rowsArray[i].el.findIndex(({ dataset }) => dataset.key === td.dataset.key) < 0) {
           rowsArray[i].el.push(td);

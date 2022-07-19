@@ -15,21 +15,19 @@ export function insertBelow(table: NodeEntry, editor: Editor) {
     match: n => n.type === ElementType.TableCell,
   });
 
-  const [insertPositionCol] = getCol((c: Col) => c.cell.id === startCell[0].id && c.isReal);
-
-  let checkInsertEnable = true;
+  const [insertPositionCol] = getCol((c: Col) => c.cell.id === startCell[0].id);
   const insertCols = new Map<string, Col>();
-
-  const y = insertPositionCol.path[yIndex] + 1 - 1;
+  const y = insertPositionCol.path[yIndex];
+  let checkInsertEnable = true;
 
   gridTable[y].forEach((col: Col) => {
-    const [originCol] = getCol((n: Col) => n.isReal && n.cell.id === col.cell.id);
+    const [originCol] = getCol((n: Col) => n.cell.id === col.cell.id);
 
     const { cell, path } = originCol;
 
     if (!gridTable[y + 1]) {
       insertCols.set(cell.id, originCol);
-    } else if (path[yIndex] + 1 - 1 === y) {
+    } else if (path[yIndex] === y) {
       insertCols.set(cell.id, originCol);
     } else {
       checkInsertEnable = false;

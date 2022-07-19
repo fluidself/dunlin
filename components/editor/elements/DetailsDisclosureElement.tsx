@@ -1,5 +1,5 @@
 import { ReactNode, useCallback, useState } from 'react';
-import { ReactEditor, RenderElementProps, useSlateStatic } from 'slate-react';
+import { ReactEditor, RenderElementProps, useSlate } from 'slate-react';
 import { Transforms } from 'slate';
 import { DetailsDisclosure, ElementType, ParagraphElement } from 'types/slate';
 
@@ -13,7 +13,8 @@ type DetailsDisclosureElementProps = {
 export default function DetailsDisclosureElement(props: DetailsDisclosureElementProps) {
   const { attributes, children, element, className } = props;
   const { summaryText } = element;
-  const editor = useSlateStatic();
+
+  const editor = useSlate();
   const [open, setOpen] = useState(false);
   const isReadOnly = ReactEditor.isReadOnly(editor);
 

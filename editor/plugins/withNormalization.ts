@@ -140,27 +140,31 @@ const maybePreserveSpace = (editor: Editor, entry: NodeEntry): boolean | void =>
   const { type } = node;
   let preserved = false;
 
-  if (PreserveSpaceAfter.has(type)) {
-    const next = Editor.next(editor, { at: path });
-    // @ts-ignore
-    if (!next || PreserveSpaceBefore.has(next[0].type)) {
-      insertParagraph(editor, Path.next(path));
-      preserved = true;
-    }
-  }
-
-  if (PreserveSpaceBefore.has(type)) {
-    if (path[path.length - 1] === 0) {
-      insertParagraph(editor, path);
-      preserved = true;
-    } else {
-      const prev = Editor.previous(editor, { at: path });
+  try {
+    if (PreserveSpaceAfter.has(type)) {
+      const next = Editor.next(editor, { at: path });
       // @ts-ignore
-      if (!prev || PreserveSpaceAfter.has(prev[0].type)) {
-        insertParagraph(editor, path);
+      if (!next || PreserveSpaceBefore.has(next[0].type)) {
+        insertParagraph(editor, Path.next(path));
         preserved = true;
       }
     }
+
+    if (PreserveSpaceBefore.has(type)) {
+      if (path[path.length - 1] === 0) {
+        insertParagraph(editor, path);
+        preserved = true;
+      } else {
+        const prev = Editor.previous(editor, { at: path });
+        // @ts-ignore
+        if (!prev || PreserveSpaceAfter.has(prev[0].type)) {
+          insertParagraph(editor, path);
+          preserved = true;
+        }
+      }
+    }
+  } catch (error) {
+    return preserved;
   }
 
   return preserved;
