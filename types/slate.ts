@@ -1,4 +1,4 @@
-import type { BaseEditor, Descendant, Node } from 'slate';
+import type { BaseEditor, Descendant } from 'slate';
 import type { ReactEditor } from 'slate-react';
 import type { HistoryEditor } from 'slate-history';
 import { YjsEditor } from 'slate-yjs';
@@ -26,7 +26,6 @@ export enum ElementType {
   Table = 'table',
   TableRow = 'table-row',
   TableCell = 'table-cell',
-  TableContent = 'table-content',
 }
 
 export enum Mark {
@@ -165,12 +164,6 @@ export type TableRow = {
 export type TableCell = {
   id: string;
   type: ElementType.TableCell;
-  children: Node[];
-};
-
-export type TableContent = {
-  id: string;
-  type: ElementType.TableContent;
   children: Descendant[];
 };
 
@@ -189,7 +182,7 @@ export type ReferenceableBlockElement =
   | DetailsDisclosure
   | Table;
 
-export type InlineElement = ExternalLink | NoteLink | Tag | TableRow | TableCell | TableContent;
+export type InlineElement = ExternalLink | NoteLink | Tag | TableRow | TableCell;
 
 export type ListElement = BulletedList | NumberedList;
 

@@ -24,7 +24,8 @@ THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 import { Descendant } from 'slate';
 import { ElementType, Mark, TableCell, TableRow } from 'types/slate';
 import { createNodeId } from 'editor/plugins/withNodeId';
-import { createCell, createContent, createRow } from 'components/editor/elements/table/creator';
+// import { createCell, createContent, createRow } from 'components/editor/elements/table/creator';
+import { createCell, createRow } from 'components/editor/elements/table/creator';
 import { MdastNode } from './types';
 
 export type OptionType = Record<string, never>;
@@ -134,9 +135,7 @@ export default function deserialize(node: MdastNode, opts?: OptionType): Descend
         const cellNodes: TableCell[] = [];
 
         row.forEach(cellText => {
-          const cell = createCell();
-          const cellContent = createContent(cellText);
-          cell.children = [cellContent];
+          const cell = createCell(cellText);
           cellNodes.push(cell);
         });
         rowElement.children = cellNodes;

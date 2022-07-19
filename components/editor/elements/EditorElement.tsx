@@ -128,7 +128,7 @@ export default function EditorElement(props: EditorElementProps) {
       );
     case ElementType.TableRow: {
       return (
-        <tr slate-table-element="tr" data-key={element.id} onDrag={e => e.preventDefault()} {...attributes}>
+        <tr slate-table-element="tr" data-key={element.id} {...attributes}>
           {children}
         </tr>
       );
@@ -138,13 +138,6 @@ export default function EditorElement(props: EditorElementProps) {
         <TableCellElement element={element} attributes={attributes}>
           {children}
         </TableCellElement>
-      );
-    }
-    case ElementType.TableContent: {
-      return (
-        <div slate-table-element="content" {...attributes}>
-          {children}
-        </div>
       );
     }
     default:

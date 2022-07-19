@@ -6,7 +6,7 @@ export function removeColumn(table: NodeEntry, editor: Editor) {
   const { selection } = editor;
   if (!selection || !table) return;
 
-  const { gridTable, getCol } = splitTable(editor, table);
+  const { getCol } = splitTable(editor, table);
   const xIndex = table[1].length + 1;
 
   const [start, end] = Editor.edges(editor, selection);
@@ -14,11 +14,11 @@ export function removeColumn(table: NodeEntry, editor: Editor) {
     match: n => n.type === ElementType.TableCell,
     at: start,
   });
-
   const [endNode] = Editor.nodes<TableCell>(editor, {
     match: n => n.type === ElementType.TableCell,
     at: end,
   });
+  if (!startNode || !endNode) return;
 
   const [startCol] = getCol((col: Col) => col.cell.id === startNode[0].id);
   const [endCol] = getCol((col: Col) => col.cell.id === endNode[0].id);
@@ -26,17 +26,9 @@ export function removeColumn(table: NodeEntry, editor: Editor) {
   const xLeft = startCol.path[xIndex];
   const xRight = endCol.path[xIndex];
 
-  const topLeftCol = gridTable[0][xLeft];
-  const bottomRight = gridTable[gridTable.length - 1][xRight];
+  const { gridTable: splitGridTable } = splitTable(editor, table);
 
-  Transforms.setSelection(editor, {
-    anchor: Editor.point(editor, topLeftCol.originPath),
-    focus: Editor.point(editor, bottomRight.originPath),
-  });
-
-  const { gridTable: splitedGridTable } = splitTable(editor, table);
-
-  const removedCells = splitedGridTable.reduce((p: Col[], c: Col[]) => {
+  const removedCells = splitGridTable.reduce((p: Col[], c: Col[]) => {
     const cells = c.slice(xLeft, xRight + 1);
     return [...p, ...cells];
   }, []) as Col[];
@@ -66,14 +58,10 @@ export function removeColumn(table: NodeEntry, editor: Editor) {
   const { gridTable: removedGridTable } = splitTable(editor, table);
 
   if (!removedGridTable.length) {
-    const contentAfterRemove = Editor.string(editor, table[1]);
-
-    if (!contentAfterRemove) {
+    if (!Editor.string(editor, table[1])) {
       Transforms.removeNodes(editor, {
         at: table[1],
       });
     }
-
-    return;
   }
 }

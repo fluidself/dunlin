@@ -3,21 +3,17 @@ import { ElementType, TableCell } from 'types/slate';
 
 export type Col = {
   cell: TableCell;
-  isReal: boolean;
   path: Path;
-  originPath: Path;
-  isInsertPosition?: boolean;
 };
 
 export const splitTable: (
   editor: Editor,
   table: NodeEntry,
-  startKey?: string | undefined,
 ) => {
   tableDepth?: number;
   gridTable: Col[][];
   getCol: (match?: (node: Col) => boolean) => Col[];
-} = (editor, table, startKey) => {
+} = (editor, table) => {
   const tableDepth = table[1].length;
 
   const cells = [] as { cell: TableCell; path: Path; realPath: Path }[];
@@ -37,12 +33,9 @@ export const splitTable: (
   }
 
   const gridTable: Col[][] = [];
-  let insertPosition = null;
 
   for (let i = 0; i < cells.length; i++) {
     const { cell, path, realPath } = cells[i];
-    const rowspan = 1;
-    const colspan = 1;
     const y = path[tableDepth];
     let x = path[tableDepth + 1];
 
@@ -54,28 +47,10 @@ export const splitTable: (
       x++;
     }
 
-    for (let j = 0; j < rowspan; j++) {
-      for (let k = 0; k < colspan; k++) {
-        const _y = y + j;
-        const _x = x + k;
-
-        if (!gridTable[_y]) {
-          gridTable[_y] = [];
-        }
-
-        gridTable[_y][_x] = {
-          cell,
-          path: [...realPath.slice(0, tableDepth), _y, _x],
-          isReal: (rowspan === 1 && colspan === 1) || (_y === y && _x === x),
-          originPath: path,
-        };
-
-        if (!insertPosition && cell.id === startKey) {
-          insertPosition = gridTable[_y][_x];
-          gridTable[_y][_x].isInsertPosition = true;
-        }
-      }
-    }
+    gridTable[y][x] = {
+      cell,
+      path: [...realPath.slice(0, tableDepth), y, x],
+    };
   }
 
   const getCol = (match?: (node: Col) => boolean): Col[] => {
