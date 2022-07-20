@@ -7,6 +7,8 @@ import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import wikiLinkPlugin from 'remark-wiki-link';
 import remarkRehype from 'remark-rehype';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
 // import { useSigner, useContract } from 'wagmi';
 // import { Contract } from 'ethers';
@@ -41,7 +43,9 @@ export default function PublicationPage(props: Props) {
         .use(remarkParse)
         .use(remarkGfm)
         .use(wikiLinkPlugin, { aliasDivider: '|' })
-        .use(remarkRehype)
+        .use(remarkRehype, { allowDangerousHtml: true })
+        .use(rehypeRaw)
+        .use(rehypeSanitize)
         .use(rehypeStringify)
         .processSync(body);
 

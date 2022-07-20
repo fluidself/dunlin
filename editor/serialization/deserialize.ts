@@ -24,8 +24,7 @@ THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 import { Descendant } from 'slate';
 import { ElementType, Mark, TableCell, TableRow } from 'types/slate';
 import { createNodeId } from 'editor/plugins/withNodeId';
-// import { createCell, createContent, createRow } from 'components/editor/elements/table/creator';
-import { createCell, createRow } from 'components/editor/elements/table/creator';
+import { createRow } from 'components/editor/elements/table/creator';
 import { MdastNode } from './types';
 
 export type OptionType = Record<string, never>;
@@ -37,14 +36,7 @@ export default function deserialize(node: MdastNode, opts?: OptionType): Descend
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     children = node.children.map((c: MdastNode) =>
-      deserialize(
-        {
-          ...c,
-          ordered: node.ordered || false,
-          parentType: node.type,
-        },
-        opts,
-      ),
+      deserialize({ ...c, ordered: node.ordered || false, parentType: node.type }, opts),
     );
   }
 
@@ -130,14 +122,29 @@ export default function deserialize(node: MdastNode, opts?: OptionType): Descend
     case 'table':
       const rowNodes: TableRow[] = [];
 
-      node.tableRows?.forEach(row => {
-        const rowElement = createRow(row.length);
+      node.children?.forEach(tableRow => {
+        const rowElement = createRow(tableRow.children?.length ?? 0);
         const cellNodes: TableCell[] = [];
 
-        row.forEach(cellText => {
-          const cell = createCell(cellText);
+        tableRow.children?.forEach(tableCell => {
+          let tableCellChildren = [{ text: '' }];
+
+          if (tableCell.children && Array.isArray(tableCell.children) && tableCell.children.length > 0) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            tableCellChildren = tableCell.children.map((c: MdastNode) =>
+              deserialize({ ...c, ordered: tableCell.ordered || false, parentType: tableCell.type }, opts),
+            );
+          }
+
+          const cell: TableCell = {
+            id: createNodeId(),
+            type: ElementType.TableCell,
+            children: tableCellChildren,
+          };
           cellNodes.push(cell);
         });
+
         rowElement.children = cellNodes;
         rowNodes.push(rowElement);
       });

@@ -18,5 +18,4 @@ export interface MdastNode {
   checked?: unknown;
   indent?: unknown;
   detailsSummaryText?: string;
-  tableRows?: Array<Array<string>>;
 }

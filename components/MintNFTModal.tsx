@@ -56,7 +56,6 @@ export default function MintNFTModal(props: Props) {
         key: `${userId}/${note.title}`,
         data,
       });
-      console.log(uploadedFile.hash);
 
       // const tokenURI = `https://ipfs.infura.io/ipfs/${uploadedFile.hash}`;
       // const tx = await contract.createToken(tokenURI);

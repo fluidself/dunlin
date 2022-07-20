@@ -31,7 +31,6 @@ import {
   FormattedText,
   Image,
   NoteLink,
-  Table,
   Tag,
 } from 'types/slate';
 import { isVoid } from 'editor/plugins/withVoidElements';
@@ -75,7 +74,13 @@ export default function serialize(chunk: BlockType | LeafType, opts: Options = {
   }
 
   // Keep empty paragraphs and void elements, but strip out other empty elements
-  if (children === '' && type !== ElementType.Paragraph && !isLeafNode(chunk) && !isVoid(chunk)) {
+  if (
+    children === '' &&
+    type !== ElementType.Paragraph &&
+    type !== ElementType.TableCell &&
+    !isLeafNode(chunk) &&
+    !isVoid(chunk)
+  ) {
     return;
   }
 
@@ -196,23 +201,18 @@ export default function serialize(chunk: BlockType | LeafType, opts: Options = {
       return `<details><summary>${detailsDisclosure.summaryText}</summary>\n\n${children}\n\n</details>\n\n`;
     }
 
-    case ElementType.Table:
-    case ElementType.TableRow:
     case ElementType.TableCell: {
-      if (type === ElementType.Table) {
-        const table = chunk as Table;
-        let tableHtmlString = `<table><tbody>`;
+      return `| ${children} `;
+    }
+    case ElementType.TableRow: {
+      return `${children}|\n`;
+    }
+    case ElementType.Table: {
+      const tableRows = children.split('\n').slice(0, -1);
+      const [headerRow, ...rest] = tableRows;
+      const alignmentRow = '| :---: '.repeat(tableRows.length) + '|';
 
-        table.children.forEach(row => {
-          tableHtmlString += `<tr>`;
-          row.children.forEach(cell => {
-            tableHtmlString += `<td>${cell.children.map((c: BlockType | LeafType) => serialize({ ...c })).join('')}</td>`;
-          });
-          tableHtmlString += `</tr>`;
-        });
-
-        return `${tableHtmlString}</tbody></table>\n\n`;
-      }
+      return `${headerRow}\n${alignmentRow}\n${[...rest].join('\n')}\n`;
     }
 
     default:
