@@ -46,6 +46,8 @@
     "react-virtual": "^2.10.4",
     "react-virtualized": "^9.22.3",
     "react-windowed-select": "^3.1.2",
+    "rehype-raw": "^6.1.1",
+    "rehype-sanitize": "^5.0.1",
     "rehype-stringify": "^9.0.3",
     "remark-gfm": "^3.0.1",
     "remark-parse": "^10.0.1",

@@ -21,10 +21,10 @@ export function createRow(columns: number): TableRow {
   };
 }
 
-export function createCell(content?: string): TableCell {
+export function createCell(): TableCell {
   return {
     id: createNodeId(),
     type: ElementType.TableCell,
-    children: [{ text: content || '' }],
+    children: [{ text: '' }],
   };
 }

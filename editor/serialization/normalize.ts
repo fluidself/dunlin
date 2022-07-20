@@ -4,7 +4,7 @@ import { MdastNode } from './types';
  * This plugin normalizes the MdastNode format to conform to app's slate schema.
  */
 export default function normalize(node: MdastNode): MdastNode {
-  return normalizeTables(normalizeDetailsDisclosure(normalizeImages(normalizeCheckListItems(normalizeLists(node)))));
+  return normalizeDetailsDisclosure(normalizeImages(normalizeCheckListItems(normalizeLists(node))));
 }
 
 /**
@@ -188,46 +188,6 @@ const normalizeDetailsDisclosure = (node: MdastNode): MdastNode => {
       newChildren.push(detailsDisclosureNode);
       partsCounter = 0;
       detailsDisclosureNode = { type: 'detailsDisclosure', detailsSummaryText: '', children: [] };
-    } else {
-      newChildren.push(child);
-    }
-  }
-
-  return { ...node, children: newChildren };
-};
-
-/**
- * This function converts table content into custom table elements
- */
-const normalizeTables = (node: MdastNode): MdastNode => {
-  if (!node.children) {
-    return node;
-  }
-
-  const newChildren = [];
-  let tableNode: MdastNode = { type: 'table', tableRows: [] };
-
-  for (const child of node.children) {
-    if (child.type === 'html' && child.value?.startsWith('<table>')) {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(child.value, 'text/html');
-      const rows = doc.getElementsByTagName('tr');
-      const tableRows = [];
-
-      for (let i = 0; i < rows.length; i++) {
-        const cells = rows[i].cells;
-        const rowCells = [];
-        for (let j = 0; j < cells.length; j++) {
-          const cellContent = cells[j].innerHTML;
-          rowCells.push(cellContent);
-        }
-        tableRows.push(rowCells);
-      }
-
-      tableNode.tableRows = [...tableRows];
-      tableNode.position = child.position;
-      newChildren.push(tableNode);
-      tableNode = { type: 'table', tableRows: [] };
     } else {
       newChildren.push(child);
     }
