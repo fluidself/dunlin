@@ -12,18 +12,16 @@ const withLayoutNormalization = (editor: Editor) => {
   const { normalizeNode } = editor;
 
   editor.normalizeNode = (entry: any) => {
-    if (maybePreserveSpace(editor, entry)) return;
+    if (maybePreserveSpace(editor, entry)) {
+      return;
+    }
+
     const [, path] = entry;
 
     // Make sure there is at least a paragraph in the editor
     if (path.length === 0) {
       if (editor.children.length < 1) {
-        const paragraph: ParagraphElement = {
-          id: createNodeId(),
-          type: ElementType.Paragraph,
-          children: [{ text: '' }],
-        };
-        Transforms.insertNodes(editor, paragraph, { at: path.concat(0) });
+        insertParagraph(editor, path.concat(0));
       }
     }
 
@@ -121,18 +119,13 @@ const isAtLineEnd = (editor: Editor, selection: Selection) => {
   return Editor.isEnd(editor, anchor, linePath);
 };
 
-export const PreserveSpaceAfter = new Set([ElementType.Table]);
-export const PreserveSpaceBefore = new Set([ElementType.Table]);
-
-export const insertParagraph = (editor: Editor, at: Path | Point) => {
+const insertParagraph = (editor: Editor, at: Path | Point) => {
   const paragraph: ParagraphElement = {
     id: createNodeId(),
     type: ElementType.Paragraph,
     children: [{ text: '' }],
   };
-  Transforms.insertNodes(editor, paragraph, {
-    at,
-  });
+  Transforms.insertNodes(editor, paragraph, { at });
 };
 
 const maybePreserveSpace = (editor: Editor, entry: NodeEntry): boolean | void => {
@@ -141,23 +134,21 @@ const maybePreserveSpace = (editor: Editor, entry: NodeEntry): boolean | void =>
   let preserved = false;
 
   try {
-    if (PreserveSpaceAfter.has(type)) {
+    if (type === ElementType.Table) {
       const next = Editor.next(editor, { at: path });
       // @ts-ignore
-      if (!next || PreserveSpaceBefore.has(next[0].type)) {
+      if (!next || next[0].type === ElementType.Table) {
         insertParagraph(editor, Path.next(path));
         preserved = true;
       }
-    }
 
-    if (PreserveSpaceBefore.has(type)) {
       if (path[path.length - 1] === 0) {
         insertParagraph(editor, path);
         preserved = true;
       } else {
         const prev = Editor.previous(editor, { at: path });
         // @ts-ignore
-        if (!prev || PreserveSpaceAfter.has(prev[0].type)) {
+        if (!prev || prev[0].type === ElementType.Table) {
           insertParagraph(editor, path);
           preserved = true;
         }
