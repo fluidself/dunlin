@@ -112,6 +112,14 @@ export const handleIndent = (editor: Editor) => {
       type: ElementType.NumberedList,
       children: [],
     });
+  } else if (isElementActive(editor, ElementType.TableCell)) {
+    const [cell] = Editor.nodes(editor, { match: n => n.type === ElementType.TableCell });
+    const path = cell[1];
+    const next = Path.next(path);
+
+    if (Editor.hasPath(editor, next)) {
+      Transforms.select(editor, next);
+    }
   } else if (isElementActive(editor, ElementType.CodeBlock)) {
     Transforms.insertText(editor, '\t');
   }
@@ -137,6 +145,14 @@ export const handleUnindent = (editor: Editor) => {
       match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
       split: true,
     });
+  } else if (isElementActive(editor, ElementType.TableCell)) {
+    const [cell] = Editor.nodes(editor, { match: n => n.type === ElementType.TableCell });
+    const path = cell[1];
+    const previous = !Path.hasPrevious(path) ? false : Path.previous(path);
+
+    if (previous) {
+      Transforms.select(editor, previous);
+    }
   }
 };
 
