@@ -11,7 +11,16 @@ import _pick from 'lodash/pick';
 import _isEqual from 'lodash/isEqual';
 import { toast } from 'react-toastify';
 import colors from 'tailwindcss/colors';
-import { handleEnter, handleIndent, handleUnindent, isElementActive, toggleElement, toggleMark } from 'editor/formatting';
+import {
+  handleEnter,
+  handleIndent,
+  handleUnindent,
+  isElementActive,
+  toggleElement,
+  toggleMark,
+  handleTableTab,
+  TableTabType,
+} from 'editor/formatting';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
 import withImages from 'editor/plugins/withImages';
@@ -245,11 +254,15 @@ function Editor(props: Props) {
       },
       {
         hotkey: 'tab',
-        callback: () => handleIndent(editor),
+        callback: () => {
+          isElementActive(editor, ElementType.TableCell) ? handleTableTab(editor, TableTabType.Tab) : handleIndent(editor);
+        },
       },
       {
         hotkey: 'shift+tab',
-        callback: () => handleUnindent(editor),
+        callback: () => {
+          isElementActive(editor, ElementType.TableCell) ? handleTableTab(editor, TableTabType.ShiftTab) : handleUnindent(editor);
+        },
       },
       {
         hotkey: 'enter',

@@ -1,7 +1,9 @@
 import { Editor, Element, Transforms, Range, Text, Node, Path } from 'slate';
+import _isEqual from 'lodash/isEqual';
 import { store } from 'lib/store';
 import type { ExternalLink, NoteLink, ListElement, Image, BlockReference, Tag, DetailsDisclosure } from 'types/slate';
 import { ElementType, Mark } from 'types/slate';
+import { splitTable } from 'components/editor/elements/table/selection';
 import { computeBlockReference } from './backlinks/useBlockReference';
 import { createNodeId } from './plugins/withNodeId';
 import { isTextType } from './checks';
@@ -112,14 +114,6 @@ export const handleIndent = (editor: Editor) => {
       type: ElementType.NumberedList,
       children: [],
     });
-  } else if (isElementActive(editor, ElementType.TableCell)) {
-    const [cell] = Editor.nodes(editor, { match: n => n.type === ElementType.TableCell });
-    const path = cell[1];
-    const next = Path.next(path);
-
-    if (Editor.hasPath(editor, next)) {
-      Transforms.select(editor, next);
-    }
   } else if (isElementActive(editor, ElementType.CodeBlock)) {
     Transforms.insertText(editor, '\t');
   }
@@ -145,14 +139,25 @@ export const handleUnindent = (editor: Editor) => {
       match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
       split: true,
     });
-  } else if (isElementActive(editor, ElementType.TableCell)) {
-    const [cell] = Editor.nodes(editor, { match: n => n.type === ElementType.TableCell });
-    const path = cell[1];
-    const previous = !Path.hasPrevious(path) ? false : Path.previous(path);
+  }
+};
 
-    if (previous) {
-      Transforms.select(editor, previous);
-    }
+export enum TableTabType {
+  Tab,
+  ShiftTab,
+}
+
+export const handleTableTab = (editor: Editor, type: TableTabType) => {
+  const [table] = Editor.nodes(editor, { match: n => n.type === ElementType.Table });
+  const [currentCell] = Editor.nodes(editor, { match: n => n.type === ElementType.TableCell });
+  const currentPath = currentCell[1];
+  const { gridTable } = splitTable(editor, table);
+  const cellPaths = gridTable.flatMap(row => row.map(cell => cell.path));
+  const currentCellIndex = cellPaths.findIndex(path => _isEqual(path, currentPath));
+  const newCellPath = cellPaths[type === TableTabType.Tab ? currentCellIndex + 1 : currentCellIndex - 1];
+
+  if (newCellPath && Editor.hasPath(editor, newCellPath)) {
+    Transforms.select(editor, newCellPath);
   }
 };
 
