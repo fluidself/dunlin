@@ -8,7 +8,7 @@ const isInTable = (editor: Editor) =>
   });
 
 const withTables = (editor: Editor) => {
-  const { insertData, insertText, deleteBackward } = editor;
+  const { insertData, insertText, deleteBackward, deleteForward } = editor;
 
   editor.insertData = (data: any) => {
     const html = data.getData('text/html');
@@ -35,21 +35,50 @@ const withTables = (editor: Editor) => {
 
   editor.deleteBackward = (...args: any[]) => {
     const { selection } = editor;
+    const start = Editor.start(editor, selection);
+    const isAtLineStart = Editor.isStart(editor, start, selection);
+    const abovePath = Editor.before(editor, selection.anchor.path);
 
-    if (selection && Range.isCollapsed(selection) && isInTable(editor)) {
-      const start = Editor.start(editor, selection);
-      const isStart = Editor.isStart(editor, start, selection);
+    if (!isInTable(editor) && abovePath && Editor.parent(editor, abovePath)[0].type === ElementType.TableCell && isAtLineStart) {
+      return;
+    }
 
-      const currCell = Editor.above(editor, {
-        match: n => n.type === ElementType.TableCell,
-      });
+    if (isInTable(editor) && selection && Range.isCollapsed(selection)) {
+      const currentCell = Editor.above(editor, { match: n => n.type === ElementType.TableCell });
 
-      if (isStart && currCell && !Editor.string(editor, currCell[1])) {
+      if (currentCell && !Editor.string(editor, currentCell[1]) && isAtLineStart) {
         return;
       }
     }
 
     deleteBackward(...args);
+  };
+
+  editor.deleteForward = (...args: any[]) => {
+    const { selection } = editor;
+    const current = Editor.node(editor, selection);
+    const currentEnd = Editor.end(editor, current[1]);
+    const isAtLineEnd = Editor.isEnd(editor, currentEnd, selection);
+    const belowPath = Editor.after(editor, selection.anchor.path);
+
+    if (!isInTable(editor) && belowPath && Editor.parent(editor, belowPath)[0].type === ElementType.TableCell && isAtLineEnd) {
+      return;
+    }
+
+    if (isInTable(editor) && selection && Range.isCollapsed(selection)) {
+      const currentCell = Editor.above(editor, { match: n => n.type === ElementType.TableCell });
+
+      if (currentCell) {
+        const currentCellEnd = Editor.end(editor, currentCell[1]);
+        const isAtCellLineEnd = Editor.isEnd(editor, currentCellEnd, selection);
+
+        if (isAtCellLineEnd) {
+          return;
+        }
+      }
+    }
+
+    deleteForward(...args);
   };
 
   return editor;

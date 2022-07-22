@@ -15,7 +15,7 @@ export default function TableCellElement(props: Props) {
 
   return (
     <td
-      className="relative min-w-[50px] min-h-[22px] w-auto h-auto border px-2 py-2 align-baseline box-border "
+      className="relative min-w-[50px] min-h-[22px] w-auto h-auto border px-2 py-2 align-baseline box-border"
       slate-table-element="td"
       data-key={dataKey}
       {...attributes}
