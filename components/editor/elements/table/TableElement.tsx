@@ -1,7 +1,6 @@
 import React, { HTMLAttributes, ReactNode, useCallback, useMemo, useEffect, useState, useRef } from 'react';
-import { RenderElementProps, useSelected, useSlate } from 'slate-react';
+import { ReactEditor, RenderElementProps, useSelected, useSlate } from 'slate-react';
 import { Editor, NodeEntry, Transforms } from 'slate';
-import cx from 'classnames';
 import {
   IconRowInsertTop,
   IconRowInsertBottom,
@@ -30,8 +29,10 @@ type TableElementProps = {
 
 export default function TableElement(props: TableElementProps) {
   const { children } = props;
-  const selected = useSelected();
   const editor = useSlate();
+  const isReadOnly = ReactEditor.isReadOnly(editor);
+  const isSelected = useSelected();
+  const selected = isReadOnly ? false : isSelected;
   const ref = useRef<HTMLTableElement>(null);
 
   let table: NodeEntry | null = null;
@@ -58,7 +59,7 @@ export default function TableElement(props: TableElementProps) {
 
   return (
     <div className="relative">
-      <TableCardbar className={cx({ selected: selected })} />
+      <TableCardbar selected={selected} />
       {ResizeToolbar}
       <table
         className="table-fixed my-1 mx-0 overflow-auto border border-spacing-0"
@@ -72,9 +73,9 @@ export default function TableElement(props: TableElementProps) {
   );
 }
 
-type TableCardbarProps = HTMLAttributes<HTMLDivElement>;
+type TableCardbarProps = { selected: boolean } & HTMLAttributes<HTMLDivElement>;
 
-const TableCardbar: React.FC<TableCardbarProps> = props => {
+const TableCardbar: React.FC<TableCardbarProps> = ({ selected }) => {
   const editor = useSlate();
 
   const [table] = Array.from(
@@ -87,12 +88,11 @@ const TableCardbar: React.FC<TableCardbarProps> = props => {
 
   return (
     <div
-      className={cx(
-        props.className,
-        'cardbar table-cardbar border select-none pointer-events-none hidden absolute top-[-36px] left-0 whitespace-nowrap',
-      )}
+      className={`border select-none pointer-events-none absolute top-[-56px] left-0 whitespace-nowrap ${
+        selected ? 'block' : 'hidden'
+      }`}
     >
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center pointer-events-auto">
         <CardbarButton Icon={IconRowInsertTop} onClick={run(insertAbove)} tooltip="Insert Row Above" />
         <CardbarButton Icon={IconRowInsertBottom} onClick={run(insertBelow)} tooltip="Insert Row Below" className="border-l" />
         <CardbarButton Icon={IconColumnInsertLeft} onClick={run(insertLeft)} tooltip="Insert Column Left" className="border-l" />
