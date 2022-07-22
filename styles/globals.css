@@ -111,17 +111,6 @@
   }
 }
 
-/* Table editor element */
-.table-cardbar {
-  top: -56px !important;
-}
-.cardbar > * {
-  pointer-events: initial;
-}
-.cardbar.selected {
-  display: block;
-}
-
 :root {
   /* This is used for the spinner and progress bar */
   --color-primary-500: #ec4899;
