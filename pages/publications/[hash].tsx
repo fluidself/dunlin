@@ -10,13 +10,9 @@ import remarkRehype from 'remark-rehype';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
-// import { useSigner, useContract } from 'wagmi';
-// import { Contract } from 'ethers';
 import { addEllipsis } from 'utils/string';
 import { getReadableDatetime } from 'utils/date';
 import PageLoading from 'components/PageLoading';
-// import DECKNFT from 'artifacts/contracts/DECKNFT.sol/DECKNFT.json';
-// import { CONTRACT_ADDRESS } from 'constants/nft-contract';
 
 type Publication = {
   title: string;
