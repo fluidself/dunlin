@@ -2,17 +2,27 @@ import { Transforms, Editor, Range } from 'slate';
 import { ElementType } from 'types/slate';
 import { createTable } from '../creator';
 
-export function insertTable(editor: Editor) {
-  if (!editor.selection) return;
-
-  const node = Editor.above(editor, {
+const tableAncestor = (editor: Editor) =>
+  Editor.above(editor, {
     match: n => n.type === ElementType.Table,
   });
 
-  const isCollapsed = Range.isCollapsed(editor.selection);
+export function insertTable(editor: Editor) {
+  if (!editor.selection) return;
 
-  if (!node && isCollapsed) {
+  const existingTable = tableAncestor(editor);
+
+  if (!existingTable && Range.isCollapsed(editor.selection)) {
     const table = createTable(3, 3);
     Transforms.insertNodes(editor, table);
+
+    const createdTable = tableAncestor(editor);
+
+    if (createdTable) {
+      Transforms.setSelection(editor, {
+        anchor: { path: [...createdTable[1], 0, 0, 0], offset: 0 },
+        focus: { path: [...createdTable[1], 0, 0, 0], offset: 0 },
+      });
+    }
   }
 }
