@@ -10,6 +10,7 @@ import remarkRehype from 'remark-rehype';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
+import { IconExternalLink } from '@tabler/icons';
 import { addEllipsis } from 'utils/string';
 import { getReadableDatetime } from 'utils/date';
 import PageLoading from 'components/PageLoading';
@@ -45,27 +46,7 @@ export default function PublicationPage(props: Props) {
         .use(rehypeStringify)
         .processSync(body);
 
-      setParsedBody(
-        `<div class="not-prose">
-          <h1 class="text-5xl font-semibold text-[#FFFFFF] mb-4">${title}</h1>
-        </div>
-        <div class="flex space-x-4">
-          <span class="text-xs inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
-            ${addEllipsis(address)}
-          </span>
-          <span class="text-xs inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
-            ${getReadableDatetime(timestamp)}
-          </span>
-        </div>` +
-          String(parsedBody) +
-          `<hr />
-          <div class="not-prose">
-            <div class="flex flex-col mt-6 mb-12">
-              <div class="">IPFS HASH: <a href="https://ipfs.infura.io/ipfs/${hash}" rel="noreferrer" target="_blank"}>${hash}</a></div>
-              <div class="">ETHEREUM ADDRESS: <a href="https://etherscan.io/address/${address}" rel="noreferrer" target="_blank"}>${address}</a></div>
-            </div>
-          </div>`,
-      );
+      setParsedBody(String(parsedBody));
     };
 
     process();
@@ -81,7 +62,42 @@ export default function PublicationPage(props: Props) {
         <title>{title}</title>
       </Head>
       <main className="mt-12 container mx-auto md:max-w-3xl publication">
-        <article className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: parsedBody }}></article>
+        <h1 className="text-5xl font-semibold text-gray-100 mb-4">{title}</h1>
+        <div className="flex space-x-4">
+          <span className="text-xs inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
+            {addEllipsis(address)}
+          </span>
+          <span className="text-xs inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
+            {getReadableDatetime(timestamp)}
+          </span>
+        </div>
+        <article
+          className="prose prose-invert max-w-none prose-table:border prose-table:border-collapse prose-th:border prose-td:border mt-8"
+          dangerouslySetInnerHTML={{ __html: parsedBody }}
+        ></article>
+        <div className="flex flex-col mt-20 mb-12 border border-gray-700 rounded text-gray-400 text-sm">
+          <a className="hover:bg-gray-800" href={`https://ipfs.infura.io/ipfs/${hash}`} target="_blank" rel="noopener noreferrer">
+            <div className="flex flex-row justify-between p-4 border-b border-gray-700">
+              <div className="flex items-center">
+                <span>IPFS HASH</span> <IconExternalLink className="ml-2" size={16} />
+              </div>
+              <div>{hash}</div>
+            </div>
+          </a>
+          <a
+            className="hover:bg-gray-800"
+            href={`https://etherscan.io/address/${address}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div className="flex flex-row justify-between p-4">
+              <div className="flex items-center">
+                <span>ETHEREUM ADDRESS</span> <IconExternalLink className="ml-2" size={16} />
+              </div>
+              <div>{address}</div>
+            </div>
+          </a>
+        </div>
       </main>
     </>
   );

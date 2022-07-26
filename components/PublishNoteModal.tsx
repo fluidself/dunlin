@@ -88,7 +88,7 @@ export default function PublishNoteModal(props: Props) {
                 <p>
                   <Link href={`/publications/${publicationHash}`}>
                     <a
-                      className="text-sm break-words underline text-primary-400 hover:text-primary-500"
+                      className="text-sm break-words hover:underline text-primary-400"
                       href={`/publications/${publicationHash}`}
                       target="_blank"
                       rel="noopener noreferrer"
