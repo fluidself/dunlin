@@ -211,7 +211,7 @@ export default function serialize(chunk: BlockType | LeafType, opts: Options = {
       const tableRows = children.split('\n').slice(0, -1);
       const [headerRow, ...rest] = tableRows;
       const columnCount = (headerRow.match(/\|/g)?.length ?? 1) - 1;
-      const alignmentRow = '| :---: '.repeat(columnCount) + '|';
+      const alignmentRow = '| :--- '.repeat(columnCount) + '|';
 
       return `${headerRow}\n${alignmentRow}\n${[...rest].join('\n')}\n\n`;
     }

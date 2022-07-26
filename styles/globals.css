@@ -172,17 +172,25 @@ button:focus {
   outline: 1px solid white;
 }
 
-.publication a {
+.prose a {
   color: #ec4899;
 }
 
-.publication a:hover {
+.prose a:hover {
   text-decoration-line: underline;
 }
 
-.publication td > p {
+.prose td > p {
   margin-top: 0;
   margin-bottom: 0;
+}
+
+.prose th,
+.prose td {
+  border-color: #374151;
+  padding-top: 0.5714286em;
+  padding-left: 0.5714286em;
+  vertical-align: baseline;
 }
 
 body::-webkit-scrollbar {
