@@ -4,7 +4,7 @@ import Caret from './Caret';
 
 export type EditorLeafProps = {
   attributes: { contentEditable?: boolean };
-  leaf: { isCaret?: boolean; data?: { alphaColor: string; color: string; name: string } };
+  leaf: { isCaret?: boolean; isForward?: boolean; data?: { alphaColor: string; color: string; name: string } };
 } & RenderLeafProps;
 
 const EditorLeaf = ({ attributes, children, leaf }: EditorLeafProps) => {
@@ -39,15 +39,8 @@ const EditorLeaf = ({ attributes, children, leaf }: EditorLeafProps) => {
   return (
     <span {...attributes}>
       {leaf.isCaret ? (
-        <span
-          style={
-            {
-              position: 'relative',
-              backgroundColor: data?.alphaColor,
-            } as React.CSSProperties
-          }
-        >
-          {<Caret {...(leaf as any)} />}
+        <span className={`relative bg-[${data?.alphaColor}]`}>
+          <Caret isForward={leaf.isForward} data={leaf.data} />
         </span>
       ) : null}
       {children}

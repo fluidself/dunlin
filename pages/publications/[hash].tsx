@@ -71,10 +71,12 @@ export default function PublicationPage(props: Props) {
             {getReadableDatetime(timestamp)}
           </span>
         </div>
+
         <article
-          className="prose prose-invert max-w-none prose-table:border prose-table:border-collapse prose-th:border prose-td:border mt-8"
+          className="prose prose-invert max-w-none mt-8 prose-table:border prose-table:border-collapse prose-th:border prose-th:border-gray-700 prose-th:align-baseline prose-th:pt-2 prose-th:pl-2 prose-td:border prose-td:border-gray-700 prose-td:pt-2 prose-td:pl-2 prose-a:text-primary-500 hover:prose-a:underline"
           dangerouslySetInnerHTML={{ __html: parsedBody }}
         ></article>
+
         <div className="flex flex-col mt-20 mb-12 border border-gray-700 rounded text-gray-400 text-sm">
           <a className="hover:bg-gray-800" href={`https://ipfs.infura.io/ipfs/${hash}`} target="_blank" rel="noopener noreferrer">
             <div className="flex flex-row justify-between p-4 border-b border-gray-700">
@@ -108,7 +110,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   let publication: Publication | undefined;
 
   try {
-    const res = await fetch(`https://ipfs.infura.io/ipfs/${hash}`);
+    const res = await fetch(`https://${hash}.ipfs.infura-ipfs.io`);
     const data = await res.json();
     if (data) {
       publication = data;

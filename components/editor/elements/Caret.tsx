@@ -1,19 +1,19 @@
 import React from 'react';
 
 interface Caret {
-  isForward: boolean;
-  data: { name: string; color: string };
+  isForward?: boolean;
+  data?: { name: string; color: string };
 }
 
 const Caret: React.FC<Caret> = ({ data, isForward }) => {
   const cursorStyles = {
     ...cursorStyleBase,
-    background: data.color,
+    background: data?.color,
     left: isForward ? '100%' : '0%',
   };
   const caretStyles = {
     ...caretStyleBase,
-    background: data.color,
+    background: data?.color,
     left: isForward ? '100%' : '0%',
   };
 
@@ -23,7 +23,7 @@ const Caret: React.FC<Caret> = ({ data, isForward }) => {
     <span contentEditable={false} style={caretStyles}>
       <span className="relative">
         <span contentEditable={false} style={cursorStyles}>
-          {data.name}
+          {data?.name}
         </span>
       </span>
     </span>
