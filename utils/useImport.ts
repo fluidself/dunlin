@@ -23,6 +23,7 @@ export default function useImport() {
   const { id: deckId, key } = useCurrentDeck();
   const { user } = useAuth();
   const authorOnlyNotes = useStore(state => state.authorOnlyNotes);
+  const upsertNote = useStore(state => state.upsertNote);
 
   const onImport = useCallback(() => {
     if (!deckId || !key || !user) {
@@ -82,16 +83,21 @@ export default function useImport() {
         });
       }
 
-      const mergedAndEncryptedUpsertData = upsertData.map((data: any) => {
+      const mergedUpsertData: DecryptedNote[] = upsertData.map((data: any) => {
         const matchingNoteLinkUpsertItem = noteLinkUpsertData.find(item => item.title === data.title);
         const mergedData = matchingNoteLinkUpsertItem ? { ...data, ...matchingNoteLinkUpsertItem } : data;
         const note = { id: uuidv4(), deck_id: deckId, user_id: user.id, author_only: authorOnlyNotes, ...mergedData };
 
-        return encryptNote(note, key);
+        return note;
       });
+      const encryptedUpsertData = mergedUpsertData.map(note => encryptNote(note, key));
+      const { data: newNotes } = await supabase.from<Note>('notes').upsert(encryptedUpsertData);
 
-      // Create new notes
-      const { data: newNotes } = await supabase.from<Note>('notes').upsert(mergedAndEncryptedUpsertData);
+      for (const note of mergedUpsertData) {
+        if (newNotes?.find(dbNote => dbNote.id === note.id)) {
+          upsertNote(note);
+        }
+      }
 
       // Show a toast with the number of successfully imported notes
       toast.dismiss(importingToast);
