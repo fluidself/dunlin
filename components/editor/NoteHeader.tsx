@@ -20,7 +20,7 @@ import { useRouter } from 'next/router';
 import Portal from 'components/Portal';
 import { useCurrentNote } from 'utils/useCurrentNote';
 import { store, useStore } from 'lib/store';
-import serialize from 'editor/serialization/serialize';
+import serialize, { SerializeOptions } from 'editor/serialization/serialize';
 import { DecryptedNote } from 'types/decrypted';
 import useImport from 'utils/useImport';
 import { queryParamToArray } from 'utils/url';
@@ -265,10 +265,11 @@ export default function NoteHeader() {
   );
 }
 
-export const getSerializedNote = (note: DecryptedNote) => note.content.map(n => serialize(n)).join('');
+export const getSerializedNote = (note: DecryptedNote, opts: SerializeOptions) =>
+  note.content.map(n => serialize(n, opts)).join('');
 
 const getNoteAsBlob = (note: DecryptedNote) => {
-  const serializedContent = getSerializedNote(note);
+  const serializedContent = getSerializedNote(note, { forPublication: false, publishLinkedNotes: false });
   const blob = new Blob([serializedContent], {
     type: 'text/markdown;charset=utf-8',
   });

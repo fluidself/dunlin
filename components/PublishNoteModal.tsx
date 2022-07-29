@@ -1,13 +1,17 @@
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { createEditor, Editor, Element, Node } from 'slate';
 import { IconSend, IconConfetti } from '@tabler/icons';
 import fleekStorage from '@fleekhq/fleek-storage-js';
 import { toast } from 'react-toastify';
+import { ElementType, NoteLink } from 'types/slate';
 import { DecryptedNote } from 'types/decrypted';
 import useHotkeys from 'utils/useHotkeys';
 import copyToClipboard from 'utils/copyToClipboard';
+import { store } from 'lib/store';
 import { getSerializedNote } from 'components/editor/NoteHeader';
 import Button from 'components/home/Button';
+import Toggle from 'components/Toggle';
 
 type Props = {
   note: DecryptedNote;
@@ -15,8 +19,13 @@ type Props = {
   setIsOpen: (isOpen: boolean) => void;
 };
 
+const UUID_REGEX = /[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/gm;
+const NOTE_LINK_REGEX = /\[(.+)\]\(([0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12})\)/gm;
+
 export default function PublishNoteModal(props: Props) {
   const { note, userId, setIsOpen } = props;
+  const [noteLinks, setNoteLinks] = useState<NoteLink[]>([]);
+  const [publishLinkedNotes, setPublishLinkedNotes] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [published, setPublished] = useState(false);
   const [publicationHash, setPublicationHash] = useState('');
@@ -32,31 +41,77 @@ export default function PublishNoteModal(props: Props) {
   );
   useHotkeys(hotkeys);
 
+  useEffect(() => {
+    const editor = createEditor();
+    editor.children = note.content;
+    const matchingElements = Array.from(
+      Editor.nodes<NoteLink>(editor, {
+        at: [],
+        match: n => Element.isElement(n) && n.type === ElementType.NoteLink && !!Node.string(n),
+      }),
+    ).map(element => element[0]);
+
+    setNoteLinks(matchingElements);
+  }, []);
+
+  const getNotesToPublish = (note: DecryptedNote, mapOfNotes: Map<string, string>) => {
+    const SERIALIZE_OPTS = { forPublication: true, publishLinkedNotes };
+    const serializedBody = getSerializedNote(note, SERIALIZE_OPTS);
+    const linkedNotes = serializedBody.match(UUID_REGEX);
+    const notes = store.getState().notes;
+
+    mapOfNotes.set(note.id, serializedBody);
+
+    linkedNotes?.forEach(noteId => {
+      const body = getSerializedNote(notes[noteId], SERIALIZE_OPTS);
+      const bodyLinkedNotes = body.match(UUID_REGEX);
+
+      if (bodyLinkedNotes) {
+        mapOfNotes = getNotesToPublish(notes[noteId], mapOfNotes);
+      } else {
+        mapOfNotes.set(noteId, body);
+      }
+    });
+
+    return mapOfNotes;
+  };
+
   const onConfirm = async () => {
     if (!userId) return;
     setProcessing(true);
 
-    const serializedBody = getSerializedNote(note);
-    const data = JSON.stringify({ address: userId, timestamp: Date.now(), title: note.title, body: serializedBody });
+    const noteMap = new Map<string, string>();
+    const notesToPublish = getNotesToPublish(note, noteMap);
+    // map of noteId => serializedBody
+    // serializedBody has noteIds that need to be replaced with links
+    // [link text](uuid) => `${process.env.BASE_URL}/publications/${publicationHash}`
+    console.log(noteLinks);
+    console.log(notesToPublish);
 
-    try {
-      const uploadedFile = await fleekStorage.upload({
-        apiKey: process.env.NEXT_PUBLIC_FLEEK_API_KEY ?? '',
-        apiSecret: process.env.NEXT_PUBLIC_FLEEK_API_SECRET ?? '',
-        key: `${userId}/${note.title}`,
-        data,
-      });
+    setProcessing(false);
 
-      toast.success('Published!');
-      setPublicationHash(uploadedFile.hash);
-      setProcessing(false);
-      setPublished(true);
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to publish.');
-      setProcessing(false);
-    }
+    // const data = JSON.stringify({ address: userId, timestamp: Date.now(), title: note.title, body: serializedBody });
+
+    // try {
+    //   const uploadedFile = await fleekStorage.upload({
+    //     apiKey: process.env.NEXT_PUBLIC_FLEEK_API_KEY ?? '',
+    //     apiSecret: process.env.NEXT_PUBLIC_FLEEK_API_SECRET ?? '',
+    //     key: `${userId}/${note.title}`,
+    //     data,
+    //   });
+
+    //   toast.success('Published!');
+    //   setPublicationHash(uploadedFile.hash);
+    //   setProcessing(false);
+    //   setPublished(true);
+    // } catch (error) {
+    //   console.error(error);
+    //   toast.error('Failed to publish.');
+    //   setProcessing(false);
+    // }
   };
+
+  const singleNoteLink = noteLinks.length === 1;
 
   return (
     <div className="fixed inset-0 z-20 overflow-y-auto">
@@ -109,8 +164,28 @@ export default function PublishNoteModal(props: Props) {
               </>
             ) : (
               <>
-                You are about to publish this note to the public. Please double check that you are only including what you
-                intended.
+                <p>
+                  You are about to publish this note to the public. Please double check that you are only including what you
+                  intended.
+                </p>
+                {noteLinks.length > 0 && (
+                  <>
+                    <p className="my-4">
+                      {`The note contains ${singleNoteLink ? 'a link' : 'links'} to ${
+                        singleNoteLink ? 'another note' : 'other notes'
+                      }. Do you want to publish the note${!singleNoteLink ? 's' : ''} that ${
+                        singleNoteLink ? 'is' : 'are'
+                      } linked to? If ${singleNoteLink ? 'that note' : 'those notes'} in turn link${
+                        singleNoteLink ? 's' : ''
+                      } to other notes, those would also be published.`}
+                    </p>
+                    <div className="flex items-center">
+                      <span className="text-sm">No</span>
+                      <Toggle className="mx-2" id="1" isChecked={publishLinkedNotes} setIsChecked={setPublishLinkedNotes} />
+                      <span className="text-sm">Yes, publish linked notes</span>
+                    </div>
+                  </>
+                )}
                 <Button
                   className={`my-4 ${processing ? 'bg-gray-800 text-gray-400 hover:bg-gray-800 hover:text-gray-400' : ''}`}
                   primary

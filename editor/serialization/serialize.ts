@@ -42,8 +42,10 @@ type LeafType = FormattedText & { parentType?: ElementType };
 
 type BlockType = Element & { parentType?: ElementType };
 
-type Options = {
+export type SerializeOptions = {
   listDepth?: number;
+  forPublication: boolean;
+  publishLinkedNotes: boolean;
 };
 
 const isLeafNode = (node: BlockType | LeafType): node is LeafType => {
@@ -52,7 +54,10 @@ const isLeafNode = (node: BlockType | LeafType): node is LeafType => {
 
 const BREAK_TAG = '';
 
-export default function serialize(chunk: BlockType | LeafType, opts: Options = {}): string | undefined {
+export default function serialize(
+  chunk: BlockType | LeafType,
+  opts: SerializeOptions = { forPublication: false, publishLinkedNotes: false },
+): string | undefined {
   const { listDepth = 0 } = opts;
   const text: string = (chunk as LeafType).text || '';
   const type: ElementType = (chunk as BlockType).type || '';
@@ -67,6 +72,7 @@ export default function serialize(chunk: BlockType | LeafType, opts: Options = {
           {
             // track depth of nested lists so we can add proper spacing
             listDepth: isListType((c as BlockType).type || '') ? listDepth + 1 : listDepth,
+            ...opts,
           },
         );
       })
@@ -144,6 +150,10 @@ export default function serialize(chunk: BlockType | LeafType, opts: Options = {
       const noteLink = chunk as NoteLink;
       if (!noteLink.noteTitle) {
         return '';
+      } else if (opts.forPublication && opts.publishLinkedNotes) {
+        return `[${noteLink.customText || noteLink.noteTitle}](${noteLink.noteId})`;
+      } else if (opts.forPublication && !opts.publishLinkedNotes) {
+        return `${noteLink.customText || noteLink.noteTitle}`;
       } else {
         return noteLink.customText ? `[[${noteLink.noteTitle}|${noteLink.customText}]]` : `[[${noteLink.noteTitle}]]`;
       }
