@@ -67,7 +67,7 @@ export const uploadAndInsertImage = async (editor: Editor, file: File, path?: Pa
 
   toast.dismiss(uploadingToast);
   if (uploadedFile) {
-    const url = `https://ipfs.infura.io/ipfs/${uploadedFile.hash}`;
+    const url = `https://${uploadedFile.hash}.ipfs.infura-ipfs.io`;
     insertImage(editor, url, path);
   } else {
     toast.error('There was a problem uploading your image. Please try again later.');

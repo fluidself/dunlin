@@ -62,7 +62,7 @@ export default function TableElement(props: TableElementProps) {
       <TableCardbar selected={selected} />
       {ResizeToolbar}
       <table
-        className="table-fixed my-1 mx-0 overflow-auto border border-spacing-0"
+        className="table-fixed my-1 mx-0 overflow-auto"
         slate-table-element="table"
         ref={ref}
         onDragStart={e => e.preventDefault()}
@@ -88,7 +88,7 @@ const TableCardbar: React.FC<TableCardbarProps> = ({ selected }) => {
 
   return (
     <div
-      className={`border select-none pointer-events-none absolute top-[-56px] left-0 whitespace-nowrap ${
+      className={`border border-gray-400 select-none pointer-events-none absolute top-[-56px] left-0 whitespace-nowrap ${
         selected ? 'block' : 'hidden'
       }`}
     >
@@ -122,7 +122,7 @@ const CardbarButton = ({ Icon, tooltip, className = '', onClick }: CardbarButton
     <Tooltip content={tooltip} placement="top" disabled={!tooltip}>
       <span>
         <button
-          className={`flex items-center px-2 py-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${className}`}
+          className={`flex items-center px-2 py-2 cursor-pointer hover:bg-gray-700 active:bg-gray-600 ${className}`}
           onClick={onClick}
         >
           <Icon size={18} />
@@ -273,7 +273,7 @@ const HorizontalToolbar: React.FC<{
       {cols.map((item, index) => (
         <div
           key={index}
-          className="h-4 inline-block border relative"
+          className="h-4 inline-block border border-gray-400 relative"
           style={{ width: `${item.width}px` }}
           id={`horizontal-dragger-item-${index}`}
         >
@@ -430,7 +430,7 @@ const VerticalToolbar: React.FC<{
       {rows.map((item, index) => (
         <div
           key={index}
-          className="w-4 border relative"
+          className="w-4 border border-gray-400 relative"
           style={{ height: `${item.height}px` }}
           id={`vertical-dragger-item-${index}`}
         >

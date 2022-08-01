@@ -78,7 +78,7 @@ export default function PublicationPage(props: Props) {
         ></article>
 
         <div className="flex flex-col mt-20 mb-12 border border-gray-700 rounded text-gray-400 text-sm">
-          <a className="hover:bg-gray-800" href={`https://ipfs.infura.io/ipfs/${hash}`} target="_blank" rel="noopener noreferrer">
+          <a className="hover:bg-gray-800" href={`https://${hash}.ipfs.infura-ipfs.io`} target="_blank" rel="noopener noreferrer">
             <div className="flex flex-row justify-between p-4 border-b border-gray-700">
               <div className="flex items-center">
                 <span>IPFS HASH</span> <IconExternalLink className="ml-2" size={16} />
