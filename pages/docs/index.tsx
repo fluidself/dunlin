@@ -18,7 +18,10 @@ export default function DocsPage(props: Props) {
       <div className="flex flex-col md:flex-row docs">
         <Sidebar />
         <main className="mt-16 md:mt-12 px-2 md:px-0 container mx-auto md:max-w-3xl publication">
-          <article className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: content }}></article>
+          <article
+            className="prose prose-invert max-w-none prose-a:text-primary-500 hover:prose-a:underline"
+            dangerouslySetInnerHTML={{ __html: content }}
+          ></article>
         </main>
       </div>
     </>

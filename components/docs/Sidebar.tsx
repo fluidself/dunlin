@@ -37,10 +37,13 @@ export default function Sidebar() {
                       const active = router.query.slug === link.href.split('/')[2];
                       return (
                         <Link {...link} key={link.href}>
-                          <a href={link.href} className="w-full focus:outline-none hover:bg-gray-800">
-                            <li className={`list-none px-8 py-1 my-1 w-full ${active ? 'bg-gray-800 text-[#ec4899]' : ''}`}>
-                              {link.children}
-                            </li>
+                          <a
+                            href={link.href}
+                            className={`w-full focus:outline-none hover:bg-gray-800 ${
+                              active ? 'bg-gray-800 text-primary-500' : ''
+                            }`}
+                          >
+                            <li className="list-none px-8 py-1 my-1 w-full">{link.children}</li>
                           </a>
                         </Link>
                       );
@@ -57,10 +60,11 @@ export default function Sidebar() {
                 const active = router.query.slug === link.href.split('/')[2];
                 return (
                   <Link {...link} key={link.href}>
-                    <a href={link.href} className="w-full focus:outline-none hover:bg-gray-800">
-                      <li className={`list-none px-8 py-1 my-1 w-full ${active ? 'bg-gray-800 text-[#ec4899]' : ''}`}>
-                        {link.children}
-                      </li>
+                    <a
+                      href={link.href}
+                      className={`w-full focus:outline-none hover:bg-gray-800 ${active ? 'bg-gray-800 text-primary-500' : ''}`}
+                    >
+                      <li className="list-none px-8 py-1 my-1 w-full">{link.children}</li>
                     </a>
                   </Link>
                 );

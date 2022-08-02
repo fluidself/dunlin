@@ -12,6 +12,10 @@ When you compile notes and link them together, they form a graph of interconnect
 
 You can join forces with a friend or community by sharing your workspace with them. To set up the access conditions, click on "Share" in the dropdown menu from the top of the sidebar. Among other options, you can grant access to an individual wallet, members of a certain DAO, or holders of a specific NFT. To accept an invitation to another DECK, click on "Join" in the dropdown menu from the top of the sidebar and enter the unique ID of the DECK you want to join.
 
+## IPFS publishing
+
+If you would like to share one of your notes for wider consumption, DECK lets you publish content to the public, distributed, censorship-resistant IPFS network.
+
 ## Note editing permissions
 
 By default, a DECK workspace allows any of its members to edit all notes freely. The workspace owner can configure the workspace settings to only allow a note's original author to edit it.
