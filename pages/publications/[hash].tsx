@@ -110,8 +110,11 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   let publication: Publication | undefined;
 
   try {
+    // TODO: hash could be IPNS name? either resolve or use IPNS gateway
     const res = await fetch(`https://${hash}.ipfs.infura-ipfs.io`);
     const data = await res.json();
+    // TODO: better error handling / checks. eg.
+    // if (data && data.address && data.title && data.body && data.timestamp)
     if (data) {
       publication = data;
     }

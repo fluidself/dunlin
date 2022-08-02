@@ -2,12 +2,13 @@ import Link from 'next/link';
 import { useMemo, useState, useEffect } from 'react';
 import { createEditor, Editor, Element, Node } from 'slate';
 import { IconSend, IconConfetti } from '@tabler/icons';
-import fleekStorage from '@fleekhq/fleek-storage-js';
+import * as Name from 'w3name'; // eslint-disable-line
 import { toast } from 'react-toastify';
 import { ElementType, NoteLink } from 'types/slate';
 import { DecryptedNote } from 'types/decrypted';
 import useHotkeys from 'utils/useHotkeys';
 import copyToClipboard from 'utils/copyToClipboard';
+import useIpfs from 'utils/useIpfs';
 import { store } from 'lib/store';
 import { getSerializedNote } from 'components/editor/NoteHeader';
 import Button from 'components/home/Button';
@@ -19,11 +20,20 @@ type Props = {
   setIsOpen: (isOpen: boolean) => void;
 };
 
+type NotePublication = {
+  address: string;
+  timestamp: number;
+  title: string;
+  body: string;
+};
+
 const UUID_REGEX = /[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/gm;
 const NOTE_LINK_REGEX = /\[(.+)\]\(([0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12})\)/gm;
 
 export default function PublishNoteModal(props: Props) {
   const { note, userId, setIsOpen } = props;
+
+  const { client } = useIpfs();
   const [noteLinks, setNoteLinks] = useState<NoteLink[]>([]);
   const [publishLinkedNotes, setPublishLinkedNotes] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -52,15 +62,15 @@ export default function PublishNoteModal(props: Props) {
     ).map(element => element[0]);
 
     setNoteLinks(matchingElements);
-  }, []);
+  }, [note.content]);
 
-  const getNotesToPublish = (note: DecryptedNote, mapOfNotes: Map<string, string>) => {
+  const getNotesToPublish = (note: DecryptedNote, mapOfNotes: Map<string, { id: string; title: string; body: string }>) => {
     const SERIALIZE_OPTS = { forPublication: true, publishLinkedNotes };
     const serializedBody = getSerializedNote(note, SERIALIZE_OPTS);
     const linkedNotes = serializedBody.match(UUID_REGEX);
     const notes = store.getState().notes;
 
-    mapOfNotes.set(note.id, serializedBody);
+    mapOfNotes.set(note.id, { id: note.id, title: notes[note.id].title, body: serializedBody });
 
     linkedNotes?.forEach(noteId => {
       const body = getSerializedNote(notes[noteId], SERIALIZE_OPTS);
@@ -69,46 +79,131 @@ export default function PublishNoteModal(props: Props) {
       if (bodyLinkedNotes) {
         mapOfNotes = getNotesToPublish(notes[noteId], mapOfNotes);
       } else {
-        mapOfNotes.set(noteId, body);
+        mapOfNotes.set(noteId, { id: noteId, title: notes[noteId].title, body });
       }
     });
 
     return mapOfNotes;
   };
 
+  // TODO: make reusable and move to useIpfs?
+  const prepareFileObject = (note: NotePublication, fileName: string) => {
+    const blob = new Blob([JSON.stringify(note)], { type: 'application/json' });
+    const file = new File([blob], `${fileName}.json`);
+
+    return file;
+  };
+
+  const publishNote = async (note: NotePublication) => {
+    const file = prepareFileObject(note, `${note.address}-${note.timestamp}`);
+    const cid = await client.put([file], { wrapWithDirectory: false });
+
+    return cid;
+  };
+
+  const publishNoteRevision = async (cid: string) => {
+    const name = await Name.create();
+    // TODO: could value just be cid ?
+    const value = `/ipfs/${cid}`;
+    const revision = await Name.v0(name, value);
+
+    await Name.publish(revision, name.key);
+
+    return { name, revision };
+  };
+
+  const updateNoteRevision = async (cid: string, name: any, revision: any) => {
+    // TODO: could value just be cid ?
+    const nextValue = `/ipfs/${cid}`;
+    const nextRevision = await Name.increment(revision, nextValue);
+
+    await Name.publish(nextRevision, name.key);
+
+    return nextRevision;
+  };
+
   const onConfirm = async () => {
     if (!userId) return;
     setProcessing(true);
 
-    const noteMap = new Map<string, string>();
-    const notesToPublish = getNotesToPublish(note, noteMap);
-    // map of noteId => serializedBody
-    // serializedBody has noteIds that need to be replaced with links
-    // [link text](uuid) => `${process.env.BASE_URL}/publications/${publicationHash}`
+    const notesToPublish = getNotesToPublish(note, new Map<string, { id: string; title: string; body: string }>());
+    const interimNotes: { id: string; title: string; body: string; name: any; revision: any }[] = [];
+    // const publishedNotes: { id: string; cid: string }[] = [];
+    const publishedNotes: { id: string; cidOrName: string }[] = [];
+
     console.log(noteLinks);
     console.log(notesToPublish);
+    // TODO
+    // test with single note
+    // types for w3name?
+    // store name key for future revision?
 
-    setProcessing(false);
+    try {
+      for (const noteToPublish of notesToPublish.values()) {
+        const hasNoteLinks = noteToPublish.body.match(NOTE_LINK_REGEX) !== null;
+        console.log(`${noteToPublish.id} hasNoteLinks: ${hasNoteLinks}`);
 
-    // const data = JSON.stringify({ address: userId, timestamp: Date.now(), title: note.title, body: serializedBody });
+        if (hasNoteLinks) {
+          const interimCid = await publishNote({
+            address: userId,
+            timestamp: Date.now(),
+            title: noteToPublish.title,
+            body: noteToPublish.body,
+          });
+          const { name, revision } = await publishNoteRevision(interimCid);
+          interimNotes.push({ id: noteToPublish.id, title: noteToPublish.title, body: noteToPublish.body, name, revision });
+          publishedNotes.push({ id: noteToPublish.id, cidOrName: name.toString() });
+        } else {
+          const cid = await publishNote({
+            address: userId,
+            timestamp: Date.now(),
+            title: noteToPublish.title,
+            body: noteToPublish.body,
+          });
+          publishedNotes.push({ id: noteToPublish.id, cidOrName: cid });
+        }
+      }
 
-    // try {
-    //   const uploadedFile = await fleekStorage.upload({
-    //     apiKey: process.env.NEXT_PUBLIC_FLEEK_API_KEY ?? '',
-    //     apiSecret: process.env.NEXT_PUBLIC_FLEEK_API_SECRET ?? '',
-    //     key: `${userId}/${note.title}`,
-    //     data,
-    //   });
+      console.log(interimNotes);
+      console.log(publishedNotes);
 
-    //   toast.success('Published!');
-    //   setPublicationHash(uploadedFile.hash);
-    //   setProcessing(false);
-    //   setPublished(true);
-    // } catch (error) {
-    //   console.error(error);
-    //   toast.error('Failed to publish.');
-    //   setProcessing(false);
-    // }
+      for (const interimNote of interimNotes) {
+        let updatedBody = interimNote.body;
+
+        for (const noteId of notesToPublish.keys()) {
+          // const cid =
+          //   interimNotes.find(interimNote => interimNote.id === noteId)?.name.toString() ||
+          //   publishedNotes.find(publishedNote => publishedNote.id === noteId)?.cidOrName;
+
+          // should always exist?
+          const cidOrName = publishedNotes.find(publishedNote => publishedNote.id === noteId)?.cidOrName!;
+          updatedBody = updatedBody.replaceAll(noteId, `/publications/${cidOrName}`);
+        }
+
+        const { name, revision, ...rest } = interimNote;
+        const updatedNote = { ...rest, body: updatedBody };
+        const cid = await publishNote({ address: userId, timestamp: Date.now(), ...updatedNote });
+        await updateNoteRevision(cid, name, revision);
+
+        // const finalResolvedValue = (await Name.resolve(name)).value;
+        // const finalCid = finalResolvedValue.replace('/ipfs/', '');
+
+        // publishedNotes.push({ id: interimNote.id, cid: finalCid });
+      }
+
+      console.log(publishedNotes);
+      // should always exist?
+      const publicationHash = publishedNotes.find(publishedNote => publishedNote.id === note.id)?.cidOrName!;
+
+      toast.success('Published!');
+      setPublicationHash(publicationHash);
+      setProcessing(false);
+      setPublished(true);
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to publish.');
+      setProcessing(false);
+    }
   };
 
   const singleNoteLink = noteLinks.length === 1;

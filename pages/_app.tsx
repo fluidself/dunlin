@@ -18,7 +18,7 @@ Router.events.on('routeChangeStart', () => NProgress.start());
 Router.events.on('routeChangeComplete', () => NProgress.done());
 Router.events.on('routeChangeError', () => NProgress.done());
 
-const infuraId = process.env.NEXT_PUBLIC_INFURA_ID as string;
+const infuraId = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID as string;
 const chains = defaultChains;
 
 type Config = { chainId?: number };
