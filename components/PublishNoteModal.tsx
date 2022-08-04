@@ -127,39 +127,26 @@ export default function PublishNoteModal(props: Props) {
     setProcessing(true);
 
     const notesToPublish = getNotesToPublish(note, new Map<string, { id: string; title: string; body: string }>());
-    const interimNotes: { id: string; title: string; body: string; name: any; revision: any }[] = [];
+    const interimNotes: { publication: NotePublication; name: any; revision: any }[] = [];
     // const publishedNotes: { id: string; cid: string }[] = [];
     const publishedNotes: { id: string; cidOrName: string }[] = [];
 
-    console.log(noteLinks);
+    // console.log(noteLinks);
     console.log(notesToPublish);
-    // TODO
-    // test with single note
-    // types for w3name?
-    // store name key for future revision?
 
     try {
       for (const noteToPublish of notesToPublish.values()) {
         const hasNoteLinks = noteToPublish.body.match(NOTE_LINK_REGEX) !== null;
         console.log(`${noteToPublish.id} hasNoteLinks: ${hasNoteLinks}`);
+        const publication = { address: userId, timestamp: Date.now(), title: noteToPublish.title, body: noteToPublish.body };
+        const cid = await publishNote(publication);
 
         if (hasNoteLinks) {
-          const interimCid = await publishNote({
-            address: userId,
-            timestamp: Date.now(),
-            title: noteToPublish.title,
-            body: noteToPublish.body,
-          });
-          const { name, revision } = await publishNoteRevision(interimCid);
-          interimNotes.push({ id: noteToPublish.id, title: noteToPublish.title, body: noteToPublish.body, name, revision });
+          const { name, revision } = await publishNoteRevision(cid);
+          // interimNotes.push({ id: noteToPublish.id, title: noteToPublish.title, body: noteToPublish.body, name, revision });
+          interimNotes.push({ publication, name, revision });
           publishedNotes.push({ id: noteToPublish.id, cidOrName: name.toString() });
         } else {
-          const cid = await publishNote({
-            address: userId,
-            timestamp: Date.now(),
-            title: noteToPublish.title,
-            body: noteToPublish.body,
-          });
           publishedNotes.push({ id: noteToPublish.id, cidOrName: cid });
         }
       }
@@ -168,7 +155,7 @@ export default function PublishNoteModal(props: Props) {
       console.log(publishedNotes);
 
       for (const interimNote of interimNotes) {
-        let updatedBody = interimNote.body;
+        let updatedBody = interimNote.publication.body;
 
         for (const noteId of notesToPublish.keys()) {
           // const cid =
@@ -176,13 +163,25 @@ export default function PublishNoteModal(props: Props) {
           //   publishedNotes.find(publishedNote => publishedNote.id === noteId)?.cidOrName;
 
           // should always exist?
-          const cidOrName = publishedNotes.find(publishedNote => publishedNote.id === noteId)?.cidOrName!;
-          updatedBody = updatedBody.replaceAll(noteId, `/publications/${cidOrName}`);
+          // const cidOrName = publishedNotes.find(publishedNote => publishedNote.id === noteId)?.cidOrName;
+          // if (cidOrName) {
+          //   // more accurate w/ notelink regex?
+          //   updatedBody = updatedBody.replaceAll(noteId, `/publications/${cidOrName}`);
+          // }
+
+          if (updatedBody.includes(noteId)) {
+            // should always exist?
+            const cidOrName = publishedNotes.find(publishedNote => publishedNote.id === noteId)?.cidOrName;
+            // more accurate w/ notelink regex?
+            updatedBody = cidOrName ? updatedBody.replaceAll(noteId, `/publications/${cidOrName}`) : updatedBody;
+          }
         }
 
-        const { name, revision, ...rest } = interimNote;
-        const updatedNote = { ...rest, body: updatedBody };
-        const cid = await publishNote({ address: userId, timestamp: Date.now(), ...updatedNote });
+        const { name, revision, publication } = interimNote;
+        // const updatedNote = { ...rest, body: updatedBody };
+        // const cid = await publishNote({ address: userId, timestamp: Date.now(), ...updatedNote });
+        const updatedPublication = { ...publication, body: updatedBody };
+        const cid = await publishNote(updatedPublication);
         await updateNoteRevision(cid, name, revision);
 
         // const finalResolvedValue = (await Name.resolve(name)).value;
@@ -204,6 +203,8 @@ export default function PublishNoteModal(props: Props) {
       toast.error('Failed to publish.');
       setProcessing(false);
     }
+
+    // setProcessing(false);
   };
 
   const singleNoteLink = noteLinks.length === 1;
