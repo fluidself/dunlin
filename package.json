@@ -11,7 +11,6 @@
   "dependencies": {
     "@dnd-kit/core": "^5.0.1",
     "@dnd-kit/sortable": "^6.0.0",
-    "@fleekhq/fleek-storage-js": "^1.0.21",
     "@headlessui/react": "^1.5.0",
     "@metamask/jazzicon": "^2.0.0",
     "@popperjs/core": "^2.11.2",
@@ -64,7 +63,7 @@
     "tweetnacl-util": "^0.15.1",
     "unified": "^10.1.2",
     "uuid": "^8.3.2",
-    "w3name": "^1.0.3",
+    "w3name": "^1.0.4",
     "wagmi": "^0.2.18",
     "web3.storage": "^4.3.0",
     "y-websocket": "^1.4.3",

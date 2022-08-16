@@ -1,6 +1,5 @@
 import Head from 'next/head';
 import { GetServerSideProps } from 'next';
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import * as Name from 'w3name'; // eslint-disable-line
 import { unified } from 'unified';
@@ -25,14 +24,14 @@ type Publication = {
 
 type Props = {
   publication: Publication;
+  cid: string;
 };
 
 export default function PublicationPage(props: Props) {
   const {
     publication: { address, timestamp, title, body },
+    cid,
   } = props;
-  const router = useRouter();
-  const { hash } = router.query;
   const [parsedBody, setParsedBody] = useState<string | null>(null);
 
   useEffect(() => {
@@ -51,7 +50,7 @@ export default function PublicationPage(props: Props) {
     };
 
     process();
-  }, [hash, address, timestamp, title, body]);
+  }, [cid, address, timestamp, title, body]);
 
   if (!parsedBody) {
     return <PageLoading />;
@@ -81,15 +80,15 @@ export default function PublicationPage(props: Props) {
         <div className="flex flex-col mt-20 mb-12 border border-gray-700 rounded text-gray-400 text-sm">
           <a
             className="hover:bg-gray-800"
-            href={`https://deck.infura-ipfs.io/ipfs/${hash}`}
+            href={`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${cid}`}
             target="_blank"
             rel="noopener noreferrer"
           >
             <div className="flex flex-row justify-between p-4 border-b border-gray-700">
               <div className="flex items-center">
-                <span>IPFS HASH</span> <IconExternalLink className="ml-2" size={16} />
+                <span>IPFS CID</span> <IconExternalLink className="ml-2" size={16} />
               </div>
-              <div>{hash}</div>
+              <div>{cid}</div>
             </div>
           </a>
           <a
@@ -122,32 +121,26 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
       const revision = await Name.resolve(name);
       cid = revision.value.replace('/ipfs/', '');
     } else if (typeof hash === 'string' && hash.startsWith('b')) {
-      cid = hash as string;
+      cid = hash;
     }
 
     if (!cid) throw new Error('Not found');
 
-    const res = await fetch(`https://deck.infura-ipfs.io/ipfs/${cid}`);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${cid}`);
     const data = await res.json();
 
     if (data.address && data.timestamp && data.title && data.body) {
       publication = data;
     }
   } catch (e) {
-    return {
-      notFound: true,
-    };
+    return { notFound: true };
   }
 
   if (!publication) {
-    return {
-      notFound: true,
-    };
+    return { notFound: true };
   }
 
   return {
-    props: {
-      publication,
-    },
+    props: { publication, cid },
   };
 };
