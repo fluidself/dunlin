@@ -2,6 +2,7 @@ import Head from 'next/head';
 import { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import * as Name from 'w3name'; // eslint-disable-line
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
@@ -112,14 +113,23 @@ export default function PublicationPage(props: Props) {
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const hash = params?.hash;
+  let cid: string | undefined;
   let publication: Publication | undefined;
 
   try {
-    // TODO: hash could be IPNS name? either resolve or use IPNS gateway
-    const res = await fetch(`https://deck.infura-ipfs.io/ipfs/${hash}`);
+    if (typeof hash === 'string' && hash.startsWith('k')) {
+      const name = Name.parse(hash);
+      const revision = await Name.resolve(name);
+      cid = revision.value.replace('/ipfs/', '');
+    } else if (typeof hash === 'string' && hash.startsWith('b')) {
+      cid = hash as string;
+    }
+
+    if (!cid) throw new Error('Not found');
+
+    const res = await fetch(`https://deck.infura-ipfs.io/ipfs/${cid}`);
     const data = await res.json();
-    // TODO: better error handling / checks. eg.
-    // if (data && data.address && data.title && data.body && data.timestamp)
+
     if (data.address && data.timestamp && data.title && data.body) {
       publication = data;
     }
