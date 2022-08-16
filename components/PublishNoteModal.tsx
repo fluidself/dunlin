@@ -33,12 +33,12 @@ const NOTE_LINK_REGEX = /\[(.+)\]\(([0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F
 export default function PublishNoteModal(props: Props) {
   const { note, userId, setIsOpen } = props;
 
-  const { client } = useIpfs();
+  const client = useIpfs();
   const [noteLinks, setNoteLinks] = useState<NoteLink[]>([]);
   const [publishLinkedNotes, setPublishLinkedNotes] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [published, setPublished] = useState(false);
-  const [publicationHash, setPublicationHash] = useState('');
+  const [publicationCid, setPublicationCid] = useState('');
 
   const hotkeys = useMemo(
     () => [
@@ -103,7 +103,6 @@ export default function PublishNoteModal(props: Props) {
 
   const publishNoteRevision = async (cid: string) => {
     const name = await Name.create();
-    // TODO: could value just be cid ?
     const value = `/ipfs/${cid}`;
     const revision = await Name.v0(name, value);
 
@@ -113,7 +112,6 @@ export default function PublishNoteModal(props: Props) {
   };
 
   const updateNoteRevision = async (cid: string, name: any, revision: any) => {
-    // TODO: could value just be cid ?
     const nextValue = `/ipfs/${cid}`;
     const nextRevision = await Name.increment(revision, nextValue);
 
@@ -128,74 +126,44 @@ export default function PublishNoteModal(props: Props) {
 
     const notesToPublish = getNotesToPublish(note, new Map<string, { id: string; title: string; body: string }>());
     const interimNotes: { publication: NotePublication; name: any; revision: any }[] = [];
-    // const publishedNotes: { id: string; cid: string }[] = [];
-    const publishedNotes: { id: string; cidOrName: string }[] = [];
-
-    // console.log(noteLinks);
-    console.log(notesToPublish);
+    const publishedNotes: { id: string; cid: string }[] = [];
 
     try {
       for (const noteToPublish of notesToPublish.values()) {
         const hasNoteLinks = noteToPublish.body.match(NOTE_LINK_REGEX) !== null;
-        console.log(`${noteToPublish.id} hasNoteLinks: ${hasNoteLinks}`);
         const publication = { address: userId, timestamp: Date.now(), title: noteToPublish.title, body: noteToPublish.body };
         const cid = await publishNote(publication);
 
         if (hasNoteLinks) {
           const { name, revision } = await publishNoteRevision(cid);
-          // interimNotes.push({ id: noteToPublish.id, title: noteToPublish.title, body: noteToPublish.body, name, revision });
           interimNotes.push({ publication, name, revision });
-          publishedNotes.push({ id: noteToPublish.id, cidOrName: name.toString() });
+          publishedNotes.push({ id: noteToPublish.id, cid: name.toString() });
         } else {
-          publishedNotes.push({ id: noteToPublish.id, cidOrName: cid });
+          publishedNotes.push({ id: noteToPublish.id, cid: cid });
         }
       }
-
-      console.log(interimNotes);
-      console.log(publishedNotes);
 
       for (const interimNote of interimNotes) {
         let updatedBody = interimNote.publication.body;
 
         for (const noteId of notesToPublish.keys()) {
-          // const cid =
-          //   interimNotes.find(interimNote => interimNote.id === noteId)?.name.toString() ||
-          //   publishedNotes.find(publishedNote => publishedNote.id === noteId)?.cidOrName;
-
-          // should always exist?
-          // const cidOrName = publishedNotes.find(publishedNote => publishedNote.id === noteId)?.cidOrName;
-          // if (cidOrName) {
-          //   // more accurate w/ notelink regex?
-          //   updatedBody = updatedBody.replaceAll(noteId, `/publications/${cidOrName}`);
-          // }
-
           if (updatedBody.includes(noteId)) {
-            // should always exist?
-            const cidOrName = publishedNotes.find(publishedNote => publishedNote.id === noteId)?.cidOrName;
+            const cidOrName = publishedNotes.find(publishedNote => publishedNote.id === noteId)?.cid;
             // more accurate w/ notelink regex?
             updatedBody = cidOrName ? updatedBody.replaceAll(noteId, `/publications/${cidOrName}`) : updatedBody;
           }
         }
 
         const { name, revision, publication } = interimNote;
-        // const updatedNote = { ...rest, body: updatedBody };
-        // const cid = await publishNote({ address: userId, timestamp: Date.now(), ...updatedNote });
         const updatedPublication = { ...publication, body: updatedBody };
         const cid = await publishNote(updatedPublication);
         await updateNoteRevision(cid, name, revision);
-
-        // const finalResolvedValue = (await Name.resolve(name)).value;
-        // const finalCid = finalResolvedValue.replace('/ipfs/', '');
-
-        // publishedNotes.push({ id: interimNote.id, cid: finalCid });
       }
 
-      console.log(publishedNotes);
-      // should always exist?
-      const publicationHash = publishedNotes.find(publishedNote => publishedNote.id === note.id)?.cidOrName!;
+      const publishedCid = publishedNotes.find(publishedNote => publishedNote.id === note.id)?.cid;
 
       toast.success('Published!');
-      setPublicationHash(publicationHash);
+      if (publishedCid) setPublicationCid(publishedCid);
       setProcessing(false);
       setPublished(true);
     } catch (error) {
@@ -203,8 +171,6 @@ export default function PublishNoteModal(props: Props) {
       toast.error('Failed to publish.');
       setProcessing(false);
     }
-
-    // setProcessing(false);
   };
 
   const singleNoteLink = noteLinks.length === 1;
@@ -237,21 +203,21 @@ export default function PublishNoteModal(props: Props) {
               <>
                 <p>Your note has been published and can be viewed here:</p>
                 <p>
-                  <Link href={`/publications/${publicationHash}`}>
+                  <Link href={`/publications/${publicationCid}`}>
                     <a
                       className="text-sm break-words hover:underline text-primary-400"
-                      href={`/publications/${publicationHash}`}
+                      href={`/publications/${publicationCid}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {`${process.env.BASE_URL}/publications/${publicationHash}`}
+                      {`${process.env.BASE_URL}/publications/${publicationCid}`}
                     </a>
                   </Link>
                 </p>
                 <div className="flex space-x-8 my-4">
                   <Button
                     primary
-                    onClick={async () => await copyToClipboard(`${process.env.BASE_URL}/publications/${publicationHash}`)}
+                    onClick={async () => await copyToClipboard(`${process.env.BASE_URL}/publications/${publicationCid}`)}
                   >
                     Copy Link
                   </Button>
