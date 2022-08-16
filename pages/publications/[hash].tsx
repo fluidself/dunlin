@@ -122,7 +122,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
       const revision = await Name.resolve(name);
       cid = revision.value.replace('/ipfs/', '');
     } else if (typeof hash === 'string' && hash.startsWith('b')) {
-      cid = hash as string;
+      cid = hash;
     }
 
     if (!cid) throw new Error('Not found');
@@ -134,20 +134,14 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
       publication = data;
     }
   } catch (e) {
-    return {
-      notFound: true,
-    };
+    return { notFound: true };
   }
 
   if (!publication) {
-    return {
-      notFound: true,
-    };
+    return { notFound: true };
   }
 
   return {
-    props: {
-      publication,
-    },
+    props: { publication },
   };
 };

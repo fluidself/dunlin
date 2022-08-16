@@ -57,7 +57,7 @@ export default function MyApp({ Component, pageProps, router }: AppProps) {
           </ProvideAuth>
         </Provider>
       </ServiceWorker>
-      <ToastContainer position="top-center" hideProgressBar newestOnTop={true} theme="colored" />
+      <ToastContainer position="top-center" hideProgressBar newestOnTop={true} limit={5} theme="colored" />
     </>
   );
 }

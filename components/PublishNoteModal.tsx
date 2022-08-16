@@ -86,7 +86,6 @@ export default function PublishNoteModal(props: Props) {
     return mapOfNotes;
   };
 
-  // TODO: make reusable and move to useIpfs?
   const prepareFileObject = (note: NotePublication, fileName: string) => {
     const blob = new Blob([JSON.stringify(note)], { type: 'application/json' });
     const file = new File([blob], `${fileName}.json`);
@@ -124,6 +123,12 @@ export default function PublishNoteModal(props: Props) {
     if (!userId) return;
     setProcessing(true);
 
+    const publishingToast = toast.info('Publishing to IPFS, please wait...', {
+      autoClose: false,
+      closeButton: false,
+      draggable: false,
+    });
+
     const notesToPublish = getNotesToPublish(note, new Map<string, { id: string; title: string; body: string }>());
     const interimNotes: { publication: NotePublication; name: any; revision: any }[] = [];
     const publishedNotes: { id: string; cid: string }[] = [];
@@ -149,7 +154,6 @@ export default function PublishNoteModal(props: Props) {
         for (const noteId of notesToPublish.keys()) {
           if (updatedBody.includes(noteId)) {
             const cidOrName = publishedNotes.find(publishedNote => publishedNote.id === noteId)?.cid;
-            // more accurate w/ notelink regex?
             updatedBody = cidOrName ? updatedBody.replaceAll(noteId, `/publications/${cidOrName}`) : updatedBody;
           }
         }
@@ -159,17 +163,21 @@ export default function PublishNoteModal(props: Props) {
         const cid = await publishNote(updatedPublication);
         await updateNoteRevision(cid, name, revision);
       }
-
-      const publishedCid = publishedNotes.find(publishedNote => publishedNote.id === note.id)?.cid;
-
-      toast.success('Published!');
-      if (publishedCid) setPublicationCid(publishedCid);
-      setProcessing(false);
-      setPublished(true);
     } catch (error) {
       console.error(error);
+    }
+
+    const publishedCid = publishedNotes.find(publishedNote => publishedNote.id === note.id)?.cid;
+
+    setProcessing(false);
+    toast.dismiss(publishingToast);
+
+    if (publishedCid) {
+      setPublicationCid(publishedCid);
+      setPublished(true);
+      toast.success('Published!');
+    } else {
       toast.error('Failed to publish.');
-      setProcessing(false);
     }
   };
 
