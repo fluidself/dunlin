@@ -3,7 +3,7 @@ import classNames from 'classnames';
 
 interface ButtonProps {
   children: ReactNode;
-  onClick?: (arg0?: any, arg1?: any) => void;
+  onClick?: () => void;
   disabled?: boolean;
   loading?: boolean;
   className?: string;

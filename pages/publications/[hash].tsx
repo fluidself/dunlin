@@ -111,16 +111,16 @@ export default function PublicationPage(props: Props) {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-  const hash = params?.hash;
+  const hash = params?.hash as string;
   let cid: string | undefined;
   let publication: Publication | undefined;
 
   try {
-    if (typeof hash === 'string' && hash.startsWith('k')) {
+    if (hash.startsWith('k')) {
       const name = Name.parse(hash);
       const revision = await Name.resolve(name);
       cid = revision.value.replace('/ipfs/', '');
-    } else if (typeof hash === 'string' && hash.startsWith('b')) {
+    } else if (hash.startsWith('b')) {
       cid = hash;
     }
 

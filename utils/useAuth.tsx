@@ -10,7 +10,7 @@ import { User } from 'types/supabase';
 type AuthContextType = {
   isLoaded: boolean;
   user: User | null;
-  signIn: (address: string, chainId: string) => Promise<void>;
+  signIn: () => Promise<void>;
   signOut: () => Promise<void>;
 };
 
