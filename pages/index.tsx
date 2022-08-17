@@ -1,4 +1,5 @@
 import { withIronSessionSsr } from 'iron-session/next';
+import { useRouter } from 'next/router';
 import { IconInfoCircle } from '@tabler/icons';
 import { useEffect } from 'react';
 import { useAccount } from 'wagmi';
@@ -12,6 +13,7 @@ import Button from 'components/home/Button';
 export default function Home() {
   const [{ data: accountData }] = useAccount();
   const { signIn, signOut } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const onDisconnect = () => signOut();
@@ -49,7 +51,14 @@ export default function Home() {
           </h1>
         </div>
 
-        <Button className="py-4 w-80 mx-auto" onClick={signIn} primary>
+        <Button
+          className="py-4 w-80 mx-auto"
+          primary
+          onClick={async () => {
+            await signIn();
+            router.push('/app');
+          }}
+        >
           <EthereumIcon />
           Sign-in with Ethereum
         </Button>
