@@ -161,6 +161,7 @@ export default function PublishNoteModal(props: Props) {
         const { name, revision, publication } = interimNote;
         const updatedPublication = { ...publication, body: updatedBody };
         const cid = await publishNote(updatedPublication);
+
         await updateNoteRevision(cid, name, revision);
       }
     } catch (error) {

@@ -45,9 +45,9 @@ const isImageUrl = (url: string) => {
 };
 
 export const uploadAndInsertImage = async (editor: Editor, file: File, path?: Path) => {
-  const WEB3STORAGE_TOKEN = process.env.NEXT_PUBLIC_WEB3STORAGE_TOKEN as string;
+  const TOKEN = process.env.NEXT_PUBLIC_WEB3STORAGE_TOKEN as string;
   const ENDPOINT = process.env.NEXT_PUBLIC_WEB3STORAGE_ENDPOINT as string;
-  const client = new Web3Storage({ token: WEB3STORAGE_TOKEN, endpoint: new URL(ENDPOINT) });
+  const client = new Web3Storage({ token: TOKEN, endpoint: new URL(ENDPOINT) });
 
   const uploadingToast = toast.info('Uploading image, please wait...', {
     autoClose: false,
