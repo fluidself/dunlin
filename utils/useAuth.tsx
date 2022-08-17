@@ -94,7 +94,6 @@ function useProvideAuth(): AuthContextType {
       await initUser();
 
       setSigningIn(false);
-      router.push('/app');
     } catch (e) {
       console.error(e);
     }
