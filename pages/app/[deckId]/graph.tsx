@@ -10,7 +10,7 @@ import ForceGraph from 'components/ForceGraph';
 import { useStore } from 'lib/store';
 import ErrorBoundary from 'components/ErrorBoundary';
 import OpenSidebarButton from 'components/sidebar/OpenSidebarButton';
-import checkProtectedPageAuth from 'utils/checkProtectedPageAuth';
+import { checkProtectedPageAuth } from 'utils/accessControl';
 
 export default function Graph() {
   const notes = useStore(state => state.notes);

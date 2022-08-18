@@ -1,7 +1,7 @@
 import { withIronSessionSsr } from 'iron-session/next';
 import { ironOptions } from 'constants/iron-session';
 import OpenSidebarButton from 'components/sidebar/OpenSidebarButton';
-import checkProtectedPageAuth from 'utils/checkProtectedPageAuth';
+import { checkProtectedPageAuth } from 'utils/accessControl';
 import { useStore } from 'lib/store';
 
 export default function DeckHome() {
