@@ -1,3 +1,4 @@
+import { sealData } from 'iron-session';
 import supabase from 'lib/supabase';
 import { User, Deck } from 'types/supabase';
 import { decryptWithLit } from 'utils/encryption';
@@ -32,22 +33,32 @@ export async function checkProtectedPageAuth(
 }
 
 export async function verifyDeckAccess(deckId: string) {
-  const { data, error } = await supabase.from<Deck>('decks').select('access_params').eq('id', deckId).single();
-  if (!data || error) {
-    throw new Error('Unable to verify access');
-  }
+  try {
+    const { data, error } = await supabase.from<Deck>('decks').select('access_params').eq('id', deckId).single();
 
-  const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = data.access_params;
-  const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
-  if (!deckKey) {
-    throw new Error('Unable to verify access');
-  }
+    if (!data || error) throw new Error('Unable to verify access');
 
-  await fetch('/api/verify-deck', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ allowedDeck: deckId }),
-  });
+    const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = data.access_params;
+    const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
+
+    if (!deckKey) throw new Error('Unable to verify access');
+
+    const seal = await sealData(
+      { allowedDeck: deckId },
+      { password: process.env.NEXT_PUBLIC_COOKIE_PASSWORD as string, ttl: 30 },
+    );
+    const res = await fetch('/api/verify-deck', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ seal }),
+    });
+
+    if (!res.ok) throw new Error('Unable to verify access');
+
+    return true;
+  } catch (error) {
+    return false;
+  }
 }

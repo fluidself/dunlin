@@ -42,7 +42,7 @@ export default function AppHome() {
     } else if (!window.litNodeClient && isMounted() && user) {
       initLit();
     }
-  }, [isMounted, user]);
+  }, [isMounted, user, router]);
 
   useEffect(() => {
     const onDisconnect = () => signOut();
@@ -108,15 +108,16 @@ export default function AppHome() {
     if (!requestedDeck) return;
     setProcessing(true);
 
-    try {
-      await verifyDeckAccess(requestedDeck);
+    const success = await verifyDeckAccess(requestedDeck);
+
+    if (success) {
       toast.success('Access to DECK is granted');
       router.push(`/app/${requestedDeck}`);
-      setProcessing(false);
-    } catch (error) {
+    } else {
       toast.error('Unable to verify access');
-      setProcessing(false);
     }
+
+    setProcessing(false);
   };
 
   return (
