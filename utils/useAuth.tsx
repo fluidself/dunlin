@@ -104,7 +104,7 @@ function useProvideAuth(): AuthContextType {
       method: 'POST',
     });
     localStorage.removeItem('lit-auth-signature');
-    await initUser();
+    setUser(null);
     router.push('/');
   };
 

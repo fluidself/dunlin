@@ -12,8 +12,12 @@ import Button from 'components/home/Button';
 
 export default function Home() {
   const [{ data: accountData }] = useAccount();
-  const { signIn, signOut } = useAuth();
+  const { signIn, signOut, user } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (user) router.push('/');
+  }, [user, router]);
 
   useEffect(() => {
     const onDisconnect = () => signOut();
@@ -51,14 +55,7 @@ export default function Home() {
           </h1>
         </div>
 
-        <Button
-          className="py-4 w-80 mx-auto"
-          primary
-          onClick={async () => {
-            await signIn();
-            router.push('/app');
-          }}
-        >
+        <Button className="py-4 w-80 mx-auto" primary onClick={signIn}>
           <EthereumIcon />
           Sign-in with Ethereum
         </Button>

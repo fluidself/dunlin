@@ -4,15 +4,15 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useAccount } from 'wagmi';
-import useSWR from 'swr';
 import { toast } from 'react-toastify';
 import { ironOptions } from 'constants/iron-session';
 import supabase from 'lib/supabase';
 import insertDeck from 'lib/api/insertDeck';
 import selectDecks from 'lib/api/selectDecks';
-import { Deck, Note } from 'types/supabase';
-import { generateKey, decryptWithLit, encryptWithLit, encryptNote } from 'utils/encryption';
+import { Note } from 'types/supabase';
+import { generateKey, encryptWithLit, encryptNote } from 'utils/encryption';
 import createOnboardingNotes from 'utils/createOnboardingNotes';
+import { verifyDeckAccess } from 'utils/accessControl';
 import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';
 import HomeHeader from 'components/home/HomeHeader';
@@ -25,7 +25,6 @@ export default function AppHome() {
   const router = useRouter();
   const [{ data: accountData }] = useAccount();
   const { user, isLoaded, signOut } = useAuth();
-  const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
   const [requestingAccess, setRequestingAccess] = useState<boolean>(false);
   const [creatingDeck, setCreatingDeck] = useState<boolean>(false);
   const [processing, setProcessing] = useState<boolean>(false);
@@ -38,7 +37,9 @@ export default function AppHome() {
       window.litNodeClient = client;
     };
 
-    if (!window.litNodeClient && isMounted() && user) {
+    if (!user) {
+      router.push('/');
+    } else if (!window.litNodeClient && isMounted() && user) {
       initLit();
     }
   }, [isMounted, user]);
@@ -107,43 +108,13 @@ export default function AppHome() {
     if (!requestedDeck) return;
     setProcessing(true);
 
-    if (decks?.find(deck => deck.id === requestedDeck && deck.user_id === user?.id)) {
-      toast.success('You own that DECK!');
-      setRequestingAccess(false);
-      setProcessing(false);
-      router.push(`/app/${requestedDeck}`);
-      return;
-    }
-
-    const { data, error } = await supabase.from<Deck>('decks').select('access_params').eq('id', requestedDeck).single();
-    if (!data || error) {
-      toast.error('Unable to verify access.');
-      setProcessing(false);
-      return;
-    }
-
     try {
-      const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = data.access_params;
-      const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
-      if (!deckKey) {
-        toast.error('Unable to verify access.');
-        setProcessing(false);
-        return;
-      }
-
-      await fetch('/api/verify-deck', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ allowedDeck: requestedDeck }),
-      });
-
-      toast.success('Access to DECK is granted.');
+      await verifyDeckAccess(requestedDeck);
+      toast.success('Access to DECK is granted');
       router.push(`/app/${requestedDeck}`);
       setProcessing(false);
     } catch (error) {
-      toast.error('Unable to verify access.');
+      toast.error('Unable to verify access');
       setProcessing(false);
     }
   };

@@ -9,8 +9,8 @@ import Note from 'components/Note';
 import { useStore } from 'lib/store';
 import usePrevious from 'utils/usePrevious';
 import { queryParamToArray } from 'utils/url';
+import { checkProtectedPageAuth } from 'utils/accessControl';
 import useBlockBacklinks from 'editor/backlinks/useBlockBacklinks';
-import checkProtectedPageAuth from 'utils/checkProtectedPageAuth';
 
 type Props = {
   allowedDeck?: string;

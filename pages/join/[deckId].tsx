@@ -6,12 +6,10 @@ import { useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import LitJsSdk from 'lit-js-sdk';
 import { toast } from 'react-toastify';
-import supabase from 'lib/supabase';
-import { Deck } from 'types/supabase';
 import { ironOptions } from 'constants/iron-session';
-import { decryptWithLit } from 'utils/encryption';
 import { useAuth } from 'utils/useAuth';
 import useIsMounted from 'utils/useIsMounted';
+import { verifyDeckAccess } from 'utils/accessControl';
 import { EthereumIcon } from 'components/home/EthereumIcon';
 import Button from 'components/home/Button';
 
@@ -47,41 +45,21 @@ export default function JoinDeck({ deckId }: Props) {
   }, [accountData?.connector, signOut]);
 
   useEffect(() => {
-    if (user) {
-      verifyAccess();
-    }
-  }, [user]);
+    const verifyAccess = async () => {
+      if (!deckId) return;
 
-  const verifyAccess = async () => {
-    if (!deckId || typeof deckId !== 'string') return;
-
-    try {
-      const { data, error } = await supabase.from<Deck>('decks').select('access_params').eq('id', deckId).single();
-      if (!data || error) {
-        throw new Error('Unable to verify access');
+      try {
+        await verifyDeckAccess(deckId);
+        toast.success('Access to DECK is granted');
+        router.push(`/app/${deckId}`);
+      } catch (error) {
+        toast.error('Unable to verify access');
+        router.push(`/app`);
       }
+    };
 
-      const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = data.access_params;
-      const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
-      if (!deckKey) {
-        throw new Error('Unable to verify access');
-      }
-
-      await fetch('/api/verify-deck', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ allowedDeck: deckId }),
-      });
-
-      toast.success('Access to DECK is granted.');
-      router.push(`/app/${deckId}`);
-    } catch (error) {
-      toast.error('Unable to verify access');
-      router.push(`/app`);
-    }
-  };
+    if (user) verifyAccess();
+  }, [user, deckId, router]);
 
   return (
     <div className="mt-2">
@@ -110,7 +88,7 @@ export default function JoinDeck({ deckId }: Props) {
           </h1>
         </div>
 
-        <Button className="py-4 w-80 mx-auto" onClick={signIn} primary>
+        <Button className="py-4 w-80 mx-auto" primary onClick={signIn}>
           <EthereumIcon />
           Sign-in with Ethereum
         </Button>
