@@ -1,4 +1,5 @@
 import { withIronSessionApiRoute } from 'iron-session/next';
+import { unsealData } from 'iron-session';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { ironOptions } from 'constants/iron-session';
 
@@ -11,13 +12,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   try {
-    const { allowedDeck } = req.body;
+    const { seal } = req.body;
+    const unsealed = await unsealData(seal, { password: process.env.COOKIE_PASSWORD as string });
 
-    if (!allowedDeck) {
+    if (!seal || !unsealed.allowedDeck) {
       return res.status(401).send('Unauthorized');
     }
 
-    req.session.allowedDeck = allowedDeck;
+    req.session.allowedDeck = unsealed.allowedDeck as string;
     await req.session.save();
     res.json({ ok: true });
   } catch (e) {

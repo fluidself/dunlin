@@ -135,14 +135,16 @@ export default function CreateJoinRenameDeckModal(props: Props) {
     if (!inputText) return;
     setProcessing(true);
 
-    try {
-      await verifyDeckAccess(inputText);
+    const success = await verifyDeckAccess(inputText);
+
+    if (success) {
       toast.success('Access to DECK is granted');
       setProcessing(false);
       closeModal();
       window.location.assign(`${process.env.BASE_URL}/app/${inputText}`);
-    } catch (error) {
+    } else {
       toast.error('Unable to verify access');
+      setProcessing(false);
     }
   };
 

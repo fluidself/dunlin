@@ -2,7 +2,7 @@ import { withIronSessionSsr } from 'iron-session/next';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { IconInfoCircle } from '@tabler/icons';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import LitJsSdk from 'lit-js-sdk';
 import { toast } from 'react-toastify';
@@ -20,20 +20,39 @@ type Props = {
 export default function JoinDeck({ deckId }: Props) {
   const [{ data: accountData }] = useAccount();
   const { user, signIn, signOut } = useAuth();
+  const [litReady, setLitReady] = useState(false);
   const isMounted = useIsMounted();
   const router = useRouter();
 
-  useEffect(() => {
-    const initLit = async () => {
-      const client = new LitJsSdk.LitNodeClient({ alertWhenUnauthorized: false, debug: false });
-      await client.connect();
-      window.litNodeClient = client;
-    };
+  const initLit = async () => {
+    const client = new LitJsSdk.LitNodeClient({ alertWhenUnauthorized: false, debug: false });
+    await client.connect();
+    window.litNodeClient = client;
+    setLitReady(true);
+  };
 
-    if (!window.litNodeClient && isMounted()) {
+  const verifyAccess = useCallback(async () => {
+    if (!deckId) return;
+
+    const success = await verifyDeckAccess(deckId);
+
+    if (success) {
+      toast.success('Access to DECK is granted');
+      router.push(`/app/${deckId}`);
+    } else {
+      toast.error('Unable to verify access');
+      router.push(`/app`);
+    }
+  }, [deckId, router]);
+
+  useEffect(() => {
+    if (isMounted() && !litReady) {
       initLit();
     }
-  }, [isMounted]);
+    if (user && litReady) {
+      verifyAccess();
+    }
+  }, [isMounted, litReady, user, verifyAccess]);
 
   useEffect(() => {
     const onDisconnect = () => signOut();
@@ -43,23 +62,6 @@ export default function JoinDeck({ deckId }: Props) {
       accountData?.connector?.off('disconnect', onDisconnect);
     };
   }, [accountData?.connector, signOut]);
-
-  useEffect(() => {
-    const verifyAccess = async () => {
-      if (!deckId) return;
-
-      try {
-        await verifyDeckAccess(deckId);
-        toast.success('Access to DECK is granted');
-        router.push(`/app/${deckId}`);
-      } catch (error) {
-        toast.error('Unable to verify access');
-        router.push(`/app`);
-      }
-    };
-
-    if (user) verifyAccess();
-  }, [user, deckId, router]);
 
   return (
     <div className="mt-2">
