@@ -92,7 +92,6 @@ function useProvideAuth(): AuthContextType {
       );
 
       await initUser();
-
       setSigningIn(false);
     } catch (e) {
       console.error(e);
