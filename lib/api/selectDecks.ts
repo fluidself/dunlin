@@ -8,7 +8,7 @@ export default async function selectDecks(userId?: string) {
 
   if (error) throw error.message;
 
-  if (store.getState().allowedDeck) {
+  if (store.getState().allowedDeck && data.findIndex(deck => deck.id === store.getState().allowedDeck) === -1) {
     const { data: additionalDeck, error } = await supabase
       .from<Deck>('decks')
       .select('*')

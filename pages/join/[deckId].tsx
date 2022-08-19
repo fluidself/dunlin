@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { IconInfoCircle } from '@tabler/icons';
 import { useCallback, useEffect, useState } from 'react';
-import { useAccount } from 'wagmi';
 import LitJsSdk from 'lit-js-sdk';
 import { toast } from 'react-toastify';
 import { ironOptions } from 'constants/iron-session';
@@ -18,8 +17,7 @@ type Props = {
 };
 
 export default function JoinDeck({ deckId }: Props) {
-  const [{ data: accountData }] = useAccount();
-  const { user, signIn, signOut } = useAuth();
+  const { user, signIn } = useAuth();
   const [litReady, setLitReady] = useState(false);
   const isMounted = useIsMounted();
   const router = useRouter();
@@ -32,15 +30,12 @@ export default function JoinDeck({ deckId }: Props) {
   };
 
   const verifyAccess = useCallback(async () => {
-    if (!deckId) return;
-
     const success = await verifyDeckAccess(deckId);
 
     if (success) {
       toast.success('Access to DECK is granted');
       router.push(`/app/${deckId}`);
     } else {
-      toast.error('Unable to verify access');
       router.push(`/app`);
     }
   }, [deckId, router]);
@@ -53,15 +48,6 @@ export default function JoinDeck({ deckId }: Props) {
       verifyAccess();
     }
   }, [isMounted, litReady, user, verifyAccess]);
-
-  useEffect(() => {
-    const onDisconnect = () => signOut();
-    accountData?.connector?.on('disconnect', onDisconnect);
-
-    return () => {
-      accountData?.connector?.off('disconnect', onDisconnect);
-    };
-  }, [accountData?.connector, signOut]);
 
   return (
     <div className="mt-2">
