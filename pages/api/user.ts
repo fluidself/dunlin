@@ -24,32 +24,26 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return;
   }
 
-  const user = await supabase.from<User>('users').select('*').match({ id: address }).single();
+  const { data: user } = await supabase.from<User>('users').select('*').match({ id: address }).single();
 
-  if (user.data) {
+  if (user) {
     // DB user exists, return it
-    req.session.user = user.data;
+    req.session.user = user;
     await req.session.save();
 
-    res.status(200).json({ user: user.data });
-
+    res.status(200).json({ user: user });
     return;
   } else {
     // DB user does not exist, create and return
-    const result = await supabase
-      .from<User>('users')
-      .insert({
-        id: address,
-      })
-      .single();
+    const { data, error, status } = await supabase.from<User>('users').insert({ id: address }).single();
 
-    if (result.data) {
-      req.session.user = result.data;
+    if (data) {
+      req.session.user = data;
       await req.session.save();
 
-      res.status(200).json({ user: result.data });
-    } else if (result.error) {
-      res.status(result.status).json({ message: result.error.message });
+      res.status(200).json({ user: data });
+    } else if (error) {
+      res.status(status).json({ message: error.message });
     }
   }
 };
