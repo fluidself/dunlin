@@ -283,11 +283,17 @@ export default function AppLayout(props: Props) {
       },
       {
         hotkey: 'mod+shift+e',
-        callback: () => setSidebarTab(SidebarTab.Notes),
+        callback: () => {
+          setIsSidebarOpen(true);
+          setSidebarTab(SidebarTab.Notes);
+        },
       },
       {
         hotkey: 'mod+shift+f',
-        callback: () => setSidebarTab(SidebarTab.Search),
+        callback: () => {
+          setIsSidebarOpen(true);
+          setSidebarTab(SidebarTab.Search);
+        },
       },
       {
         hotkey: 'mod+shift+g',
