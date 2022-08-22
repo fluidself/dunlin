@@ -132,10 +132,10 @@ export default function CreateJoinRenameDeckModal(props: Props) {
   };
 
   const verifyAccess = async () => {
-    if (!inputText) return;
+    if (!inputText || !user) return;
     setProcessing(true);
 
-    const success = await verifyDeckAccess(inputText);
+    const success = await verifyDeckAccess(inputText, user);
 
     if (success) {
       toast.success('Access to DECK is granted');

@@ -1,22 +1,17 @@
 import supabase from 'lib/supabase';
-import type { Deck } from 'types/supabase';
-import { store } from 'lib/store';
+import type { Deck, User } from 'types/supabase';
 
-export default async function selectDecks(userId?: string) {
-  if (!userId) return [];
-  const { data, error } = await supabase.from<Deck>('decks').select('*').eq('user_id', userId).order('id');
+export default async function selectDecks(user: User | null) {
+  if (!user) return [];
+  const { data, error } = await supabase.from<Deck>('decks').select('id, deck_name').eq('user_id', user.id).order('id');
 
-  if (error) throw error.message;
+  if (!data || error) throw error.message;
 
-  if (store.getState().allowedDeck && data.findIndex(deck => deck.id === store.getState().allowedDeck) === -1) {
-    const { data: additionalDeck, error } = await supabase
-      .from<Deck>('decks')
-      .select('*')
-      .eq('id', store.getState().allowedDeck)
-      .single();
-
+  for (const deckId of user.joined_decks) {
+    const { data: joinedDeck, error } = await supabase.from<Deck>('decks').select('id, deck_name').eq('id', deckId).single();
     if (error) throw error.message;
-    data.push(additionalDeck);
+
+    data.push(joinedDeck);
   }
 
   return data;

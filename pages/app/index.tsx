@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import { ironOptions } from 'constants/iron-session';
 import supabase from 'lib/supabase';
 import insertDeck from 'lib/api/insertDeck';
-import selectDecks from 'lib/api/selectDecks';
+import selectDeckIds from 'lib/api/selectDeckIds';
 import { Note } from 'types/supabase';
 import { generateKey, encryptWithLit, encryptNote } from 'utils/encryption';
 import createOnboardingNotes from 'utils/createOnboardingNotes';
@@ -105,10 +105,10 @@ export default function AppHome() {
   };
 
   const verifyAccess = async (requestedDeck: string) => {
-    if (!requestedDeck) return;
+    if (!requestedDeck || !user) return;
     setProcessing(true);
 
-    const success = await verifyDeckAccess(requestedDeck);
+    const success = await verifyDeckAccess(requestedDeck, user);
 
     if (success) {
       toast.success('Access to DECK is granted');
@@ -182,7 +182,7 @@ export const getServerSideProps = withIronSessionSsr(async function ({ req }) {
     return { redirect: { destination: `/app/${recentDeck}`, permanent: false } };
   }
 
-  const decks = await selectDecks(user.id);
+  const deckIds = await selectDeckIds(user);
 
-  return decks.length ? { redirect: { destination: `/app/${decks[decks.length - 1].id}`, permanent: false } } : { props: {} };
+  return deckIds.length ? { redirect: { destination: `/app/${deckIds[deckIds.length - 1]}`, permanent: false } } : { props: {} };
 }, ironOptions);
