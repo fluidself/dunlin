@@ -30,7 +30,8 @@ export default function JoinDeck({ deckId }: Props) {
   };
 
   const verifyAccess = useCallback(async () => {
-    const success = await verifyDeckAccess(deckId);
+    if (!user) return;
+    const success = await verifyDeckAccess(deckId, user);
 
     if (success) {
       toast.success('Access to DECK is granted');
@@ -38,7 +39,7 @@ export default function JoinDeck({ deckId }: Props) {
     } else {
       router.push(`/app`);
     }
-  }, [deckId, router]);
+  }, [deckId, router, user]);
 
   useEffect(() => {
     if (isMounted() && !litReady) {

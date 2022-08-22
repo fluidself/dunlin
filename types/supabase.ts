@@ -3,6 +3,7 @@ import { AccessControlCondition, BooleanCondition } from './lit';
 
 export type User = {
   id: string;
+  joined_decks: Deck['id'][];
 };
 
 export type Deck = {

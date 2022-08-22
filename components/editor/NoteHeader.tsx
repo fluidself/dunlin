@@ -50,7 +50,7 @@ export default function NoteHeader() {
   const onImport = useImport();
   const { user } = useAuth();
   const { id: currentDeckId, user_id: deckOwner } = useCurrentDeck();
-  const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
+  const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user), { revalidateOnFocus: false });
   const [deckOptions, setDeckOptions] = useState<DeckSelectOption[]>([]);
   const [selectedDeck, setSelectedDeck] = useState<any>(null);
   const router = useRouter();

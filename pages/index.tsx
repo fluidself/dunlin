@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import Link from 'next/link';
 import { ironOptions } from 'constants/iron-session';
-import selectDecks from 'lib/api/selectDecks';
+import selectDeckIds from 'lib/api/selectDeckIds';
 import { useAuth } from 'utils/useAuth';
 import { EthereumIcon } from 'components/home/EthereumIcon';
 import Button from 'components/home/Button';
@@ -75,9 +75,9 @@ export const getServerSideProps = withIronSessionSsr(async function ({ req }) {
     return { redirect: { destination: `/app/${recentDeck}`, permanent: false } };
   }
 
-  const decks = await selectDecks(user.id);
+  const deckIds = await selectDeckIds(user);
 
-  return decks.length
-    ? { redirect: { destination: `/app/${decks[decks.length - 1].id}`, permanent: false } }
+  return deckIds.length
+    ? { redirect: { destination: `/app/${deckIds[deckIds.length - 1]}`, permanent: false } }
     : { redirect: { destination: '/app', permanent: false } };
 }, ironOptions);

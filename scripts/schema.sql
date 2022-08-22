@@ -25,6 +25,7 @@ CREATE TABLE public.notes (
 DROP TABLE IF EXISTS public.users;
 CREATE TABLE public.users (
   id text NOT NULL,
+  joined_decks jsonb NULL,
   CONSTRAINT users_pkey PRIMARY KEY (id)
 );
 
