@@ -17,6 +17,7 @@ import useIsMounted from 'utils/useIsMounted';
 import useHotkeys from 'utils/useHotkeys';
 import { useAuth } from 'utils/useAuth';
 import { isMobile } from 'utils/device';
+import CreateJoinRenameDeckModal, { CreateJoinRenameDeckType } from './CreateJoinRenameDeckModal';
 import SettingsModal from './settings/SettingsModal';
 import Sidebar from './sidebar/Sidebar';
 import FindOrCreateModal from './FindOrCreateModal';
@@ -190,6 +191,15 @@ export default function AppLayout(props: Props) {
   }, [router, user, isLoaded, isPageLoaded, initData]);
 
   const [isFindOrCreateModalOpen, setIsFindOrCreateModalOpen] = useState(false);
+  const [createJoinRenameModal, setCreateJoinRenameModal] = useState<{
+    open: boolean;
+    type: CreateJoinRenameDeckType;
+    deckId?: string;
+    deckName?: string;
+  }>({
+    open: false,
+    type: CreateJoinRenameDeckType.None,
+  });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // const darkMode = useStore(state => state.darkMode);
@@ -326,13 +336,27 @@ export default function AppLayout(props: Props) {
       <ProvideCurrentDeck deck={deck}>
         <div id="app-container" className={appContainerClassName}>
           <div className="flex w-full h-full dark:bg-gray-900">
-            <Sidebar setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen} setIsSettingsOpen={setIsSettingsOpen} />
+            <Sidebar
+              setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen}
+              setIsSettingsOpen={setIsSettingsOpen}
+              setCreateJoinRenameModal={setCreateJoinRenameModal}
+            />
             <div className="relative flex flex-col flex-1 overflow-y-hidden">
               <OfflineBanner />
               {children}
             </div>
-            {isSettingsOpen ? <SettingsModal setIsOpen={setIsSettingsOpen} /> : null}
+            {isSettingsOpen ? (
+              <SettingsModal setIsOpen={setIsSettingsOpen} setCreateJoinRenameModal={setCreateJoinRenameModal} />
+            ) : null}
             {isFindOrCreateModalOpen ? <FindOrCreateModal setIsOpen={setIsFindOrCreateModalOpen} /> : null}
+            {createJoinRenameModal.open && (
+              <CreateJoinRenameDeckModal
+                type={createJoinRenameModal.type}
+                deckId={createJoinRenameModal.deckId}
+                deckName={createJoinRenameModal.deckName}
+                closeModal={() => setCreateJoinRenameModal({ open: false, type: CreateJoinRenameDeckType.None })}
+              />
+            )}
           </div>
         </div>
       </ProvideCurrentDeck>
