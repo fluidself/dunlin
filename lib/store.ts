@@ -77,8 +77,6 @@ export type Store = {
   setDeckId: Setter<string>;
   deckKey: string;
   setDeckKey: Setter<string>;
-  allowedDeck: string;
-  setAllowedDeck: Setter<string>;
   authorOnlyNotes: boolean;
   setAuthorOnlyNotes: Setter<boolean>;
 } & UserSettings;
@@ -226,8 +224,6 @@ export const store = createVanilla<Store, SetState<Store>, GetState<Store>, Stor
       setDeckId: setter(set, 'deckId'),
       deckKey: '',
       setDeckKey: setter(set, 'deckKey'),
-      allowedDeck: '',
-      setAllowedDeck: setter(set, 'allowedDeck'),
       authorOnlyNotes: false,
       setAuthorOnlyNotes: setter(set, 'authorOnlyNotes'),
       ...createUserSettingsSlice(set),
