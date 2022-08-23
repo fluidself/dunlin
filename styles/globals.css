@@ -167,6 +167,14 @@
   }
 }
 
+.settings-modal-tooltip > .tooltiptext {
+  right: 105%;
+}
+
+.settings-modal-tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
 a:focus,
 button:focus {
   outline: 1px solid white;

@@ -5,9 +5,9 @@ import supabase from 'lib/supabase';
 import insertDeck from 'lib/api/insertDeck';
 import { Deck, Note } from 'types/supabase';
 import { useAuth } from 'utils/useAuth';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
 import useHotkeys from 'utils/useHotkeys';
 import { generateKey, encryptNote, encryptWithLit } from 'utils/encryption';
-import { useCurrentDeck } from 'utils/useCurrentDeck';
 import createOnboardingNotes from 'utils/createOnboardingNotes';
 import { verifyDeckAccess } from 'utils/accessControl';
 import Button from 'components/home/Button';
@@ -23,13 +23,14 @@ export enum CreateJoinRenameDeckType {
 type Props = {
   type: CreateJoinRenameDeckType;
   closeModal: () => void;
+  deckId?: string;
+  deckName?: string;
 };
 
 export default function CreateJoinRenameDeckModal(props: Props) {
-  const { type, closeModal } = props;
-
+  const { type, closeModal, deckId, deckName } = props;
   const { user } = useAuth();
-  const { id: deckId, deck_name } = useCurrentDeck();
+  const { id: currentDeckId } = useCurrentDeck();
   const [inputText, setInputText] = useState<string>('');
   const [processing, setProcessing] = useState<boolean>(false);
 
@@ -112,7 +113,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
   };
 
   const deleteDeck = async () => {
-    if (!user || !deckId || !deck_name) return;
+    if (!user || !deckId || !deckName) return;
     setProcessing(true);
 
     try {
@@ -122,10 +123,13 @@ export default function CreateJoinRenameDeckModal(props: Props) {
       const response = await fetch('/api/reset-recent-deck', { method: 'POST' });
       if (!response.ok) toast.error('There was an error deleting the DECK');
 
-      toast.success(`Successfully deleted ${deck_name}`);
+      toast.success(`Successfully deleted ${deckName}`);
       setProcessing(false);
       closeModal();
-      window.location.assign(`${process.env.BASE_URL}/app`);
+
+      if (deckId === currentDeckId) {
+        window.location.assign(`${process.env.BASE_URL}/app`);
+      }
     } catch (error) {
       toast.error('There was an error deleting the DECK');
     }
@@ -153,8 +157,8 @@ export default function CreateJoinRenameDeckModal(props: Props) {
   const headings = {
     [CreateJoinRenameDeckType.Create]: 'Create a new DECK',
     [CreateJoinRenameDeckType.Join]: 'Join a DECK',
-    [CreateJoinRenameDeckType.Rename]: 'Rename this DECK',
-    [CreateJoinRenameDeckType.Delete]: 'Delete this DECK',
+    [CreateJoinRenameDeckType.Rename]: 'Rename DECK',
+    [CreateJoinRenameDeckType.Delete]: 'Delete DECK',
   };
   const icons = {
     [CreateJoinRenameDeckType.Create]: <IconFolderPlus className="ml-4 mr-1 text-gray-200" size={32} />,
@@ -174,6 +178,58 @@ export default function CreateJoinRenameDeckModal(props: Props) {
     [CreateJoinRenameDeckType.Delete]: deleteDeck,
   };
 
+  const deckTags = () => (
+    <div className="flex mb-2 m-[-4px] flex-wrap">
+      <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
+        {deckName}
+      </span>
+      <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
+        {deckId}
+      </span>
+    </div>
+  );
+
+  const renderModalContent = () => {
+    switch (type) {
+      case CreateJoinRenameDeckType.Delete:
+        return (
+          <>
+            <div className="mb-2">Are you sure you want to delete this DECK?</div>
+            {deckTags()}
+          </>
+        );
+      case CreateJoinRenameDeckType.Rename:
+        return (
+          <>
+            {deckTags()}
+            <input
+              type="text"
+              className="w-full py-4 px-2 text-xl border-none rounded focus:ring-0 bg-gray-800 text-gray-200"
+              placeholder={placeholders[type]}
+              value={inputText}
+              onChange={e => setInputText(e.target.value)}
+              autoFocus
+              autoComplete="off"
+              maxLength={20}
+            />
+          </>
+        );
+      default:
+        return (
+          <input
+            type="text"
+            className="w-full py-4 px-2 text-xl border-none rounded focus:ring-0 bg-gray-800 text-gray-200"
+            placeholder={placeholders[type]}
+            value={inputText}
+            onChange={e => setInputText(e.target.value)}
+            autoFocus
+            autoComplete="off"
+            maxLength={type === 'create' ? 20 : 40}
+          />
+        );
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-20 overflow-y-auto">
       <div className="fixed inset-0 bg-black opacity-30" onClick={closeModal} />
@@ -184,30 +240,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
             <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0 bg-gray-800">{headings[type]}</span>
           </div>
           <div className="px-4 py-4 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br bg-gray-700 border-gray-700">
-            {type !== CreateJoinRenameDeckType.Delete ? (
-              <input
-                type="text"
-                className="w-full py-4 px-2 text-xl border-none rounded focus:ring-0 bg-gray-800 text-gray-200"
-                placeholder={placeholders[type]}
-                value={inputText}
-                onChange={e => setInputText(e.target.value)}
-                autoFocus
-                autoComplete="off"
-                maxLength={type === 'create' || type === 'rename' ? 20 : 40}
-              />
-            ) : (
-              <>
-                <div>Are you sure you want to delete this DECK?</div>
-                <div className="flex my-2 m-[-4px] flex-wrap">
-                  <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
-                    {deck_name}
-                  </span>
-                  <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
-                    {deckId}
-                  </span>
-                </div>
-              </>
-            )}
+            {renderModalContent()}
             <div className="flex space-x-8">
               <Button
                 className={`my-4 ${processing ? 'bg-gray-800 text-gray-400 hover:bg-gray-800 hover:text-gray-400' : ''}`}
