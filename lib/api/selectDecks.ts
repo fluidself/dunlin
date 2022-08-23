@@ -7,7 +7,7 @@ export default async function selectDecks(user: User | null) {
 
   if (!data || error) throw error.message;
 
-  for (const deckId of user.joined_decks) {
+  for (const deckId of user.joined_decks || []) {
     const { data: joinedDeck, error } = await supabase.from<Deck>('decks').select('id, deck_name').eq('id', deckId).single();
     if (error) throw error.message;
 

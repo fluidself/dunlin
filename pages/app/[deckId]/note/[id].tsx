@@ -12,11 +12,7 @@ import { queryParamToArray } from 'utils/url';
 import { checkProtectedPageAuth } from 'utils/accessControl';
 import useBlockBacklinks from 'editor/backlinks/useBlockBacklinks';
 
-type Props = {
-  allowedDeck?: string;
-};
-
-export default function NotePage(props: Props) {
+export default function NotePage() {
   const router = useRouter();
   const {
     query: { id: noteId, stack: stackQuery },
@@ -25,7 +21,6 @@ export default function NotePage(props: Props) {
   const openNoteIds = useStore(state => state.openNoteIds);
   const setOpenNoteIds = useStore(state => state.setOpenNoteIds);
   const prevOpenNoteIds = usePrevious(openNoteIds);
-  const setAllowedDeck = useStore(state => state.setAllowedDeck);
 
   const pageTitle = useStore(state => {
     if (!noteId || typeof noteId !== 'string' || !state.notes[noteId]?.title) {
@@ -53,11 +48,7 @@ export default function NotePage(props: Props) {
     // We use router.asPath specifically so we handle any route change (even if asPath is the same)
     const newHighlightedPath = getHighlightedPath(router.asPath);
     setHighlightedPath(newHighlightedPath);
-
-    if (props.allowedDeck) {
-      setAllowedDeck(props.allowedDeck);
-    }
-  }, [setOpenNoteIds, router, noteId, stackQuery, props.allowedDeck, setAllowedDeck]);
+  }, [setOpenNoteIds, router, noteId, stackQuery]);
 
   useEffect(() => {
     // Scroll the last open note into view if:
@@ -141,9 +132,7 @@ const getHighlightedPath = (url: string): { index: number; path: Path } | null =
 export const getServerSideProps = withIronSessionSsr(async function ({ params, req }) {
   const { user, allowedDeck } = req.session;
   const deckId = params?.deckId;
-  const authorized = await checkProtectedPageAuth(deckId, user, allowedDeck);
+  const authorized = await checkProtectedPageAuth(deckId, user?.id, allowedDeck);
 
-  return authorized
-    ? { props: { allowedDeck: typeof allowedDeck !== 'undefined' ? allowedDeck : null } }
-    : { redirect: { destination: '/', permanent: false } };
+  return authorized ? { props: {} } : { redirect: { destination: '/', permanent: false } };
 }, ironOptions);
