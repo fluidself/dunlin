@@ -1,7 +1,10 @@
 import useSWR from 'swr';
 import { IconPencil, IconTrash } from '@tabler/icons';
-import { useAuth } from 'utils/useAuth';
+import { User } from 'types/supabase';
+import supabase from 'lib/supabase';
 import selectDecks from 'lib/api/selectDecks';
+import { useAuth } from 'utils/useAuth';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { CreateJoinRenameDeckType } from 'components/CreateJoinRenameDeckModal';
 
 type Props = {
@@ -16,7 +19,12 @@ type Props = {
 export default function DeckManagement(props: Props) {
   const { setCreateJoinRenameModal } = props;
   const { user } = useAuth();
-  const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user), { revalidateOnFocus: false });
+  const { id: currentDeckId } = useCurrentDeck();
+  const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
+
+  const forgetDeck = async (deckId: string) => {
+    if (!user) return;
+  };
 
   const renderDecks = () => {
     if (!user || !decks) {
@@ -79,7 +87,7 @@ export default function DeckManagement(props: Props) {
                 ) : (
                   <button
                     className="flex items-center relative px-1 focus:outline-none settings-modal-tooltip"
-                    // onClick={() => {}}
+                    onClick={() => forgetDeck(deck.id)}
                   >
                     <IconTrash size={20} />
                     <span className="bg-gray-600 text-gray-100 rounded z-10 px-1.5 py-1 absolute invisible tooltiptext">

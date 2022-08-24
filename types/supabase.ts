@@ -3,7 +3,6 @@ import { AccessControlCondition, BooleanCondition } from './lit';
 
 export type User = {
   id: string;
-  joined_decks: Deck['id'][];
 };
 
 export type Deck = {
@@ -29,4 +28,9 @@ export type Note = {
   author_only: boolean;
   created_at: string;
   updated_at: string;
+};
+
+export type Contributor = {
+  deck_id: Deck['id'];
+  user_id: User['id'];
 };

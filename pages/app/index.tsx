@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import { ironOptions } from 'constants/iron-session';
 import supabase from 'lib/supabase';
 import insertDeck from 'lib/api/insertDeck';
-import selectDeckIds from 'lib/api/selectDeckIds';
+import selectDecks from 'lib/api/selectDecks';
 import { Note } from 'types/supabase';
 import { generateKey, encryptWithLit, encryptNote } from 'utils/encryption';
 import createOnboardingNotes from 'utils/createOnboardingNotes';
@@ -182,7 +182,7 @@ export const getServerSideProps = withIronSessionSsr(async function ({ req }) {
     return { redirect: { destination: `/app/${recentDeck}`, permanent: false } };
   }
 
-  const deckIds = await selectDeckIds(user);
+  const decks = await selectDecks(user.id);
 
-  return deckIds.length ? { redirect: { destination: `/app/${deckIds[deckIds.length - 1]}`, permanent: false } } : { props: {} };
+  return decks.length ? { redirect: { destination: `/app/${decks[decks.length - 1].id}`, permanent: false } } : { props: {} };
 }, ironOptions);
