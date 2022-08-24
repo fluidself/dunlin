@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { IconFolderPlus, IconGitPullRequest, IconPencil, IconTrash } from '@tabler/icons';
+import { useSWRConfig } from 'swr';
 import { toast } from 'react-toastify';
 import supabase from 'lib/supabase';
 import insertDeck from 'lib/api/insertDeck';
@@ -29,6 +30,7 @@ type Props = {
 
 export default function CreateJoinRenameDeckModal(props: Props) {
   const { type, closeModal, deckId, deckName } = props;
+  const { mutate } = useSWRConfig();
   const { user } = useAuth();
   const { id: currentDeckId } = useCurrentDeck();
   const [inputText, setInputText] = useState<string>('');
@@ -106,10 +108,10 @@ export default function CreateJoinRenameDeckModal(props: Props) {
       return;
     }
 
+    mutate('decks');
     toast.success(`Successfully renamed ${data.deck_name}`);
     setProcessing(false);
     closeModal();
-    window.location.assign(`${process.env.BASE_URL}/app/${deckId}`);
   };
 
   const deleteDeck = async () => {
@@ -124,6 +126,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
         await fetch('/api/reset-recent-deck', { method: 'POST' });
       }
 
+      mutate('decks');
       toast.success(`Successfully deleted ${deckName}`);
       setProcessing(false);
       closeModal();

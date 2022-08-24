@@ -1,6 +1,6 @@
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import { IconPencil, IconTrash } from '@tabler/icons';
-import { User } from 'types/supabase';
+import { Contributor } from 'types/supabase';
 import supabase from 'lib/supabase';
 import selectDecks from 'lib/api/selectDecks';
 import { useAuth } from 'utils/useAuth';
@@ -18,12 +18,25 @@ type Props = {
 
 export default function DeckManagement(props: Props) {
   const { setCreateJoinRenameModal } = props;
-  const { user } = useAuth();
   const { id: currentDeckId } = useCurrentDeck();
+  const { user } = useAuth();
   const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
+  const { mutate } = useSWRConfig();
 
   const forgetDeck = async (deckId: string) => {
     if (!user) return;
+
+    try {
+      await supabase.from<Contributor>('contributors').delete().match({ deck_id: deckId, user_id: user.id }).single();
+      mutate('decks');
+
+      if (deckId === currentDeckId) {
+        await fetch('/api/reset-recent-deck', { method: 'POST' });
+        window.location.assign(`${process.env.BASE_URL}/app`);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const renderDecks = () => {
