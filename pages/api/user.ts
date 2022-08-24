@@ -12,12 +12,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     res.status(405).end(`Method ${method} not allowed`);
   }
 
-  const userInSession = req.session.user;
-  if (userInSession) {
-    res.status(200).json({ user: userInSession });
-    return;
-  }
-
   const address = req.session.siwe?.address;
   if (!address) {
     res.status(200).json({ user: null });
