@@ -82,7 +82,7 @@ const ShareModal = props => {
         <div className="z-30 flex flex-col w-full h-full max-w-full bg-gray-900 border overflow-x-hidden overflow-y-scroll no-scrollbar border-gray-500 sm:max-h-[540px] sm:w-[740px] py-2 px-4 text-gray-100">
           <div className="flex flex-row justify-between items-center">
             <span></span>
-            <button onClick={handleClose} className="mr-[-4px]">
+            <button onClick={handleClose} className="mr-[-4px] text-gray-300 hover:text-gray-100">
               <IconX size={20} />
             </button>
           </div>

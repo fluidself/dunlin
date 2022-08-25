@@ -14,7 +14,7 @@ const TypeButton = (props: TypeButtonProps) => {
 
   return (
     <button
-      className="flex flex-col justify-between items-center py-2 w-[180px] h-[148px] border border-white cursor-pointer box-border text-white hover:bg-gray-800 focus:bg-gray-800"
+      className="flex flex-col justify-between items-center py-2 w-[180px] h-[148px] border border-gray-100 cursor-pointer box-border text-gray-100 hover:bg-gray-800 focus:bg-gray-800"
       onClick={() => onClick(type)}
     >
       {icon}
