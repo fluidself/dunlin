@@ -7,7 +7,6 @@ export async function checkProtectedPageAuth(deckId?: string | string[], userId?
     return false;
   }
 
-  // TODO: remove deprecated block
   if (allowedDeck === deckId) {
     await supabase.from<Contributor>('contributors').upsert({ deck_id: deckId, user_id: userId });
     return true;
@@ -18,18 +17,12 @@ export async function checkProtectedPageAuth(deckId?: string | string[], userId?
     return true;
   }
 
-  const { data: deck } = await supabase.from<Deck>('decks').select('user_id').eq('id', deckId).single();
-  if (deck?.user_id === userId) {
-    return true;
-  }
-
   return false;
 }
 
 export async function verifyDeckAccess(deckId: string, user: User) {
   try {
     const { data: deck } = await supabase.from<Deck>('decks').select('user_id, access_params').eq('id', deckId).single();
-
     if (!deck) throw new Error('Unable to verify access');
 
     if (deck.user_id === user.id) {
@@ -38,11 +31,9 @@ export async function verifyDeckAccess(deckId: string, user: User) {
 
     const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = deck.access_params;
     const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
-
     if (!deckKey) throw new Error('Unable to verify access');
 
     const { data } = await supabase.from<Contributor>('contributors').upsert({ deck_id: deckId, user_id: user.id });
-
     if (!data) throw new Error('Unable to verify access');
 
     return true;

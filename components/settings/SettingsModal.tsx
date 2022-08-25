@@ -42,7 +42,7 @@ export default function SettingsModal(props: Props) {
     <div className="fixed inset-0 z-20 overflow-y-auto">
       <div className="fixed inset-0 bg-black opacity-30" onClick={() => setIsOpen(false)} />
       <div className="flex items-center justify-center h-screen p-6">
-        <div className="z-30 flex flex-col w-full h-full max-w-full overflow-hidden bg-white rounded sm:flex-row sm:max-h-176 sm:w-240 shadow-popover">
+        <div className="z-30 flex flex-col w-full h-full max-w-full overflow-hidden bg-white rounded sm:flex-row sm:max-h-176 sm:w-240 shadow-popover border border-gray-600">
           <SettingsModalSidebar currentTab={currentTab} setCurrentTab={setCurrentTab} canManageEditing={canManageEditing} />
           {currentTab === SettingsTab.Appearance ? <Appearance /> : null}
           {currentTab === SettingsTab.Editor ? <EditorSettings /> : null}
@@ -64,7 +64,7 @@ type SettingsModalSidebarProps = {
 const SettingsModalSidebar = (props: SettingsModalSidebarProps) => {
   const { currentTab, setCurrentTab, canManageEditing } = props;
   return (
-    <div className="flex flex-col flex-none w-full py-4 border-b sm:border-b-0 sm:border-r sm:w-48 sm:h-full bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
+    <div className="flex flex-col flex-none w-full py-4 border-b sm:border-b-0 sm:border-r sm:w-48 sm:h-full bg-gray-50 dark:bg-gray-800 dark:border-gray-600">
       <div className="px-4 pb-2 text-sm text-gray-600 dark:text-gray-400">Settings</div>
       <SidebarItem className="flex" isHighlighted={currentTab === SettingsTab.Appearance}>
         <button

@@ -9,7 +9,7 @@ import colors from 'tailwindcss/colors';
 import { useAccount } from 'wagmi';
 import { useStore, store, NoteTreeItem, getNoteTreeItem, Notes, SidebarTab } from 'lib/store';
 import supabase from 'lib/supabase';
-import { Note, Deck } from 'types/supabase';
+import { Note, Deck, Contributor } from 'types/supabase';
 import { DecryptedDeck, DecryptedNote } from 'types/decrypted';
 import { ProvideCurrentDeck } from 'utils/useCurrentDeck';
 import { decryptWithLit, decryptNote } from 'utils/encryption';
@@ -91,11 +91,12 @@ export default function AppLayout(props: Props) {
       return decryptedDeck;
     } catch (error) {
       toast.error('Unable to decrypt DECK');
+      await supabase.from<Contributor>('contributors').delete().match({ deck_id: deckId, user_id: user?.id }).single();
       await fetch('/api/reset-recent-deck', { method: 'POST' });
       router.push('/app');
       return;
     }
-  }, [deckId, router]);
+  }, [deckId, router, user?.id]);
 
   const initData = useCallback(async () => {
     if (!window.litNodeClient && isMounted()) {
@@ -184,7 +185,7 @@ export default function AppLayout(props: Props) {
     if (isLoaded && !user) {
       // Redirect to root page if there is no user logged in
       router.replace('/');
-    } else if (!isPageLoaded && isLoaded && user) {
+    } else if (isLoaded && user && !isPageLoaded) {
       // Initialize data if there is a user and the data has not been initialized yet
       initData();
     }

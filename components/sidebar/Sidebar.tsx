@@ -1,14 +1,11 @@
-// import LitJsSdk from 'lit-js-sdk';
-import { memo, useCallback, useState, useEffect } from 'react';
+import { memo, useCallback, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { IconAffiliate, IconSearch } from '@tabler/icons';
 import { useTransition, animated } from '@react-spring/web';
 import { toast } from 'react-toastify';
-import Tooltip from 'components/Tooltip';
 import { isMobile } from 'utils/device';
-// import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { encryptWithLit } from 'utils/encryption';
@@ -19,6 +16,7 @@ import { AccessControlCondition, BooleanCondition } from 'types/lit';
 import { Deck } from 'types/supabase';
 import { ShareModal } from 'components/ShareModal';
 import { CreateJoinRenameDeckType } from 'components/CreateJoinRenameDeckModal';
+import Tooltip from 'components/Tooltip';
 import SidebarItem from './SidebarItem';
 import SidebarContent from './SidebarContent';
 import SidebarHeader from './SidebarHeader';
@@ -44,19 +42,6 @@ function Sidebar(props: Props) {
   }, [setIsSidebarOpen]);
   const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
   const [processingAccess, setProcessingAccess] = useState<boolean>(false);
-  // const isMounted = useIsMounted();
-
-  // useEffect(() => {
-  //   const initLit = async () => {
-  //     const client = new LitJsSdk.LitNodeClient({ alertWhenUnauthorized: false, debug: false });
-  //     await client.connect();
-  //     window.litNodeClient = client;
-  //   };
-
-  //   if (!window.litNodeClient && isMounted() && user) {
-  //     initLit();
-  //   }
-  // }, [isMounted, user]);
 
   const provisionAccess = async (acc: AccessControlCondition[]) => {
     if (!user || !deckId || !acc) return;

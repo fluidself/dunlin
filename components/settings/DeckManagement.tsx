@@ -11,8 +11,8 @@ type Props = {
   setCreateJoinRenameModal: (modalStatus: {
     open: boolean;
     type: CreateJoinRenameDeckType;
-    deckId?: string;
-    deckName?: string;
+    deckId: string;
+    deckName: string;
   }) => void;
 };
 
@@ -24,10 +24,8 @@ export default function DeckManagement(props: Props) {
   const { mutate } = useSWRConfig();
 
   const forgetDeck = async (deckId: string) => {
-    if (!user) return;
-
     try {
-      await supabase.from<Contributor>('contributors').delete().match({ deck_id: deckId, user_id: user.id }).single();
+      await supabase.from<Contributor>('contributors').delete().match({ deck_id: deckId, user_id: user?.id }).single();
       mutate('decks');
 
       if (deckId === currentDeckId) {
@@ -47,19 +45,19 @@ export default function DeckManagement(props: Props) {
     return (
       <table className="table-auto w-full text-sm text-gray-300">
         <thead>
-          <tr>
-            <th className="py-2 text-left">Name</th>
-            <th className="py-2 text-left">ID</th>
-            <th className="py-2"></th>
-            <th className="py-2"></th>
+          <tr className="border-b border-gray-600">
+            <th className="py-3 pl-2 text-left">Name</th>
+            <th className="py-3 text-left">ID</th>
+            <th className="py-3"></th>
+            <th className="py-3"></th>
           </tr>
         </thead>
         <tbody>
           {decks.map(deck => (
-            <tr key={deck.id}>
-              <td className="py-2">{deck.deck_name}</td>
-              <td className="py-2">{deck.id}</td>
-              <td className="py-2">
+            <tr key={deck.id} className="border-b border-gray-600">
+              <td className="py-3 pl-2">{deck.deck_name}</td>
+              <td className="py-3">{deck.id}</td>
+              <td className="py-3">
                 {deck.user_id === user.id && (
                   <button
                     className="flex items-center relative px-1 focus:outline-none settings-modal-tooltip"
@@ -79,7 +77,7 @@ export default function DeckManagement(props: Props) {
                   </button>
                 )}
               </td>
-              <td className="py-2">
+              <td className="py-3">
                 {deck.user_id === user.id ? (
                   <button
                     className="flex items-center relative px-1 focus:outline-none settings-modal-tooltip"
