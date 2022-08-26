@@ -14,7 +14,7 @@ You can join forces with a friend or community by sharing your workspace with th
 
 ## IPFS publishing
 
-If you would like to share one of your notes for wider consumption, DECK lets you publish content to the public, distributed, censorship-resistant IPFS network.
+If you would like to share your notes for wider consumption, DECK lets you publish to the public, distributed, censorship-resistant IPFS network.
 
 ## Note editing permissions
 

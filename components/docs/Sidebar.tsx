@@ -59,14 +59,16 @@ export default function Sidebar() {
               {items.map(link => {
                 const active = router.query.slug === link.href.split('/')[2];
                 return (
-                  <Link {...link} key={link.href}>
-                    <a
-                      href={link.href}
-                      className={`w-full focus:outline-none hover:bg-gray-800 ${active ? 'bg-gray-800 text-primary-500' : ''}`}
-                    >
-                      <li className="list-none px-8 py-1 my-1 w-full">{link.children}</li>
-                    </a>
-                  </Link>
+                  <Disclosure.Button as="li" className="list-none px-8 py-1 my-1 w-full" key={link.href}>
+                    <Link {...link}>
+                      <a
+                        href={link.href}
+                        className={`w-full focus:outline-none hover:bg-gray-800 ${active ? 'bg-gray-800 text-primary-500' : ''}`}
+                      >
+                        {link.children}
+                      </a>
+                    </Link>
+                  </Disclosure.Button>
                 );
               })}
             </ul>
