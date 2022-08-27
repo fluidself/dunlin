@@ -25,52 +25,23 @@ export default function HoveringToolbar(props: Props) {
   const { setAddLinkPopoverState } = props;
   return (
     <EditorPopover placement={isMobile() ? 'bottom-start' : 'top-start'}>
-      <LinkButton
-        setAddLinkPopoverState={setAddLinkPopoverState}
-        className="border-r dark:border-gray-700"
-      />
-      <FormatButton
-        format={Mark.Bold}
-        Icon={IconBold}
-        tooltip="Bold (Ctrl+B)"
-        aria-label="Bold"
-      />
-      <FormatButton
-        format={Mark.Italic}
-        Icon={IconItalic}
-        tooltip="Italic (Ctrl+I)"
-        aria-label="Italic"
-      />
-      <FormatButton
-        format={Mark.Underline}
-        Icon={IconUnderline}
-        tooltip="Underline (Ctrl+U)"
-        aria-label="Underline"
-      />
+      <LinkButton setAddLinkPopoverState={setAddLinkPopoverState} className="border-r dark:border-gray-700" />
+      <FormatButton format={Mark.Bold} Icon={IconBold} tooltip="Bold (Ctrl+B)" aria-label="Bold" />
+      <FormatButton format={Mark.Italic} Icon={IconItalic} tooltip="Italic (Ctrl+I)" aria-label="Italic" />
+      <FormatButton format={Mark.Underline} Icon={IconUnderline} tooltip="Underline (Ctrl+U)" aria-label="Underline" />
       <FormatButton
         format={Mark.Strikethrough}
         Icon={IconStrikethrough}
         tooltip="Strikethrough (Ctrl+Shift+S)"
         aria-label="Strikethrough"
       />
-      <FormatButton
-        format={Mark.Code}
-        Icon={IconCode}
-        tooltip="Code (Ctrl+`)"
-        aria-label="Code"
-      />
-      <FormatButton
-        format={Mark.Highlight}
-        Icon={IconHighlight}
-        tooltip="Highlight (Ctrl+Shift+H)"
-        aria-label="Highlight"
-      />
+      <FormatButton format={Mark.Code} Icon={IconCode} tooltip="Code (Ctrl+E)" aria-label="Code" />
+      <FormatButton format={Mark.Highlight} Icon={IconHighlight} tooltip="Highlight (Ctrl+Shift+H)" aria-label="Highlight" />
     </EditorPopover>
   );
 }
 
-interface ToolbarButtonProps
-  extends Omit<HTMLAttributes<HTMLSpanElement>, 'onClick'> {
+interface ToolbarButtonProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'onClick'> {
   icon: TablerIcon;
   onClick: () => void;
   text?: string;
@@ -80,21 +51,13 @@ interface ToolbarButtonProps
 }
 
 export const ToolbarButton = (props: ToolbarButtonProps) => {
-  const {
-    icon: Icon,
-    onClick,
-    text,
-    tooltip,
-    isActive = false,
-    className,
-    ...otherProps
-  } = props;
+  const { icon: Icon, onClick, text, tooltip, isActive = false, className, ...otherProps } = props;
 
   const buttonClassName = classNames(
     'flex items-center px-2 py-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600',
     { 'text-primary-500 dark:text-primary-400': isActive },
     { 'text-gray-800 dark:text-gray-200': !isActive },
-    className
+    className,
   );
 
   return (
@@ -102,8 +65,8 @@ export const ToolbarButton = (props: ToolbarButtonProps) => {
       <span
         role="button"
         className={buttonClassName}
-        onPointerDown={(event) => event.preventDefault()}
-        onPointerUp={(event) => {
+        onPointerDown={event => event.preventDefault()}
+        onPointerUp={event => {
           if (event.button === 0) {
             event.preventDefault();
             onClick();
@@ -112,16 +75,13 @@ export const ToolbarButton = (props: ToolbarButtonProps) => {
         {...otherProps}
       >
         <Icon size={18} />
-        {text ? (
-          <span className="ml-1 text-sm tracking-wide">{text}</span>
-        ) : null}
+        {text ? <span className="ml-1 text-sm tracking-wide">{text}</span> : null}
       </span>
     </Tooltip>
   );
 };
 
-interface FormatButtonProps
-  extends Omit<HTMLAttributes<HTMLSpanElement>, 'onClick'> {
+interface FormatButtonProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'onClick'> {
   format: Mark;
   Icon: TablerIcon;
   tooltip?: string;
@@ -153,9 +113,7 @@ type LinkButtonProps = {
 const LinkButton = (props: LinkButtonProps) => {
   const { setAddLinkPopoverState, className = '' } = props;
   const editor = useSlate();
-  const isActive =
-    isElementActive(editor, ElementType.ExternalLink) ||
-    isElementActive(editor, ElementType.NoteLink);
+  const isActive = isElementActive(editor, ElementType.ExternalLink) || isElementActive(editor, ElementType.NoteLink);
 
   return (
     <ToolbarButton

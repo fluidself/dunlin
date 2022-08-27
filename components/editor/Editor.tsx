@@ -188,7 +188,7 @@ function Editor(props: Props) {
         callback: () => toggleMark(editor, Mark.Underline),
       },
       {
-        hotkey: 'mod+`',
+        hotkey: 'mod+e',
         callback: () => toggleMark(editor, Mark.Code),
       },
       {
@@ -249,7 +249,7 @@ function Editor(props: Props) {
         },
       },
       {
-        hotkey: 'mod+e',
+        hotkey: 'mod+shift+h',
         callback: () => insertTable(editor),
       },
       {

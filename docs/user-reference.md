@@ -19,6 +19,7 @@
 | `Ctrl` + `b`           | `⌘` + `b`           | Bold          |
 | `Ctrl` + `i`           | `⌘` + `i`           | Italic        |
 | `Ctrl` + `u`           | `⌘` + `u`           | Underline     |
+| `Ctrl` + `e`           | `⌘` + `e`           | Code          |
 | `Ctrl` + `Shift` + `h` | `⌘` + `Shift` + `h` | Highlight     |
 | `Ctrl` + `Shift` + `s` | `⌘` + `Shift` + `s` | Strikethrough |
 
