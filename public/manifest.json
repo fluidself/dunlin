@@ -1,6 +1,7 @@
 {
   "name": "DECK",
   "short_name": "DECK",
+  "description": "Knowledge management for crypto natives",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -11,9 +12,18 @@
       "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "/maskable-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "theme_color": "#171717",
   "background_color": "#171717",
-  "display": "standalone"
+  "scope": "/",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait"
 }
