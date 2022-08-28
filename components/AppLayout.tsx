@@ -23,6 +23,7 @@ import Sidebar from './sidebar/Sidebar';
 import FindOrCreateModal from './FindOrCreateModal';
 import PageLoading from './PageLoading';
 import OfflineBanner from './OfflineBanner';
+import UpdateBanner from './UpdateBanner';
 
 type Props = {
   children: ReactNode;
@@ -344,6 +345,7 @@ export default function AppLayout(props: Props) {
             />
             <div className="relative flex flex-col flex-1 overflow-y-hidden">
               <OfflineBanner />
+              <UpdateBanner />
               {children}
             </div>
             {isSettingsOpen ? (
