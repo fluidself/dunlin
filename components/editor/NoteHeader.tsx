@@ -183,7 +183,9 @@ export default function NoteHeader() {
                   value={selectedDeck}
                   onChange={value => {
                     setSelectedDeck(value);
-                    window.location.assign(`${process.env.BASE_URL}/app/${value.id}`);
+                    if (value.id !== currentDeckId) {
+                      window.location.assign(`${process.env.BASE_URL}/app/${value.id}`);
+                    }
                   }}
                 />
               </div>

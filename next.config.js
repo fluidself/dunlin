@@ -1,6 +1,6 @@
 const withPWA = require('next-pwa')({
   dest: 'public',
-  scope: '/', // or /app/
+  scope: '/',
   disable: process.env.NODE_ENV === 'development',
   reloadOnOnline: false,
   register: false,

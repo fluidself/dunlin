@@ -25,8 +25,11 @@ export default function NotePage() {
   const pageTitle = useStore(state => {
     if (!noteId || typeof noteId !== 'string' || !state.notes[noteId]?.title) {
       return 'DECK';
+    } else if (window.matchMedia('(display-mode: standalone)').matches) {
+      return `${state.notes[noteId].title} (${noteId})`;
+    } else {
+      return state.notes[noteId].title;
     }
-    return state.notes[noteId].title;
   });
 
   useBlockBacklinks();
