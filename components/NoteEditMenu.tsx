@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import { IconCornerDownRight, IconTrash, IconPencil, IconEye } from '@tabler/icons';
+import { IconCornerDownRight, IconTrash, IconPencil, IconEye, IconCopy } from '@tabler/icons';
 import { toast } from 'react-toastify';
 import { DecryptedNote } from 'types/decrypted';
 import { Note, Deck } from 'types/supabase';
 import { DropdownItem } from 'components/Dropdown';
 import useDeleteNote from 'utils/useDeleteNote';
+import copyToClipboard from 'utils/copyToClipboard';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useAuth } from 'utils/useAuth';
 import { store } from 'lib/store';
@@ -45,12 +46,12 @@ export default function NoteEditMenu(props: Props) {
 
   const renderNotePermission = () =>
     note.author_only ? (
-      <DropdownItem onClick={async () => await toggleAuthorOnly(false)} className="border-t dark:border-gray-700">
+      <DropdownItem onClick={async () => await toggleAuthorOnly(false)}>
         <IconPencil size={18} className="mr-1" />
         <span>Allow editing</span>
       </DropdownItem>
     ) : (
-      <DropdownItem onClick={async () => await toggleAuthorOnly(true)} className="border-t dark:border-gray-700">
+      <DropdownItem onClick={async () => await toggleAuthorOnly(true)}>
         <IconEye size={18} className="mr-1" />
         <span>Restrict editing</span>
       </DropdownItem>
@@ -60,14 +61,18 @@ export default function NoteEditMenu(props: Props) {
 
   return (
     <>
-      {userCanControlNotePermission && renderNotePermission()}
-      <DropdownItem onClick={onDeleteClick} className={`${userCanControlNotePermission ? '' : 'border-t dark:border-gray-700'}`}>
-        <IconTrash size={18} className="mr-1" />
-        <span>Delete</span>
+      <DropdownItem className="border-t dark:border-gray-700" onClick={async () => await copyToClipboard(note.id)}>
+        <IconCopy size={18} className="mr-1" />
+        <span>Copy note ID</span>
       </DropdownItem>
+      {userCanControlNotePermission && renderNotePermission()}
       <DropdownItem onClick={onMoveToClick}>
         <IconCornerDownRight size={18} className="mr-1" />
         <span>Move to</span>
+      </DropdownItem>
+      <DropdownItem onClick={onDeleteClick}>
+        <IconTrash size={18} className="mr-1" />
+        <span>Delete</span>
       </DropdownItem>
     </>
   );
