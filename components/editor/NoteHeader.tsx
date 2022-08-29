@@ -1,17 +1,7 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { Menu } from '@headlessui/react';
 import Select from 'react-select';
-import {
-  IconDots,
-  IconDownload,
-  IconUpload,
-  IconCloudDownload,
-  IconX,
-  IconSend,
-  IconCopy,
-  IconPencil,
-  IconEye,
-} from '@tabler/icons';
+import { IconDots, IconDownload, IconUpload, IconCloudDownload, IconX, IconCopy, IconPencil, IconEye } from '@tabler/icons';
 import { usePopper } from 'react-popper';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
@@ -128,7 +118,6 @@ export default function NoteHeader() {
   }, []);
 
   const [isMoveToModalOpen, setIsMoveToModalOpen] = useState(false);
-
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const onPublishClick = useCallback(() => setIsPublishModalOpen(true), []);
 
@@ -227,10 +216,6 @@ export default function NoteHeader() {
                       style={styles.popper}
                       {...attributes.popper}
                     >
-                      <DropdownItem onClick={onPublishClick}>
-                        <IconSend size={18} className="mr-1" />
-                        <span>Publish</span>
-                      </DropdownItem>
                       <DropdownItem onClick={onImport}>
                         <IconDownload size={18} className="mr-1" />
                         <span>Import</span>
@@ -243,7 +228,7 @@ export default function NoteHeader() {
                         <IconCloudDownload size={18} className="mr-1" />
                         <span>Export all</span>
                       </DropdownItem>
-                      <NoteEditMenu note={note} setIsMoveToModalOpen={setIsMoveToModalOpen} />
+                      <NoteEditMenu note={note} setIsMoveToModalOpen={setIsMoveToModalOpen} onPublishClick={onPublishClick} />
                       <NoteMetadata note={note} />
                     </Menu.Items>
                   </Portal>
