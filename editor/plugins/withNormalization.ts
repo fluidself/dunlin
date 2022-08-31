@@ -131,13 +131,13 @@ const insertParagraph = (editor: Editor, at: Path | Point) => {
 const maybePreserveSpace = (editor: Editor, entry: NodeEntry): boolean | void => {
   const [node, path] = entry;
   const { type } = node;
+  const next = Editor.next(editor, { at: path });
   let preserved = false;
 
   try {
     if (type === ElementType.Table) {
-      const next = Editor.next(editor, { at: path });
       // @ts-ignore
-      if (!next || next[0].type === ElementType.Table) {
+      if (!next || next[0].type === ElementType.Table || next[0].type === ElementType.CodeBlock) {
         insertParagraph(editor, Path.next(path));
         preserved = true;
       }
@@ -152,6 +152,13 @@ const maybePreserveSpace = (editor: Editor, entry: NodeEntry): boolean | void =>
           insertParagraph(editor, path);
           preserved = true;
         }
+      }
+    }
+
+    if (type === ElementType.CodeBlock) {
+      if (!next) {
+        insertParagraph(editor, Path.next(path));
+        preserved = true;
       }
     }
   } catch (error) {
