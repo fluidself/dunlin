@@ -1,14 +1,15 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Disclosure } from '@headlessui/react';
 import { IconMenu2, IconX } from '@tabler/icons';
 
 const items = [
-  { href: '/docs', children: 'Overview' },
-  { href: '/docs/core-concepts', children: 'Core concepts' },
-  { href: '/docs/user-reference', children: 'User reference' },
-  { href: '/docs/faq', children: 'FAQ' },
+  { href: '/docs', active: '/docs', children: 'Overview' },
+  { href: '/docs/core-concepts', active: '/docs/core-concepts', children: 'Core concepts' },
+  { href: '/docs/user-reference', active: '/docs/user-reference', children: 'User reference' },
+  { href: '/docs/faq', active: '/docs/faq', children: 'FAQ' },
 ];
 
 export default function Sidebar() {
@@ -33,8 +34,16 @@ export default function Sidebar() {
               <div className="flex-1 flex items-center justify-center md:items-stretch md:justify-start">
                 <div className="hidden md:block">
                   <ul className="flex flex-col">
+                    <Link href="/">
+                      <a className={`w-full flex focus:outline-none hover:bg-gray-800 border-b border-gray-600`}>
+                        <li className="list-none flex items-center px-8 py-1 my-1 w-full">
+                          <Image src="/android-chrome-192x192.png" alt="DECK logo" width="24" height="24" />
+                          <div className="ml-2">DECK</div>
+                        </li>
+                      </a>
+                    </Link>
                     {items.map(link => {
-                      const active = router.query.slug === link.href.split('/')[2];
+                      const active = router.asPath === link.href;
                       return (
                         <Link {...link} key={link.href}>
                           <a
@@ -57,7 +66,7 @@ export default function Sidebar() {
           <Disclosure.Panel className="md:hidden">
             <ul className="flex flex-col mt-16 mb-[-46px]">
               {items.map(link => {
-                const active = router.query.slug === link.href.split('/')[2];
+                const active = router.asPath === link.href;
                 return (
                   <Disclosure.Button as="li" className="list-none px-8 py-1 my-1 w-full" key={link.href}>
                     <Link {...link}>
