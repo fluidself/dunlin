@@ -30,7 +30,7 @@
     "iron-session": "^6.0.5",
     "is-hotkey": "^0.2.0",
     "jszip": "^3.7.1",
-    "lit-js-sdk": "^1.1.182",
+    "lit-js-sdk": "^1.1.216",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "next": "12.1.0",
