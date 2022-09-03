@@ -26,6 +26,7 @@ module.exports = {
   rules: {
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
+    'react/no-unknown-property': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
     'import/no-named-as-default': 'off',
