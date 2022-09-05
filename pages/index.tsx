@@ -31,7 +31,7 @@ export default function Home() {
   return (
     <div className="mt-2">
       <Link href={`${process.env.BASE_URL}/docs`}>
-        <a className="focus:outline-none absolute top-3 right-6">
+        <a className="focus:outline-none absolute top-3 right-6" aria-label="Documentation">
           <IconInfoCircle size={24} className="hover:text-gray-500" />
         </a>
       </Link>
