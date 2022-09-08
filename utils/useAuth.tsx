@@ -7,6 +7,8 @@ import { box } from 'tweetnacl';
 import { encodeBase64 } from 'tweetnacl-util';
 import { User } from 'types/supabase';
 
+const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
+
 type AuthContextType = {
   isLoaded: boolean;
   user: User | null;
@@ -93,8 +95,12 @@ function useProvideAuth(): AuthContextType {
 
       await initUser();
       setSigningIn(false);
-    } catch (e) {
-      console.error(e);
+    } catch (error: any) {
+      if (error?.code === ERROR_CODE_TX_REJECTED_BY_USER) {
+        return;
+      }
+
+      console.error(error);
     }
   }, []);
 
