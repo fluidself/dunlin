@@ -33,6 +33,7 @@ function Sidebar(props: Props) {
 
   const { user } = useAuth();
   const { id: deckId, key } = useCurrentDeck();
+  const setCollaborativeDeck = useStore(state => state.setCollaborativeDeck);
   const isSidebarOpen = useStore(state => state.isSidebarOpen);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
   const hideSidebarOnMobile = useCallback(() => {
@@ -79,6 +80,8 @@ function Sidebar(props: Props) {
         toast.error('Provisioning access failed.');
         return false;
       }
+
+      await setCollaborativeDeck(accessControlConditions.length > 1);
 
       toast.success('Access to your DECK was configured');
       return true;

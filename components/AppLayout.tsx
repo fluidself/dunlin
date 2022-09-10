@@ -65,6 +65,7 @@ export default function AppLayout(props: Props) {
   const setUserId = useStore(state => state.setUserId);
   const setDeckId = useStore(state => state.setDeckId);
   const setDeckKey = useStore(state => state.setDeckKey);
+  const setCollaborativeDeck = useStore(state => state.setCollaborativeDeck);
   const setAuthorOnlyNotes = useStore(state => state.setAuthorOnlyNotes);
 
   const initLit = async () => {
@@ -89,6 +90,8 @@ export default function AppLayout(props: Props) {
         key: deckKey,
       };
 
+      await setCollaborativeDeck(access_control_conditions.length > 1);
+
       return decryptedDeck;
     } catch (error) {
       toast.error('Unable to decrypt DECK');
@@ -97,7 +100,7 @@ export default function AppLayout(props: Props) {
       router.push('/app');
       return;
     }
-  }, [deckId, router, user?.id]);
+  }, [deckId, router, user?.id, setCollaborativeDeck]);
 
   const initData = useCallback(async () => {
     if (!window.litNodeClient && isMounted()) {
