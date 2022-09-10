@@ -2,8 +2,6 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import type { Path } from 'slate';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
-import Editor from 'components/editor/Editor';
-import Title from 'components/editor/Title';
 import { store, useStore } from 'lib/store';
 import { Note } from 'types/supabase';
 import { DecryptedNote } from 'types/decrypted';
@@ -14,11 +12,14 @@ import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useAuth } from 'utils/useAuth';
 import { encryptNote } from 'utils/encryption';
 import updateBacklinks from 'editor/backlinks/updateBacklinks';
-import Backlinks from './editor/backlinks/Backlinks';
-import NoteHeader from './editor/NoteHeader';
-import ErrorBoundary from './ErrorBoundary';
-import ReadOnlyNoteEditor from './editor/ReadOnlyNoteEditor';
-import ReadOnlyTitle from './editor/ReadOnlyTitle';
+import ErrorBoundary from 'components/ErrorBoundary';
+import Backlinks from 'components/editor/backlinks/Backlinks';
+import NoteHeader from 'components/editor/NoteHeader';
+import SoloEditor from 'components/editor/SoloEditor';
+import CollaborativeEditor from 'components/editor/Editor';
+import ReadOnlyNoteEditor from 'components/editor/ReadOnlyNoteEditor';
+import Title from 'components/editor/Title';
+import ReadOnlyTitle from 'components/editor/ReadOnlyTitle';
 
 const SYNC_DEBOUNCE_MS = 1000;
 
@@ -43,6 +44,7 @@ function Note(props: Props) {
     () => user && note && note.author_only && note.user_id !== user.id && deckOwner !== user.id,
     [note, user, deckOwner],
   );
+  const collaborativeDeck = useStore(state => state.collaborativeDeck);
   const updateNote = useStore(state => state.updateNote);
 
   const [syncState, setSyncState] = useState({
@@ -144,6 +146,41 @@ function Note(props: Props) {
     );
   }
 
+  const renderNote = () => {
+    if (!collaborativeDeck) {
+      return (
+        <>
+          <Title className={titleClassName} noteId={noteId} onChange={onTitleChange} />
+          <SoloEditor
+            className={editorClassName}
+            noteId={noteId}
+            onChange={onEditorValueChange}
+            highlightedPath={highlightedPath}
+          />
+        </>
+      );
+    } else if (noteIsViewOnlyForUser) {
+      return (
+        <>
+          <ReadOnlyTitle className={titleClassName} noteId={noteId} />
+          <ReadOnlyNoteEditor className={editorClassName} noteId={noteId} />
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Title className={titleClassName} noteId={noteId} onChange={onTitleChange} />
+          <CollaborativeEditor
+            className={editorClassName}
+            noteId={noteId}
+            onChange={onEditorValueChange}
+            highlightedPath={highlightedPath}
+          />
+        </>
+      );
+    }
+  };
+
   return (
     <ErrorBoundary
       fallback={
@@ -157,22 +194,7 @@ function Note(props: Props) {
           <NoteHeader />
           <div className="flex flex-col flex-1 overflow-x-hidden overflow-y-auto">
             <div className="flex flex-col flex-1 w-full mx-auto md:w-128 lg:w-160 xl:w-192">
-              {noteIsViewOnlyForUser ? (
-                <>
-                  <ReadOnlyTitle className={titleClassName} noteId={noteId} />
-                  <ReadOnlyNoteEditor className={editorClassName} noteId={noteId} />
-                </>
-              ) : (
-                <>
-                  <Title className={titleClassName} noteId={noteId} onChange={onTitleChange} />
-                  <Editor
-                    className={editorClassName}
-                    noteId={noteId}
-                    onChange={onEditorValueChange}
-                    highlightedPath={highlightedPath}
-                  />
-                </>
-              )}
+              {renderNote()}
               <Backlinks className="mx-4 mb-8 md:mx-8 md:mb-12" />
             </div>
           </div>

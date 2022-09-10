@@ -4,6 +4,7 @@ import type { HistoryEditor } from 'slate-history';
 import { YjsEditor } from 'slate-yjs';
 
 export type DeckEditor = BaseEditor & ReactEditor & HistoryEditor & YjsEditor;
+export type SoloDeckEditor = BaseEditor & ReactEditor & HistoryEditor;
 
 export enum ElementType {
   Paragraph = 'paragraph',
@@ -194,7 +195,7 @@ export type DeckText = FormattedText;
 
 declare module 'slate' {
   interface CustomTypes {
-    Editor: DeckEditor;
+    Editor: DeckEditor | SoloDeckEditor;
     Element: DeckElement;
     Text: DeckText;
   }
