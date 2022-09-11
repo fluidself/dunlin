@@ -11,12 +11,14 @@ import {
   SelectTokens,
   ChoosePOAP,
   CurrentAccess,
+  RevokeAccess,
 } from './ShareModalSteps';
 import UnsavedPopup from './UnsavedPopup';
 
 const ModalComponents = {
   ableToAccess: AbleToAccess,
   currentAccess: CurrentAccess,
+  revokeAccess: RevokeAccess,
   whichWallet: WhichWallet,
   assetWallet: AssetWallet,
   DAOMembers: DAOMembers,
@@ -68,7 +70,7 @@ const ShareModal = props => {
   };
 
   const handleClose = () => {
-    if (!['ableToAccess', 'currentAccess', 'accessCreated'].includes(activeStep)) {
+    if (!['ableToAccess', 'currentAccess', 'revokeAccess', 'accessCreated'].includes(activeStep)) {
       setShowUnsavedPopup(true);
     } else {
       onClose();

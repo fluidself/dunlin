@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
+import { useStore } from 'lib/store';
 import { WalletIcon, TokenIcon, DAOIcon, POAPIcon } from '../icons';
 
 type TypeButtonProps = {
@@ -52,7 +53,8 @@ type Props = {
 
 const AbleToAccess = (props: Props) => {
   const { setActiveStep } = props;
-  const { id, deck_name, access_control_conditions } = useCurrentDeck();
+  const { id, deck_name } = useCurrentDeck();
+  const collaborativeDeck = useStore(state => state.collaborativeDeck);
 
   return (
     <div className="mb-4">
@@ -71,10 +73,13 @@ const AbleToAccess = (props: Props) => {
           <TypeButton key={i} {...item} onClick={setActiveStep} />
         ))}
       </div>
-      {access_control_conditions?.length > 1 && (
-        <div className="w-full flex justify-center mt-8">
+      {collaborativeDeck && (
+        <div className="w-full flex flex-col space-y-2 items-center justify-center mt-6">
           <a className="text-sm hover:underline cursor-pointer" onClick={() => setActiveStep('currentAccess')}>
             See current conditions
+          </a>
+          <a className="text-sm hover:underline cursor-pointer" onClick={() => setActiveStep('revokeAccess')}>
+            Revoke all access
           </a>
         </div>
       )}

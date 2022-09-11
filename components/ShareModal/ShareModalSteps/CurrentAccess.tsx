@@ -1,4 +1,3 @@
-// @ts-ignore
 import LitJsSdk from 'lit-js-sdk';
 import { useState, useEffect } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
