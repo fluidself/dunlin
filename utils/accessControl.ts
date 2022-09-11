@@ -2,22 +2,14 @@ import supabase from 'lib/supabase';
 import { User, Deck, Contributor } from 'types/supabase';
 import { decryptWithLit } from 'utils/encryption';
 
-export async function checkProtectedPageAuth(deckId?: string | string[], userId?: string, allowedDeck?: string) {
+export async function checkProtectedPageAuth(deckId?: string | string[], userId?: string) {
   if (typeof deckId !== 'string' || !userId) {
     return false;
   }
 
-  if (allowedDeck === deckId) {
-    await supabase.from<Contributor>('contributors').upsert({ deck_id: deckId, user_id: userId });
-    return true;
-  }
-
   const { data } = await supabase.from<Contributor>('contributors').select('*').match({ deck_id: deckId, user_id: userId });
-  if (data) {
-    return true;
-  }
 
-  return false;
+  return data ? true : false;
 }
 
 export async function verifyDeckAccess(deckId: string, user: User) {
