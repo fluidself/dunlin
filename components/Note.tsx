@@ -44,6 +44,7 @@ function Note(props: Props) {
     () => user && note && note.author_only && note.user_id !== user.id && deckOwner !== user.id,
     [note, user, deckOwner],
   );
+  const isOffline = useStore(state => state.isOffline);
   const collaborativeDeck = useStore(state => state.collaborativeDeck);
   const updateNote = useStore(state => state.updateNote);
 
@@ -88,7 +89,7 @@ function Note(props: Props) {
 
   // Save the note in the database if it changes and it hasn't been saved yet
   useEffect(() => {
-    if (!note || noteIsViewOnlyForUser) return;
+    if (!note || noteIsViewOnlyForUser || isOffline) return;
 
     const noteUpdate: RawNoteUpdate = { id: noteId };
     if (!syncState.isContentSynced) {
@@ -102,7 +103,7 @@ function Note(props: Props) {
       const handler = setTimeout(() => handleNoteUpdate(noteUpdate), SYNC_DEBOUNCE_MS);
       return () => clearTimeout(handler);
     }
-  }, [note, noteId, noteIsViewOnlyForUser, syncState, handleNoteUpdate]);
+  }, [note, noteId, noteIsViewOnlyForUser, isOffline, syncState, handleNoteUpdate]);
 
   // Prompt the user with a dialog box about unsaved changes if they navigate away
   useEffect(() => {
@@ -147,7 +148,7 @@ function Note(props: Props) {
   }
 
   const renderNote = () => {
-    if (!collaborativeDeck) {
+    if (!collaborativeDeck || isOffline) {
       return (
         <>
           <Title className={titleClassName} noteId={noteId} onChange={onTitleChange} />

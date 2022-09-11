@@ -29,6 +29,7 @@ type Option = {
   type: OptionType;
   text: string;
   icon?: TablerIcon;
+  isDisabled: boolean;
 };
 
 type Props = {
@@ -40,6 +41,7 @@ export default function AddLinkPopover(props: Props) {
   const { addLinkPopoverState, setAddLinkPopoverState } = props;
   const { id: deckId, key } = useCurrentDeck();
   const { user } = useAuth();
+  const isOffline = useStore(state => state.isOffline);
   const authorOnlyNotes = useStore(state => state.authorOnlyNotes);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [linkText, setLinkText] = useState<string>('');
@@ -60,6 +62,7 @@ export default function AddLinkPopover(props: Props) {
           type: OptionType.URL,
           text: `Link to web page: ${linkText}`,
           icon: IconLink,
+          isDisabled: false,
         });
       }
       // Show new note option if there isn't already a note called `linkText`
@@ -70,6 +73,7 @@ export default function AddLinkPopover(props: Props) {
           type: OptionType.NEW_NOTE,
           text: `New note: ${linkText}`,
           icon: IconFilePlus,
+          isDisabled: isOffline,
         });
       }
     }
@@ -80,6 +84,7 @@ export default function AddLinkPopover(props: Props) {
         type: OptionType.REMOVE_LINK,
         text: 'Remove link',
         icon: IconUnlink,
+        isDisabled: false,
       });
     }
     // Show notes that match `linkText`
@@ -88,10 +93,11 @@ export default function AddLinkPopover(props: Props) {
         id: result.item.id,
         type: OptionType.NOTE,
         text: result.item.title,
+        isDisabled: false,
       })),
     );
     return result;
-  }, [addLinkPopoverState.isLink, searchResults, linkText]);
+  }, [addLinkPopoverState.isLink, searchResults, linkText, isOffline]);
 
   const hidePopover = useCallback(() => {
     if (!addLinkPopoverState.selection) {
@@ -196,6 +202,7 @@ export default function AddLinkPopover(props: Props) {
             key={option.id}
             option={option}
             isSelected={index === selectedOptionIndex}
+            isDisabled={option.isDisabled}
             onClick={() => onOptionClick(option)}
           />
         ))}
@@ -207,17 +214,18 @@ export default function AddLinkPopover(props: Props) {
 type OptionProps = {
   option: Option;
   isSelected: boolean;
+  isDisabled: boolean;
   onClick: () => void;
 };
 
 const OptionItem = (props: OptionProps) => {
-  const { option, isSelected, onClick } = props;
+  const { option, isSelected, isDisabled, onClick } = props;
 
   return (
     <div
       className={`flex flex-row items-center px-4 py-1 cursor-pointer text-gray-800 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${
-        isSelected ? 'bg-gray-100 dark:bg-gray-700' : ''
-      }`}
+        isSelected && !isDisabled && 'bg-gray-100 dark:bg-gray-700'
+      } ${isDisabled && 'text-gray-400 dark:text-gray-600 dark:hover:bg-gray-800 dark:active:bg-gray-800 pointer-events-none'}`}
       onPointerDown={event => event.preventDefault()}
       onPointerUp={event => {
         if (event.button === 0) {
