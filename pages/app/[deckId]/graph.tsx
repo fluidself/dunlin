@@ -93,9 +93,9 @@ const getRadius = (numOfLinks: number) => {
 };
 
 export const getServerSideProps = withIronSessionSsr(async function ({ params, req }) {
-  const { user, allowedDeck } = req.session;
+  const { user } = req.session;
   const deckId = params?.deckId;
-  const authorized = await checkProtectedPageAuth(deckId, user?.id, allowedDeck);
+  const authorized = await checkProtectedPageAuth(deckId, user?.id);
 
   return authorized ? { props: {} } : { redirect: { destination: '/', permanent: false } };
 }, ironOptions);

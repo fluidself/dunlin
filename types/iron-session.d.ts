@@ -6,7 +6,6 @@ declare module 'iron-session' {
     siwe?: SiweMessage;
     nonce?: string;
     user?: User;
-    allowedDeck?: string;
     recentDeck?: string;
   }
 }

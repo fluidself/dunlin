@@ -46,7 +46,6 @@ const RevokeAccess = (props: Props) => {
     };
 
     const { data, error } = await supabase.from<Deck>('decks').update({ access_params: accessParams }).eq('id', deckId).single();
-
     if (!data || error) {
       toast.error('Revoking access failed.');
     }
@@ -54,7 +53,6 @@ const RevokeAccess = (props: Props) => {
     await setCollaborativeDeck(false);
 
     toast.success('DECK access was revoked');
-
     setProcessing(false);
     onClose();
   };
@@ -71,7 +69,7 @@ const RevokeAccess = (props: Props) => {
         </span>
       </div>
       <div className="mt-4">
-        <p>After revoking access, only you will be able to access this DECK.</p>
+        <p>After revoking access, only you will be able to view this DECK.</p>
       </div>
 
       <Navigation
