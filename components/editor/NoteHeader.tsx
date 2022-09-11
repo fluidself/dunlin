@@ -39,6 +39,7 @@ export default function NoteHeader() {
   const currentNote = useCurrentNote();
   const onImport = useImport();
   const { user } = useAuth();
+  const isOffline = useStore(state => state.isOffline);
   const { id: currentDeckId, user_id: deckOwner } = useCurrentDeck();
   const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
   const [deckOptions, setDeckOptions] = useState<DeckSelectOption[]>([]);
@@ -168,6 +169,7 @@ export default function NoteHeader() {
                   className="react-select-container-header"
                   classNamePrefix="react-select-header"
                   placeholder="Select DECK..."
+                  isDisabled={isOffline}
                   options={deckOptions}
                   value={selectedDeck}
                   onChange={value => {
@@ -216,7 +218,7 @@ export default function NoteHeader() {
                       style={styles.popper}
                       {...attributes.popper}
                     >
-                      <DropdownItem onClick={onImport}>
+                      <DropdownItem disabled={isOffline} onClick={onImport}>
                         <IconDownload size={18} className="mr-1" />
                         <span>Import</span>
                       </DropdownItem>

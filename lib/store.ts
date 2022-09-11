@@ -81,6 +81,8 @@ export type Store = {
   setCollaborativeDeck: Setter<boolean>;
   authorOnlyNotes: boolean;
   setAuthorOnlyNotes: Setter<boolean>;
+  isOffline: boolean;
+  setIsOffline: Setter<boolean>;
 } & UserSettings;
 
 type FunctionPropertyNames<T> = {
@@ -230,6 +232,8 @@ export const store = createVanilla<Store, SetState<Store>, GetState<Store>, Stor
       setCollaborativeDeck: setter(set, 'collaborativeDeck'),
       authorOnlyNotes: false,
       setAuthorOnlyNotes: setter(set, 'authorOnlyNotes'),
+      isOffline: false,
+      setIsOffline: setter(set, 'isOffline'),
       ...createUserSettingsSlice(set),
     })),
     {

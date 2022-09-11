@@ -7,7 +7,7 @@ import { Note, Deck } from 'types/supabase';
 import useDeleteNote from 'utils/useDeleteNote';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useAuth } from 'utils/useAuth';
-import { store } from 'lib/store';
+import { store, useStore } from 'lib/store';
 import supabase from 'lib/supabase';
 import { DropdownItem } from 'components/Dropdown';
 
@@ -22,6 +22,7 @@ export default function NoteEditMenu(props: Props) {
 
   const { user } = useAuth();
   const { id: deckId, user_id: deckOwner } = useCurrentDeck();
+  const isOffline = useStore(state => state.isOffline);
   const onDeleteClick = useDeleteNote(note.id);
   const onMoveToClick = useCallback(() => setIsMoveToModalOpen(true), [setIsMoveToModalOpen]);
   const [authorControlNotes, setAuthorControlNotes] = useState<boolean>();
@@ -45,12 +46,20 @@ export default function NoteEditMenu(props: Props) {
 
   const renderNotePermission = () =>
     note.author_only ? (
-      <DropdownItem className="border-t dark:border-gray-700" onClick={async () => await toggleAuthorOnly(false)}>
+      <DropdownItem
+        disabled={isOffline}
+        className="border-t dark:border-gray-700"
+        onClick={async () => await toggleAuthorOnly(false)}
+      >
         <IconPencil size={18} className="mr-1" />
         <span>Allow editing</span>
       </DropdownItem>
     ) : (
-      <DropdownItem className="border-t dark:border-gray-700" onClick={async () => await toggleAuthorOnly(true)}>
+      <DropdownItem
+        disabled={isOffline}
+        className="border-t dark:border-gray-700"
+        onClick={async () => await toggleAuthorOnly(true)}
+      >
         <IconEye size={18} className="mr-1" />
         <span>Restrict editing</span>
       </DropdownItem>
@@ -63,18 +72,19 @@ export default function NoteEditMenu(props: Props) {
       {userCanControlNotePermission && renderNotePermission()}
       {onPublishClick && (
         <DropdownItem
-          className={`${userCanControlNotePermission ? '' : 'border-t dark:border-gray-700'}`}
+          disabled={isOffline}
+          className={`${!userCanControlNotePermission && 'border-t dark:border-gray-700'}`}
           onClick={onPublishClick}
         >
           <IconSend size={18} className="mr-1" />
           <span>Publish</span>
         </DropdownItem>
       )}
-      <DropdownItem onClick={onMoveToClick}>
+      <DropdownItem disabled={isOffline} onClick={onMoveToClick}>
         <IconCornerDownRight size={18} className="mr-1" />
         <span>Move to</span>
       </DropdownItem>
-      <DropdownItem onClick={onDeleteClick}>
+      <DropdownItem disabled={isOffline} onClick={onDeleteClick}>
         <IconTrash size={18} className="mr-1" />
         <span>Delete</span>
       </DropdownItem>

@@ -74,6 +74,7 @@ type DropdownItemProps =
       onClick: MouseEventHandler<HTMLButtonElement>;
       as?: 'button';
       className?: string;
+      disabled?: boolean;
     }
   | {
       children: ReactNode;
@@ -82,16 +83,17 @@ type DropdownItemProps =
       target?: string;
       as: 'a';
       className?: string;
+      disabled?: boolean;
     };
 
 export function DropdownItem(props: DropdownItemProps) {
-  const { children, className = '' } = props;
+  const { children, className = '', disabled } = props;
 
   const itemClassName = useCallback(
-    active =>
+    (active, disabled) =>
       `flex w-full items-center px-4 py-2 text-left text-sm text-gray-800 dark:text-gray-200 select-none ${
-        active ? 'bg-gray-100 dark:bg-gray-700' : ''
-      } ${className}`,
+        active && 'bg-gray-100 dark:bg-gray-700'
+      } ${disabled && 'dark:text-gray-500 pointer-events-none'} ${className}`,
     [className],
   );
 
@@ -99,11 +101,11 @@ export function DropdownItem(props: DropdownItemProps) {
     <Menu.Item>
       {({ active }) =>
         props.as === 'a' ? (
-          <a className={itemClassName(active)} href={props.href} target="_blank" rel="noopener noreferrer">
+          <a className={itemClassName(active, disabled)} href={props.href} target="_blank" rel="noopener noreferrer">
             {children}
           </a>
         ) : (
-          <button className={itemClassName(active)} onClick={props.onClick}>
+          <button className={itemClassName(active, disabled)} onClick={props.onClick} disabled={disabled}>
             {children}
           </button>
         )

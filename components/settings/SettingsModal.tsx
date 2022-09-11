@@ -3,6 +3,7 @@ import { IconBrightnessHalf, IconPencil, IconBook2 } from '@tabler/icons';
 import useHotkeys from 'utils/useHotkeys';
 import { useAuth } from 'utils/useAuth';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
+import { useStore } from 'lib/store';
 import { CreateJoinRenameDeckType } from 'components/CreateJoinRenameDeckModal';
 import SidebarItem from '../sidebar/SidebarItem';
 import Appearance from './Appearance';
@@ -63,6 +64,8 @@ type SettingsModalSidebarProps = {
 
 const SettingsModalSidebar = (props: SettingsModalSidebarProps) => {
   const { currentTab, setCurrentTab, canManageEditing } = props;
+  const isOffline = useStore(state => state.isOffline);
+
   return (
     <div className="flex flex-col flex-none w-full py-4 border-b sm:border-b-0 sm:border-r sm:w-48 sm:h-full bg-gray-50 dark:bg-gray-800 dark:border-gray-600">
       <div className="px-4 pb-2 text-sm text-gray-600 dark:text-gray-400">Settings</div>
@@ -76,22 +79,34 @@ const SettingsModalSidebar = (props: SettingsModalSidebarProps) => {
         </button>
       </SidebarItem>
       {canManageEditing && (
-        <SidebarItem className="flex" isHighlighted={currentTab === SettingsTab.Editor}>
+        <SidebarItem
+          className={`flex ${isOffline && 'dark:hover:bg-gray-800 dark:active:bg-gray-800'}`}
+          isHighlighted={!isOffline && currentTab === SettingsTab.Editor}
+        >
           <button
-            className="flex items-center flex-1 px-4 py-1 overflow-hidden overflow-ellipsis whitespace-nowrap"
+            className={`flex items-center flex-1 px-4 py-1 overflow-hidden overflow-ellipsis whitespace-nowrap ${
+              isOffline && 'dark:text-gray-500 pointer-events-none'
+            }`}
+            disabled={isOffline}
             onClick={() => setCurrentTab(SettingsTab.Editor)}
           >
-            <IconPencil size={18} className="mr-1 text-gray-800 dark:text-gray-200" />
+            <IconPencil size={18} className={`mr-1 text-gray-800 dark:text-gray-200 ${isOffline && 'dark:text-gray-500'}`} />
             <span>Editing</span>
           </button>
         </SidebarItem>
       )}
-      <SidebarItem className="flex" isHighlighted={currentTab === SettingsTab.DeckManagement}>
+      <SidebarItem
+        className={`flex ${isOffline && 'dark:hover:bg-gray-800 dark:active:bg-gray-800'}`}
+        isHighlighted={!isOffline && currentTab === SettingsTab.DeckManagement}
+      >
         <button
-          className="flex items-center flex-1 px-4 py-1 overflow-hidden overflow-ellipsis whitespace-nowrap"
+          className={`flex items-center flex-1 px-4 py-1 overflow-hidden overflow-ellipsis whitespace-nowrap ${
+            isOffline && 'dark:text-gray-500 pointer-events-none'
+          }`}
+          disabled={isOffline}
           onClick={() => setCurrentTab(SettingsTab.DeckManagement)}
         >
-          <IconBook2 size={18} className="mr-1 text-gray-800 dark:text-gray-200" />
+          <IconBook2 size={18} className={`mr-1 text-gray-800 dark:text-gray-200 ${isOffline && 'dark:text-gray-500'}`} />
           <span>Manage DECKs</span>
         </button>
       </SidebarItem>

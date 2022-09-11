@@ -15,6 +15,7 @@ import { ProvideCurrentDeck } from 'utils/useCurrentDeck';
 import { decryptWithLit, decryptNote } from 'utils/encryption';
 import useIsMounted from 'utils/useIsMounted';
 import useHotkeys from 'utils/useHotkeys';
+import useIsOffline from 'utils/useIsOffline';
 import { useAuth } from 'utils/useAuth';
 import { isMobile } from 'utils/device';
 import CreateJoinRenameDeckModal, { CreateJoinRenameDeckType } from './CreateJoinRenameDeckModal';
@@ -33,6 +34,7 @@ type Props = {
 export default function AppLayout(props: Props) {
   const { children, className = '' } = props;
 
+  useIsOffline();
   const router = useRouter();
   const deckId = Array.isArray(router.query.deckId) ? router.query.deckId[0] : router.query.deckId;
   const { user, isLoaded, signOut } = useAuth();
@@ -209,6 +211,7 @@ export default function AppLayout(props: Props) {
 
   // const darkMode = useStore(state => state.darkMode);
   const darkMode = true;
+  const isOffline = useStore(state => state.isOffline);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
   const setIsPageStackingOn = useStore(state => state.setIsPageStackingOn);
   const setSidebarTab = useStore(state => state.setSidebarTab);
@@ -230,7 +233,7 @@ export default function AppLayout(props: Props) {
   }, [setIsSidebarOpen, setIsPageStackingOn, hasHydrated]);
 
   useEffect(() => {
-    if (!deckId) {
+    if (!deckId || isOffline) {
       return;
     }
 
@@ -282,7 +285,7 @@ export default function AppLayout(props: Props) {
       deckSubscription.unsubscribe();
       window.removeEventListener('focus', initData);
     };
-  }, [deckId, deck, upsertNote, updateNote, deleteNote, setNoteTree, initData]);
+  }, [deckId, deck, isOffline, upsertNote, updateNote, deleteNote, setNoteTree, initData]);
 
   const hotkeys = useMemo(
     () => [
@@ -325,11 +328,7 @@ export default function AppLayout(props: Props) {
 
   const appContainerClassName = classNames('h-screen font-display', { dark: darkMode }, className);
 
-  if (!isPageLoaded) {
-    return <PageLoading />;
-  }
-
-  if (!deckId || typeof deckId !== 'string') {
+  if (!isPageLoaded || !deckId || typeof deckId !== 'string') {
     return <PageLoading />;
   }
 

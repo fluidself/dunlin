@@ -29,6 +29,7 @@ export default function Header(props: Props) {
   const { setIsSettingsOpen, setIsShareModalOpen, setCreateJoinRenameModal } = props;
   const { user, signOut } = useAuth();
   const { user_id } = useCurrentDeck();
+  const isOffline = useStore(state => state.isOffline);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
 
   return (
@@ -64,21 +65,28 @@ export default function Header(props: Props) {
             </DropdownItem>
             {user?.id === user_id && (
               <>
-                <DropdownItem onClick={() => setIsShareModalOpen(true)}>
+                <DropdownItem disabled={isOffline} onClick={() => setIsShareModalOpen(true)}>
                   <IconShare size={18} className="mr-1" />
                   <span>Share</span>
                 </DropdownItem>
               </>
             )}
-            <DropdownItem onClick={() => setCreateJoinRenameModal({ open: true, type: CreateJoinRenameDeckType.Create })}>
+            <DropdownItem
+              disabled={isOffline}
+              onClick={() => setCreateJoinRenameModal({ open: true, type: CreateJoinRenameDeckType.Create })}
+            >
               <IconFolderPlus size={18} className="mr-1" />
               <span>Create</span>
             </DropdownItem>
-            <DropdownItem onClick={() => setCreateJoinRenameModal({ open: true, type: CreateJoinRenameDeckType.Join })}>
+            <DropdownItem
+              disabled={isOffline}
+              onClick={() => setCreateJoinRenameModal({ open: true, type: CreateJoinRenameDeckType.Join })}
+            >
               <IconGitPullRequest size={18} className="mr-1" />
               <span>Join</span>
             </DropdownItem>
             <DropdownItem
+              disabled={isOffline}
               as="a"
               className="border-t dark:border-gray-700"
               href={`${process.env.BASE_URL}/docs`}
@@ -88,11 +96,17 @@ export default function Header(props: Props) {
               <IconInfoCircle size={18} className="mr-1" />
               <span>Docs</span>
             </DropdownItem>
-            <DropdownItem as="a" href="https://github.com/fluidself/deck" rel="noopener noreferrer" target="_blank">
+            <DropdownItem
+              disabled={isOffline}
+              as="a"
+              href="https://github.com/fluidself/deck"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
               <IconCode size={18} className="mr-1" />
               <span>Code</span>
             </DropdownItem>
-            <DropdownItem onClick={signOut}>
+            <DropdownItem disabled={isOffline} onClick={signOut}>
               <IconLogout size={18} className="mr-1" />
               <span>Sign Out</span>
             </DropdownItem>
