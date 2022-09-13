@@ -259,33 +259,13 @@ export default function AppLayout(props: Props) {
       })
       .subscribe();
 
-    // Subscribe to changes in the note_tree for the current DECK
-    const deckSubscription = supabase
-      .from<Deck>(`decks:id=eq.${deckId}`)
-      .on('UPDATE', payload => {
-        if (payload.new.note_tree) {
-          const noteTree: NoteTreeItem[] = [...payload.new.note_tree];
-          const notesAsObj = store.getState().notes;
-          const notes = Object.values(notesAsObj);
-          removeNonexistentNotes(noteTree, notesAsObj);
-          setNoteTree(noteTree);
-          for (const note of notes) {
-            if (getNoteTreeItem(noteTree, note.id) === null) {
-              initData();
-            }
-          }
-        }
-      })
-      .subscribe();
-
     window.addEventListener('focus', initData);
 
     return () => {
       notesSubscription.unsubscribe();
-      deckSubscription.unsubscribe();
       window.removeEventListener('focus', initData);
     };
-  }, [deckId, deck, isOffline, upsertNote, updateNote, deleteNote, setNoteTree, initData]);
+  }, [deckId, deck, isOffline, upsertNote, updateNote, deleteNote, initData]);
 
   const hotkeys = useMemo(
     () => [

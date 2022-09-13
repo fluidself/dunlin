@@ -52,7 +52,7 @@ function MoveToInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
       });
       result.push(
         ...noteTree
-          .filter(item => item.id !== noteId)
+          .filter(item => item.id !== noteId && notes[item.id])
           .map(item => ({
             id: item.id,
             type: OptionType.NOTE,

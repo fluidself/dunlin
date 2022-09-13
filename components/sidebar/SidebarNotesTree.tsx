@@ -45,6 +45,7 @@ function SidebarNotesTree(props: Props) {
     return id && typeof id === 'string' ? id : undefined;
   }, [router]);
 
+  const notes = useStore(state => state.notes);
   const moveNoteTreeItem = useStore(state => state.moveNoteTreeItem);
 
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -85,10 +86,13 @@ function SidebarNotesTree(props: Props) {
   const flattenedData = useMemo(() => {
     const result: FlattenedNoteTreeItem[] = [];
     for (const node of data) {
+      if (!notes[node.id]) {
+        continue;
+      }
       flattenNode(node, 0, result);
     }
     return result;
-  }, [data, flattenNode]);
+  }, [data, notes, flattenNode]);
 
   const resetState = useCallback(() => {
     setActiveId(null);
