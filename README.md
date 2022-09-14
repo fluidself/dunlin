@@ -1,10 +1,10 @@
 # DECK
 
-DECK is a notebook for crypto natives who want to capture, organize, and share complex information. Individuals can compile their ideas, thoughts, and notes in an interconnected context and make connections between them. DAOs and other communities can manage projects and create knowledge bases, FAQs, and guides. Access to notebooks can be granted using tokens, NFTs, and blockchain identity as keys.
+DECK is an open-source notebook and knowledge graph that helps individuals, DAOs, and other communities capture, organize, make sense of, and share complex information. All notes are encrypted and can only by decrypted by the intended audience.
 
-## Motivation
+Individuals can use DECK to take notes, journal, and compile their ideas, thoughts, and research in an interconnected context.
 
-The problem is a sense of information overload which pervades everything we do online. It's hard to keep up and separating signal from noise is tricky. Without a good note-taking system, we are prone to miss key information, forget lessons, and fail to see the big picture. Private coordination and sense-making in groups that are dynamically changing—such as members of a DAO or holders of a given NFT—is difficult, and the typical tools leave something to be desired.
+DAOs and other communities can carry out collaborative research, manage projects, and create knowledge bases, FAQs, and guides. Access to workspaces can be granted using tokens, NFTs, and blockchain identity as keys.
 
 ## Features
 
@@ -18,15 +18,16 @@ The problem is a sense of information overload which pervades everything we do o
 
 ## Technologies
 
-This project is made possible thanks to these and other open source languages, libraries, and frameworks.
+DECK is made possible thanks to these and other open source languages, libraries, and frameworks.
 
-| Tech                                          | Description                               |
-| --------------------------------------------- | ----------------------------------------- |
-| [React](https://reactjs.org/)                 | Front end user interface                  |
-| [Next.js](https://nextjs.org/)                | A React.js framework                      |
-| [TypeScript](https://www.typescriptlang.org/) | Static type-checking programming language |
-| [TailwindCSS](https://tailwindcss.com/)       | A utility-first CSS framework             |
-| [Supabase](https://supabase.io/)              | An open source Firebase alternative       |
-| [Notabase](https://notabase.io/)              | A personal knowledge base                 |
-| [Lit Protocol](https://litprotocol.com/)      | Decentralized access control              |
-| [wagmi](https://wagmi.sh/)                    | React Hooks library for Ethereum          |
+| Tech                                          | Description                                             |
+| --------------------------------------------- | ------------------------------------------------------- |
+| [React](https://reactjs.org/)                 | Front end user interface                                |
+| [Next.js](https://nextjs.org/)                | A React.js framework                                    |
+| [TypeScript](https://www.typescriptlang.org/) | Static type-checking programming language               |
+| [TailwindCSS](https://tailwindcss.com/)       | A utility-first CSS framework                           |
+| [Supabase](https://supabase.io/)              | An open source Firebase alternative                     |
+| [Notabase](https://notabase.io/)              | A personal knowledge base                               |
+| [Slate](http://slatejs.org/)                  | A customizable framework for building rich text editors |
+| [Lit Protocol](https://litprotocol.com/)      | Decentralized access control                            |
+| [wagmi](https://wagmi.sh/)                    | React hooks library for Ethereum                        |
