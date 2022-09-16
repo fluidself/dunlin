@@ -16,6 +16,7 @@ type Props = {
 
 export default function SidebarSearch(props: Props) {
   const { className } = props;
+  const deckId = useStore(state => state.deckId);
   const inputText = useStore(state => state.sidebarSearchQuery);
   const setInputText = useStore(state => state.setSidebarSearchQuery);
 
@@ -32,6 +33,7 @@ export default function SidebarSearch(props: Props) {
             id: `${result.item.id}-${index}`,
             labelNode: (
               <SidebarSearchLeaf
+                deckId={deckId}
                 noteId={result.item.id}
                 text={match.value ?? ''}
                 searchQuery={searchQuery}
@@ -42,7 +44,7 @@ export default function SidebarSearch(props: Props) {
           }))
         : undefined,
     }));
-  }, [search, searchQuery]);
+  }, [search, searchQuery, deckId]);
 
   return (
     <ErrorBoundary>
@@ -81,6 +83,7 @@ const SidebarSearchBranch = memo(function SidebarSearchBranch(props: SidebarSear
 });
 
 type SidebarSearchLeafProps = {
+  deckId: string;
   noteId: string;
   text: string;
   searchQuery: string;
@@ -88,14 +91,14 @@ type SidebarSearchLeafProps = {
 };
 
 const SidebarSearchLeaf = memo(function SidebarSearchLeaf(props: SidebarSearchLeafProps) {
-  const { noteId, text, searchQuery, block } = props;
+  const { deckId, noteId, text, searchQuery, block } = props;
   const router = useRouter();
   return (
     <button
       className="w-full text-left rounded hover:bg-gray-200 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600"
       onClick={() => {
         const hash = block ? `#0-${block.path}` : '';
-        router.push(`/app/note/${noteId}${hash}`);
+        router.push(`/app/${deckId}/note/${noteId}${hash}`);
       }}
     >
       <Highlighter
