@@ -4,7 +4,7 @@ import { EditorElementProps } from '../elements/EditorElement';
 import BacklinksPopover from './BacklinksPopover';
 import BlockMenuDropdown from './BlockMenuDropdown';
 
-export default function withBlockSideMenu(EditorElement: ComponentType<EditorElementProps>) {
+export default function withBlockSideMenu(EditorElement: ComponentType<EditorElementProps>, withoutBlockReferences = false) {
   const ElementWithSideMenu = (props: EditorElementProps) => {
     const { element } = props;
 
@@ -17,6 +17,7 @@ export default function withBlockSideMenu(EditorElement: ComponentType<EditorEle
         <EditorElement {...props} />
         <BlockMenuDropdown
           element={element}
+          withoutBlockReferences={withoutBlockReferences}
           /**
            * We're using opacity 0.001 here to support iOS Safari.
            * If we use anything else to hide this element, it would

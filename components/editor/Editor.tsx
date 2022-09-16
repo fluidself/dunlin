@@ -30,7 +30,6 @@ import withNormalization from 'editor/plugins/withNormalization';
 import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
 import withVoidElements from 'editor/plugins/withVoidElements';
 import withNodeId from 'editor/plugins/withNodeId';
-import withBlockReferences from 'editor/plugins/withBlockReferences';
 import withTags from 'editor/plugins/withTags';
 import withHtml from 'editor/plugins/withHtml';
 import { getDefaultEditorValue } from 'editor/constants';
@@ -47,7 +46,6 @@ import withBlockSideMenu from './blockmenu/withBlockSideMenu';
 import EditorLeaf from './elements/EditorLeaf';
 import { insertTable } from './elements/table/commands';
 import LinkAutocompletePopover from './LinkAutocompletePopover';
-import BlockAutocompletePopover from './BlockAutocompletePopover';
 import TagAutocompletePopover from './TagAutocompletePopover';
 
 export type AddLinkPopoverState = {
@@ -104,11 +102,7 @@ function Editor(props: Props) {
               withHtml(
                 withBlockBreakout(
                   withVoidElements(
-                    withTables(
-                      withBlockReferences(
-                        withImages(withTags(withLinks(withNodeId(withHistory(withReact(createEditor() as DeckEditor)))))),
-                      ),
-                    ),
+                    withTables(withImages(withTags(withLinks(withNodeId(withHistory(withReact(createEditor() as DeckEditor))))))),
                   ),
                 ),
               ),
@@ -148,7 +142,7 @@ function Editor(props: Props) {
   }, [provider]);
 
   const renderElement = useMemo(() => {
-    const ElementWithSideMenu = withBlockSideMenu(withVerticalSpacing(EditorElement));
+    const ElementWithSideMenu = withBlockSideMenu(withVerticalSpacing(EditorElement), true);
     return ElementWithSideMenu;
   }, []);
 
@@ -358,7 +352,6 @@ function Editor(props: Props) {
         <AddLinkPopover addLinkPopoverState={addLinkPopoverState} setAddLinkPopoverState={setAddLinkPopoverState} />
       ) : null}
       <LinkAutocompletePopover />
-      <BlockAutocompletePopover />
       <TagAutocompletePopover />
       <Editable
         className={`overflow-hidden placeholder-gray-300 ${className}`}

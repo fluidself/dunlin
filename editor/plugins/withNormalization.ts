@@ -131,10 +131,11 @@ const insertParagraph = (editor: Editor, at: Path | Point) => {
 const maybePreserveSpace = (editor: Editor, entry: NodeEntry): boolean | void => {
   const [node, path] = entry;
   const { type } = node;
-  const next = Editor.next(editor, { at: path });
   let preserved = false;
 
   try {
+    const next = Editor.next(editor, { at: path });
+
     if (type === ElementType.Table) {
       // @ts-ignore
       if (!next || next[0].type === ElementType.Table || next[0].type === ElementType.CodeBlock) {
