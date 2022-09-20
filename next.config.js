@@ -8,6 +8,15 @@ const withPWA = require('next-pwa')({
 
 module.exports = withPWA({
   reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        source: '/app/:deckId/note',
+        destination: '/app/:deckId',
+        permanent: false,
+      },
+    ];
+  },
   env: {
     BASE_URL: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://usedeck.vercel.app',
   },
