@@ -1,5 +1,7 @@
 import Head from 'next/head';
 import { GetServerSideProps } from 'next';
+import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import * as Name from 'w3name'; // eslint-disable-line
 import { unified } from 'unified';
@@ -61,8 +63,16 @@ export default function PublicationPage(props: Props) {
       <Head>
         <title>{title}</title>
       </Head>
+      <header className="header sticky top-0 flex items-center justify-between pl-6 py-4">
+        <Link href="/">
+          <a className="flex focus:outline-none">
+            <Image src="/android-chrome-192x192.png" alt="DECK logo" width="24" height="24" />
+            <div className="ml-2">DECK</div>
+          </a>
+        </Link>
+      </header>
       <main className="mt-12 container mx-auto md:max-w-3xl publication">
-        <h1 className="text-5xl font-semibold text-gray-100 mb-4">{title}</h1>
+        <h1 className="text-5xl font-semibold text-gray-100 mb-5">{title}</h1>
         <div className="flex space-x-4">
           <span className="text-xs inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
             {addEllipsis(address)}
@@ -73,7 +83,7 @@ export default function PublicationPage(props: Props) {
         </div>
 
         <article
-          className="prose prose-invert max-w-none mt-8 prose-table:border prose-table:border-collapse prose-th:border prose-th:border-gray-700 prose-th:align-baseline prose-th:pt-2 prose-th:pl-2 prose-td:border prose-td:border-gray-700 prose-td:pt-2 prose-td:pl-2 prose-a:text-primary-500 hover:prose-a:underline"
+          className="prose prose-invert max-w-none mt-10 prose-table:border prose-table:border-collapse prose-th:border prose-th:border-gray-700 prose-th:align-baseline prose-th:pt-2 prose-th:pl-2 prose-td:border prose-td:border-gray-700 prose-td:pt-2 prose-td:pl-2 prose-a:text-primary-500 hover:prose-a:underline"
           dangerouslySetInnerHTML={{ __html: parsedBody }}
         ></article>
 
@@ -99,7 +109,7 @@ export default function PublicationPage(props: Props) {
           >
             <div className="flex flex-row justify-between p-4">
               <div className="flex items-center">
-                <span>ETHEREUM ADDRESS</span> <IconExternalLink className="ml-2" size={16} />
+                <span>PUBLISHED BY</span> <IconExternalLink className="ml-2" size={16} />
               </div>
               <div>{address}</div>
             </div>

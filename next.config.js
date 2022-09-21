@@ -15,6 +15,11 @@ module.exports = withPWA({
         destination: '/app/:deckId',
         permanent: false,
       },
+      {
+        source: '/publications',
+        destination: '/',
+        permanent: false,
+      },
     ];
   },
   env: {
