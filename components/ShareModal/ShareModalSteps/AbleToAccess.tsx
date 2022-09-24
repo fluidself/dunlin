@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useStore } from 'lib/store';
-import { WalletIcon, TokenIcon, DAOIcon, POAPIcon } from '../icons';
+import { WalletIcon, TokenIcon, DAOIcon, POAPIcon, ProofOfHumanityIcon, GlobeIcon } from '../icons';
 
 type TypeButtonProps = {
   type: string;
@@ -45,6 +45,16 @@ const ITEMS = [
     icon: <POAPIcon />,
     title: 'POAP Collectors',
   },
+  {
+    type: 'proofOfHumanity',
+    icon: <ProofOfHumanityIcon />,
+    title: 'Proof of Humanity',
+  },
+  {
+    type: 'openAccess',
+    icon: <GlobeIcon />,
+    title: 'Anyone',
+  },
 ];
 
 type Props = {
@@ -68,7 +78,7 @@ const AbleToAccess = (props: Props) => {
         </span>
       </div>
 
-      <div className="grid grid-cols-[180px_180px] gap-4 justify-center mt-[28px]">
+      <div className="grid grid-cols-[180px_180px_180px] gap-4 justify-center mt-[28px]">
         {ITEMS.map((item, i) => (
           <TypeButton key={i} {...item} onClick={setActiveStep} />
         ))}

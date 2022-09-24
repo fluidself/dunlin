@@ -180,7 +180,10 @@ function Sidebar(props: Props) {
               onAccessControlConditionsSelected={async (acc: AccessControlCondition[]) => {
                 setProcessingAccess(true);
                 const success = await provisionAccess(acc);
-                if (success) return true;
+                if (success) {
+                  setProcessingAccess(false);
+                  return true;
+                }
                 setProcessingAccess(false);
               }}
               showStep={'ableToAccess'}
