@@ -4,14 +4,16 @@ import { toast } from 'react-toastify';
 import LitJsSdk from 'lit-js-sdk';
 import {
   AbleToAccess,
+  CurrentAccess,
+  RevokeAccess,
   WhichWallet,
   AssetWallet,
   DAOMembers,
   AccessCreated,
   SelectTokens,
   ChoosePOAP,
-  CurrentAccess,
-  RevokeAccess,
+  ProofOfHumanity,
+  OpenAccess,
 } from './ShareModalSteps';
 import UnsavedPopup from './UnsavedPopup';
 
@@ -22,9 +24,11 @@ const ModalComponents = {
   whichWallet: WhichWallet,
   assetWallet: AssetWallet,
   DAOMembers: DAOMembers,
-  accessCreated: AccessCreated,
   selectTokens: SelectTokens,
   choosePOAP: ChoosePOAP,
+  proofOfHumanity: ProofOfHumanity,
+  openAccess: OpenAccess,
+  accessCreated: AccessCreated,
 };
 
 const ShareModal = props => {

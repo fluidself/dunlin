@@ -4,6 +4,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import supabase from 'lib/supabase';
 import { Deck } from 'types/supabase';
+import { AccessControlCondition } from 'types/lit';
 import Navigation from '../Navigation';
 
 type Props = {
@@ -33,8 +34,12 @@ const CurrentAccess = (props: Props) => {
         return;
       }
 
-      const res = await LitJsSdk.humanizeAccessControlConditions({ accessControlConditions: accessControlConditions?.slice(2) });
-      setConditions(res.split(' or '));
+      let result = await LitJsSdk.humanizeAccessControlConditions({ accessControlConditions: accessControlConditions.slice(2) });
+      if (!result && (accessControlConditions.slice(2)[0] as AccessControlCondition).standardContractType === 'ProofOfHumanity') {
+        result = 'Is registered with Proof of Humanity';
+      }
+
+      setConditions(result.split(' or '));
       setReady(true);
     };
     initAcc();
@@ -45,9 +50,13 @@ const CurrentAccess = (props: Props) => {
 
     if (error) return <p>{error}</p>;
 
+    const multipleConditions = conditions.length > 1;
+
     return (
       <>
-        <p>User must meet one or more of these conditions:</p>
+        <p>{`User must meet ${multipleConditions ? 'one or more of' : ''} ${multipleConditions ? 'these' : 'this'} condition${
+          multipleConditions ? 's' : ''
+        }:`}</p>
         <ul className="list-disc ml-8 mt-4">
           {conditions.map((condition, index) => (
             <li key={index}>{condition}</li>
