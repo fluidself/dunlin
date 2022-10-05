@@ -54,7 +54,7 @@ const RevokeAccess = (props: Props) => {
 
     toast.success('DECK access was revoked');
     setProcessing(false);
-    onClose();
+    setTimeout(() => onClose(), 1000);
   };
 
   return (
