@@ -14,7 +14,7 @@ import {
   ChoosePOAP,
   ProofOfHumanity,
   OpenAccess,
-} from './ShareModalSteps';
+} from './modal-components';
 import UnsavedPopup from './UnsavedPopup';
 
 const ModalComponents = {

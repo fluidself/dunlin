@@ -14,7 +14,7 @@ import supabase from 'lib/supabase';
 import { SPRING_CONFIG } from 'constants/spring';
 import { AccessControlCondition, BooleanCondition } from 'types/lit';
 import { Deck } from 'types/supabase';
-import { ShareModal } from 'components/ShareModal';
+import { ShareModal } from 'components/share-modal';
 import { CreateJoinRenameDeckType } from 'components/CreateJoinRenameDeckModal';
 import Tooltip from 'components/Tooltip';
 import SidebarItem from './SidebarItem';
