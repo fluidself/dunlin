@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, ReactNode, useCallback, useMemo, useEffect, useState, useRef } from 'react';
+import React, { HTMLAttributes, ReactNode, useCallback, useMemo, useEffect, useState, useRef, MouseEventHandler } from 'react';
 import { ReactEditor, RenderElementProps, useSelected, useSlate } from 'slate-react';
 import { Editor, NodeEntry, Transforms } from 'slate';
 import {
@@ -114,7 +114,7 @@ type CardbarButtonProps = {
   Icon: TablerIcon;
   tooltip?: string;
   className?: string;
-  onClick: any;
+  onClick: MouseEventHandler;
 };
 
 const CardbarButton = ({ Icon, tooltip, className = '', onClick }: CardbarButtonProps) => {

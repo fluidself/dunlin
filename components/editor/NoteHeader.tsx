@@ -43,7 +43,7 @@ export default function NoteHeader() {
   const { id: currentDeckId, user_id: deckOwner } = useCurrentDeck();
   const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
   const [deckOptions, setDeckOptions] = useState<DeckSelectOption[]>([]);
-  const [selectedDeck, setSelectedDeck] = useState<any>(null);
+  const [selectedDeck, setSelectedDeck] = useState<DeckSelectOption | null>(null);
   const router = useRouter();
   const {
     query: { deckId, stack: stackQuery },
@@ -55,8 +55,9 @@ export default function NoteHeader() {
       id: deck.id,
       value: deck.id,
     }));
+    const currentlySelectedDeck = decksToOptions?.find(deckOption => deckOption.id === currentDeckId);
     if (decksToOptions) setDeckOptions(decksToOptions);
-    setSelectedDeck(decksToOptions?.find(deckOption => deckOption.id === currentDeckId));
+    if (currentlySelectedDeck) setSelectedDeck(currentlySelectedDeck);
   }, [decks, currentDeckId]);
 
   const isSidebarButtonVisible = useStore(state => !state.isSidebarOpen && state.openNoteIds?.[0] === currentNote.id);
@@ -174,14 +175,17 @@ export default function NoteHeader() {
                   value={selectedDeck}
                   onChange={value => {
                     setSelectedDeck(value);
-                    if (value.id !== currentDeckId) {
-                      window.location.assign(`${process.env.BASE_URL}/app/${value.id}`);
+                    if (value?.id !== currentDeckId) {
+                      window.location.assign(`${process.env.BASE_URL}/app/${value?.id}`);
                     }
                   }}
                 />
               </div>
               <Tooltip content="Copy DECK ID">
-                <button className={buttonClassName} onClick={async () => await copyToClipboard(selectedDeck.id)}>
+                <button
+                  className={buttonClassName}
+                  onClick={async () => selectedDeck?.id && (await copyToClipboard(selectedDeck.id))}
+                >
                   <span className="flex items-center justify-center w-8 h-8">
                     <IconCopy className={iconClassName} />
                   </span>
