@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import Select from 'react-select';
+import { AccessControlCondition } from 'types/lit';
 import InputWrapper from '../InputWrapper';
 import Navigation from '../Navigation';
 
@@ -16,11 +18,25 @@ const matchConditionOptions = [
   },
 ];
 
-const DAOMembers = ({ setActiveStep, processingAccess, onAccessControlConditionsSelected }) => {
+type MatchConditionOption = {
+  label: string;
+  id: string;
+  value: string;
+};
+
+type Props = {
+  onAccessControlConditionsSelected: (acc: AccessControlCondition[]) => boolean;
+  setActiveStep: Dispatch<SetStateAction<string>>;
+  processingAccess: boolean;
+};
+
+export default function ChoosePOAP({ setActiveStep, processingAccess, onAccessControlConditionsSelected }: Props) {
   const [POAPName, setPOAPName] = useState('');
-  const [matchCondition, setMatchCondition] = useState(null);
+  const [matchCondition, setMatchCondition] = useState<MatchConditionOption | null>(null);
 
   const handleSubmit = async () => {
+    if (!matchCondition?.value) return;
+
     const chain = 'xdai';
     const accessControlConditions = [
       {
@@ -58,7 +74,13 @@ const DAOMembers = ({ setActiveStep, processingAccess, onAccessControlConditions
     <div>
       <h4 className="text-lg">Which POAP should be granted access?</h4>
       <div className="mt-8">
-        <InputWrapper value={POAPName} label="POAP Name" id="POAPName" autoFocus handleChange={value => setPOAPName(value)} />
+        <InputWrapper
+          value={POAPName}
+          label="POAP Name"
+          id="POAPName"
+          autoFocus
+          handleChange={(value: string) => setPOAPName(value)}
+        />
         <div className="mt-4">
           <label>Match Conditions</label>
           <Select
@@ -85,6 +107,4 @@ const DAOMembers = ({ setActiveStep, processingAccess, onAccessControlConditions
       />
     </div>
   );
-};
-
-export default DAOMembers;
+}

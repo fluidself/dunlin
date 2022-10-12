@@ -1,7 +1,13 @@
 import React from 'react';
 import Button from 'components/home/Button';
 
-const UnsavedPopup = props => {
+type Props = {
+  open: boolean;
+  onClose: () => void;
+  onCancel: () => void;
+};
+
+export default function UnsavedPopup(props: Props) {
   const { onClose, onCancel, open } = props;
 
   if (!open) return null;
@@ -20,6 +26,4 @@ const UnsavedPopup = props => {
       </div>
     </div>
   );
-};
-
-export default UnsavedPopup;
+}
