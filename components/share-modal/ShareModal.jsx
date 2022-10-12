@@ -31,7 +31,7 @@ const ModalComponents = {
   accessCreated: AccessCreated,
 };
 
-const ShareModal = props => {
+export default function ShareModal(props) {
   const { onClose = () => false, showStep, deckToShare = '', processingAccess, onAccessControlConditionsSelected } = props;
 
   const [activeStep, setActiveStep] = useState(showStep || 'ableToAccess');
@@ -102,6 +102,4 @@ const ShareModal = props => {
       </div>
     </div>
   );
-};
-
-export default ShareModal;
+}

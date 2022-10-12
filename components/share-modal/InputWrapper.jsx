@@ -3,15 +3,15 @@ import { IconX } from '@tabler/icons';
 
 const InputWrapper = ({
   type = 'text',
-  className,
+  className = '',
   id,
   label,
-  error,
+  error = '',
   value,
-  handleChange = () => false,
+  handleChange,
   readOnly = false,
   autoFocus = false,
-  placeholder,
+  placeholder = '',
   clearable = false,
   onClear = () => false,
 }) => {

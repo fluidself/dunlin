@@ -2,7 +2,12 @@ import { IconCopy } from '@tabler/icons';
 import copyToClipboard from 'utils/copyToClipboard';
 import Button from 'components/home/Button';
 
-const AccessCreated = ({ deckToShare, onClose }) => {
+type Props = {
+  deckToShare: string;
+  onClose: () => void;
+};
+
+const AccessCreated = ({ deckToShare, onClose }: Props) => {
   const invitationLink = `${process.env.BASE_URL}/join/${deckToShare}`;
 
   return (
