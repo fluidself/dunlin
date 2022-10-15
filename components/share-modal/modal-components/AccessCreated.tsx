@@ -7,7 +7,7 @@ type Props = {
   onClose: () => void;
 };
 
-const AccessCreated = ({ deckToShare, onClose }: Props) => {
+export default function AccessCreated({ deckToShare, onClose }: Props) {
   const invitationLink = `${process.env.BASE_URL}/join/${deckToShare}`;
 
   return (
@@ -29,6 +29,4 @@ const AccessCreated = ({ deckToShare, onClose }: Props) => {
       </div>
     </div>
   );
-};
-
-export default AccessCreated;
+}
