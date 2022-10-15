@@ -1,7 +1,7 @@
 import React from 'react';
 import { IconX } from '@tabler/icons';
 
-const InputWrapper = ({
+export default function InputWrapper({
   type = 'text',
   className = '',
   id,
@@ -14,7 +14,7 @@ const InputWrapper = ({
   placeholder = '',
   clearable = false,
   onClear = () => false,
-}) => {
+}) {
   return (
     <div className={`flex flex-col ${className}`}>
       {label && <label htmlFor={id}>{label}</label>}
@@ -40,6 +40,4 @@ const InputWrapper = ({
       {error && <span className="text-red-500 pl-1 mt-1">{error}</span>}
     </div>
   );
-};
-
-export default InputWrapper;
+}

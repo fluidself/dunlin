@@ -2,7 +2,21 @@ import React from 'react';
 import { IconArrowNarrowLeft, IconArrowNarrowRight } from '@tabler/icons';
 import Button from 'components/home/Button';
 
-const Navigation = props => {
+type Props = {
+  backward?: {
+    label?: string;
+    onClick: () => void;
+  };
+  forward?: {
+    label: string;
+    onClick: () => Promise<void>;
+    withoutIcon: boolean;
+    disabled: boolean;
+    loading: boolean;
+  };
+};
+
+export default function Navigation(props: Props) {
   const { backward, forward } = props;
 
   return (
@@ -22,6 +36,4 @@ const Navigation = props => {
       ) : null}
     </div>
   );
-};
-
-export default Navigation;
+}

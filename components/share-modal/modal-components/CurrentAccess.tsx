@@ -11,7 +11,7 @@ type Props = {
   setActiveStep: Dispatch<SetStateAction<string>>;
 };
 
-const CurrentAccess = (props: Props) => {
+export default function CurrentAccess(props: Props) {
   const { setActiveStep } = props;
   const { id: deckId, deck_name } = useCurrentDeck();
   const [conditions, setConditions] = useState([]);
@@ -79,9 +79,7 @@ const CurrentAccess = (props: Props) => {
       </div>
       <div className="mt-4">{renderContent()}</div>
 
-      <Navigation backward={{ onClick: () => setActiveStep('ableToAccess') }} forward={null} />
+      <Navigation backward={{ onClick: () => setActiveStep('ableToAccess') }} />
     </div>
   );
-};
-
-export default CurrentAccess;
+}
