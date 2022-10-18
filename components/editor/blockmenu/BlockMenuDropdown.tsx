@@ -10,12 +10,11 @@ import ChangeBlockOptions from './ChangeBlockOptions';
 
 type BlockMenuDropdownProps = {
   element: ReferenceableBlockElement;
-  withoutBlockReferences: boolean;
   className?: string;
 };
 
 export default function BlockMenuDropdown(props: BlockMenuDropdownProps) {
-  const { element, withoutBlockReferences, className = '' } = props;
+  const { element, className = '' } = props;
   const editor = useSlateStatic();
 
   const onAddBlock = useCallback(() => {
@@ -88,12 +87,10 @@ export default function BlockMenuDropdown(props: BlockMenuDropdownProps) {
         <IconPlus size={18} className="mr-1" />
         <span>Add block below</span>
       </DropdownItem>
-      {!withoutBlockReferences && (
-        <DropdownItem onClick={onCopyBlockRef}>
-          <IconLink size={18} className="mr-1" />
-          <span>Copy block reference</span>
-        </DropdownItem>
-      )}
+      <DropdownItem onClick={onCopyBlockRef}>
+        <IconLink size={18} className="mr-1" />
+        <span>Copy block reference</span>
+      </DropdownItem>
       <ChangeBlockOptions element={element} className="px-8 border-t dark:border-gray-700" />
     </Dropdown>
   );

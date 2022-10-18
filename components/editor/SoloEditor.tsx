@@ -22,11 +22,9 @@ import withTables from 'editor/plugins/withTables';
 import withNormalization from 'editor/plugins/withNormalization';
 import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
 import withVoidElements from 'editor/plugins/withVoidElements';
-import withNodeId from 'editor/plugins/withNodeId';
 import withBlockReferences from 'editor/plugins/withBlockReferences';
 import withTags from 'editor/plugins/withTags';
 import withHtml from 'editor/plugins/withHtml';
-import { getDefaultEditorValue } from 'editor/constants';
 import { store, useStore } from 'lib/store';
 import { ElementType, Mark } from 'types/slate';
 import useIsMounted from 'utils/useIsMounted';
@@ -58,7 +56,7 @@ function SoloEditor(props: Props) {
   const { noteId, onChange, className = '', highlightedPath } = props;
   const isMounted = useIsMounted();
 
-  const value = useStore(state => state.notes[noteId]?.content ?? getDefaultEditorValue());
+  const value = useStore(state => state.notes[noteId]?.content);
   const setValue = useCallback((value: Descendant[]) => store.getState().updateNote({ id: noteId, content: value }), [noteId]);
 
   const editorRef = useRef<SlateEditor>();
@@ -69,9 +67,7 @@ function SoloEditor(props: Props) {
           withHtml(
             withBlockBreakout(
               withVoidElements(
-                withTables(
-                  withBlockReferences(withImages(withTags(withLinks(withNodeId(withHistory(withReact(createEditor()))))))),
-                ),
+                withTables(withBlockReferences(withImages(withTags(withLinks(withHistory(withReact(createEditor()))))))),
               ),
             ),
           ),
