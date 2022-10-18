@@ -23,16 +23,15 @@ import {
 } from 'editor/formatting';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
+import withBlockReferences from 'editor/plugins/withBlockReferences';
 import withImages from 'editor/plugins/withImages';
 import withLinks from 'editor/plugins/withLinks';
 import withTables from 'editor/plugins/withTables';
 import withNormalization from 'editor/plugins/withNormalization';
 import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
 import withVoidElements from 'editor/plugins/withVoidElements';
-import withNodeId from 'editor/plugins/withNodeId';
 import withTags from 'editor/plugins/withTags';
 import withHtml from 'editor/plugins/withHtml';
-import { getDefaultEditorValue } from 'editor/constants';
 import { store, useStore } from 'lib/store';
 import { DeckEditor, ElementType, Mark } from 'types/slate';
 import useIsMounted from 'utils/useIsMounted';
@@ -46,6 +45,7 @@ import withBlockSideMenu from './blockmenu/withBlockSideMenu';
 import EditorLeaf from './elements/EditorLeaf';
 import { insertTable } from './elements/table/commands';
 import LinkAutocompletePopover from './LinkAutocompletePopover';
+import BlockAutocompletePopover from './BlockAutocompletePopover';
 import TagAutocompletePopover from './TagAutocompletePopover';
 
 export type AddLinkPopoverState = {
@@ -70,7 +70,7 @@ function Editor(props: Props) {
   const { user } = useAuth();
 
   const note = useStore(state => state.notes[noteId]);
-  const value = note?.content ?? getDefaultEditorValue();
+  const value = note?.content;
   const setValue = useCallback((value: Descendant[]) => store.getState().updateNote({ id: noteId, content: value }), [noteId]);
 
   const color = useMemo(
@@ -102,7 +102,9 @@ function Editor(props: Props) {
               withHtml(
                 withBlockBreakout(
                   withVoidElements(
-                    withTables(withImages(withTags(withLinks(withNodeId(withHistory(withReact(createEditor() as DeckEditor))))))),
+                    withTables(
+                      withBlockReferences(withImages(withTags(withLinks(withHistory(withReact(createEditor() as DeckEditor)))))),
+                    ),
                   ),
                 ),
               ),
@@ -142,7 +144,7 @@ function Editor(props: Props) {
   }, [provider]);
 
   const renderElement = useMemo(() => {
-    const ElementWithSideMenu = withBlockSideMenu(withVerticalSpacing(EditorElement), true);
+    const ElementWithSideMenu = withBlockSideMenu(withVerticalSpacing(EditorElement));
     return ElementWithSideMenu;
   }, []);
 
@@ -352,6 +354,7 @@ function Editor(props: Props) {
         <AddLinkPopover addLinkPopoverState={addLinkPopoverState} setAddLinkPopoverState={setAddLinkPopoverState} />
       ) : null}
       <LinkAutocompletePopover />
+      <BlockAutocompletePopover />
       <TagAutocompletePopover />
       <Editable
         className={`overflow-hidden placeholder-gray-300 ${className}`}
