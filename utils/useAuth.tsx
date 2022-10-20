@@ -9,6 +9,12 @@ import { User } from 'types/supabase';
 
 const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
 
+interface ProviderRpcError extends Error {
+  message: string;
+  code: number;
+  data?: unknown;
+}
+
 type AuthContextType = {
   isLoaded: boolean;
   user: User | null;
@@ -95,12 +101,12 @@ function useProvideAuth(): AuthContextType {
 
       await initUser();
       setSigningIn(false);
-    } catch (error: any) {
-      if (error?.code === ERROR_CODE_TX_REJECTED_BY_USER) {
+    } catch (e) {
+      if ((e as ProviderRpcError).code === ERROR_CODE_TX_REJECTED_BY_USER) {
         return;
       }
 
-      console.error(error);
+      console.error(e);
     }
   }, []);
 
