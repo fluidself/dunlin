@@ -5,12 +5,12 @@ import { SyncElement, toSharedType, withYjs, withCursor, useCursors } from 'slat
 import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
 import randomColor from 'randomcolor';
+import { toast } from 'react-toastify';
 import withVoidElements from 'editor/plugins/withVoidElements';
 import withLinks from 'editor/plugins/withLinks';
 import withTags from 'editor/plugins/withTags';
 import withImages from 'editor/plugins/withImages';
 import withNormalization from 'editor/plugins/withNormalization';
-import { getDefaultEditorValue } from 'editor/constants';
 import { DeckEditor } from 'types/slate';
 import { useStore } from 'lib/store';
 import { useAuth } from 'utils/useAuth';
@@ -31,7 +31,16 @@ function ReadOnlyNoteEditor(props: Props) {
   const { noteId, className } = props;
   const { user } = useAuth();
 
-  const value = useStore(store => store.notes[noteId].content ?? getDefaultEditorValue());
+  const note = useStore(state => state.notes[noteId]);
+  const value = note?.content;
+
+  useEffect(() => {
+    if (!note) {
+      toast.warn('Someone deleted this note.', {
+        toastId: noteId,
+      });
+    }
+  });
 
   const color = useMemo(
     () =>
