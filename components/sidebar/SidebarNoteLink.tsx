@@ -24,8 +24,7 @@ const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement
 
   const onArrowClick = useCallback(() => toggleNoteTreeItemCollapsed(node.id), [node, toggleNoteTreeItemCollapsed]);
 
-  // We add 16px for every level of nesting, plus 8px base padding
-  const leftPadding = useMemo(() => node.depth * 16 + 8, [node.depth]);
+  const leftPadding = useMemo(() => node.depth * 12 + (node.hasChildren ? 6 : 28), [node.depth, node.hasChildren]);
 
   if (!note || !note.title) return null;
 
@@ -50,22 +49,24 @@ const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement
         style={{ paddingLeft: `${leftPadding}px` }}
         draggable={false}
       >
-        <button
-          className="p-1 mr-1 rounded hover:bg-gray-300 active:bg-gray-400 dark:hover:bg-gray-600 dark:active:bg-gray-500"
-          onClick={e => {
-            e.preventDefault();
-            e.stopPropagation();
-            onArrowClick?.();
-          }}
-        >
-          <IconCaretRight
-            className={`flex-shrink-0 text-gray-500 dark:text-gray-100 transform transition-transform ${
-              !node.collapsed ? 'rotate-90' : ''
-            }`}
-            size={16}
-            fill="currentColor"
-          />
-        </button>
+        {node.hasChildren ? (
+          <button
+            className="p-0.5 mr-0.5 rounded hover:bg-gray-300 active:bg-gray-400 dark:hover:bg-gray-600 dark:active:bg-gray-500"
+            onClick={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              onArrowClick?.();
+            }}
+          >
+            <IconCaretRight
+              className={`flex-shrink-0  text-gray-500 dark:text-gray-100 transform transition-transform ${
+                !node.collapsed ? 'rotate-90' : ''
+              }`}
+              size={16}
+              fill="currentColor"
+            />
+          </button>
+        ) : null}
         <span className="overflow-hidden overflow-ellipsis whitespace-nowrap">{note?.title ?? ''}</span>
       </div>
       <SidebarNoteLinkDropdown note={note} className="opacity-0.1 group-hover:opacity-100" />
