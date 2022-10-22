@@ -32,6 +32,7 @@ import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
 import withVoidElements from 'editor/plugins/withVoidElements';
 import withTags from 'editor/plugins/withTags';
 import withHtml from 'editor/plugins/withHtml';
+import { getDefaultEditorValue } from 'editor/constants';
 import { store, useStore } from 'lib/store';
 import { DeckEditor, ElementType, Mark } from 'types/slate';
 import useIsMounted from 'utils/useIsMounted';
@@ -70,7 +71,7 @@ function Editor(props: Props) {
   const { user } = useAuth();
 
   const note = useStore(state => state.notes[noteId]);
-  const value = note?.content;
+  const value = note?.content ?? getDefaultEditorValue();
   const setValue = useCallback((value: Descendant[]) => store.getState().updateNote({ id: noteId, content: value }), [noteId]);
 
   const color = useMemo(

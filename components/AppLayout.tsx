@@ -62,11 +62,12 @@ export default function AppLayout(props: Props) {
     }
   }, [isPageLoaded, isLoaded, user]);
 
+  const deckKey = useStore(state => state.deckKey);
+  const setDeckKey = useStore(state => state.setDeckKey);
   const setNotes = useStore(state => state.setNotes);
   const setNoteTree = useStore(state => state.setNoteTree);
   const setUserId = useStore(state => state.setUserId);
   const setDeckId = useStore(state => state.setDeckId);
-  const setDeckKey = useStore(state => state.setDeckKey);
   const setCollaborativeDeck = useStore(state => state.setCollaborativeDeck);
   const setAuthorOnlyNotes = useStore(state => state.setAuthorOnlyNotes);
 
@@ -76,33 +77,23 @@ export default function AppLayout(props: Props) {
     window.litNodeClient = client;
   };
 
-  const decryptDeck = useCallback(async () => {
-    try {
-      const { data: dbDeck, error } = await supabase.from<Deck>('decks').select('*').match({ id: deckId }).single();
-      if (!dbDeck || error) throw new Error(error?.message);
+  const decryptDeck = useCallback(
+    async (dbDeck: Deck) => {
+      try {
+        const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = dbDeck.access_params;
+        const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
 
-      const {
-        access_params: { encrypted_string, encrypted_symmetric_key, access_control_conditions },
-        ...rest
-      } = dbDeck;
-      const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
-      const decryptedDeck: DecryptedDeck = {
-        ...rest,
-        access_control_conditions,
-        key: deckKey,
-      };
-
-      await setCollaborativeDeck(access_control_conditions.length > 1);
-
-      return decryptedDeck;
-    } catch (error) {
-      toast.error('Unable to decrypt DECK');
-      await supabase.from<Contributor>('contributors').delete().match({ deck_id: deckId, user_id: user?.id }).single();
-      await fetch('/api/reset-recent-deck', { method: 'POST' });
-      router.push('/app');
-      return;
-    }
-  }, [deckId, router, user?.id, setCollaborativeDeck]);
+        return deckKey;
+      } catch (error) {
+        toast.error('Unable to decrypt DECK');
+        await supabase.from<Contributor>('contributors').delete().match({ deck_id: deckId, user_id: user?.id }).single();
+        await fetch('/api/reset-recent-deck', { method: 'POST' });
+        router.push('/app');
+        return;
+      }
+    },
+    [deckId, router, user?.id],
+  );
 
   const initData = useCallback(async () => {
     if (!window.litNodeClient && isMounted()) {
@@ -113,11 +104,26 @@ export default function AppLayout(props: Props) {
     setDeckId(deckId);
     setUserId(user.id);
 
-    const decryptedDeck = deck ?? (await decryptDeck());
+    const { data: dbDeck, error } = await supabase.from<Deck>('decks').select('*').match({ id: deckId }).single();
+    if (!dbDeck || error) throw new Error(error?.message);
+
+    const {
+      access_params: { access_control_conditions },
+      ...rest
+    } = dbDeck;
+    const key = deckKey ? deckKey : await decryptDeck(dbDeck);
+    if (!key) return;
+
+    const decryptedDeck: DecryptedDeck = {
+      ...rest,
+      access_control_conditions,
+      key,
+    };
+
     setDeck(decryptedDeck);
-    setAuthorOnlyNotes(decryptedDeck?.author_only_notes ?? false);
-    if (!decryptedDeck?.key) return;
-    setDeckKey(decryptedDeck.key);
+    setCollaborativeDeck(decryptedDeck.access_control_conditions.length > 1);
+    setAuthorOnlyNotes(decryptedDeck.author_only_notes ?? false);
+    setDeckKey(key);
 
     const { data: encryptedNotes } = await supabase
       .from<Note>('notes')
@@ -130,7 +136,7 @@ export default function AppLayout(props: Props) {
     }
 
     const notes = encryptedNotes
-      .map(note => decryptNote(note, decryptedDeck.key))
+      .map(note => decryptNote(note, key))
       .sort((a, b) => (a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1));
 
     // Redirect to most recent note or first note in database
@@ -174,17 +180,18 @@ export default function AppLayout(props: Props) {
     setIsPageLoaded(true);
   }, [
     deckId,
-    deck,
     user,
-    isMounted,
     router,
+    deckKey,
+    isMounted,
     setNotes,
     setNoteTree,
     setDeckId,
-    decryptDeck,
     setDeckKey,
     setUserId,
+    decryptDeck,
     setAuthorOnlyNotes,
+    setCollaborativeDeck,
   ]);
 
   useEffect(() => {
@@ -242,15 +249,15 @@ export default function AppLayout(props: Props) {
       .from<Note>(`notes:deck_id=eq.${deckId}`)
       .on('*', payload => {
         if (payload.eventType === 'INSERT') {
-          if (!deck?.key) return;
-          const note = decryptNote(payload.new, deck.key);
+          if (!deckKey) return;
+          const note = decryptNote(payload.new, deckKey);
           upsertNote(note);
         } else if (payload.eventType === 'UPDATE') {
-          if (!deck?.key) return;
+          if (!deckKey) return;
           // Don't update the note if it is currently open
           const openNoteIds = store.getState().openNoteIds;
           if (!openNoteIds.includes(payload.new.id)) {
-            const note = decryptNote(payload.new, deck.key);
+            const note = decryptNote(payload.new, deckKey);
             updateNote(note);
           }
         } else if (payload.eventType === 'DELETE') {
@@ -265,7 +272,7 @@ export default function AppLayout(props: Props) {
       notesSubscription.unsubscribe();
       window.removeEventListener('focus', initData);
     };
-  }, [deckId, deck, isOffline, upsertNote, updateNote, deleteNote, initData]);
+  }, [deckId, deckKey, isOffline, upsertNote, updateNote, deleteNote, initData]);
 
   const hotkeys = useMemo(
     () => [
