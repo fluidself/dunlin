@@ -11,6 +11,7 @@ import withLinks from 'editor/plugins/withLinks';
 import withTags from 'editor/plugins/withTags';
 import withImages from 'editor/plugins/withImages';
 import withNormalization from 'editor/plugins/withNormalization';
+import { getDefaultEditorValue } from 'editor/constants';
 import { DeckEditor } from 'types/slate';
 import { useStore } from 'lib/store';
 import { useAuth } from 'utils/useAuth';
@@ -32,7 +33,7 @@ function ReadOnlyNoteEditor(props: Props) {
   const { user } = useAuth();
 
   const note = useStore(state => state.notes[noteId]);
-  const value = note?.content;
+  const value = note?.content ?? getDefaultEditorValue();
 
   useEffect(() => {
     if (!note) {

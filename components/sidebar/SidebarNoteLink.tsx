@@ -59,7 +59,7 @@ const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement
             }}
           >
             <IconCaretRight
-              className={`flex-shrink-0  text-gray-500 dark:text-gray-100 transform transition-transform ${
+              className={`flex-shrink-0 text-gray-500 dark:text-gray-100 transform transition-transform ${
                 !node.collapsed ? 'rotate-90' : ''
               }`}
               size={16}
