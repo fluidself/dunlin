@@ -238,7 +238,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
     <div className="fixed inset-0 z-20 overflow-y-auto">
       <div className="fixed inset-0 bg-black opacity-30" onClick={closeModal} />
       <div className="flex justify-center px-6 max-h-screen-80 my-screen-10">
-        <div className="flex flex-col z-30 w-full max-w-screen-sm rounded shadow-popover bg-gray-800 text-gray-200">
+        <div className="flex flex-col z-30 w-full max-w-screen-sm rounded shadow-popover bg-gray-800 text-gray-200 border border-gray-600">
           <div className="flex items-center flex-shrink-0 w-full">
             {icons[type]}
             <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0 bg-gray-800">{headings[type]}</span>
