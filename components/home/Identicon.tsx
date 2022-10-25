@@ -8,7 +8,7 @@ type Props = {
 };
 
 export default function Identicon({ diameter, className }: Props) {
-  const ref = useRef<HTMLDivElement>();
+  const ref = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -18,5 +18,5 @@ export default function Identicon({ diameter, className }: Props) {
     }
   }, [user, diameter]);
 
-  return <div className={`rounded-full bg-background ${className}`} ref={ref as any} />;
+  return <div className={`rounded-full bg-background ${className}`} ref={ref} />;
 }

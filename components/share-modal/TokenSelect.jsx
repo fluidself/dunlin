@@ -4,6 +4,7 @@ import Creatable from 'react-select/creatable';
 import Button from 'components/home/Button';
 
 const Option = ({ data: { label, logo, symbol }, ...props }) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { onMouseMove, onMouseOver, ...rest } = props.innerProps;
   const newProps = Object.assign(props, { innerProps: rest });
 
