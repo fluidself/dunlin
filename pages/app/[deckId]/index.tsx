@@ -1,7 +1,4 @@
-import { withIronSessionSsr } from 'iron-session/next';
-import { ironOptions } from 'constants/iron-session';
 import OpenSidebarButton from 'components/sidebar/OpenSidebarButton';
-import { checkProtectedPageAuth } from 'utils/accessControl';
 import { useStore } from 'lib/store';
 
 export default function DeckHome() {
@@ -14,11 +11,3 @@ export default function DeckHome() {
     </div>
   );
 }
-
-export const getServerSideProps = withIronSessionSsr(async function ({ params, req }) {
-  const { user } = req.session;
-  const deckId = params?.deckId;
-  const authorized = await checkProtectedPageAuth(deckId, user?.id);
-
-  return authorized ? { props: {} } : { redirect: { destination: '/', permanent: false } };
-}, ironOptions);

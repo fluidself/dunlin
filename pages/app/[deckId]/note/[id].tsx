@@ -1,15 +1,12 @@
-import { withIronSessionSsr } from 'iron-session/next';
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Path } from 'slate';
-import { ironOptions } from 'constants/iron-session';
 import Note from 'components/Note';
 import { useStore } from 'lib/store';
 import usePrevious from 'utils/usePrevious';
 import { queryParamToArray } from 'utils/url';
-import { checkProtectedPageAuth } from 'utils/accessControl';
 import useBlockBacklinks from 'editor/backlinks/useBlockBacklinks';
 
 export default function NotePage() {
@@ -131,11 +128,3 @@ const getHighlightedPath = (url: string): { index: number; path: Path } | null =
 
   return { index, path };
 };
-
-export const getServerSideProps = withIronSessionSsr(async function ({ params, req }) {
-  const { user } = req.session;
-  const deckId = params?.deckId;
-  const authorized = await checkProtectedPageAuth(deckId, user?.id);
-
-  return authorized ? { props: {} } : { redirect: { destination: '/', permanent: false } };
-}, ironOptions);

@@ -85,7 +85,7 @@ export default function AppLayout(props: Props) {
 
         return deckKey;
       } catch (error) {
-        toast.error('Unable to decrypt DECK');
+        toast.error('Unable to verify access');
         await supabase.from<Contributor>('contributors').delete().match({ deck_id: deckId, user_id: user?.id }).single();
         await fetch('/api/reset-recent-deck', { method: 'POST' });
         router.push('/app');
@@ -106,7 +106,7 @@ export default function AppLayout(props: Props) {
 
     const { data: dbDeck } = await supabase.from<Deck>('decks').select('*').match({ id: deckId }).single();
     if (!dbDeck) {
-      toast.error('Unable to decrypt DECK');
+      toast.error('Unable to verify access');
       await fetch('/api/reset-recent-deck', { method: 'POST' });
       router.push('/app');
       return;
