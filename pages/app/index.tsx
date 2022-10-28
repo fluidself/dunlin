@@ -175,7 +175,7 @@ export const getServerSideProps = withIronSessionSsr(async function ({ req }) {
   const { user, recentDeck } = req.session;
 
   if (!user) {
-    return { props: {} };
+    return { redirect: { destination: '/', permanent: false } };
   }
 
   if (recentDeck) {

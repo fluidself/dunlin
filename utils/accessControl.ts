@@ -2,16 +2,6 @@ import supabase from 'lib/supabase';
 import { User, Deck, Contributor } from 'types/supabase';
 import { decryptWithLit } from 'utils/encryption';
 
-export async function checkProtectedPageAuth(deckId?: string | string[], userId?: string) {
-  if (typeof deckId !== 'string' || !userId) {
-    return false;
-  }
-
-  const { data } = await supabase.from<Contributor>('contributors').select('*').match({ deck_id: deckId, user_id: userId });
-
-  return data ? true : false;
-}
-
 export async function verifyDeckAccess(deckId: string, user: User) {
   try {
     const { data: deck } = await supabase.from<Deck>('decks').select('user_id, access_params').eq('id', deckId).single();
