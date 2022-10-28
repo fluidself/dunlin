@@ -104,8 +104,13 @@ export default function AppLayout(props: Props) {
     setDeckId(deckId);
     setUserId(user.id);
 
-    const { data: dbDeck, error } = await supabase.from<Deck>('decks').select('*').match({ id: deckId }).single();
-    if (!dbDeck || error) throw new Error(error?.message);
+    const { data: dbDeck } = await supabase.from<Deck>('decks').select('*').match({ id: deckId }).single();
+    if (!dbDeck) {
+      toast.error('Unable to decrypt DECK');
+      await fetch('/api/reset-recent-deck', { method: 'POST' });
+      router.push('/app');
+      return;
+    }
 
     const {
       access_params: { access_control_conditions },
@@ -202,6 +207,12 @@ export default function AppLayout(props: Props) {
       // Initialize data if there is a user and the data has not been initialized yet
       initData();
     }
+
+    window.addEventListener('focus', initData);
+
+    return () => {
+      window.removeEventListener('focus', initData);
+    };
   }, [router, user, isLoaded, isPageLoaded, initData]);
 
   const [isFindOrCreateModalOpen, setIsFindOrCreateModalOpen] = useState(false);
@@ -218,14 +229,9 @@ export default function AppLayout(props: Props) {
 
   // const darkMode = useStore(state => state.darkMode);
   const darkMode = true;
-  const isOffline = useStore(state => state.isOffline);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
   const setIsPageStackingOn = useStore(state => state.setIsPageStackingOn);
   const setSidebarTab = useStore(state => state.setSidebarTab);
-
-  const upsertNote = useStore(state => state.upsertNote);
-  const updateNote = useStore(state => state.updateNote);
-  const deleteNote = useStore(state => state.deleteNote);
 
   const hasHydrated = useStore(state => state._hasHydrated);
   useEffect(() => {
@@ -238,41 +244,6 @@ export default function AppLayout(props: Props) {
       setIsPageStackingOn(false);
     }
   }, [setIsSidebarOpen, setIsPageStackingOn, hasHydrated]);
-
-  useEffect(() => {
-    if (!deckId || isOffline) {
-      return;
-    }
-
-    // Subscribe to changes on the notes table for the current DECK
-    const notesSubscription = supabase
-      .from<Note>(`notes:deck_id=eq.${deckId}`)
-      .on('*', payload => {
-        if (payload.eventType === 'INSERT') {
-          if (!deckKey) return;
-          const note = decryptNote(payload.new, deckKey);
-          upsertNote(note);
-        } else if (payload.eventType === 'UPDATE') {
-          if (!deckKey) return;
-          // Don't update the note if it is currently open
-          const openNoteIds = store.getState().openNoteIds;
-          if (!openNoteIds.includes(payload.new.id)) {
-            const note = decryptNote(payload.new, deckKey);
-            updateNote(note);
-          }
-        } else if (payload.eventType === 'DELETE') {
-          deleteNote(payload.old.id);
-        }
-      })
-      .subscribe();
-
-    window.addEventListener('focus', initData);
-
-    return () => {
-      notesSubscription.unsubscribe();
-      window.removeEventListener('focus', initData);
-    };
-  }, [deckId, deckKey, isOffline, upsertNote, updateNote, deleteNote, initData]);
 
   const hotkeys = useMemo(
     () => [
