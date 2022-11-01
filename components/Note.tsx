@@ -3,7 +3,7 @@ import type { Path } from 'slate';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 import { store, useStore } from 'lib/store';
-import { Note } from 'types/supabase';
+import type { Note } from 'types/supabase';
 import { DecryptedNote } from 'types/decrypted';
 import type { PickPartial } from 'types/utils';
 import updateDbNote, { NoteUpdate } from 'lib/api/updateNote';
@@ -89,7 +89,7 @@ function Note(props: Props) {
 
   // Save the note in the database if it changes and it hasn't been saved yet
   useEffect(() => {
-    if (!note || noteIsViewOnlyForUser || isOffline) return;
+    if (!note || noteIsViewOnlyForUser) return;
 
     const noteUpdate: RawNoteUpdate = { id: noteId };
     if (!syncState.isContentSynced) {
@@ -103,7 +103,7 @@ function Note(props: Props) {
       const handler = setTimeout(() => handleNoteUpdate(noteUpdate), SYNC_DEBOUNCE_MS);
       return () => clearTimeout(handler);
     }
-  }, [note, noteId, noteIsViewOnlyForUser, isOffline, syncState, handleNoteUpdate]);
+  }, [note, noteId, noteIsViewOnlyForUser, syncState, handleNoteUpdate]);
 
   // Prompt the user with a dialog box about unsaved changes if they navigate away
   useEffect(() => {
