@@ -5,7 +5,6 @@ import { isMark } from 'editor/formatting';
 import { store } from 'lib/store';
 import upsertNote from 'lib/api/upsertNote';
 import { caseInsensitiveStringEqual } from 'utils/string';
-import { encryptNote } from 'utils/encryption';
 import { deleteText } from 'editor/transforms';
 import { getDefaultEditorValue } from 'editor/constants';
 import handleMark from './handleMark';
@@ -135,8 +134,7 @@ export const getOrCreateNoteId = (noteTitle: string): string => {
         title: noteTitle,
         content: getDefaultEditorValue(),
       };
-      const encryptedNote = encryptNote(newNote, deckKey);
-      upsertNote(encryptedNote, deckKey);
+      upsertNote(newNote, deckKey);
     }
   }
 

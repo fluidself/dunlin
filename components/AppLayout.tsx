@@ -62,6 +62,7 @@ export default function AppLayout(props: Props) {
     }
   }, [isPageLoaded, isLoaded, user]);
 
+  const isOffline = useStore(state => state.isOffline);
   const deckKey = useStore(state => state.deckKey);
   const setDeckKey = useStore(state => state.setDeckKey);
   const setNotes = useStore(state => state.setNotes);
@@ -100,7 +101,7 @@ export default function AppLayout(props: Props) {
       await initLit();
     }
 
-    if (!deckId || !user) return;
+    if (!deckId || !user || isOffline) return;
     setDeckId(deckId);
     setUserId(user.id);
 
@@ -188,6 +189,7 @@ export default function AppLayout(props: Props) {
     user,
     router,
     deckKey,
+    isOffline,
     isMounted,
     setNotes,
     setNoteTree,

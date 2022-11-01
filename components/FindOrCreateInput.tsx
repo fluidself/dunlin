@@ -9,7 +9,6 @@ import { useStore } from 'lib/store';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useAuth } from 'utils/useAuth';
 import useNoteSearch from 'utils/useNoteSearch';
-import { encryptNote } from 'utils/encryption';
 import { getDefaultEditorValue } from 'editor/constants';
 
 enum OptionType {
@@ -22,7 +21,6 @@ type Option = {
   type: OptionType;
   text: string;
   icon?: TablerIcon;
-  isDisabled: boolean;
 };
 
 type Props = {
@@ -35,7 +33,6 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
   const router = useRouter();
   const { id: deckId, key } = useCurrentDeck();
   const { user } = useAuth();
-  const isOffline = useStore(state => state.isOffline);
   const authorOnlyNotes = useStore(state => state.authorOnlyNotes);
 
   const [inputText, setInputText] = useState('');
@@ -52,7 +49,6 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
         type: OptionType.NEW_NOTE,
         text: `New note: ${inputText}`,
         icon: IconFilePlus,
-        isDisabled: isOffline,
       });
     }
     // Show notes that match `inputText`
@@ -61,11 +57,10 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
         id: result.item.id,
         type: OptionType.NOTE,
         text: result.item.title,
-        isDisabled: false,
       })),
     );
     return result;
-  }, [searchResults, inputText, isOffline]);
+  }, [searchResults, inputText]);
 
   const onOptionClick = useCallback(
     async (option: Option) => {
@@ -83,8 +78,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
           title: inputText,
           content: getDefaultEditorValue(),
         };
-        const encryptedNote = encryptNote(newNote, key);
-        const note = await upsertNote(encryptedNote, key);
+        const note = await upsertNote(newNote, key);
         if (!note) {
           toast.error(`There was an error creating the note ${inputText}.`);
           return;
@@ -148,7 +142,6 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
               key={option.id}
               option={option}
               isSelected={index === selectedOptionIndex}
-              isDisabled={option.isDisabled}
               onClick={() => onOptionClick(option)}
             />
           ))}
@@ -161,19 +154,17 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
 type OptionProps = {
   option: Option;
   isSelected: boolean;
-  isDisabled: boolean;
   onClick: () => void;
 };
 
 const OptionItem = (props: OptionProps) => {
-  const { option, isSelected, isDisabled, onClick } = props;
+  const { option, isSelected, onClick } = props;
 
   return (
     <button
       className={`flex flex-row w-full items-center px-4 py-2 text-gray-800 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${
-        isSelected && !isDisabled && 'bg-gray-100 dark:bg-gray-700'
-      } ${isDisabled && 'text-gray-400 dark:text-gray-600 dark:hover:bg-gray-800 dark:active:bg-gray-800'}`}
-      disabled={isDisabled}
+        isSelected && 'bg-gray-100 dark:bg-gray-700'
+      }`}
       onClick={onClick}
     >
       {option.icon ? <option.icon size={18} className="flex-shrink-0 mr-1" /> : null}

@@ -3,22 +3,38 @@ import { Queue } from 'workbox-background-sync';
 declare const self: ServiceWorkerGlobalScope;
 
 const queue = new Queue('deck-sync-requests', {
-  onSync: async options => {
-    const handledNotes: string[] = [];
+  maxRetentionTime: 24 * 60,
+  onSync: async ({ queue }) => {
+    const nonPostRequests = [];
+    const idsHandled: string[] = [];
     let entry;
 
-    while ((entry = await options.queue.shiftRequest())) {
+    // empty queue and handle POST requests first
+    while ((entry = await queue.shiftRequest())) {
+      try {
+        if (entry.request.method === 'POST') {
+          await fetch(entry.request);
+        } else {
+          nonPostRequests.push(entry);
+        }
+      } catch (error) {
+        await queue.unshiftRequest(entry);
+        throw error;
+      }
+    }
+
+    // handle remaining requests
+    for (const entry of nonPostRequests.reverse()) {
       try {
         const regexMatchArray = entry.request.url.match(/id=eq\.(.+)/);
         if (!regexMatchArray) continue;
-        const noteId = regexMatchArray[1];
-        if (handledNotes.includes(noteId)) continue;
+        const id = regexMatchArray[1];
+        if (idsHandled.includes(id)) continue;
 
         await fetch(entry.request);
-        handledNotes.push(noteId);
+        idsHandled.push(id);
       } catch (error) {
-        // Put the entry back in the queue and re-throw the error
-        await options.queue.unshiftRequest(entry);
+        await queue.unshiftRequest(entry);
         throw error;
       }
     }
@@ -28,7 +44,11 @@ const queue = new Queue('deck-sync-requests', {
 self.addEventListener('fetch', event => {
   const { method, url } = event.request;
 
-  if (method !== 'PATCH' || !url.match(/\.supabase\.co\/rest\/v1\/notes/)) {
+  const shouldBgSync =
+    ((method === 'POST' || method === 'PATCH' || method === 'DELETE') && url.match(/\.supabase\.co\/rest\/v1\/notes/)) ||
+    (method === 'PATCH' && url.match(/\.supabase\.co\/rest\/v1\/decks/));
+
+  if (!shouldBgSync) {
     return;
   }
 
@@ -37,7 +57,7 @@ self.addEventListener('fetch', event => {
       const response = await fetch(event.request.clone());
       return response;
     } catch (error) {
-      await queue.unshiftRequest({ request: event.request });
+      await queue.pushRequest({ request: event.request });
       return new Response();
     }
   };

@@ -2,7 +2,6 @@ import { MouseEvent, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { Path } from 'slate';
 import { getDefaultEditorValue } from 'editor/constants';
-import { encryptNote } from 'utils/encryption';
 import upsertNote from 'lib/api/upsertNote';
 import { useStore } from 'lib/store';
 import { queryParamToArray } from 'utils/url';
@@ -14,7 +13,7 @@ export default function useOnNoteLinkClick(currentNoteId: string, linkText?: str
   const {
     query: { deckId, stack: stackQuery },
   } = router;
-  const { key } = useCurrentDeck();
+  const { id: currentDeckId, key } = useCurrentDeck();
   const { user } = useAuth();
   const notes = useStore(state => state.notes);
   const openNoteIds = useStore(state => state.openNoteIds);
@@ -26,14 +25,13 @@ export default function useOnNoteLinkClick(currentNoteId: string, linkText?: str
       if (!notes[noteId] && linkText && user) {
         const note = {
           id: noteId,
-          deck_id: deckId,
+          deck_id: currentDeckId,
           user_id: user.id,
           author_only: authorOnlyNotes,
           title: linkText,
           content: getDefaultEditorValue(),
         };
-        const encryptedNote = encryptNote(note, key);
-        await upsertNote(encryptedNote, key);
+        await upsertNote(note, key);
       }
 
       // If stackNote is false, open the note in its own page
