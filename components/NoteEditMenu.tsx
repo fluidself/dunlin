@@ -46,20 +46,12 @@ export default function NoteEditMenu(props: Props) {
 
   const renderNotePermission = () =>
     note.author_only ? (
-      <DropdownItem
-        disabled={isOffline}
-        className="border-t dark:border-gray-700"
-        onClick={async () => await toggleAuthorOnly(false)}
-      >
+      <DropdownItem className="border-t dark:border-gray-700" onClick={async () => await toggleAuthorOnly(false)}>
         <IconPencil size={18} className="mr-1" />
         <span>Allow editing</span>
       </DropdownItem>
     ) : (
-      <DropdownItem
-        disabled={isOffline}
-        className="border-t dark:border-gray-700"
-        onClick={async () => await toggleAuthorOnly(true)}
-      >
+      <DropdownItem className="border-t dark:border-gray-700" onClick={async () => await toggleAuthorOnly(true)}>
         <IconEye size={18} className="mr-1" />
         <span>Restrict editing</span>
       </DropdownItem>
@@ -80,11 +72,11 @@ export default function NoteEditMenu(props: Props) {
           <span>Publish</span>
         </DropdownItem>
       )}
-      <DropdownItem disabled={isOffline} onClick={onMoveToClick}>
+      <DropdownItem onClick={onMoveToClick}>
         <IconCornerDownRight size={18} className="mr-1" />
         <span>Move to</span>
       </DropdownItem>
-      <DropdownItem disabled={isOffline} onClick={onDeleteClick}>
+      <DropdownItem onClick={onDeleteClick}>
         <IconTrash size={18} className="mr-1" />
         <span>Delete</span>
       </DropdownItem>
