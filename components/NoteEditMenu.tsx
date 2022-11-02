@@ -21,22 +21,24 @@ export default function NoteEditMenu(props: Props) {
   const { note, setIsMoveToModalOpen, onPublishClick } = props;
 
   const { user } = useAuth();
-  const { id: deckId, user_id: deckOwner } = useCurrentDeck();
+  const { id: deckId, user_id: deckOwner, author_control_notes } = useCurrentDeck();
   const isOffline = useStore(state => state.isOffline);
   const onDeleteClick = useDeleteNote(note.id);
   const onMoveToClick = useCallback(() => setIsMoveToModalOpen(true), [setIsMoveToModalOpen]);
-  const [authorControlNotes, setAuthorControlNotes] = useState<boolean>();
+  const [authorControlNotes, setAuthorControlNotes] = useState(author_control_notes);
 
   const userCanEditNote = note.author_only ? note.user_id === user?.id || deckOwner === user?.id : true;
   const userCanControlNotePermission = (authorControlNotes && note.user_id === user?.id) || deckOwner === user?.id;
 
   useEffect(() => {
-    const initPermission = async () => {
+    const fetchPermission = async () => {
       const { data: deckSettings } = await supabase.from<Deck>('decks').select('author_control_notes').eq('id', deckId).single();
       if (deckSettings) setAuthorControlNotes(deckSettings.author_control_notes);
     };
-    initPermission();
-  }, [deckId]);
+    if (!isOffline) {
+      fetchPermission();
+    }
+  }, [deckId, isOffline]);
 
   const toggleAuthorOnly = async (newSetting: boolean) => {
     store.getState().updateNote({ id: note.id, author_only: newSetting });
