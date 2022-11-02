@@ -4,6 +4,7 @@ const withPWA = require('next-pwa')({
   disable: process.env.NODE_ENV === 'development',
   reloadOnOnline: false,
   register: false,
+  skipWaiting: false,
 });
 
 module.exports = withPWA({
