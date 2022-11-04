@@ -1,7 +1,8 @@
-import create, { State, StateCreator, SetState, GetState } from 'zustand';
+import create from 'zustand';
 import createVanilla from 'zustand/vanilla';
-import { persist, StateStorage, StoreApiWithPersist } from 'zustand/middleware';
-import produce, { Draft } from 'immer';
+import { persist, StateStorage } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
+import { Draft } from 'immer';
 import localforage from 'localforage';
 import type { DecryptedNote } from 'types/decrypted';
 import { caseInsensitiveStringEqual } from 'utils/string';
@@ -9,17 +10,7 @@ import { Backlink } from 'editor/backlinks/useBacklinks';
 import type { PickPartial } from 'types/utils';
 import createUserSettingsSlice, { UserSettings } from './createUserSettingsSlice';
 
-type NoteUpdate = PickPartial<
-  DecryptedNote,
-  'deck_id' | 'user_id' | 'content' | 'title' | 'author_only' | 'created_at' | 'updated_at'
->;
-
 export { default as shallowEqual } from 'zustand/shallow';
-
-const immer =
-  <T extends State>(config: StateCreator<T, (fn: (draft: Draft<T>) => void) => void>): StateCreator<T> =>
-  (set, get, api) =>
-    config(fn => set(produce<T>(fn)), get, api);
 
 localforage.config({
   name: 'deck',
@@ -51,6 +42,11 @@ export enum SidebarTab {
   Notes,
   Search,
 }
+
+type NoteUpdate = PickPartial<
+  DecryptedNote,
+  'deck_id' | 'user_id' | 'content' | 'title' | 'author_only' | 'created_at' | 'updated_at'
+>;
 
 export type Store = {
   _hasHydrated: boolean; // TODO: temporary until https://github.com/pmndrs/zustand/issues/562 gets fixed
@@ -107,7 +103,7 @@ export const setter =
     }
   };
 
-export const store = createVanilla<Store, SetState<Store>, GetState<Store>, StoreApiWithPersist<Store>>(
+export const store = createVanilla<Store>()(
   persist(
     immer(set => ({
       _hasHydrated: false,
@@ -255,7 +251,7 @@ export const store = createVanilla<Store, SetState<Store>, GetState<Store>, Stor
   ),
 );
 
-export const useStore = create<Store, SetState<Store>, GetState<Store>, StoreApiWithPersist<Store>>(store);
+export const useStore = create(store);
 
 /**
  * Deletes the tree item with the given id and returns it.
