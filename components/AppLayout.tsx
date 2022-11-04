@@ -215,7 +215,8 @@ export default function AppLayout(props: Props) {
     return () => {
       window.removeEventListener('focus', initData);
     };
-  }, [router, user, isLoaded, isPageLoaded, initData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router, user, isLoaded, isPageLoaded]);
 
   const [isFindOrCreateModalOpen, setIsFindOrCreateModalOpen] = useState(false);
   const [createJoinRenameModal, setCreateJoinRenameModal] = useState<{
