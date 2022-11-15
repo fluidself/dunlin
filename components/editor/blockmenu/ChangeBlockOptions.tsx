@@ -18,6 +18,7 @@ import {
 import { Element } from 'slate';
 import { toggleElement, isElementActive, insertDetailsDisclosure } from 'editor/formatting';
 import { ElementType } from 'types/slate';
+import { useStore } from 'lib/store';
 import Tooltip from 'components/Tooltip';
 import { DropdownItem } from 'components/Dropdown';
 import { uploadAndInsertImage } from 'editor/plugins/withImages';
@@ -99,6 +100,7 @@ const BlockButton = ({ format, element, Icon, tooltip, className = '' }: BlockBu
 
 const ImageButton = ({ format, element, Icon, tooltip, className = '' }: BlockButtonProps) => {
   const editor = useSlate();
+  const isOffline = useStore(state => state.isOffline);
   const path = useMemo(() => ReactEditor.findPath(editor, element), [editor, element]);
   const isActive = isElementActive(editor, format, path);
 
@@ -135,9 +137,19 @@ const ImageButton = ({ format, element, Icon, tooltip, className = '' }: BlockBu
       <span>
         <DropdownItem
           className={`flex items-center px-2 py-2 cursor-pointer rounded hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${className}`}
+          disabled={isOffline}
           onClick={onClick}
         >
-          <Icon size={18} className={isActive ? 'text-primary-500 dark:text-primary-400' : 'text-gray-800 dark:text-gray-200'} />
+          <Icon
+            size={18}
+            className={
+              isActive && !isOffline
+                ? 'text-primary-500 dark:text-primary-400'
+                : isOffline
+                ? 'text-gray-500 dark:text-gray-500'
+                : 'text-gray-800 dark:text-gray-200'
+            }
+          />
         </DropdownItem>
       </span>
     </Tooltip>
