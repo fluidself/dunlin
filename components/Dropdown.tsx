@@ -90,7 +90,7 @@ export function DropdownItem(props: DropdownItemProps) {
   const { children, className = '', disabled } = props;
 
   const itemClassName = useCallback(
-    (active, disabled) =>
+    (active: boolean, disabled?: boolean) =>
       `flex w-full items-center px-4 py-2 text-left text-sm text-gray-800 dark:text-gray-200 select-none ${
         active && 'bg-gray-100 dark:bg-gray-700'
       } ${disabled && 'dark:text-gray-500 pointer-events-none'} ${className}`,

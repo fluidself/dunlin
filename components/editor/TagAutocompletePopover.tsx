@@ -43,11 +43,11 @@ export default function TagAutocompletePopover() {
 
   const options = useMemo(
     () =>
-      searchResults.map((result) => ({
+      searchResults.map(result => ({
         type: OptionType.TAG,
         name: result.item,
       })),
-    [searchResults]
+    [searchResults],
   );
 
   const hidePopover = useCallback(() => {
@@ -95,8 +95,7 @@ export default function TagAutocompletePopover() {
       }
 
       // Delete markdown text
-      const { path: selectionPath, offset: endOfSelection } =
-        editor.selection.anchor;
+      const { path: selectionPath, offset: endOfSelection } = editor.selection.anchor;
 
       const [, startMark, tagName] = regexResult;
       const lengthToDelete = startMark.length + tagName.length;
@@ -113,20 +112,20 @@ export default function TagAutocompletePopover() {
 
       hidePopover();
     },
-    [editor, hidePopover, regexResult]
+    [editor, hidePopover, regexResult],
   );
 
   const onKeyDown = useCallback(
-    (event) => {
+    (event: KeyboardEvent) => {
       // Update the selected option based on arrow key input
       if (event.key === 'ArrowUp') {
         event.preventDefault();
-        setSelectedOptionIndex((index) => {
+        setSelectedOptionIndex(index => {
           return index <= 0 ? options.length - 1 : index - 1;
         });
       } else if (event.key === 'ArrowDown') {
         event.preventDefault();
-        setSelectedOptionIndex((index) => {
+        setSelectedOptionIndex(index => {
           return index >= options.length - 1 ? 0 : index + 1;
         });
       } else if (event.key === 'Enter') {
@@ -136,7 +135,7 @@ export default function TagAutocompletePopover() {
         onOptionClick(options[selectedOptionIndex]);
       }
     },
-    [onOptionClick, options, selectedOptionIndex]
+    [onOptionClick, options, selectedOptionIndex],
   );
 
   useEffect(() => {
@@ -150,11 +149,7 @@ export default function TagAutocompletePopover() {
   }, [isVisible, onKeyDown, options.length]);
 
   return isVisible && options.length > 0 ? (
-    <EditorPopover
-      placement="bottom"
-      className="flex flex-col w-96"
-      onClose={hidePopover}
-    >
+    <EditorPopover placement="bottom" className="flex flex-col w-96" onClose={hidePopover}>
       {options.map((option, index) => (
         <OptionItem
           key={option.name}
@@ -180,20 +175,16 @@ const OptionItem = (props: OptionProps) => {
       className={`flex flex-row items-center px-4 py-1 cursor-pointer text-gray-800 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${
         isSelected ? 'bg-gray-100 dark:bg-gray-700' : ''
       }`}
-      onPointerDown={(event) => event.preventDefault()}
-      onPointerUp={(event) => {
+      onPointerDown={event => event.preventDefault()}
+      onPointerUp={event => {
         if (event.button === 0) {
           event.preventDefault();
           onClick();
         }
       }}
     >
-      {option.icon ? (
-        <option.icon size={18} className="flex-shrink-0 mr-1" />
-      ) : null}
-      <span className="overflow-hidden overflow-ellipsis whitespace-nowrap">
-        #{option.name}
-      </span>
+      {option.icon ? <option.icon size={18} className="flex-shrink-0 mr-1" /> : null}
+      <span className="overflow-hidden overflow-ellipsis whitespace-nowrap">#{option.name}</span>
     </div>
   );
 };
