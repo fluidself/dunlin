@@ -1,10 +1,4 @@
-import {
-  CSSProperties,
-  ForwardedRef,
-  forwardRef,
-  memo,
-  useCallback,
-} from 'react';
+import { CSSProperties, ForwardedRef, forwardRef, memo, useCallback } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import classNames from 'classnames';
 import SidebarNoteLink from './SidebarNoteLink';
@@ -16,26 +10,15 @@ type Props = {
   style?: CSSProperties;
 };
 
-const DraggableSidebarNoteLink = (
-  props: Props,
-  forwardedRef: ForwardedRef<HTMLDivElement>
-) => {
+const DraggableSidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement>) => {
   const { node, isHighlighted, style } = props;
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transition,
-    over,
-    isSorting,
-    isDragging,
-  } = useSortable({
+  const { attributes, listeners, setNodeRef, transition, over, isSorting, isDragging } = useSortable({
     id: node.id,
   });
 
   const ref = useCallback(
-    (node) => {
+    (node: HTMLDivElement) => {
       if (typeof forwardedRef === 'function') {
         forwardedRef(node);
       } else if (forwardedRef) {
@@ -43,14 +26,14 @@ const DraggableSidebarNoteLink = (
       }
       setNodeRef(node);
     },
-    [forwardedRef, setNodeRef]
+    [forwardedRef, setNodeRef],
   );
 
   const className = classNames(
     { invisible: isDragging },
     {
       '!bg-primary-100 dark:!bg-primary-900': isSorting && over?.id === node.id,
-    }
+    },
   );
 
   return (

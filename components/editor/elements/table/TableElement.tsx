@@ -184,7 +184,8 @@ const HorizontalToolbar: React.FC<{
   const maxWidth = useMemo(() => table.closest('div')?.offsetWidth, [table]);
 
   const onHandleDrag = useCallback(
-    ({ item, index }) => {
+    // ({ item, index }) => {
+    ({ item, index }: { item: { width: number; el: HTMLElement[] }; index: number }) => {
       if (widthFnObject[index]) {
         return widthFnObject[index];
       }
@@ -338,7 +339,7 @@ const VerticalToolbar: React.FC<{
   }, [editor, table, tableNode]);
 
   const onHandleDrag = useCallback(
-    ({ item, index }) => {
+    ({ item, index }: { item: { height: number; el: HTMLElement[] }; index: number }) => {
       if (heightFnObject[index]) {
         return heightFnObject[index];
       }

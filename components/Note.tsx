@@ -69,7 +69,7 @@ function Note(props: Props) {
   }, []);
 
   const handleNoteUpdate = useCallback(
-    async note => {
+    async (note: RawNoteUpdate) => {
       if (!key) return;
       const encryptedNote: NoteUpdate = encryptNote(note, key);
 
