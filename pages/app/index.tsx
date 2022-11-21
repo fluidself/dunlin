@@ -148,19 +148,18 @@ export default function AppHome() {
             {!creatingDeck && !requestingAccess && (
               <div className="flex flex-wrap gap-10 justify-center lg:mt-6">
                 <button
-                  className="flex flex-col justify-between items-center py-4 w-[280px] h-[260px] border border-white cursor-pointer box-border text-white hover:bg-gray-800 focus:bg-gray-800"
+                  className="flex flex-col justify-between items-center py-4 w-[280px] h-[290px] border border-white cursor-pointer box-border text-white hover:bg-gray-800 focus:bg-gray-800"
                   onClick={() => setCreatingDeck(true)}
                 >
-                  <Image src={create} width={256} height={256} alt="Create DECK" layout="fixed" priority />
-                  <div className="mt-2">Create a new DECK</div>
+                  <Image src={create} width={256} height={256} alt="" priority />
+                  <div className="mt-8">Create a new DECK</div>
                 </button>
-
                 <button
-                  className="flex flex-col justify-between items-center py-4 w-[280px] h-[260px] border border-white cursor-pointer box-border text-white hover:bg-gray-800 focus:bg-gray-800"
+                  className="flex flex-col justify-between items-center py-4 w-[280px] h-[290px] border border-white cursor-pointer box-border text-white hover:bg-gray-800 focus:bg-gray-800"
                   onClick={() => setRequestingAccess(true)}
                 >
-                  <Image src={join} width={256} height={256} alt="Join DECK" layout="fixed" priority />
-                  <div className="mt-2">Join a DECK</div>
+                  <Image src={join} width={256} height={256} alt="" priority />
+                  <div className="mt-8">Join a DECK</div>
                 </button>
               </div>
             )}

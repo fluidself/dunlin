@@ -212,15 +212,13 @@ export default function PublishNoteModal(props: Props) {
               <>
                 <p>Your note has been published and can be viewed here:</p>
                 <p>
-                  <Link href={`/publications/${publicationCid}`}>
-                    <a
-                      className="text-sm break-words hover:underline text-primary-400"
-                      href={`/publications/${publicationCid}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {`${process.env.BASE_URL}/publications/${publicationCid}`}
-                    </a>
+                  <Link
+                    href={`/publications/${publicationCid}`}
+                    className="text-sm break-words hover:underline text-primary-400"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {`${process.env.BASE_URL}/publications/${publicationCid}`}
                   </Link>
                 </p>
                 <div className="flex space-x-8 my-4">
