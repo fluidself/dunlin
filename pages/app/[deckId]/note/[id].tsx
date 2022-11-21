@@ -77,8 +77,8 @@ export default function NotePage() {
         </Head>
         <div className="flex flex-col items-center justify-center flex-1 h-screen p-4">
           <p className="text-2xl text-center">Whoops&mdash;it doesn&apos;t look like this note exists!</p>
-          <Link href="/app">
-            <a className="mt-6 btn">Go back to my notes</a>
+          <Link href="/app" className="mt-6 btn">
+            Go back to my notes
           </Link>
         </div>
       </>

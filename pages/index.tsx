@@ -30,10 +30,12 @@ export default function Home() {
 
   return (
     <div className="mt-2">
-      <Link href={`${process.env.BASE_URL}/docs`}>
-        <a className="focus:outline-none absolute top-3 right-6" aria-label="Documentation">
-          <IconInfoCircle size={24} className="hover:text-gray-500" />
-        </a>
+      <Link
+        href={`${process.env.BASE_URL}/docs`}
+        className="focus:outline-none absolute top-3 right-6"
+        aria-label="Documentation"
+      >
+        <IconInfoCircle size={24} className="hover:text-gray-500" />
       </Link>
       <main className="container mt-28 lg:mt-48 flex flex-col">
         <div className="mx-auto pl-2 mb-16">

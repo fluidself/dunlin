@@ -225,11 +225,9 @@ const GraphButton = (props: GraphButtonProps) => {
     <SidebarItem isHighlighted={router.pathname.includes(`/app/${deckId}/graph`)} onClick={onClick}>
       <Tooltip content="Visualization of all of your notes as a network (Ctrl+Shift+G)" placement="right" touch={false}>
         <span>
-          <Link href={`/app/${deckId}/graph`}>
-            <a className="flex items-center px-6 py-1">
-              <IconAffiliate className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
-              <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Graph View</span>
-            </a>
+          <Link href={`/app/${deckId}/graph`} className="flex items-center px-6 py-1">
+            <IconAffiliate className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
+            <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Graph View</span>
           </Link>
         </span>
       </Tooltip>

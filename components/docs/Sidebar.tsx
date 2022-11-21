@@ -34,26 +34,23 @@ export default function Sidebar() {
               <div className="flex-1 flex items-center justify-center md:items-stretch md:justify-start">
                 <div className="hidden md:block">
                   <ul className="flex flex-col">
-                    <Link href="/">
-                      <a className={`w-full flex focus:outline-none hover:bg-gray-800 border-b border-gray-600`}>
-                        <li className="list-none flex items-center px-8 py-1 my-1 w-full">
-                          <Image src="/android-chrome-192x192.png" alt="DECK logo" width="24" height="24" />
-                          <div className="ml-2">DECK</div>
-                        </li>
-                      </a>
+                    <Link href="/" className={`w-full flex focus:outline-none hover:bg-gray-800 border-b border-gray-600`}>
+                      <li className="list-none flex items-center px-8 py-1 my-1 w-full">
+                        <Image src="/android-chrome-192x192.png" alt="DECK logo" width={24} height={24} />
+                        <div className="ml-2">DECK</div>
+                      </li>
                     </Link>
                     {items.map(link => {
                       const active = router.asPath === link.href;
                       return (
-                        <Link {...link} key={link.href}>
-                          <a
-                            href={link.href}
-                            className={`w-full focus:outline-none hover:bg-gray-800 ${
-                              active ? 'bg-gray-800 text-primary-500' : ''
-                            }`}
-                          >
-                            <li className="list-none px-8 py-1 my-1 w-full">{link.children}</li>
-                          </a>
+                        <Link
+                          {...link}
+                          key={link.href}
+                          className={`w-full focus:outline-none hover:bg-gray-800 ${
+                            active ? 'bg-gray-800 text-primary-500' : ''
+                          }`}
+                        >
+                          <li className="list-none px-8 py-1 my-1 w-full">{link.children}</li>
                         </Link>
                       );
                     })}
@@ -69,13 +66,12 @@ export default function Sidebar() {
                 const active = router.asPath === link.href;
                 return (
                   <Disclosure.Button as="li" className="list-none px-8 py-1 my-1 w-full" key={link.href}>
-                    <Link {...link}>
-                      <a
-                        href={link.href}
-                        className={`w-full focus:outline-none hover:bg-gray-800 ${active ? 'bg-gray-800 text-primary-500' : ''}`}
-                      >
-                        {link.children}
-                      </a>
+                    <Link
+                      {...link}
+                      href={link.href}
+                      className={`w-full focus:outline-none hover:bg-gray-800 ${active ? 'bg-gray-800 text-primary-500' : ''}`}
+                    >
+                      {link.children}
                     </Link>
                   </Disclosure.Button>
                 );

@@ -64,11 +64,9 @@ export default function PublicationPage(props: Props) {
         <title>{title}</title>
       </Head>
       <header className="header sticky top-0 flex items-center justify-between pl-6 py-4">
-        <Link href="/">
-          <a className="flex focus:outline-none">
-            <Image src="/android-chrome-192x192.png" alt="DECK logo" width="24" height="24" />
-            <div className="ml-2">DECK</div>
-          </a>
+        <Link href="/" className="flex focus:outline-none">
+          <Image src="/android-chrome-192x192.png" alt="DECK logo" width={24} height={24} />
+          <div className="ml-2">DECK</div>
         </Link>
       </header>
       <main className="mt-12 container mx-auto md:max-w-3xl publication">
