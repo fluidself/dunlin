@@ -121,7 +121,7 @@ export default function AppHome() {
   };
 
   return (
-    <div id="app-container" className="h-screen font-display">
+    <div id="app-container" className="h-screen">
       <div className="flex flex-col w-full h-full bg-gray-900 text-gray-100">
         <div className="flex flex-col items-end text-white min-h-[27px] pr-8 mt-2">{isLoaded && user && <HomeHeader />}</div>
         <div className="flex flex-col flex-1 lg:overflow-y-hidden container">

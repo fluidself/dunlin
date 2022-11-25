@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const defaultTheme = require('tailwindcss/defaultTheme');
 const colors = require('tailwindcss/colors');
 
 module.exports = {
@@ -18,9 +17,6 @@ module.exports = {
       },
     },
     extend: {
-      fontFamily: {
-        display: ['Roboto Mono', ...defaultTheme.fontFamily.mono],
-      },
       spacing: {
         0.25: '0.0625rem',
         128: '32rem',

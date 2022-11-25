@@ -13,6 +13,7 @@
     "@dnd-kit/sortable": "^6.0.0",
     "@headlessui/react": "^1.7.4",
     "@metamask/jazzicon": "^2.0.0",
+    "@next/font": "^13.0.5",
     "@popperjs/core": "^2.11.2",
     "@react-spring/web": "^9.5.5",
     "@supabase/supabase-js": "^1.35.7",

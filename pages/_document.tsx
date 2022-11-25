@@ -43,10 +43,8 @@ class MyDocument extends Document {
           <meta name="msapplication-config" content="/browserconfig.xml" />
           <meta name="msapplication-TileColor" content="#171717" />
           <meta name="msapplication-tap-highlight" content="no" />
-
-          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" />
         </Head>
-        <body className="bg-gray-900 text-gray-100 font-display">
+        <body className="bg-gray-900 text-gray-100">
           <Main />
           <NextScript />
         </body>
