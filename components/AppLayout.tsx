@@ -287,7 +287,7 @@ export default function AppLayout(props: Props) {
   );
   useHotkeys(hotkeys);
 
-  const appContainerClassName = classNames('h-screen font-display', { dark: darkMode }, className);
+  const appContainerClassName = classNames('h-screen', { dark: darkMode }, className);
 
   if (!isPageLoaded || !deckId || typeof deckId !== 'string') {
     return <PageLoading />;
