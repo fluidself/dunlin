@@ -257,15 +257,20 @@ export default function PublishNoteModal(props: Props) {
                     </div>
                   </>
                 )}
-                <Button
-                  className={`my-4 ${processing ? 'bg-gray-800 text-gray-400 hover:bg-gray-800 hover:text-gray-400' : ''}`}
-                  primary
-                  onClick={onConfirm}
-                  disabled={processing}
-                  loading={processing}
-                >
-                  Publish
-                </Button>
+                <div className="flex space-x-8 ">
+                  <Button
+                    className={`my-4 ${processing ? 'bg-gray-800 text-gray-400 hover:bg-gray-800 hover:text-gray-400' : ''}`}
+                    primary
+                    onClick={onConfirm}
+                    disabled={processing}
+                    loading={processing}
+                  >
+                    Publish
+                  </Button>
+                  <Button className="my-4" onClick={() => setIsOpen(false)}>
+                    Cancel
+                  </Button>
+                </div>
               </>
             )}
           </div>
