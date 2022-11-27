@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, memo, useRef } from 'react';
-import { useVirtual } from 'react-virtual';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { FlattenedTreeNode, TreeNode as TreeNodeType } from './Tree';
 import TreeNode from './TreeNode';
 
@@ -12,18 +12,14 @@ type Props = {
 function VirtualTree(props: Props) {
   const { data, className, collapseAll = false } = props;
 
-  const [closedNodeIds, setClosedNodeIds] = useState<string[]>(
-    collapseAll ? data.map((node) => node.id) : []
-  );
+  const [closedNodeIds, setClosedNodeIds] = useState<string[]>(collapseAll ? data.map(node => node.id) : []);
 
   const onNodeClick = useCallback(
     (node: FlattenedTreeNode) =>
       node.collapsed
-        ? setClosedNodeIds((closedNodeIds) =>
-            closedNodeIds.filter((id) => id !== node.id)
-          )
-        : setClosedNodeIds((closedNodeIds) => [...closedNodeIds, node.id]),
-    []
+        ? setClosedNodeIds(closedNodeIds => closedNodeIds.filter(id => id !== node.id))
+        : setClosedNodeIds(closedNodeIds => [...closedNodeIds, node.id]),
+    [],
   );
 
   const flattenNode = useCallback(
@@ -45,7 +41,7 @@ function VirtualTree(props: Props) {
         }
       }
     },
-    [closedNodeIds]
+    [closedNodeIds],
   );
 
   const flattenedData = useMemo(() => {
@@ -57,26 +53,28 @@ function VirtualTree(props: Props) {
   }, [data, flattenNode]);
 
   const parentRef = useRef<HTMLDivElement | null>(null);
-  const rowVirtualizer = useVirtual({
-    size: flattenedData.length,
-    parentRef,
+  const rowVirtualizer = useVirtualizer({
+    count: flattenedData.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 35,
   });
 
   return (
     <div ref={parentRef} className={className}>
       <div
         style={{
-          height: `${rowVirtualizer.totalSize}px`,
+          height: `${rowVirtualizer.getTotalSize()}px`,
           width: '100%',
           position: 'relative',
         }}
       >
-        {rowVirtualizer.virtualItems.map((virtualRow) => {
+        {rowVirtualizer.getVirtualItems().map(virtualRow => {
           const node = flattenedData[virtualRow.index];
           return (
             <TreeNode
               key={node.id}
-              ref={virtualRow.measureRef}
+              index={virtualRow.index}
+              ref={rowVirtualizer.measureElement}
               node={node}
               onClick={onNodeClick}
               style={{

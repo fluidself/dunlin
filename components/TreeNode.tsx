@@ -6,10 +6,11 @@ type Props = {
   node: FlattenedTreeNode;
   onClick: (node: FlattenedTreeNode) => void;
   style?: CSSProperties;
+  index?: number;
 };
 
 const TreeNode = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement>) => {
-  const { node, onClick, style } = props;
+  const { node, onClick, style, index } = props;
 
   const leftPadding = useMemo(() => {
     let padding = node.depth * 16;
@@ -22,9 +23,8 @@ const TreeNode = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement>) => {
   return (
     <div
       ref={forwardedRef}
-      className={`flex items-center select-none ${
-        node.showArrow ? 'hover:cursor-pointer' : ''
-      }`}
+      data-index={index}
+      className={`flex items-center select-none ${node.showArrow ? 'hover:cursor-pointer' : ''}`}
       style={{ paddingLeft: `${leftPadding}px`, ...style }}
       onClick={node.showArrow ? () => onClick(node) : undefined}
     >
