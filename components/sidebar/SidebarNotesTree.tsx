@@ -104,7 +104,7 @@ function SidebarNotesTree(props: Props) {
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     const { active } = event;
-    setActiveId(active.id);
+    setActiveId(active.id.toString());
   }, []);
 
   const handleDragEnd = useCallback(
@@ -112,7 +112,7 @@ function SidebarNotesTree(props: Props) {
       const { active, over } = event;
 
       if (over && deckId) {
-        moveNoteTreeItem(active.id, over.id);
+        moveNoteTreeItem(active.id.toString(), over.id.toString());
         await supabase.from<Deck>('decks').update({ note_tree: store.getState().noteTree }).eq('id', deckId);
       } else {
         toast.error('There was an unexpected error: you are not logged in and your changes could not be saved.');
