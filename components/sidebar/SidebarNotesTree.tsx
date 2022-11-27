@@ -1,6 +1,6 @@
-import { useState, useMemo, useCallback, memo, FC, CSSProperties } from 'react';
-import _List, { ListProps } from 'react-virtualized/dist/commonjs/List';
-import _AutoSizer, { AutoSizerProps } from 'react-virtualized/dist/commonjs/AutoSizer';
+import { useState, useMemo, useCallback, memo, CSSProperties } from 'react';
+import { FixedSizeList as List } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
 import { useRouter } from 'next/router';
 import {
   DndContext,
@@ -22,9 +22,6 @@ import supabase from 'lib/supabase';
 import { Deck } from 'types/supabase';
 import SidebarNoteLink from './SidebarNoteLink';
 import DraggableSidebarNoteLink from './DraggableSidebarNoteLink';
-
-const List = _List as unknown as FC<ListProps>;
-const AutoSizer = _AutoSizer as unknown as FC<AutoSizerProps>;
 
 export type FlattenedNoteTreeItem = {
   id: string;
@@ -137,7 +134,9 @@ function SidebarNotesTree(props: Props) {
         <SortableContext items={flattenedData} strategy={verticalListSortingStrategy}>
           <AutoSizer>
             {({ width, height }) => (
-              <List width={width} height={height} rowCount={flattenedData.length} rowHeight={32} rowRenderer={Row} />
+              <List width={width} height={height} itemCount={flattenedData.length} itemSize={32}>
+                {Row}
+              </List>
             )}
           </AutoSizer>
         </SortableContext>
