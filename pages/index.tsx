@@ -11,7 +11,7 @@ import { EthereumIcon } from 'components/home/EthereumIcon';
 import Button from 'components/home/Button';
 
 export default function Home() {
-  const [{ data: accountData }] = useAccount();
+  const { connector } = useAccount();
   const { signIn, signOut, user } = useAuth();
   const router = useRouter();
 
@@ -21,12 +21,12 @@ export default function Home() {
 
   useEffect(() => {
     const onDisconnect = () => signOut();
-    accountData?.connector?.on('disconnect', onDisconnect);
+    connector?.on('disconnect', onDisconnect);
 
     return () => {
-      accountData?.connector?.off('disconnect', onDisconnect);
+      connector?.off('disconnect', onDisconnect);
     };
-  }, [accountData?.connector, signOut]);
+  }, [connector, signOut]);
 
   return (
     <div className="mt-2">

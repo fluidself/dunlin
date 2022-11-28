@@ -1,7 +1,6 @@
 import { useState, useEffect, useContext, createContext, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import { useRouter } from 'next/router';
-import { useConnect } from 'wagmi';
+import { useConnect, useSignMessage } from 'wagmi';
 import { SiweMessage } from 'siwe';
 import { box } from 'tweetnacl';
 import { encodeBase64 } from 'tweetnacl-util';
@@ -25,13 +24,8 @@ type AuthContextType = {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function useProvideAuth(): AuthContextType {
-  const [
-    {
-      data: { connectors },
-    },
-    connect,
-  ] = useConnect();
-  const router = useRouter();
+  const { connectAsync, connectors } = useConnect();
+  const { signMessageAsync } = useSignMessage();
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [signingIn, setSigningIn] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
@@ -52,11 +46,10 @@ function useProvideAuth(): AuthContextType {
     setSigningIn(true);
 
     try {
-      const connector = connectors[0];
-      const res = await connect(connector);
-      if (!res.data) throw res.error ?? new Error('Unable to connect');
+      const { account, chain } = await connectAsync({ connector: connectors[0] });
+      if (!account || !chain) throw new Error('Unable to connect');
 
-      const address = res.data.account;
+      const address = account;
       const nonceResponse = await fetch('/api/nonce');
       const message = new SiweMessage({
         domain: window.location.host,
@@ -64,13 +57,12 @@ function useProvideAuth(): AuthContextType {
         statement: 'Sign in with Ethereum to use DECK',
         uri: window.location.origin,
         version: '1',
-        chainId: res.data.chain?.id,
+        chainId: chain.id,
         nonce: await nonceResponse.text(),
       });
 
-      const signer = await connector.getSigner();
       const messageBody = message.prepareMessage();
-      const signature = await signer.signMessage(messageBody);
+      const signature = await signMessageAsync({ message: messageBody });
 
       const verificationResponse = await fetch('/api/verify', {
         method: 'POST',

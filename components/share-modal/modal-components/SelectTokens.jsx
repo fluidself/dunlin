@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ethers } from 'ethers';
+import { utils } from 'ethers';
 import LitJsSdk from 'lit-js-sdk';
 import { IconX } from '@tabler/icons';
 import InputWrapper from '../InputWrapper';
@@ -32,7 +32,7 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
           console.log(e);
         }
         console.log(`decimals`, decimals);
-        const amountInBaseUnit = ethers.utils.parseUnits(amount, decimals);
+        const amountInBaseUnit = utils.parseUnits(amount, decimals);
         accessControlConditions = [
           {
             contractAddress: contractAddress,
@@ -79,7 +79,7 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
       success = await onAccessControlConditionsSelected(accessControlConditions);
     } else if (selectedToken && selectedToken.value === 'ethereum') {
       // ethereum
-      const amountInWei = ethers.utils.parseEther(amount);
+      const amountInWei = utils.parseEther(amount);
       const accessControlConditions = [
         {
           contractAddress: '',
@@ -143,7 +143,7 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
         // erc20 token
         let amountInBaseUnit;
         if (selectedToken.decimals) {
-          amountInBaseUnit = ethers.utils.parseUnits(amount, selectedToken.decimals);
+          amountInBaseUnit = utils.parseUnits(amount, selectedToken.decimals);
         } else {
           // need to check the contract for decimals
           // this will auto switch the chain to the selected one in metamask
@@ -156,7 +156,7 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
             console.log(e);
           }
           console.log(`decimals in ${selectedToken.value}`, decimals);
-          amountInBaseUnit = ethers.utils.parseUnits(amount, decimals);
+          amountInBaseUnit = utils.parseUnits(amount, decimals);
         }
         const accessControlConditions = [
           {
