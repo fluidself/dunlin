@@ -38,19 +38,19 @@ export default function AppLayout(props: Props) {
   const router = useRouter();
   const deckId = Array.isArray(router.query.deckId) ? router.query.deckId[0] : router.query.deckId;
   const { user, isLoaded, signOut } = useAuth();
-  const [{ data: accountData }] = useAccount();
+  const { connector } = useAccount();
   const isMounted = useIsMounted();
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [deck, setDeck] = useState<DecryptedDeck>();
 
   useEffect(() => {
     const onDisconnect = () => signOut();
-    accountData?.connector?.on('disconnect', onDisconnect);
+    connector?.on('disconnect', onDisconnect);
 
     return () => {
-      accountData?.connector?.off('disconnect', onDisconnect);
+      connector?.off('disconnect', onDisconnect);
     };
-  }, [accountData?.connector, signOut]);
+  }, [connector, signOut]);
 
   useEffect(() => {
     if (!isPageLoaded && isLoaded && user) {

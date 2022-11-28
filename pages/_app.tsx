@@ -4,9 +4,10 @@ import { Roboto_Mono } from '@next/font/google';
 import { ToastContainer } from 'react-toastify';
 import NProgress from 'nprogress';
 import type { AppProps } from 'next/app';
-import { Provider, defaultChains } from 'wagmi';
+import { WagmiConfig, configureChains, createClient, defaultChains } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected';
-import { providers } from 'ethers';
+import { infuraProvider } from 'wagmi/providers/infura';
+import { publicProvider } from 'wagmi/providers/public';
 import { ProvideAuth } from 'utils/useAuth';
 import AppLayout from 'components/AppLayout';
 import ServiceWorker from 'components/ServiceWorker';
@@ -22,15 +23,13 @@ Router.events.on('routeChangeError', () => NProgress.done());
 const robotoMono = Roboto_Mono({ subsets: ['latin'] });
 
 const infuraId = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID as string;
-const chains = defaultChains;
+const { chains, provider } = configureChains(defaultChains, [infuraProvider({ apiKey: infuraId }), publicProvider()]);
 
-type Config = { chainId?: number };
-
-const connectors = () => {
-  return [new InjectedConnector({ chains })];
-};
-
-const provider = ({ chainId }: Config) => new providers.InfuraProvider(chainId, infuraId);
+const client = createClient({
+  autoConnect: true,
+  connectors: [new InjectedConnector({ chains })],
+  provider,
+});
 
 export default function MyApp({ Component, pageProps, router }: AppProps) {
   return (
@@ -47,7 +46,7 @@ export default function MyApp({ Component, pageProps, router }: AppProps) {
       `}</style>
 
       <ServiceWorker>
-        <Provider autoConnect connectors={connectors} provider={provider}>
+        <WagmiConfig client={client}>
           <ProvideAuth>
             {router.pathname.startsWith('/app/') ? (
               <AppLayout>
@@ -57,7 +56,7 @@ export default function MyApp({ Component, pageProps, router }: AppProps) {
               <Component {...pageProps} />
             )}
           </ProvideAuth>
-        </Provider>
+        </WagmiConfig>
       </ServiceWorker>
       <ToastContainer position="top-center" hideProgressBar newestOnTop={true} limit={5} theme="colored" />
     </>

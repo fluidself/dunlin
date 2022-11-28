@@ -7,7 +7,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (method !== 'POST') {
     res.setHeader('Allow', ['POST']);
-    res.status(405).end(`Method ${method} Not Allowed`);
+    res.status(405).end(`Method ${method} not allowed`);
   }
 
   req.session.destroy();

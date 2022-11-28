@@ -23,7 +23,7 @@ import join from 'public/join-logo.svg';
 
 export default function AppHome() {
   const router = useRouter();
-  const [{ data: accountData }] = useAccount();
+  const { connector } = useAccount();
   const { user, isLoaded, signOut } = useAuth();
   const [requestingAccess, setRequestingAccess] = useState<boolean>(false);
   const [creatingDeck, setCreatingDeck] = useState<boolean>(false);
@@ -46,12 +46,12 @@ export default function AppHome() {
 
   useEffect(() => {
     const onDisconnect = () => signOut();
-    accountData?.connector?.on('disconnect', onDisconnect);
+    connector?.on('disconnect', onDisconnect);
 
     return () => {
-      accountData?.connector?.off('disconnect', onDisconnect);
+      connector?.off('disconnect', onDisconnect);
     };
-  }, [accountData?.connector, signOut]);
+  }, [connector, signOut]);
 
   const createNewDeck = async (deckName: string) => {
     if (!user) return;
