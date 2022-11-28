@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, createContext, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import { useConnect, useSignMessage } from 'wagmi';
+import { useAccount, useConnect, useNetwork, useSignMessage, useDisconnect } from 'wagmi';
 import { SiweMessage } from 'siwe';
 import { box } from 'tweetnacl';
 import { encodeBase64 } from 'tweetnacl-util';
@@ -24,7 +24,10 @@ type AuthContextType = {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function useProvideAuth(): AuthContextType {
-  const { connectAsync, connectors } = useConnect();
+  const { isConnected, address: activeAddress } = useAccount();
+  const { chain: activeChain } = useNetwork();
+  const { connectors, connectAsync } = useConnect();
+  const { disconnectAsync } = useDisconnect();
   const { signMessageAsync } = useSignMessage();
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [signingIn, setSigningIn] = useState<boolean>(false);
@@ -46,10 +49,20 @@ function useProvideAuth(): AuthContextType {
     setSigningIn(true);
 
     try {
-      const { account, chain } = await connectAsync({ connector: connectors[0] });
-      if (!account || !chain) throw new Error('Unable to connect');
+      let address;
+      let chainId;
 
-      const address = account;
+      if (isConnected && activeAddress && activeChain) {
+        address = activeAddress;
+        chainId = activeChain.id;
+      } else {
+        const { account, chain } = await connectAsync({ connector: connectors[0] });
+        address = account;
+        chainId = chain.id;
+      }
+
+      if (!address || !chainId) throw new Error('Unable to connect');
+
       const nonceResponse = await fetch('/api/nonce');
       const message = new SiweMessage({
         domain: window.location.host,
@@ -57,7 +70,7 @@ function useProvideAuth(): AuthContextType {
         statement: 'Sign in with Ethereum to use DECK',
         uri: window.location.origin,
         version: '1',
-        chainId: chain.id,
+        chainId,
         nonce: await nonceResponse.text(),
       });
 
@@ -103,6 +116,7 @@ function useProvideAuth(): AuthContextType {
   }, []);
 
   const signOut = async () => {
+    await disconnectAsync();
     await fetch('/api/signout', {
       method: 'POST',
     });
