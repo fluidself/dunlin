@@ -78,6 +78,18 @@ export default function AppLayout(props: Props) {
     window.litNodeClient = client;
   };
 
+  const resetDeck = useCallback(
+    async (deleteAccess = false) => {
+      toast.error('Unable to verify access');
+      if (deleteAccess) {
+        await supabase.from<Contributor>('contributors').delete().match({ deck_id: deckId, user_id: user?.id }).single();
+      }
+      await fetch('/api/reset-recent-deck', { method: 'POST' });
+      router.push('/app');
+    },
+    [deckId, router, user?.id],
+  );
+
   const decryptDeck = useCallback(
     async (dbDeck: Deck) => {
       try {
@@ -86,32 +98,23 @@ export default function AppLayout(props: Props) {
 
         return deckKey;
       } catch (error) {
-        toast.error('Unable to verify access');
-        await supabase.from<Contributor>('contributors').delete().match({ deck_id: deckId, user_id: user?.id }).single();
-        await fetch('/api/reset-recent-deck', { method: 'POST' });
-        router.push('/app');
-        return;
+        resetDeck(true);
       }
     },
-    [deckId, router, user?.id],
+    [resetDeck],
   );
 
   const initData = useCallback(async () => {
-    if (!window.litNodeClient && isMounted()) {
-      await initLit();
-    }
+    if (!window.litNodeClient && isMounted()) await initLit();
 
-    if (!deckId || !user || isOffline) return;
+    if (!user || !deckId) return resetDeck();
+    if (isOffline) return;
+
     setDeckId(deckId);
     setUserId(user.id);
 
     const { data: dbDeck } = await supabase.from<Deck>('decks').select('*').match({ id: deckId }).single();
-    if (!dbDeck) {
-      toast.error('Unable to verify access');
-      await fetch('/api/reset-recent-deck', { method: 'POST' });
-      router.push('/app');
-      return;
-    }
+    if (!dbDeck) return resetDeck();
 
     const {
       access_params: { access_control_conditions },
@@ -199,6 +202,7 @@ export default function AppLayout(props: Props) {
     decryptDeck,
     setAuthorOnlyNotes,
     setCollaborativeDeck,
+    resetDeck,
   ]);
 
   useEffect(() => {
