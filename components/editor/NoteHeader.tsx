@@ -1,7 +1,17 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { Menu } from '@headlessui/react';
 import Select from 'react-select';
-import { IconDots, IconDownload, IconUpload, IconCloudDownload, IconX, IconCopy, IconPencil, IconEye } from '@tabler/icons';
+import {
+  IconDots,
+  IconDownload,
+  IconUpload,
+  IconCloudDownload,
+  IconX,
+  IconCopy,
+  IconPencil,
+  IconEye,
+  IconShare,
+} from '@tabler/icons';
 import { usePopper } from 'react-popper';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
@@ -63,6 +73,7 @@ export default function NoteHeader() {
   const isSidebarButtonVisible = useStore(state => !state.isSidebarOpen && state.openNoteIds?.[0] === currentNote.id);
   const isCloseButtonVisible = useStore(state => state.openNoteIds.length > 1);
   const note = useStore(state => state.notes[currentNote.id]);
+  const setShareModalOpen = useStore(state => state.setShareModalOpen);
 
   const onClosePane = useCallback(() => {
     const currentNoteIndex = store.getState().openNoteIds.findIndex(openNoteId => openNoteId === currentNote.id);
@@ -188,6 +199,13 @@ export default function NoteHeader() {
                 >
                   <span className="flex items-center justify-center w-8 h-8">
                     <IconCopy className={iconClassName} />
+                  </span>
+                </button>
+              </Tooltip>
+              <Tooltip content="Share DECK">
+                <button className={buttonClassName} onClick={() => setShareModalOpen(true)}>
+                  <span className="flex items-center justify-center w-8 h-8">
+                    <IconShare className={iconClassName} />
                   </span>
                 </button>
               </Tooltip>

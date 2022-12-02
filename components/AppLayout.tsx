@@ -11,6 +11,7 @@ import { useStore, store, NoteTreeItem, getNoteTreeItem, Notes, SidebarTab } fro
 import supabase from 'lib/supabase';
 import { Note, Deck, Contributor } from 'types/supabase';
 import { DecryptedDeck, DecryptedNote } from 'types/decrypted';
+import { AccessControlCondition } from 'types/lit';
 import { ProvideCurrentDeck } from 'utils/useCurrentDeck';
 import { decryptWithLit, decryptNote } from 'utils/encryption';
 import useIsMounted from 'utils/useIsMounted';
@@ -18,7 +19,9 @@ import useHotkeys from 'utils/useHotkeys';
 import useIsOffline from 'utils/useIsOffline';
 import { useAuth } from 'utils/useAuth';
 import { isMobile } from 'utils/device';
+import { configureDeckAccess } from 'utils/accessControl';
 import CreateJoinRenameDeckModal, { CreateJoinRenameDeckType } from './CreateJoinRenameDeckModal';
+import ShareModal from './share-modal/ShareModal';
 import SettingsModal from './settings/SettingsModal';
 import Sidebar from './sidebar/Sidebar';
 import FindOrCreateModal from './FindOrCreateModal';
@@ -42,6 +45,7 @@ export default function AppLayout(props: Props) {
   const isMounted = useIsMounted();
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [deck, setDeck] = useState<DecryptedDeck>();
+  const [processingAccess, setProcessingAccess] = useState(false);
 
   useEffect(() => {
     const onDisconnect = () => signOut();
@@ -64,6 +68,7 @@ export default function AppLayout(props: Props) {
 
   const isOffline = useStore(state => state.isOffline);
   const deckKey = useStore(state => state.deckKey);
+  const shareModalOpen = useStore(state => state.shareModalOpen);
   const setDeckKey = useStore(state => state.setDeckKey);
   const setNotes = useStore(state => state.setNotes);
   const setNoteTree = useStore(state => state.setNoteTree);
@@ -71,6 +76,7 @@ export default function AppLayout(props: Props) {
   const setDeckId = useStore(state => state.setDeckId);
   const setCollaborativeDeck = useStore(state => state.setCollaborativeDeck);
   const setAuthorOnlyNotes = useStore(state => state.setAuthorOnlyNotes);
+  const setShareModalOpen = useStore(state => state.setShareModalOpen);
 
   const initLit = async () => {
     const client = new LitJsSdk.LitNodeClient({ alertWhenUnauthorized: false, debug: false });
@@ -291,6 +297,21 @@ export default function AppLayout(props: Props) {
   );
   useHotkeys(hotkeys);
 
+  const updateDeckAccess = async (acc: AccessControlCondition[]) => {
+    if (!deckId || !user?.id || !deck?.key || !acc) return;
+    setProcessingAccess(true);
+    const success = await configureDeckAccess(deckId, user.id, deck?.key, acc);
+
+    if (success) {
+      toast.success('Access to your DECK was configured');
+      setProcessingAccess(false);
+      return true;
+    } else {
+      toast.error('Provisioning access failed');
+      setProcessingAccess(false);
+    }
+  };
+
   const appContainerClassName = classNames('h-screen', { dark: darkMode }, className);
 
   if (!isPageLoaded || !deckId || typeof deckId !== 'string') {
@@ -325,6 +346,15 @@ export default function AppLayout(props: Props) {
                 deckId={createJoinRenameModal.deckId}
                 deckName={createJoinRenameModal.deckName}
                 closeModal={() => setCreateJoinRenameModal({ open: false, type: CreateJoinRenameDeckType.None })}
+              />
+            )}
+            {shareModalOpen && (
+              <ShareModal
+                onClose={() => setShareModalOpen(false)}
+                deckToShare={deckId}
+                processingAccess={processingAccess}
+                onAccessControlConditionsSelected={updateDeckAccess}
+                showStep={'ableToAccess'}
               />
             )}
           </div>

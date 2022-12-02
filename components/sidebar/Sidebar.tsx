@@ -1,20 +1,13 @@
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { IconAffiliate, IconSearch } from '@tabler/icons';
 import { useTransition, animated } from '@react-spring/web';
-import { toast } from 'react-toastify';
 import { isMobile } from 'utils/device';
-import { useAuth } from 'utils/useAuth';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
-import { encryptWithLit } from 'utils/encryption';
 import { useStore } from 'lib/store';
-import supabase from 'lib/supabase';
 import { SPRING_CONFIG } from 'constants/spring';
-import { AccessControlCondition, BooleanCondition } from 'types/lit';
-import { Deck } from 'types/supabase';
-import ShareModal from 'components/share-modal/ShareModal';
 import { CreateJoinRenameDeckType } from 'components/CreateJoinRenameDeckModal';
 import Tooltip from 'components/Tooltip';
 import SidebarItem from './SidebarItem';
@@ -31,9 +24,7 @@ type Props = {
 function Sidebar(props: Props) {
   const { setIsFindOrCreateModalOpen, setIsSettingsOpen, setCreateJoinRenameModal, className } = props;
 
-  const { user } = useAuth();
-  const { id: deckId, key } = useCurrentDeck();
-  const setCollaborativeDeck = useStore(state => state.setCollaborativeDeck);
+  const { id: deckId } = useCurrentDeck();
   const isSidebarOpen = useStore(state => state.isSidebarOpen);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
   const hideSidebarOnMobile = useCallback(() => {
@@ -41,56 +32,6 @@ function Sidebar(props: Props) {
       setIsSidebarOpen(false);
     }
   }, [setIsSidebarOpen]);
-  const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
-  const [processingAccess, setProcessingAccess] = useState<boolean>(false);
-
-  const provisionAccess = async (acc: AccessControlCondition[]) => {
-    if (!user || !deckId || !acc) return;
-
-    try {
-      const accessControlConditions: (AccessControlCondition | BooleanCondition)[] = [
-        {
-          contractAddress: '',
-          standardContractType: '',
-          chain: 'ethereum',
-          method: '',
-          parameters: [':userAddress'],
-          returnValueTest: {
-            comparator: '=',
-            value: user.id,
-          },
-        },
-        { operator: 'or' },
-        ...acc,
-      ];
-      const [encryptedStringBase64, encryptedSymmetricKeyBase64] = await encryptWithLit(key, accessControlConditions);
-      const accessParams = {
-        encrypted_string: encryptedStringBase64,
-        encrypted_symmetric_key: encryptedSymmetricKeyBase64,
-        access_control_conditions: accessControlConditions,
-      };
-
-      const { data: deck, error } = await supabase
-        .from<Deck>('decks')
-        .update({ access_params: accessParams })
-        .eq('id', deckId)
-        .single();
-
-      if (!deck || error) {
-        toast.error('Provisioning access failed.');
-        return false;
-      }
-
-      await setCollaborativeDeck(accessControlConditions.length > 1);
-
-      toast.success('Access to your DECK was configured');
-      return true;
-    } catch (error) {
-      console.error(error);
-      toast.error('Provisioning access failed.');
-      return false;
-    }
-  };
 
   const transition = useTransition<
     boolean,
@@ -154,11 +95,7 @@ function Sidebar(props: Props) {
             <div
               className={`flex flex-col flex-none h-full border-r bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 ${className}`}
             >
-              <SidebarHeader
-                setIsSettingsOpen={setIsSettingsOpen}
-                setIsShareModalOpen={setIsShareModalOpen}
-                setCreateJoinRenameModal={setCreateJoinRenameModal}
-              />
+              <SidebarHeader setIsSettingsOpen={setIsSettingsOpen} setCreateJoinRenameModal={setCreateJoinRenameModal} />
               <FindOrCreateModalButton
                 onClick={() => {
                   hideSidebarOnMobile();
@@ -172,23 +109,6 @@ function Sidebar(props: Props) {
               />
             </div>
           </animated.div>
-          {isShareModalOpen && (
-            <ShareModal
-              onClose={() => setIsShareModalOpen(false)}
-              deckToShare={deckId}
-              processingAccess={processingAccess}
-              onAccessControlConditionsSelected={async (acc: AccessControlCondition[]) => {
-                setProcessingAccess(true);
-                const success = await provisionAccess(acc);
-                if (success) {
-                  setProcessingAccess(false);
-                  return true;
-                }
-                setProcessingAccess(false);
-              }}
-              showStep={'ableToAccess'}
-            />
-          )}
         </>
       ),
   );
