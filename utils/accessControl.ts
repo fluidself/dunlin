@@ -1,6 +1,8 @@
 import supabase from 'lib/supabase';
+import { store } from 'lib/store';
 import { User, Deck, Contributor } from 'types/supabase';
-import { decryptWithLit } from 'utils/encryption';
+import { AccessControlCondition, BooleanCondition } from 'types/lit';
+import { decryptWithLit, encryptWithLit } from 'utils/encryption';
 
 export async function verifyDeckAccess(deckId: string, user: User) {
   try {
@@ -18,6 +20,44 @@ export async function verifyDeckAccess(deckId: string, user: User) {
     const { data } = await supabase.from<Contributor>('contributors').upsert({ deck_id: deckId, user_id: user.id });
     if (!data) throw new Error('Unable to verify access');
 
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+export async function configureDeckAccess(deckId: string, userId: string, key: string, acc: AccessControlCondition[]) {
+  try {
+    const accessControlConditions: (AccessControlCondition | BooleanCondition)[] = [
+      {
+        contractAddress: '',
+        standardContractType: '',
+        chain: 'ethereum',
+        method: '',
+        parameters: [':userAddress'],
+        returnValueTest: {
+          comparator: '=',
+          value: userId,
+        },
+      },
+      { operator: 'or' },
+      ...acc,
+    ];
+    const [encryptedStringBase64, encryptedSymmetricKeyBase64] = await encryptWithLit(key, accessControlConditions);
+    const accessParams = {
+      encrypted_string: encryptedStringBase64,
+      encrypted_symmetric_key: encryptedSymmetricKeyBase64,
+      access_control_conditions: accessControlConditions,
+    };
+
+    const { data: deck, error } = await supabase
+      .from<Deck>('decks')
+      .update({ access_params: accessParams })
+      .eq('id', deckId)
+      .single();
+    if (!deck || error) throw new Error('Unable to configure access');
+
+    await store.getState().setCollaborativeDeck(accessControlConditions.length > 1);
     return true;
   } catch (error) {
     return false;
