@@ -21,16 +21,16 @@ import { CreateJoinRenameDeckType } from 'components/CreateJoinRenameDeckModal';
 
 type Props = {
   setIsSettingsOpen: Dispatch<SetStateAction<boolean>>;
-  setIsShareModalOpen: (isOpen: boolean) => void;
   setCreateJoinRenameModal: (modalStatus: { open: boolean; type: CreateJoinRenameDeckType }) => void;
 };
 
 export default function Header(props: Props) {
-  const { setIsSettingsOpen, setIsShareModalOpen, setCreateJoinRenameModal } = props;
+  const { setIsSettingsOpen, setCreateJoinRenameModal } = props;
   const { user, signOut } = useAuth();
   const { user_id } = useCurrentDeck();
   const isOffline = useStore(state => state.isOffline);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
+  const setShareModalOpen = useStore(state => state.setShareModalOpen);
 
   return (
     <>
@@ -65,7 +65,7 @@ export default function Header(props: Props) {
             </DropdownItem>
             {user?.id === user_id && (
               <>
-                <DropdownItem disabled={isOffline} onClick={() => setIsShareModalOpen(true)}>
+                <DropdownItem disabled={isOffline} onClick={() => setShareModalOpen(true)}>
                   <IconShare size={18} className="mr-1" />
                   <span>Share</span>
                 </DropdownItem>

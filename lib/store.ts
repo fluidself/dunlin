@@ -79,6 +79,8 @@ export type Store = {
   setAuthorOnlyNotes: Setter<boolean>;
   isOffline: boolean;
   setIsOffline: Setter<boolean>;
+  shareModalOpen: boolean;
+  setShareModalOpen: Setter<boolean>;
 } & UserSettings;
 
 type FunctionPropertyNames<T> = {
@@ -230,6 +232,8 @@ export const store = createVanilla<Store>()(
       setAuthorOnlyNotes: setter(set, 'authorOnlyNotes'),
       isOffline: false,
       setIsOffline: setter(set, 'isOffline'),
+      shareModalOpen: false,
+      setShareModalOpen: setter(set, 'shareModalOpen'),
       ...createUserSettingsSlice(set),
     })),
     {
