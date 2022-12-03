@@ -2,7 +2,7 @@ import LitJsSdk from 'lit-js-sdk';
 import { secretbox, randomBytes } from 'tweetnacl';
 import { decodeUTF8, encodeUTF8, encodeBase64, decodeBase64 } from 'tweetnacl-util';
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string';
-import { Descendant } from 'slate';
+import type { Descendant } from 'slate';
 import type { AuthSig, AccessControlCondition, BooleanCondition } from 'types/lit';
 import type { Note } from 'types/supabase';
 import type { DecryptedNote } from 'types/decrypted';
