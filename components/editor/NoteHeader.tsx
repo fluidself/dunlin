@@ -1,17 +1,7 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { Menu } from '@headlessui/react';
 import Select from 'react-select';
-import {
-  IconDots,
-  IconDownload,
-  IconUpload,
-  IconCloudDownload,
-  IconX,
-  IconCopy,
-  IconPencil,
-  IconEye,
-  IconShare,
-} from '@tabler/icons';
+import { IconDots, IconDownload, IconUpload, IconCloudDownload, IconX, IconPencil, IconEye, IconShare } from '@tabler/icons';
 import { usePopper } from 'react-popper';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
@@ -26,7 +16,6 @@ import useImport from 'utils/useImport';
 import { queryParamToArray } from 'utils/url';
 import { addEllipsis } from 'utils/string';
 import { useAuth } from 'utils/useAuth';
-import copyToClipboard from 'utils/copyToClipboard';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import selectDecks from 'lib/api/selectDecks';
 import Tooltip from 'components/Tooltip';
@@ -49,7 +38,6 @@ export default function NoteHeader() {
   const currentNote = useCurrentNote();
   const onImport = useImport();
   const { user } = useAuth();
-  const isOffline = useStore(state => state.isOffline);
   const { id: currentDeckId, user_id: deckOwner } = useCurrentDeck();
   const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
   const [deckOptions, setDeckOptions] = useState<DeckSelectOption[]>([]);
@@ -70,6 +58,7 @@ export default function NoteHeader() {
     if (currentlySelectedDeck) setSelectedDeck(currentlySelectedDeck);
   }, [decks, currentDeckId]);
 
+  const isOffline = useStore(state => state.isOffline);
   const isSidebarButtonVisible = useStore(state => !state.isSidebarOpen && state.openNoteIds?.[0] === currentNote.id);
   const isCloseButtonVisible = useStore(state => state.openNoteIds.length > 1);
   const note = useStore(state => state.notes[currentNote.id]);
@@ -192,16 +181,6 @@ export default function NoteHeader() {
                   }}
                 />
               </div>
-              <Tooltip content="Copy DECK ID">
-                <button
-                  className={buttonClassName}
-                  onClick={async () => selectedDeck?.id && (await copyToClipboard(selectedDeck.id))}
-                >
-                  <span className="flex items-center justify-center w-8 h-8">
-                    <IconCopy className={iconClassName} />
-                  </span>
-                </button>
-              </Tooltip>
               <Tooltip content="Share DECK">
                 <button className={buttonClassName} onClick={() => setShareModalOpen(true)}>
                   <span className="flex items-center justify-center w-8 h-8">
