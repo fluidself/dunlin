@@ -312,7 +312,7 @@ export default function ForceGraph(props: Props) {
 
   return (
     <div ref={containerRefCallback} className={`relative select-none ${className}`}>
-      <canvas data-testid="graph-canvas" ref={canvasRef} className="absolute w-full h-full dark:bg-gray-800" />
+      <canvas ref={canvasRef} className="absolute w-full h-full dark:bg-gray-900" />
     </div>
   );
 }
