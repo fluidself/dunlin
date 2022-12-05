@@ -183,9 +183,13 @@ export default function NoteHeader() {
               </div>
               {user.id === deckOwner && (
                 <Tooltip content="Share DECK">
-                  <button className={buttonClassName} onClick={() => setShareModalOpen(true)}>
+                  <button
+                    className={`${buttonClassName} ${isOffline && 'pointer-events-none'}`}
+                    disabled={isOffline}
+                    onClick={() => setShareModalOpen(true)}
+                  >
                     <span className="flex items-center justify-center w-8 h-8">
-                      <IconShare className={iconClassName} />
+                      <IconShare className={`text-gray-600 ${isOffline ? 'dark:text-gray-500' : 'dark:text-gray-300'}`} />
                     </span>
                   </button>
                 </Tooltip>
