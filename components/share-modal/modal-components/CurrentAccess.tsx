@@ -79,7 +79,16 @@ export default function CurrentAccess(props: Props) {
       </div>
       <div className="mt-4">{renderContent()}</div>
 
-      <Navigation backward={{ onClick: () => setActiveStep('ableToAccess') }} />
+      <Navigation
+        backward={{ onClick: () => setActiveStep('ableToAccess') }}
+        forward={{
+          label: 'Get a shareable link',
+          onClick: async () => setActiveStep('accessCreated'),
+          withoutIcon: true,
+          disabled: false,
+          loading: false,
+        }}
+      />
     </div>
   );
 }
