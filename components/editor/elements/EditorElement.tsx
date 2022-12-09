@@ -127,11 +127,7 @@ export default function EditorElement(props: EditorElementProps) {
         </TableElement>
       );
     case ElementType.TableRow: {
-      return (
-        <tr slate-table-element="tr" data-key={element.id} {...attributes}>
-          {children}
-        </tr>
-      );
+      return <tr {...attributes}>{children}</tr>;
     }
     case ElementType.TableCell: {
       return (
