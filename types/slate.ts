@@ -150,10 +150,14 @@ export type DetailsDisclosure = {
   children: Descendant[];
 };
 
+export type TableHeader = 'first_row' | 'first_column';
+
 export type Table = {
   id: string;
   type: ElementType.Table;
   children: TableRow[];
+  border?: boolean;
+  header?: TableHeader[];
 };
 
 export type TableRow = {
@@ -166,6 +170,8 @@ export type TableCell = {
   id: string;
   type: ElementType.TableCell;
   children: Descendant[];
+  rowspan?: number;
+  colspan?: number;
 };
 
 export type ReferenceableBlockElement =
