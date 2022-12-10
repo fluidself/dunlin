@@ -1,7 +1,6 @@
 import { type Range, Node, Path } from 'slate';
-
-import { findParentCell } from '../queries';
 import type { TablesEditor } from '../TablesEditor';
+import { findParentCell } from '../queries';
 
 export function withTablesCopyPasteBehavior<T extends TablesEditor>(editor: T): T {
   const { getFragment } = editor;

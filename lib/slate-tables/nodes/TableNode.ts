@@ -1,24 +1,17 @@
-import type { Element, Location } from 'slate';
+import type { Location } from 'slate';
 import { Editor, Transforms } from 'slate';
-import type { TableHeader } from 'types/slate';
+import type { TableHeader, Table } from 'types/slate';
 import { Traverse } from '../core';
 import type { TablesEditor } from '../TablesEditor';
-import { TableRowNode, createTableRow } from './TableRowNode';
-
-// @ts-ignore
-export interface TableNode extends Element {
-  children: TableRowNode[];
-  border?: boolean;
-  header?: TableHeader[];
-}
+import { createTableRow } from './TableRowNode';
 
 export function createTable(
   editor: TablesEditor,
-  props?: Partial<Omit<TableNode, 'children'>> & {
+  props?: Partial<Omit<Table, 'children'>> & {
     rowsCount?: number;
     columnsCount?: number;
   },
-): TableNode {
+): Table {
   const { rowsCount = 3, columnsCount = 3, ...rest } = props ?? {};
   const rows = Array.from(Array(rowsCount)).map(() => createTableRow(editor, { children: columnsCount }));
   return editor.createTableNode({
@@ -30,10 +23,10 @@ export function createTable(
 
 export function updateTable(
   editor: TablesEditor,
-  props: Partial<Omit<TableNode, 'children'>>,
+  props: Partial<Omit<Table, 'children'>>,
   location: Location | undefined = editor.selection ?? undefined,
 ) {
-  Transforms.setNodes<TableNode>(editor, props, {
+  Transforms.setNodes<Table>(editor, props, {
     at: location,
     match: node => editor.isTableNode(node),
   });
@@ -56,10 +49,10 @@ export function toggleTableHeader(
 
   const isAlreadyEnabled = traverse.matrix.node.header?.includes(headerType);
   const newHeader = isAlreadyEnabled
-    ? traverse.matrix.node.header?.filter(h => h !== headerType)
+    ? traverse.matrix.node.header?.filter((h: TableHeader) => h !== headerType)
     : [...(traverse.matrix.node.header ?? []), headerType];
 
-  Transforms.setNodes<TableNode>(
+  Transforms.setNodes<Table>(
     editor,
     { header: newHeader },
     {

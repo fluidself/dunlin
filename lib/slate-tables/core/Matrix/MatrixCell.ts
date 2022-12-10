@@ -1,16 +1,15 @@
 import type { NodeEntry } from 'slate';
-
-import { TableCellNode, getCellColspan, getCellRowspan } from '../../nodes';
+import type { TableCell } from 'types/slate';
+import { getCellColspan, getCellRowspan } from '../../nodes';
 import { compareNumbers } from '../../utils/comparators';
-
 import type { GridWithSpansCell } from './createGridWithSpans';
 import type { Matrix } from './Matrix';
 import type { MatrixColumn } from './MatrixColumn';
 import type { MatrixRow } from './MatrixRow';
 
 export class MatrixCell {
-  public readonly node: NodeEntry<TableCellNode>[0];
-  public readonly path: NodeEntry<TableCellNode>[1];
+  public readonly node: NodeEntry<TableCell>[0];
+  public readonly path: NodeEntry<TableCell>[1];
   public readonly matrix: Matrix;
   public readonly isVirtual: boolean;
   public readonly row: MatrixRow;
