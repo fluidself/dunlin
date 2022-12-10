@@ -1,11 +1,10 @@
 import { Editor, Location, Node } from 'slate';
-
-import type { TableCellNode, TableNode } from '../nodes';
+import type { Table, TableCell } from 'types/slate';
 import type { TablesEditor } from '../TablesEditor';
 
 export function isHeaderCell(editor: TablesEditor, location?: Location | null): boolean;
-export function isHeaderCell(table: TableNode, cell: TableCellNode): boolean;
-export function isHeaderCell(editorOrTable: TablesEditor | TableNode, locationOrCell?: (Location | null) | TableCellNode) {
+export function isHeaderCell(table: Table, cell: TableCell): boolean;
+export function isHeaderCell(editorOrTable: TablesEditor | Table, locationOrCell?: (Location | null) | TableCell) {
   const { tableNode, cellNode } = findTableAndCellNodes(editorOrTable, locationOrCell);
 
   if (tableNode && cellNode) {
@@ -18,27 +17,24 @@ export function isHeaderCell(editorOrTable: TablesEditor | TableNode, locationOr
   return false;
 }
 
-function findTableAndCellNodes(editorOrTable: TablesEditor | TableNode, locationOrCell?: (Location | null) | TableCellNode) {
-  let tableNode: TableNode | undefined;
-  let cellNode: TableCellNode | undefined;
+function findTableAndCellNodes(editorOrTable: TablesEditor | Table, locationOrCell?: (Location | null) | TableCell) {
+  let tableNode: Table | undefined;
+  let cellNode: TableCell | undefined;
 
   const isEditor = Editor.isEditor(editorOrTable);
   const isLocation = Location.isLocation(locationOrCell);
 
   if (isEditor || isLocation || locationOrCell === null) {
     if (isEditor) {
-      const editor = editorOrTable;
-      // @ts-ignore
+      const editor = editorOrTable as TablesEditor;
       const location = locationOrCell ?? editor.selection;
 
       if (Location.isLocation(location)) {
         for (const [currentNodeToCheck] of Node.levels(editor, Editor.path(editor, location))) {
-          // @ts-ignore
           if (editor.isTableNode(currentNodeToCheck)) {
             tableNode = currentNodeToCheck;
           }
 
-          // @ts-ignore
           if (editor.isTableCellNode(currentNodeToCheck)) {
             cellNode = currentNodeToCheck;
           }
@@ -57,10 +53,10 @@ function findTableAndCellNodes(editorOrTable: TablesEditor | TableNode, location
   return { tableNode, cellNode };
 }
 
-function isFirstRow(table: TableNode, cell: TableCellNode): boolean {
+function isFirstRow(table: Table, cell: TableCell): boolean {
   return table.children[0]?.children.includes(cell);
 }
 
-function isFirstColumn(table: TableNode, cell: TableCellNode): boolean {
+function isFirstColumn(table: Table, cell: TableCell): boolean {
   return table.children.some(row => row.children[0] === cell);
 }

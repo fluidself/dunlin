@@ -1,7 +1,6 @@
 import { Element, Node } from 'slate';
-import { ReferenceableBlockElement, ElementType } from 'types/slate';
+import { ReferenceableBlockElement, ElementType, Table, TableRow, TableCell } from 'types/slate';
 
-// Returns true if the element is of type ReferenceableBlockElement, false otherwise
 export const isReferenceableBlockElement = (element: Element): element is ReferenceableBlockElement => {
   return (
     element.type === ElementType.Paragraph ||
@@ -30,14 +29,14 @@ export const isTextType = (
   );
 };
 
-export function isTableNode(value: Node): value is ElementType.Table {
+export function isTableNode(value: Node): value is Table {
   return value.type === ElementType.Table;
 }
 
-export function isTableRowNode(value: Node): value is ElementType.TableRow {
+export function isTableRowNode(value: Node): value is TableRow {
   return value.type === ElementType.TableRow;
 }
 
-export function isTableCellNode(value: Node): value is ElementType.TableCell {
+export function isTableCellNode(value: Node): value is TableCell {
   return value.type === ElementType.TableCell;
 }

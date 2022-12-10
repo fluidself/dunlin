@@ -1,6 +1,5 @@
 import type { Location } from 'slate';
 import { Editor, Range, Point } from 'slate';
-
 import type { TablesEditor } from '../TablesEditor';
 
 export function withTablesDeleteBehavior<T extends TablesEditor>(editor: T): T {

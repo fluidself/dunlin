@@ -1,22 +1,20 @@
 import type { NodeEntry } from 'slate';
 import { Node } from 'slate';
-import { TableCell, TableRow } from 'types/slate';
-
-import type { TableNode } from '../../nodes';
-import { type TableRowNode, TableCellNode, getCellRowspan, getCellColspan } from '../../nodes';
+import type { Table, TableCell, TableRow } from 'types/slate';
+import { getCellRowspan, getCellColspan } from '../../nodes';
 import type { TablesEditor } from '../../TablesEditor';
 
 export interface GridWithSpansRow {
-  entry: NodeEntry<TableRowNode>;
+  entry: NodeEntry<TableRow>;
   cells: GridWithSpansCell[];
 }
 
 export interface GridWithSpansCell {
-  entry: NodeEntry<TableCellNode>;
+  entry: NodeEntry<TableCell>;
   isVirtual: boolean;
 }
 
-export function createGridWithSpans(editor: TablesEditor, [, tablePath]: NodeEntry<TableNode>) {
+export function createGridWithSpans(editor: TablesEditor, [, tablePath]: NodeEntry<Table>) {
   const grid: GridWithSpansRow[] = [];
 
   const tableChildren = Array.from(Node.children(editor, tablePath));

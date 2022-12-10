@@ -2,9 +2,7 @@ import type { KeyboardEvent } from 'react';
 import { isHotkey } from 'is-hotkey';
 import { type Location, type Point, Editor, Transforms } from 'slate';
 import * as TableQueries from '../queries';
-
 import { TablesEditor, insertRowBelow } from '../TablesEditor';
-
 import { Traverse } from './Traverse';
 
 export function onKeyDown(event: KeyboardEvent<Element>, editor: TablesEditor) {

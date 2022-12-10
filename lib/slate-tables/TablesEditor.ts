@@ -1,30 +1,18 @@
 import type { Editor, Element, Location, Node, Text } from 'slate';
 import type { ReactEditor } from 'slate-react';
-
+import type { Table, TableRow, TableCell } from 'types/slate';
 import * as TableCommands from './commands';
-import {
-  TableCellNode,
-  TableRowNode,
-  TableNode,
-  createTable,
-  updateTable,
-  toggleTableHeader,
-  createTableRow,
-  createTableCell,
-} from './nodes';
+import { createTable, updateTable, toggleTableHeader, createTableRow, createTableCell } from './nodes';
 import * as TableQueries from './queries';
 
 export interface TablesSchema {
   createContentNode: () => Element | Text;
-  createTableNode: (props: Partial<TableNode>) => TableNode;
-  createTableRowNode: (props: Partial<TableRowNode>) => TableRowNode;
-  createTableCellNode: (props: Partial<TableCellNode>) => TableCellNode;
-  // isTableNode: (node: Node) => node is TableNode;
-  // isTableRowNode: (node: Node) => node is TableRowNode;
-  // isTableCellNode: (node: Node) => node is TableCellNode;
-  isTableNode: (node: Node) => boolean;
-  isTableRowNode: (node: Node) => boolean;
-  isTableCellNode: (node: Node) => boolean;
+  createTableNode: (props: Partial<Table>) => Table;
+  createTableRowNode: (props: Partial<TableRow>) => TableRow;
+  createTableCellNode: (props: Partial<TableCell>) => TableCell;
+  isTableNode: (node: Node) => node is Table;
+  isTableRowNode: (node: Node) => node is TableRow;
+  isTableCellNode: (node: Node) => node is TableCell;
 }
 
 export interface TablesEditor extends TablesSchema, ReactEditor {}
