@@ -30,6 +30,11 @@ export function onKeyDown(event: KeyboardEvent<Element>, editor: TablesEditor) {
     event.preventDefault();
   }
 
+  if (isHotkey('enter', event)) {
+    Transforms.insertText(editor, '\n');
+    event.preventDefault();
+  }
+
   if (locationToSelect) {
     Transforms.select(editor, locationToSelect);
     event.stopPropagation();

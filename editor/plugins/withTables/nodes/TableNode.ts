@@ -1,5 +1,4 @@
-import type { Location } from 'slate';
-import { Editor, Transforms } from 'slate';
+import { type Location, Editor, Transforms } from 'slate';
 import type { TableHeader, Table } from 'types/slate';
 import { Traverse } from '../core';
 import type { TablesEditor } from '../TablesEditor';

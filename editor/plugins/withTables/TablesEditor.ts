@@ -1,8 +1,8 @@
 import type { Editor, Element, Location, Node, Text } from 'slate';
 import type { ReactEditor } from 'slate-react';
 import type { Table, TableRow, TableCell } from 'types/slate';
-import * as TableCommands from './commands';
 import { createTable, updateTable, toggleTableHeader, createTableRow, createTableCell } from './nodes';
+import * as TableCommands from './commands';
 import * as TableQueries from './queries';
 
 export interface TablesSchema {

@@ -1,5 +1,4 @@
-import type { NodeEntry } from 'slate';
-import { Node } from 'slate';
+import { type NodeEntry, Node } from 'slate';
 import type { Table, TableCell, TableRow } from 'types/slate';
 import { getCellRowspan, getCellColspan } from '../../nodes';
 import type { TablesEditor } from '../../TablesEditor';

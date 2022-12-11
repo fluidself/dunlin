@@ -1,5 +1,4 @@
-import type { Location, NodeEntry } from 'slate';
-import { Editor, Node } from 'slate';
+import { type Location, type NodeEntry, Node, Editor } from 'slate';
 import type { Table, TableRow, TableCell } from 'types/slate';
 import type { MatrixRow, MatrixColumn, MatrixCell } from '../../core';
 import { Matrix } from '../../core';
