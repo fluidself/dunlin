@@ -1,8 +1,6 @@
 import _times from 'lodash/times';
 import { Node, Transforms, Path } from 'slate';
-import { Table, TableRow } from 'types/slate';
-
-import type { TableRowNode } from '../nodes';
+import type { Table, TableRow } from 'types/slate';
 import { TablesEditor, createTableCell } from '../TablesEditor';
 
 export function insertMissingCells(editor: TablesEditor, path: Path) {
@@ -42,6 +40,6 @@ export function insertMissingCells(editor: TablesEditor, path: Path) {
   return false;
 }
 
-function calculateRowWidth(row: TableRowNode) {
+function calculateRowWidth(row: TableRow) {
   return row.children.reduce((size, cell) => size + (cell.colspan ?? 1), 0);
 }

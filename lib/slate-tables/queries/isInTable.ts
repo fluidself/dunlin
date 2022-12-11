@@ -1,6 +1,5 @@
 import type { Location } from 'slate';
 import { Node } from 'slate';
-
 import { Traverse } from '../core';
 import type { TablesEditor } from '../TablesEditor';
 
