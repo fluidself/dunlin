@@ -18,7 +18,7 @@ import {
   removeRow,
   toggleTableHeader,
   removeTable,
-} from 'lib/slate-tables';
+} from 'editor/plugins/withTables';
 import Tooltip from 'components/Tooltip';
 import { IconDeleteColumn, IconDeleteRow } from './icons';
 
