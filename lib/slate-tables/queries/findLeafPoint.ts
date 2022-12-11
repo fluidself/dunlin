@@ -1,5 +1,4 @@
 import { Editor, Path, Point } from 'slate';
-
 import type { Edge } from './findLeafPath';
 import { findLeafPath } from './findLeafPath';
 

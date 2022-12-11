@@ -25,6 +25,11 @@ export function onKeyDown(event: KeyboardEvent<Element>, editor: TablesEditor) {
     event.preventDefault();
   }
 
+  if (isHotkey('shift+tab', event)) {
+    locationToSelect = onShiftTabPress(editor);
+    event.preventDefault();
+  }
+
   if (locationToSelect) {
     Transforms.select(editor, locationToSelect);
     event.stopPropagation();
@@ -129,4 +134,24 @@ function onTabPress(editor: TablesEditor): Location | undefined {
   }
 
   return activeCell.nextCell?.path;
+}
+
+function onShiftTabPress(editor: TablesEditor): Location | undefined {
+  if (!editor.selection) {
+    return undefined;
+  }
+
+  const traverse = Traverse.create(editor, editor.selection);
+
+  if (!traverse) {
+    return undefined;
+  }
+
+  const { activeCell } = traverse;
+
+  if (activeCell.row.isFirst && activeCell.column.isFirst) {
+    return undefined;
+  }
+
+  return activeCell.previousCell?.path;
 }

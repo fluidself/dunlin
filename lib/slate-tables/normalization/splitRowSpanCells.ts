@@ -1,8 +1,6 @@
 import _times from 'lodash/times';
 import { Editor, Path, Node, Transforms } from 'slate';
-import { TableCell } from 'types/slate';
-
-import type { TableCellNode } from '../nodes';
+import type { TableCell } from 'types/slate';
 import { TablesEditor, createTableCell } from '../TablesEditor';
 
 export function splitRowSpanCells(editor: TablesEditor, path: Path) {
@@ -27,7 +25,7 @@ export function splitRowSpanCells(editor: TablesEditor, path: Path) {
         const padCells = _times(cell.rowspan ?? 1 - 1, () => createTableCell(editor));
 
         Editor.withoutNormalizing(editor, () => {
-          Transforms.unsetNodes<TableCellNode>(editor, 'rowspan', { at: childPath });
+          Transforms.unsetNodes<TableCell>(editor, 'rowspan', { at: childPath });
           let nextRow = Path.next(rowPath);
 
           for (const padCell of padCells) {

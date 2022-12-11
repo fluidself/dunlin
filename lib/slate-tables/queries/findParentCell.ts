@@ -1,9 +1,8 @@
 import { type Location, type NodeEntry, type Selection, Editor } from 'slate';
-
-import type { TableCellNode } from '../nodes';
+import type { TableCell } from 'types/slate';
 import type { TablesEditor } from '../TablesEditor';
 
-export function findParentCell<T extends TableCellNode>(
+export function findParentCell<T extends TableCell>(
   editor: TablesEditor,
   location: Location | Selection = editor.selection,
 ): NodeEntry<T> | undefined {
