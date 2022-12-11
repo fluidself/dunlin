@@ -1,6 +1,6 @@
 import { useContext, ReactNode } from 'react';
 import { RenderElementProps } from 'slate-react';
-import { TableCell } from 'types/slate';
+import type { TableCell } from 'types/slate';
 import { isHeaderCell } from 'editor/plugins/withTables';
 import { TableContext } from './TableContext';
 
@@ -25,8 +25,8 @@ export default function TableCellElement({ attributes, element, children }: Prop
   return (
     <Cell
       {...attributes}
-      className={`relative min-w-[40px] min-h-[22px] w-auto h-auto border border-gray-400 px-2 py-2 align-baseline box-border outline-none ${
-        headerCell && 'bg-gray-800 font-semibold text-left'
+      className={`relative w-auto h-auto border border-gray-400 px-2 py-2 align-baseline box-border outline-none ${
+        headerCell && 'bg-gray-800 font-semibold text-left bg-clip-padding'
       }`}
       colSpan={element.colspan}
       rowSpan={element.rowspan}
