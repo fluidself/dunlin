@@ -236,7 +236,7 @@ function Editor(props: Props) {
         },
       },
       {
-        hotkey: 'mod+shift+h',
+        hotkey: 'mod+shift+k',
         callback: () => insertTable(editor),
       },
       {
@@ -266,7 +266,10 @@ function Editor(props: Props) {
   const onKeyDown = useCallback(
     (event: KeyboardEvent<HTMLDivElement>, editor: DeckEditor) => {
       // Handle keyboard shortcuts
-      if (isElementActive(editor, ElementType.Table)) {
+      if (
+        isHotkey(['up', 'down', 'tab', 'shift+tab', 'enter'], event.nativeEvent) &&
+        isElementActive(editor, ElementType.Table)
+      ) {
         onTableKeyDown(event, editor);
       } else {
         for (const { hotkey, callback } of hotkeys) {

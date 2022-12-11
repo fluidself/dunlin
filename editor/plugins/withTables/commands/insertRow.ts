@@ -33,8 +33,6 @@ export function insertRow(
   const newRow = createTableRow(editor, { children: cellsToAdd });
   const at = side === 'below' ? Path.next(activeRow.path) : activeRow.path;
 
-  console.log({ activeRow, at });
-
   Transforms.insertNodes(editor, newRow, { at });
 
   ReactEditor.focus(editor);
