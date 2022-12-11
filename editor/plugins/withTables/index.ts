@@ -8,7 +8,11 @@ import { withNormalization } from './withNormalization';
 import { withTablesDeleteBehavior, withTablesCopyPasteBehavior } from './core';
 import { isInTable } from './queries';
 
-export function withTables(editor: Editor) {
+export * from './TablesEditor';
+export * from './core';
+export { createTableNode, createTableRowNode, createTableCellNode } from './lib';
+
+export default function withTables(editor: Editor) {
   const { insertData, insertText } = editor;
 
   const schema: TablesSchema = {

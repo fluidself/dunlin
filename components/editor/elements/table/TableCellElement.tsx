@@ -1,7 +1,7 @@
 import { useContext, ReactNode } from 'react';
-import type { RenderElementProps } from 'slate-react';
+import { RenderElementProps } from 'slate-react';
 import { TableCell } from 'types/slate';
-import { isHeaderCell } from 'lib/slate-tables';
+import { isHeaderCell } from 'editor/plugins/withTables';
 import { TableContext } from './TableContext';
 
 type Props = {
