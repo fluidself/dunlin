@@ -11,27 +11,18 @@ import _pick from 'lodash/pick';
 import _isEqual from 'lodash/isEqual';
 import { toast } from 'react-toastify';
 import colors from 'tailwindcss/colors';
-import {
-  handleEnter,
-  handleIndent,
-  handleUnindent,
-  isElementActive,
-  toggleElement,
-  toggleMark,
-  handleTableTab,
-  TableTabType,
-} from 'editor/formatting';
+import { handleEnter, handleIndent, handleUnindent, isElementActive, toggleElement, toggleMark } from 'editor/formatting';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
 import withBlockReferences from 'editor/plugins/withBlockReferences';
 import withImages from 'editor/plugins/withImages';
 import withLinks from 'editor/plugins/withLinks';
-import withTables from 'editor/plugins/withTables';
 import withNormalization from 'editor/plugins/withNormalization';
 import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
 import withVoidElements from 'editor/plugins/withVoidElements';
 import withTags from 'editor/plugins/withTags';
 import withHtml from 'editor/plugins/withHtml';
+import withTables, { insertTable, onKeyDown as onTableKeyDown } from 'editor/plugins/withTables';
 import { getDefaultEditorValue } from 'editor/constants';
 import { store, useStore } from 'lib/store';
 import { DeckEditor, ElementType, Mark } from 'types/slate';
@@ -44,7 +35,6 @@ import EditorElement from './elements/EditorElement';
 import withVerticalSpacing from './elements/withVerticalSpacing';
 import withBlockSideMenu from './blockmenu/withBlockSideMenu';
 import EditorLeaf from './elements/EditorLeaf';
-import { insertTable } from './elements/table/commands';
 import LinkAutocompletePopover from './LinkAutocompletePopover';
 import BlockAutocompletePopover from './BlockAutocompletePopover';
 import TagAutocompletePopover from './TagAutocompletePopover';
@@ -103,8 +93,8 @@ function Editor(props: Props) {
               withHtml(
                 withBlockBreakout(
                   withVoidElements(
-                    withTables(
-                      withBlockReferences(withImages(withTags(withLinks(withHistory(withReact(createEditor() as DeckEditor)))))),
+                    withBlockReferences(
+                      withImages(withTags(withLinks(withTables(withHistory(withReact(createEditor() as DeckEditor)))))),
                     ),
                   ),
                 ),
@@ -251,15 +241,11 @@ function Editor(props: Props) {
       },
       {
         hotkey: 'tab',
-        callback: () => {
-          isElementActive(editor, ElementType.TableCell) ? handleTableTab(editor, TableTabType.Tab) : handleIndent(editor);
-        },
+        callback: () => handleIndent(editor),
       },
       {
         hotkey: 'shift+tab',
-        callback: () => {
-          isElementActive(editor, ElementType.TableCell) ? handleTableTab(editor, TableTabType.ShiftTab) : handleUnindent(editor);
-        },
+        callback: () => handleUnindent(editor),
       },
       {
         hotkey: 'enter',
@@ -278,12 +264,16 @@ function Editor(props: Props) {
   );
 
   const onKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLDivElement>) => {
+    (event: KeyboardEvent<HTMLDivElement>, editor: DeckEditor) => {
       // Handle keyboard shortcuts
-      for (const { hotkey, callback } of hotkeys) {
-        if (isHotkey(hotkey, event.nativeEvent)) {
-          event.preventDefault();
-          callback();
+      if (isElementActive(editor, ElementType.Table)) {
+        onTableKeyDown(event, editor);
+      } else {
+        for (const { hotkey, callback } of hotkeys) {
+          if (isHotkey(hotkey, event.nativeEvent)) {
+            event.preventDefault();
+            callback();
+          }
         }
       }
     },
@@ -363,7 +353,7 @@ function Editor(props: Props) {
         renderLeaf={EditorLeaf}
         decorate={decorate}
         placeholder="Start typing here…"
-        onKeyDown={onKeyDown}
+        onKeyDown={event => onKeyDown(event, editor)}
         onPointerDown={() => setToolbarCanBeVisible(false)}
         onPointerUp={() =>
           setTimeout(() => {

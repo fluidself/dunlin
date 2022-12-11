@@ -2,9 +2,10 @@ import type { BaseEditor, Descendant } from 'slate';
 import type { ReactEditor } from 'slate-react';
 import type { HistoryEditor } from 'slate-history';
 import { YjsEditor } from 'slate-yjs';
+import type { TablesEditor } from 'editor/plugins/withTables';
 
-export type DeckEditor = BaseEditor & ReactEditor & HistoryEditor & YjsEditor;
-export type SoloDeckEditor = BaseEditor & ReactEditor & HistoryEditor;
+export type DeckEditor = BaseEditor & ReactEditor & HistoryEditor & YjsEditor & TablesEditor;
+export type SoloDeckEditor = BaseEditor & ReactEditor & HistoryEditor & TablesEditor;
 
 export enum ElementType {
   Paragraph = 'paragraph',

@@ -2,9 +2,9 @@ import type { NodeEntry } from 'slate';
 import type { Table } from 'types/slate';
 import type { TablesEditor } from '../../TablesEditor';
 import { createGridWithSpans } from './createGridWithSpans';
-import { MatrixCell } from './MatrixCell';
 import { MatrixColumn } from './MatrixColumn';
 import { MatrixRow } from './MatrixRow';
+import { MatrixCell } from './MatrixCell';
 
 export class Matrix {
   public node: NodeEntry<Table>[0];

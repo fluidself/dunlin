@@ -22,7 +22,7 @@ import { useStore } from 'lib/store';
 import Tooltip from 'components/Tooltip';
 import { DropdownItem } from 'components/Dropdown';
 import { uploadAndInsertImage } from 'editor/plugins/withImages';
-import { insertTable } from '../elements/table/commands';
+import { insertTable } from 'editor/plugins/withTables';
 
 type ChangeBlockOptionsProps = {
   element: Element;

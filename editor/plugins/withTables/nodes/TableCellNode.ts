@@ -1,5 +1,4 @@
-import type { Location } from 'slate';
-import { Transforms } from 'slate';
+import { type Location, Transforms } from 'slate';
 import type { TableCell } from 'types/slate';
 import type { TablesEditor } from '../TablesEditor';
 
