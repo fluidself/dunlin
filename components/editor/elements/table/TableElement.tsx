@@ -22,7 +22,7 @@ export default function TableElement({ attributes, element, children }: Props) {
       <TableContext.Provider value={{ table: element }}>
         <div className="relative">
           <TableToolbar selected={selected} />
-          <table className="table-auto my-1 mx-0 overflow-auto border-collapse w-full">
+          <table className="table-auto my-1 mx-0 overflow-auto border-collapse">
             <tbody>{children}</tbody>
           </table>
         </div>
