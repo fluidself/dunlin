@@ -9,15 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@dnd-kit/core": "^6.0.5",
+    "@dnd-kit/core": "^6.0.6",
     "@dnd-kit/sortable": "^7.0.1",
-    "@headlessui/react": "^1.7.4",
+    "@headlessui/react": "^1.7.5",
     "@metamask/jazzicon": "^2.0.0",
     "@next/font": "^13.0.6",
     "@popperjs/core": "^2.11.2",
-    "@react-spring/web": "^9.5.5",
+    "@react-spring/web": "^9.6.0",
     "@supabase/supabase-js": "^1.35.7",
-    "@tabler/icons": "^1.114.0",
+    "@tabler/icons": "^1.117.0",
     "@tanstack/react-virtual": "^3.0.0-beta.23",
     "@tippyjs/react": "^4.2.6",
     "classnames": "^2.3.2",
@@ -71,7 +71,7 @@
     "web3.storage": "^4.4.0",
     "y-websocket": "^1.4.3",
     "yjs": "^13.5.38",
-    "zustand": "^4.1.4"
+    "zustand": "^4.1.5"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.0",
@@ -81,7 +81,7 @@
     "@types/d3-selection": "^3.0.2",
     "@types/d3-zoom": "^3.0.1",
     "@types/file-saver": "^2.0.5",
-    "@types/node": "^18.11.10",
+    "@types/node": "^18.11.15",
     "@types/nprogress": "^0.2.0",
     "@types/randomcolor": "^0.5.7",
     "@types/react": "^18.0.26",
@@ -90,8 +90,8 @@
     "@types/react-virtualized-auto-sizer": "^1.0.1",
     "@types/tailwindcss": "^3.0.9",
     "@types/uuid": "^9.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.45.0",
-    "@typescript-eslint/parser": "^5.45.0",
+    "@typescript-eslint/eslint-plugin": "^5.46.1",
+    "@typescript-eslint/parser": "^5.46.1",
     "autoprefixer": "^10.4.13",
     "eslint": "^8.29.0",
     "eslint-config-next": "^13.0.6",
@@ -100,8 +100,8 @@
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-react": "^7.29.3",
     "eslint-plugin-react-hooks": "^4.3.0",
-    "postcss": "^8.4.19",
+    "postcss": "^8.4.20",
     "tailwindcss": "^3.2.4",
-    "typescript": "^4.9.3"
+    "typescript": "^4.9.4"
   }
 }
