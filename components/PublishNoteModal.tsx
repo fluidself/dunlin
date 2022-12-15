@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { useMemo, useState, useEffect } from 'react';
 import { createEditor, Editor, Element, Node } from 'slate';
 import { IconSend, IconConfetti } from '@tabler/icons';
-import * as Name from 'w3name'; // eslint-disable-line
+import * as Name from 'w3name';
 import { toast } from 'react-toastify';
 import { ElementType, NoteLink } from 'types/slate';
 import { DecryptedNote } from 'types/decrypted';
@@ -110,7 +110,7 @@ export default function PublishNoteModal(props: Props) {
     return { name, revision };
   };
 
-  const updateNoteRevision = async (cid: string, name: any, revision: any) => {
+  const updateNoteRevision = async (cid: string, name: Name.WritableName, revision: Name.Revision) => {
     const nextValue = `/ipfs/${cid}`;
     const nextRevision = await Name.increment(revision, nextValue);
 
@@ -130,7 +130,7 @@ export default function PublishNoteModal(props: Props) {
     });
 
     const notesToPublish = getNotesToPublish(note, new Map<string, { id: string; title: string; body: string }>());
-    const interimNotes: { publication: NotePublication; name: any; revision: any }[] = [];
+    const interimNotes: { publication: NotePublication; name: Name.WritableName; revision: Name.Revision }[] = [];
     const publishedNotes: { id: string; cid: string }[] = [];
 
     try {
