@@ -26,7 +26,7 @@ export default function InputWrapper({
         )}
 
         <input
-          className={`input-subdued form-control block w-full px-3 py-3 m-0 ${error ? 'border-red-500' : ''}`}
+          className={`input-subdued form-control block w-full px-3 py-3 mt-1 ${error ? 'border-red-500' : ''}`}
           readOnly={readOnly}
           type={type}
           id={id}

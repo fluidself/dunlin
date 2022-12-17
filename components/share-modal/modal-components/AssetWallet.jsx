@@ -59,7 +59,7 @@ const AssetWallet = ({ setActiveStep, processingAccess, onAccessControlCondition
             isClearable
             isSearchable
             defaultValue={''}
-            className="react-select-container"
+            className="react-select-container mt-1"
             classNamePrefix="react-select"
             options={tokenSelectBoxRows}
             onChange={value => setSelectedToken(value)}

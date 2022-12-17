@@ -84,7 +84,7 @@ export default function ChoosePOAP({ setActiveStep, processingAccess, onAccessCo
         <div className="mt-4">
           <label>Match Conditions</label>
           <Select
-            className="react-select-container"
+            className="react-select-container mt-1"
             classNamePrefix="react-select"
             placeholder="Select one..."
             isClearable
