@@ -28,7 +28,7 @@ const ChainSelector = ({ chain, setChain }) => {
 
   return (
     <Select
-      className="react-select-container"
+      className="react-select-container mt-1"
       classNamePrefix="react-select"
       placeholder="Select a blockchain"
       isClearable
