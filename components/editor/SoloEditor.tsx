@@ -5,6 +5,7 @@ import { withHistory } from 'slate-history';
 import { isHotkey } from 'is-hotkey';
 import colors from 'tailwindcss/colors';
 import { handleEnter, handleIndent, handleUnindent, isElementActive, toggleElement, toggleMark } from 'editor/formatting';
+import decorateCodeBlocks from 'editor/decorateCodeBlocks';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
 import withImages from 'editor/plugins/withImages';
@@ -278,6 +279,7 @@ function SoloEditor(props: Props) {
         className={`overflow-hidden placeholder-gray-300 ${className}`}
         renderElement={renderElement}
         renderLeaf={EditorLeaf}
+        decorate={entry => decorateCodeBlocks(editor, entry)}
         placeholder="Start typing here…"
         onKeyDown={event => onKeyDown(event, editor)}
         onPointerDown={() => setToolbarCanBeVisible(false)}
