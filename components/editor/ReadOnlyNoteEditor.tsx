@@ -6,6 +6,7 @@ import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
 import randomColor from 'randomcolor';
 import { toast } from 'react-toastify';
+import decorateCodeBlocks from 'editor/decorateCodeBlocks';
 import withVoidElements from 'editor/plugins/withVoidElements';
 import withLinks from 'editor/plugins/withLinks';
 import withTags from 'editor/plugins/withTags';
@@ -117,7 +118,11 @@ function ReadOnlyNoteEditor(props: Props) {
           className={`overflow-hidden ${className}`}
           renderElement={renderElement}
           renderLeaf={EditorLeaf}
-          decorate={decorate}
+          decorate={entry => {
+            const codeSyntaxRanges = decorateCodeBlocks(editor, entry);
+            const cursorRanges = decorate(entry);
+            return [...codeSyntaxRanges, ...cursorRanges];
+          }}
           readOnly
         />
       </div>

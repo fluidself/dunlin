@@ -1,6 +1,7 @@
 import { ChangeEvent, ReactNode, useState, useCallback } from 'react';
 import { Transforms } from 'slate';
 import { ReactEditor, RenderElementProps, useSlateStatic, useReadOnly } from 'slate-react';
+import { CODE_BLOCK_LANGUAGES } from 'editor/decorateCodeBlocks';
 import { CodeBlock } from 'types/slate';
 
 type Props = {
@@ -21,15 +22,14 @@ export default function CodeBlockElement(props: Props) {
 
   const onSelectChange = useCallback(
     (event: ChangeEvent<HTMLSelectElement>) => {
-      if (readOnly) {
-        return;
-      }
+      if (readOnly) return;
+
       try {
         const path = ReactEditor.findPath(editor, element);
         const newProperties: Partial<CodeBlock> = {
           lang: event.target.value,
         };
-        path && Transforms.setNodes(editor, newProperties, { at: path });
+        Transforms.setNodes(editor, newProperties, { at: path });
         setLanguage(event.target.value);
       } catch (e) {
         const message = e instanceof Error ? e.message : e;
@@ -47,21 +47,9 @@ export default function CodeBlockElement(props: Props) {
       {!readOnly && (
         <select
           value={language}
-          style={{
-            background: 'transparent',
-            position: 'absolute',
-            top: '-10px',
-            right: '6px',
-            padding: '2px',
-            border: 'none',
-            textAlign: 'right',
-            fontSize: '14px',
-            cursor: 'pointer',
-            outline: 'none',
-          }}
           onChange={onSelectChange}
           contentEditable={false}
-          {...props}
+          className="bg-transparent absolute top-0.5 right-[-4px] p-0.5 pr-7 border-none focus:ring-0 focus:shadow-none ring-offset-0 text-right cursor-pointer text-[13px]"
         >
           <option value="">Plaintext</option>
           {Object.entries(CODE_BLOCK_LANGUAGES).map(([key, val]) => (
@@ -75,22 +63,3 @@ export default function CodeBlockElement(props: Props) {
     </pre>
   );
 }
-
-export const CODE_BLOCK_LANGUAGES: Record<string, string> = {
-  bash: 'Bash',
-  css: 'CSS',
-  // go: 'Go',
-  graphql: 'GraphQL',
-  html: 'HTML',
-  javascript: 'JavaScript',
-  json: 'JSON',
-  jsx: 'JSX',
-  latex: 'LaTeX',
-  python: 'Python',
-  // ruby: 'Ruby',
-  solidity: 'Solidity',
-  sql: 'SQL',
-  tsx: 'TSX',
-  typescript: 'TypeScript',
-  wasm: 'WebAssembly',
-};

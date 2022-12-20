@@ -8,6 +8,8 @@ export type EditorLeafProps = {
 } & RenderLeafProps;
 
 const EditorLeaf = ({ attributes, children, leaf }: EditorLeafProps) => {
+  const { isCaret, isForward, data, ...rest } = leaf;
+
   if (leaf.bold) {
     children = <b className="font-semibold">{children}</b>;
   }
@@ -34,13 +36,15 @@ const EditorLeaf = ({ attributes, children, leaf }: EditorLeafProps) => {
     children = <mark className="bg-yellow-100 dark:bg-yellow-900 dark:text-white">{children}</mark>;
   }
 
-  const data = leaf.data;
+  const tokenClassName = `token ${Object.keys(rest)
+    .filter(attr => attr !== 'text')
+    .join(' ')}`;
 
   return (
-    <span {...attributes}>
-      {leaf.isCaret ? (
+    <span className={tokenClassName} {...attributes}>
+      {isCaret ? (
         <span className={`relative bg-[${data?.alphaColor}]`}>
-          <Caret isForward={leaf.isForward} data={leaf.data} />
+          <Caret isForward={isForward} data={leaf.data} />
         </span>
       ) : null}
       {children}

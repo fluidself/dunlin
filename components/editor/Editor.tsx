@@ -12,6 +12,7 @@ import _isEqual from 'lodash/isEqual';
 import { toast } from 'react-toastify';
 import colors from 'tailwindcss/colors';
 import { handleEnter, handleIndent, handleUnindent, isElementActive, toggleElement, toggleMark } from 'editor/formatting';
+import decorateCodeBlocks from 'editor/decorateCodeBlocks';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
 import withBlockReferences from 'editor/plugins/withBlockReferences';
@@ -354,7 +355,11 @@ function Editor(props: Props) {
         className={`overflow-hidden placeholder-gray-300 ${className}`}
         renderElement={renderElement}
         renderLeaf={EditorLeaf}
-        decorate={decorate}
+        decorate={entry => {
+          const codeSyntaxRanges = decorateCodeBlocks(editor, entry);
+          const cursorRanges = decorate(entry);
+          return [...codeSyntaxRanges, ...cursorRanges];
+        }}
         placeholder="Start typing here…"
         onKeyDown={event => onKeyDown(event, editor)}
         onPointerDown={() => setToolbarCanBeVisible(false)}
