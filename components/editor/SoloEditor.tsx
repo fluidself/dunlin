@@ -276,7 +276,7 @@ function SoloEditor(props: Props) {
       <BlockAutocompletePopover />
       <TagAutocompletePopover />
       <Editable
-        className={`overflow-hidden placeholder-gray-300 ${className}`}
+        className={`overflow-hidden placeholder-gray-300 focus-visible:outline-none ${className}`}
         renderElement={renderElement}
         renderLeaf={EditorLeaf}
         decorate={entry => decorateCodeBlocks(editor, entry)}

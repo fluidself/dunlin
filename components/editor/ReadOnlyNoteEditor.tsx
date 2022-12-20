@@ -115,7 +115,7 @@ function ReadOnlyNoteEditor(props: Props) {
     >
       <div contentEditable={false} className="flex-1">
         <Editable
-          className={`overflow-hidden ${className}`}
+          className={`overflow-hidden focus-visible:outline-none ${className}`}
           renderElement={renderElement}
           renderLeaf={EditorLeaf}
           decorate={entry => {

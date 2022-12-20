@@ -1,4 +1,4 @@
-import React from 'react';
+import { CSSProperties } from 'react';
 
 interface Caret {
   isForward?: boolean;
@@ -43,7 +43,7 @@ const cursorStyleBase = {
   color: 'white',
   background: 'palevioletred',
   whiteSpace: 'nowrap',
-} as React.CSSProperties;
+} as CSSProperties;
 
 const caretStyleBase = {
   position: 'absolute',
@@ -52,4 +52,4 @@ const caretStyleBase = {
   height: '1.2em',
   width: 2,
   background: 'palevioletred',
-} as React.CSSProperties;
+} as CSSProperties;
