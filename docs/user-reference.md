@@ -39,7 +39,7 @@
 - Type `###` followed by a `space` to create an H3 heading.
 - Type `-`, `*`, or `+` followed by a `space` to create a bulleted list.
 - Type `1.` followed by a `space` to create a numbered list.
-- Type `[]` to create a checklist item.
+- Type `[]` followed by a `space` to create a checklist item.
 - Type `>` followed by a `space` to create a blockquote.
 - Type ` ``` ` to create a code block.
 - Type `---` or `***` to create a horizontal rule.
