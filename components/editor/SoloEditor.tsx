@@ -4,7 +4,15 @@ import { withReact, Editable, ReactEditor, Slate } from 'slate-react';
 import { withHistory } from 'slate-history';
 import { isHotkey } from 'is-hotkey';
 import colors from 'tailwindcss/colors';
-import { handleEnter, handleIndent, handleUnindent, isElementActive, toggleElement, toggleMark } from 'editor/formatting';
+import {
+  handleBrackets,
+  handleEnter,
+  handleIndent,
+  handleUnindent,
+  isElementActive,
+  toggleElement,
+  toggleMark,
+} from 'editor/formatting';
 import decorateCodeBlocks from 'editor/decorateCodeBlocks';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
@@ -193,6 +201,18 @@ function SoloEditor(props: Props) {
       {
         hotkey: 'mod+enter',
         callback: () => editor.insertBreak(),
+      },
+      {
+        hotkey: 'shift+9',
+        callback: () => handleBrackets(editor, '('),
+      },
+      {
+        hotkey: '[',
+        callback: () => handleBrackets(editor, '['),
+      },
+      {
+        hotkey: 'shift+[',
+        callback: () => handleBrackets(editor, '{'),
       },
     ],
     [editor, setAddLinkPopoverState],
