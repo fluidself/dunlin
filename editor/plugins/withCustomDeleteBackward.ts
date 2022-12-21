@@ -1,5 +1,5 @@
-import { Editor, Element, Transforms } from 'slate';
-import { isListType } from 'editor/formatting';
+import { Editor, Element, Transforms, Node } from 'slate';
+import { BRACKET_MAP, isListType } from 'editor/formatting';
 import { ElementType } from 'types/slate';
 
 const withCustomDeleteBackward = (editor: Editor) => {
@@ -47,6 +47,18 @@ const withCustomDeleteBackward = (editor: Editor) => {
       }
 
       return;
+    }
+
+    const lineString = Node.string(lineElement);
+    const characterToDelete = lineString[selection.anchor.offset - 1] ?? null;
+    const nextCharacter = lineString[selection.anchor.offset] ?? null;
+
+    if (characterToDelete && nextCharacter) {
+      for (const [openingBracket, closingBracket] of Object.entries(BRACKET_MAP)) {
+        if (characterToDelete === openingBracket && nextCharacter === closingBracket) {
+          editor.deleteForward(...args);
+        }
+      }
     }
 
     deleteBackward(...args);
