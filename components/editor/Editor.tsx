@@ -11,7 +11,15 @@ import _pick from 'lodash/pick';
 import _isEqual from 'lodash/isEqual';
 import { toast } from 'react-toastify';
 import colors from 'tailwindcss/colors';
-import { handleEnter, handleIndent, handleUnindent, isElementActive, toggleElement, toggleMark } from 'editor/formatting';
+import {
+  handleBrackets,
+  handleEnter,
+  handleIndent,
+  handleUnindent,
+  isElementActive,
+  toggleElement,
+  toggleMark,
+} from 'editor/formatting';
 import decorateCodeBlocks from 'editor/decorateCodeBlocks';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
@@ -259,6 +267,18 @@ function Editor(props: Props) {
       {
         hotkey: 'mod+enter',
         callback: () => editor.insertBreak(),
+      },
+      {
+        hotkey: 'shift+9',
+        callback: () => handleBrackets(editor, '('),
+      },
+      {
+        hotkey: '[',
+        callback: () => handleBrackets(editor, '['),
+      },
+      {
+        hotkey: 'shift+[',
+        callback: () => handleBrackets(editor, '{'),
       },
     ],
     [editor, setAddLinkPopoverState],
