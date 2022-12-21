@@ -69,7 +69,7 @@ export default function BlockAutocompletePopover() {
   }, []);
 
   const getRegexResult = useCallback(() => {
-    const REGEX = /(?:^|\s)(\(\()(.+)/;
+    const REGEX = /(?:^|\s)(\(\()([^()]+)/;
     const { selection } = editor;
 
     const returnValue: { result: RegExpMatchArray | null; onOwnLine: boolean } = { result: null, onOwnLine: false };

@@ -18,7 +18,6 @@ enum CustomInlineShortcuts {
   CustomNoteLink = 'custom-note-link',
 }
 
-export const BLOCK_REFERENCE_REGEX = /(?:^|\s)(\(\()(.+)(\)\))/;
 const INLINE_SHORTCUTS: Array<{
   match: RegExp;
   type:
@@ -48,7 +47,7 @@ const INLINE_SHORTCUTS: Array<{
     match: /(?:^|\s)(#[^\s]+)(\s)/,
     type: ElementType.Tag,
   },
-  { match: BLOCK_REFERENCE_REGEX, type: ElementType.BlockReference },
+  { match: /(?:^|\s)(\(\()([^\(\)]+)(\)\))/, type: ElementType.BlockReference },
 ];
 
 // Handle inline shortcuts
