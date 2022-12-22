@@ -109,7 +109,7 @@ export default function deserialize(node: MdastNode, opts?: OptionType): Descend
       return {
         id: createNodeId(),
         type: ElementType.CodeBlock,
-        // language: node.lang,
+        lang: node.lang ?? '',
         children: [{ text: node.value ?? '' }],
       };
     case 'detailsDisclosure':
