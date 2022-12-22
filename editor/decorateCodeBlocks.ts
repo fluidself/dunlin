@@ -10,26 +10,9 @@ import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-solidity';
 import 'prismjs/components/prism-sql';
 import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-wasm';
-import 'prismjs/themes/prism-tomorrow.css';
 import { ElementType } from 'types/slate';
 
 Prism.manual = true;
-
-export const CODE_BLOCK_LANGUAGES: Record<string, string> = {
-  bash: 'Bash',
-  css: 'CSS',
-  graphql: 'GraphQL',
-  html: 'HTML',
-  javascript: 'JavaScript',
-  json: 'JSON',
-  jsx: 'JSX',
-  python: 'Python',
-  solidity: 'Solidity',
-  sql: 'SQL',
-  typescript: 'TypeScript',
-  wasm: 'WebAssembly',
-};
 
 export default function decorateCodeBlocks(editor: Editor, [node, path]: NodeEntry) {
   const ranges: BaseRange[] = [];
@@ -74,3 +57,86 @@ const getLength = (token: string | Prism.Token): number => {
     return (token.content as (string | Prism.Token)[]).reduce((l, t) => l + getLength(t), 0);
   }
 };
+
+export const CODE_BLOCK_LANGUAGES: Record<string, string> = {
+  bash: 'Bash',
+  css: 'CSS',
+  graphql: 'GraphQL',
+  html: 'HTML',
+  javascript: 'JavaScript',
+  json: 'JSON',
+  jsx: 'JSX',
+  python: 'Python',
+  solidity: 'Solidity',
+  sql: 'SQL',
+  typescript: 'TypeScript',
+};
+
+export const LANGUAGE_CLASSES = Object.keys(CODE_BLOCK_LANGUAGES).map(lang => `language-${lang}`);
+export const TOKEN_CLASSES = [
+  'assign-left',
+  'atom-input',
+  'atrule',
+  'attr-name',
+  'attr-value',
+  'bold',
+  'boolean',
+  'builtin',
+  'cdata',
+  'char',
+  'class-name',
+  'comment',
+  'constant',
+  'decorator',
+  'definition-mutation',
+  'definition-query',
+  'deleted',
+  'directive',
+  'doctype',
+  'entity',
+  'environment',
+  'file-descriptor',
+  'for-or-select',
+  'fragment',
+  'function',
+  'function-name',
+  'function-variable',
+  'generic-function',
+  'hashbang',
+  'identifier',
+  'important',
+  'inserted',
+  'italic',
+  'keyword',
+  'language-regex',
+  'literal-property',
+  'namespace',
+  'null',
+  'number',
+  'object',
+  'operator',
+  'parameter',
+  'prolog',
+  'property',
+  'property-query',
+  'punctuation',
+  'regex',
+  'regex-delimiter',
+  'regex-flags',
+  'regex-source',
+  'scalar',
+  'selector',
+  'shebang',
+  'special-attr',
+  'string',
+  'string-interpolation',
+  'string-property',
+  'symbol',
+  'tag',
+  'template-string',
+  'token',
+  'triple-quoted-string',
+  'url',
+  'variable',
+  'version',
+];

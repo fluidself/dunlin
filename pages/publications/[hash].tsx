@@ -1,18 +1,20 @@
 import Head from 'next/head';
-import { GetServerSideProps } from 'next';
+import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import * as Name from 'w3name'; // eslint-disable-line
+import * as Name from 'w3name';
+import { IconExternalLink } from '@tabler/icons';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import wikiLinkPlugin from 'remark-wiki-link';
 import remarkRehype from 'remark-rehype';
 import rehypeRaw from 'rehype-raw';
-import rehypeSanitize from 'rehype-sanitize';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
-import { IconExternalLink } from '@tabler/icons';
+import rehypePrism from 'rehype-prism';
+import { LANGUAGE_CLASSES, TOKEN_CLASSES } from 'editor/decorateCodeBlocks';
 import { addEllipsis } from 'utils/string';
 import { getReadableDatetime } from 'utils/date';
 import PageLoading from 'components/PageLoading';
@@ -43,8 +45,17 @@ export default function PublicationPage(props: Props) {
         .use(remarkGfm)
         .use(wikiLinkPlugin, { aliasDivider: '|' })
         .use(remarkRehype, { allowDangerousHtml: true })
+        .use(rehypePrism)
         .use(rehypeRaw)
-        .use(rehypeSanitize)
+        .use(rehypeSanitize, {
+          ...defaultSchema,
+          attributes: {
+            ...defaultSchema.attributes,
+            pre: [...(defaultSchema.attributes?.pre || []), ['className', ...LANGUAGE_CLASSES]],
+            code: [...(defaultSchema.attributes?.code || []), ['className', ...LANGUAGE_CLASSES]],
+            span: [...(defaultSchema.attributes?.span || []), ['className', ...LANGUAGE_CLASSES, ...TOKEN_CLASSES]],
+          },
+        })
         .use(rehypeStringify)
         .processSync(body);
 
