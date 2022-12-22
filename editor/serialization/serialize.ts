@@ -25,6 +25,7 @@ import { Element, Text } from 'slate';
 import {
   BlockReference,
   CheckListItem,
+  CodeBlock,
   DetailsDisclosure,
   ElementType,
   ExternalLink,
@@ -144,7 +145,8 @@ export default function serialize(
       return `> ${children}\n\n`;
 
     case ElementType.CodeBlock:
-      return `\`\`\`\n${children}\n\`\`\`\n`;
+      const codeBlock = chunk as CodeBlock;
+      return codeBlock.lang ? `\`\`\`${codeBlock.lang}\n${children}\n\`\`\`\n` : `\`\`\`\n${children}\n\`\`\`\n`;
 
     case ElementType.NoteLink: {
       const noteLink = chunk as NoteLink;
