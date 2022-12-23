@@ -15,8 +15,7 @@ export default function TableCellElement({ attributes, element, children }: Prop
   const { table } = useContext(TableContext);
 
   if (!table) {
-    console.warn(`${TableCellElement.name} requires wrapping in TableContext.`);
-    return null;
+    return <div {...attributes}>{children}</div>;
   }
 
   const headerCell = isHeaderCell(table, element);
