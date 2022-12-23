@@ -1,7 +1,10 @@
 import { ForwardedRef, forwardRef, HTMLAttributes, memo, useCallback, useMemo } from 'react';
 import { IconCaretRight } from '@tabler/icons';
-import { useStore } from 'lib/store';
+import { Deck } from 'types/supabase';
+import supabase from 'lib/supabase';
+import { store, useStore } from 'lib/store';
 import { isMobile } from 'utils/device';
+import { useCurrentDeck } from 'utils/useCurrentDeck';
 import useOnNoteLinkClick from 'editor/useOnNoteLinkClick';
 import SidebarItem from './SidebarItem';
 import SidebarNoteLinkDropdown from './SidebarNoteLinkDropdown';
@@ -15,6 +18,7 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement>) => {
   const { node, isHighlighted, className = '', style, ...otherProps } = props;
 
+  const { id: deckId } = useCurrentDeck();
   const note = useStore(state => state.notes[node.id]);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
   const lastOpenNoteId = useStore(state => state.openNoteIds[state.openNoteIds.length - 1]);
@@ -22,7 +26,10 @@ const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement
 
   const toggleNoteTreeItemCollapsed = useStore(state => state.toggleNoteTreeItemCollapsed);
 
-  const onArrowClick = useCallback(() => toggleNoteTreeItemCollapsed(node.id), [node, toggleNoteTreeItemCollapsed]);
+  const onArrowClick = useCallback(async () => {
+    toggleNoteTreeItemCollapsed(node.id);
+    await supabase.from<Deck>('decks').update({ note_tree: store.getState().noteTree }).eq('id', deckId);
+  }, [node, deckId, toggleNoteTreeItemCollapsed]);
 
   const leftPadding = useMemo(() => node.depth * 12 + (node.hasChildren ? 6 : 28), [node.depth, node.hasChildren]);
 
