@@ -97,7 +97,7 @@
 }
 
 .details.is-open > .details-summary > button::before {
-  content: '\25BC';
+  @apply rotate-90;
 }
 
 @layer utilities {
