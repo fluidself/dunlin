@@ -35,9 +35,8 @@ const EditorLeaf = ({ attributes, children, leaf }: EditorLeafProps) => {
     children = <mark className="bg-yellow-100 dark:bg-yellow-900 dark:text-white">{children}</mark>;
   }
 
-  const tokenClassName = `token ${Object.keys(rest)
-    .filter(attr => attr !== 'text')
-    .join(' ')}`;
+  const nonTextAttributes = Object.keys(rest).filter(attr => attr !== 'text');
+  const tokenClassName = nonTextAttributes.length ? `token ${nonTextAttributes.join(' ')}` : '';
 
   return (
     <span className={tokenClassName} {...attributes}>
