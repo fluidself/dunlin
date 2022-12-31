@@ -24,7 +24,6 @@ export default function CodeBlockElement(props: Props) {
   const { key } = useCurrentDeck();
 
   const { lang } = element;
-  const codeClassName = lang ? `language-${lang}` : '';
 
   const onSelectChange = useCallback(
     async (event: ChangeEvent<HTMLSelectElement>) => {
@@ -72,7 +71,7 @@ export default function CodeBlockElement(props: Props) {
           ))}
         </select>
       )}
-      <code className={codeClassName}>{children}</code>
+      <code className={`language-${lang ?? ''}`}>{children}</code>
     </pre>
   );
 }
