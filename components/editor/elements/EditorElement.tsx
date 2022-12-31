@@ -70,6 +70,8 @@ export default function EditorElement(props: EditorElementProps) {
           {children}
         </blockquote>
       );
+    case ElementType.CodeLine:
+      return <div {...attributes}>{children}</div>;
     case ElementType.CodeBlock:
       return (
         <CodeBlockElement className={className} element={element} attributes={attributes}>

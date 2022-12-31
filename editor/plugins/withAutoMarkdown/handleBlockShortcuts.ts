@@ -1,5 +1,5 @@
 import { Editor, Element, Transforms, Range } from 'slate';
-import type { ListElement } from 'types/slate';
+import type { CodeBlock, ListElement } from 'types/slate';
 import { ElementType } from 'types/slate';
 import { isListType } from 'editor/formatting';
 import { createNodeId } from '../withNodeId';
@@ -29,7 +29,7 @@ const BLOCK_SHORTCUTS: Array<
   { match: /^# $/, type: ElementType.HeadingOne },
   { match: /^## $/, type: ElementType.HeadingTwo },
   { match: /^### $/, type: ElementType.HeadingThree },
-  { match: /^```$/, type: ElementType.CodeBlock },
+  { match: /^```$/, type: ElementType.CodeLine },
   { match: /^---$/, type: ElementType.ThematicBreak },
   { match: /^\*\*\*$/, type: ElementType.ThematicBreak },
   { match: /^\[\] $/, type: ElementType.CheckListItem },
@@ -105,6 +105,15 @@ const handleBlockShortcuts = (editor: Editor, text: string): boolean => {
       });
     } else if (type === ElementType.CheckListItem) {
       Transforms.setNodes(editor, { checked: false });
+    } else if (type === ElementType.CodeLine) {
+      const codeBlock: CodeBlock = {
+        id: createNodeId(),
+        type: ElementType.CodeBlock,
+        children: [],
+      };
+      Transforms.wrapNodes(editor, codeBlock, {
+        match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.CodeLine,
+      });
     }
 
     return true;
