@@ -20,6 +20,7 @@ export enum ElementType {
   ExternalLink = 'link',
   NoteLink = 'note-link',
   Tag = 'tag',
+  CodeLine = 'code-line',
   CodeBlock = 'code-block',
   ThematicBreak = 'thematic-break',
   Image = 'image',
@@ -117,11 +118,17 @@ export type Tag = {
   children: Descendant[]; // Children has the #
 };
 
+export type CodeLine = {
+  id: string;
+  type: ElementType.CodeLine;
+  children: Descendant[];
+};
+
 export type CodeBlock = {
   id: string;
   type: ElementType.CodeBlock;
   lang?: string;
-  children: Descendant[];
+  children: CodeLine[];
 };
 
 export type ThematicBreak = {
@@ -184,6 +191,7 @@ export type ReferenceableBlockElement =
   | ListItem
   | CheckListItem
   | Blockquote
+  | CodeLine
   | CodeBlock
   | ThematicBreak
   | Image

@@ -53,7 +53,7 @@ export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
       <div className="flex items-center justify-center">
         <ImageButton format={ElementType.Image} element={element} Icon={IconPhoto} tooltip="Image" />
         <BlockButton format={ElementType.Blockquote} element={element} Icon={IconBlockquote} tooltip="Quote Block" />
-        <BlockButton format={ElementType.CodeBlock} element={element} Icon={IconBraces} tooltip="Code Block" />
+        <BlockButton format={ElementType.CodeLine} element={element} Icon={IconBraces} tooltip="Code Block" />
         <BlockButton format={ElementType.Table} element={element} Icon={IconTable} tooltip="Table" />
       </div>
     </div>

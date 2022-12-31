@@ -1,4 +1,4 @@
-import { Text, Editor, BaseRange, NodeEntry } from 'slate';
+import { Editor, BaseRange, NodeEntry, Node } from 'slate';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-bash';
 import 'prismjs/components/prism-css';
@@ -17,17 +17,15 @@ Prism.manual = true;
 export default function decorateCodeBlocks(editor: Editor, [node, path]: NodeEntry) {
   const ranges: BaseRange[] = [];
 
-  if (node === editor) return ranges;
+  if (node === editor || node.type !== ElementType.CodeLine) return ranges;
 
   const [parentNode] = Editor.parent(editor, path);
   if (!parentNode || parentNode.type !== ElementType.CodeBlock) return ranges;
 
-  if (!Text.isText(node)) return ranges;
-
   const blockLanguage = parentNode.lang;
   if (!blockLanguage) return ranges;
 
-  const tokens = Prism.tokenize(node.text, Prism.languages[blockLanguage]);
+  const tokens = Prism.tokenize(Node.string(node), Prism.languages[blockLanguage]);
   let start = 0;
 
   for (const token of tokens) {
