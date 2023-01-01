@@ -1,11 +1,10 @@
 import { Editor, Element, Transforms, Node } from 'slate';
-import { BRACKET_MAP, isListType } from 'editor/formatting';
+import { BRACKET_MAP, DEFAULT_INDENTATION, isListType } from 'editor/formatting';
 import { ElementType } from 'types/slate';
 
 const withCustomDeleteBackward = (editor: Editor) => {
   const { deleteBackward } = editor;
 
-  // Convert list item to a paragraph if deleted at the beginning of the item
   editor.deleteBackward = (...args: any[]) => {
     const { selection } = editor;
     const block = Editor.above(editor, {
@@ -20,7 +19,24 @@ const withCustomDeleteBackward = (editor: Editor) => {
     const [lineElement, path] = block;
     const isAtLineStart = Editor.isStart(editor, selection.anchor, path);
 
-    // The selection is at the start of the line
+    // Handle whitespace deletion in code blocks
+    if (!isAtLineStart && Element.isElement(lineElement) && lineElement.type === ElementType.CodeLine) {
+      const lineString = Node.string(lineElement);
+      const beforeSelection = lineString.slice(0, selection.anchor.offset);
+      const indentMatch = beforeSelection.match(new RegExp(DEFAULT_INDENTATION, 'g'))?.length || 0;
+      const rest = beforeSelection.slice(DEFAULT_INDENTATION.length * indentMatch).length;
+
+      // Preceding characters end with whitespace
+      if (beforeSelection.slice(-DEFAULT_INDENTATION.length) === DEFAULT_INDENTATION) {
+        Transforms.delete(editor, {
+          distance: rest === 1 ? rest : DEFAULT_INDENTATION.length,
+          reverse: true,
+        });
+        return;
+      }
+    }
+
+    // Convert list item or code block to a paragraph if deleted at the beginning of the item
     if (
       isAtLineStart &&
       Element.isElement(lineElement) &&
@@ -40,6 +56,18 @@ const withCustomDeleteBackward = (editor: Editor) => {
         });
         if (!isInList) {
           Transforms.setNodes(editor, { type: ElementType.Paragraph });
+        }
+      } else if (lineElement.type === ElementType.CodeLine) {
+        const abovePath = Editor.before(editor, editor.selection);
+        if (!abovePath) return unwrapCodeBlock(editor);
+
+        const [nodeAbove] = Editor.parent(editor, abovePath);
+        if (nodeAbove && nodeAbove.type === ElementType.CodeLine) {
+          Transforms.mergeNodes(editor, {
+            match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.CodeLine,
+          });
+        } else {
+          unwrapCodeBlock(editor);
         }
       } else {
         // Convert to paragraph
@@ -65,6 +93,13 @@ const withCustomDeleteBackward = (editor: Editor) => {
   };
 
   return editor;
+};
+
+const unwrapCodeBlock = (editor: Editor) => {
+  Transforms.unwrapNodes(editor, {
+    match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.CodeBlock,
+  });
+  Transforms.setNodes(editor, { type: ElementType.Paragraph });
 };
 
 export default withCustomDeleteBackward;
