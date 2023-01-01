@@ -11,19 +11,12 @@ import _pick from 'lodash/pick';
 import _isEqual from 'lodash/isEqual';
 import { toast } from 'react-toastify';
 import colors from 'tailwindcss/colors';
-import {
-  handleBrackets,
-  handleEnter,
-  handleIndent,
-  handleUnindent,
-  isElementActive,
-  toggleElement,
-  toggleMark,
-} from 'editor/formatting';
+import { handleBrackets, handleIndent, handleUnindent, isElementActive, toggleElement, toggleMark } from 'editor/formatting';
 import decorateCodeBlocks from 'editor/decorateCodeBlocks';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
 import withBlockReferences from 'editor/plugins/withBlockReferences';
+import withCodeBlocks from 'editor/plugins/withCodeBlocks';
 import withImages from 'editor/plugins/withImages';
 import withLinks from 'editor/plugins/withLinks';
 import withNormalization from 'editor/plugins/withNormalization';
@@ -99,11 +92,13 @@ function Editor(props: Props) {
         withNormalization(
           withCustomDeleteBackward(
             withAutoMarkdown(
-              withHtml(
-                withBlockBreakout(
-                  withVoidElements(
-                    withBlockReferences(
-                      withImages(withTags(withLinks(withTables(withHistory(withReact(createEditor() as DeckEditor)))))),
+              withCodeBlocks(
+                withHtml(
+                  withBlockBreakout(
+                    withVoidElements(
+                      withBlockReferences(
+                        withImages(withTags(withLinks(withTables(withHistory(withReact(createEditor() as DeckEditor)))))),
+                      ),
                     ),
                   ),
                 ),
@@ -257,10 +252,6 @@ function Editor(props: Props) {
         callback: () => handleUnindent(editor),
       },
       {
-        hotkey: 'enter',
-        callback: () => handleEnter(editor),
-      },
-      {
         hotkey: 'shift+enter',
         callback: () => Transforms.insertText(editor, '\n'),
       },
@@ -285,13 +276,20 @@ function Editor(props: Props) {
   );
 
   const onKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLDivElement>, editor: DeckEditor) => {
+    (event: KeyboardEvent<HTMLDivElement>, editor: SlateEditor) => {
       // Handle keyboard shortcuts
       if (
         isHotkey(['up', 'down', 'tab', 'shift+tab', 'enter'], event.nativeEvent) &&
         isElementActive(editor, ElementType.Table)
       ) {
         onTableKeyDown(event, editor);
+      } else if (isHotkey('mod+a', event.nativeEvent) && isElementActive(editor, ElementType.CodeBlock)) {
+        const codeBlock = SlateEditor.above(editor, { match: n => n.type === ElementType.CodeBlock });
+        if (!codeBlock) return;
+        const [, codeBlockPath] = codeBlock;
+        event.preventDefault();
+        event.stopPropagation();
+        Transforms.select(editor, codeBlockPath);
       } else {
         for (const { hotkey, callback } of hotkeys) {
           if (isHotkey(hotkey, event.nativeEvent)) {

@@ -25,6 +25,7 @@
     "d3-force": "^3.0.0",
     "d3-selection": "^3.0.0",
     "d3-zoom": "^3.0.0",
+    "detect-indent": "^7.0.1",
     "ethers": "^5.7.2",
     "file-saver": "^2.0.5",
     "fuse.js": "^6.5.3",

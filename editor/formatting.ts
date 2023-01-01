@@ -1,7 +1,8 @@
 import { Editor, Element, Transforms, Range, Text, Node, Path } from 'slate';
 import _isEqual from 'lodash/isEqual';
+import detectIndent from 'detect-indent';
 import { store } from 'lib/store';
-import type { ExternalLink, NoteLink, ListElement, Image, BlockReference, Tag, DetailsDisclosure } from 'types/slate';
+import type { ExternalLink, NoteLink, ListElement, Image, BlockReference, Tag, DetailsDisclosure, CodeBlock } from 'types/slate';
 import { ElementType, Mark } from 'types/slate';
 import { computeBlockReference } from './backlinks/useBlockReference';
 import { createNodeId } from './plugins/withNodeId';
@@ -78,6 +79,12 @@ export const toggleElement = (editor: Editor, format: ElementType, path?: Path) 
     });
   } while (continueUnwrappingList());
 
+  Transforms.unwrapNodes(editor, {
+    at: getCurrentLocation(),
+    match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.CodeBlock,
+    split: true,
+  });
+
   let newProperties: Partial<Element>;
   if (isActive) {
     newProperties = { type: ElementType.Paragraph };
@@ -98,6 +105,20 @@ export const toggleElement = (editor: Editor, format: ElementType, path?: Path) 
     };
     Transforms.wrapNodes(editor, block, { at: getCurrentLocation() });
   }
+  if (!isActive && format === ElementType.CodeLine) {
+    const block: CodeBlock = {
+      id: createNodeId(),
+      type: ElementType.CodeBlock,
+      children: [],
+    };
+    Transforms.wrapNodes(editor, block, { at: getCurrentLocation() });
+  }
+};
+
+export const DEFAULT_INDENTATION = '  ';
+
+export const getIndent = (text: string, defaultValue: string = ''): string => {
+  return detectIndent(text).indent || defaultValue;
 };
 
 export const handleIndent = (editor: Editor) => {
@@ -113,15 +134,17 @@ export const handleIndent = (editor: Editor) => {
       type: ElementType.NumberedList,
       children: [],
     });
-  } else if (isElementActive(editor, ElementType.CodeBlock)) {
-    Transforms.insertText(editor, '\t');
+  } else if (isElementActive(editor, ElementType.CodeLine)) {
+    handleTableIndentation(editor, IndentationType.Indent);
   }
 };
 
 export const handleUnindent = (editor: Editor) => {
   const { selection } = editor;
-  if (!selection) {
-    return;
+  if (!selection) return;
+
+  if (isElementActive(editor, ElementType.CodeLine)) {
+    handleTableIndentation(editor, IndentationType.Unindent);
   }
 
   const ancestors = Node.ancestors(editor, selection.anchor.path);
@@ -141,11 +164,39 @@ export const handleUnindent = (editor: Editor) => {
   }
 };
 
-export const handleEnter = (editor: Editor) => {
-  if (isElementActive(editor, ElementType.CodeBlock)) {
-    Transforms.insertText(editor, '\n');
-  } else {
-    editor.insertBreak();
+enum IndentationType {
+  'Indent',
+  'Unindent',
+}
+
+const handleTableIndentation = (editor: Editor, type: IndentationType) => {
+  const codeLines = Editor.nodes(editor, {
+    match: n => n.type === ElementType.CodeLine,
+  });
+
+  for (const codeLine of codeLines) {
+    const [codeLineNode, codeLinePath] = codeLine;
+    const codeLineStart = Editor.start(editor, codeLinePath);
+    const lineString = Node.string(codeLineNode);
+    const indent = getIndent(lineString);
+    const indentMatch = indent.match(new RegExp(DEFAULT_INDENTATION, 'g'))?.length || 0;
+    const rest = indent.slice(DEFAULT_INDENTATION.length * indentMatch).length;
+
+    if (type === IndentationType.Indent) {
+      const indentToInsert = rest
+        ? DEFAULT_INDENTATION.slice(DEFAULT_INDENTATION.length - DEFAULT_INDENTATION.length / 2)
+        : DEFAULT_INDENTATION;
+      const insertLocation = editor.selection && Range.isCollapsed(editor.selection) ? editor.selection : codeLineStart;
+
+      Transforms.insertText(editor, indentToInsert, { at: insertLocation });
+    } else if (type === IndentationType.Unindent) {
+      if (indentMatch || rest) {
+        Transforms.delete(editor, {
+          at: codeLineStart,
+          distance: rest ? rest : DEFAULT_INDENTATION.length,
+        });
+      }
+    }
   }
 };
 

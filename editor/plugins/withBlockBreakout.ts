@@ -1,6 +1,6 @@
 import type { Point } from 'slate';
-import { Editor, Element, Transforms, Range, Text, Path } from 'slate';
-import { isListType } from 'editor/formatting';
+import { Editor, Element, Transforms, Range, Text, Path, Node } from 'slate';
+import { getIndent, isListType } from 'editor/formatting';
 import { ElementType } from 'types/slate';
 import { createNodeId } from './withNodeId';
 
@@ -39,6 +39,9 @@ const withBlockBreakout = (editor: Editor) => {
     const isAtLineStart = Editor.isStart(editor, anchor, path);
     const isAtLineEnd = Editor.isEnd(editor, anchor, path);
 
+    const lineString = Node.string(lineElement);
+    const indent = getIndent(lineString);
+
     if (!Element.isElement(lineElement)) {
       insertBreak();
       return;
@@ -58,6 +61,12 @@ const withBlockBreakout = (editor: Editor) => {
         type: ElementType.CheckListItem,
         children: [{ text: '' }],
         checked: false,
+      };
+    } else if (lineElementType === ElementType.CodeLine) {
+      nodeToInsert = {
+        id: createNodeId(),
+        type: ElementType.CodeLine,
+        children: [{ text: indent }],
       };
     } else {
       nodeToInsert = {
@@ -116,6 +125,17 @@ const withBlockBreakout = (editor: Editor) => {
           Transforms.select(editor, newSelection);
         }
       }
+      // Break code line and move cursor to end of indent
+      else if (Element.isElement(ancestorNode) && ancestorNode.type === ElementType.CodeLine) {
+        const textAfterSelection = lineString.slice(selection.anchor.offset);
+        nodeToInsert.children = [{ text: `${indent}${textAfterSelection}` }];
+        Transforms.delete(editor, { at: selection.anchor, distance: textAfterSelection.length });
+        Transforms.insertNodes(editor, nodeToInsert);
+        Transforms.move(editor, { unit: 'line', reverse: true });
+        Transforms.move(editor, { unit: 'character', distance: indent.length });
+        return;
+      }
+
       insertBreak();
     }
   };

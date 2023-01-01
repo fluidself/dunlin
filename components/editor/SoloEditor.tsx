@@ -1,18 +1,10 @@
 import { useCallback, useMemo, useState, KeyboardEvent, useEffect, useRef, memo } from 'react';
-import { createEditor, Range, Editor as SlateEditor, Transforms, Descendant, Path, Editor } from 'slate';
+import { createEditor, Range, Editor as SlateEditor, Transforms, Descendant, Path } from 'slate';
 import { withReact, Editable, ReactEditor, Slate } from 'slate-react';
 import { withHistory } from 'slate-history';
 import { isHotkey } from 'is-hotkey';
 import colors from 'tailwindcss/colors';
-import {
-  handleBrackets,
-  handleEnter,
-  handleIndent,
-  handleUnindent,
-  isElementActive,
-  toggleElement,
-  toggleMark,
-} from 'editor/formatting';
+import { handleBrackets, handleIndent, handleUnindent, isElementActive, toggleElement, toggleMark } from 'editor/formatting';
 import decorateCodeBlocks from 'editor/decorateCodeBlocks';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
@@ -22,6 +14,7 @@ import withNormalization from 'editor/plugins/withNormalization';
 import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
 import withVoidElements from 'editor/plugins/withVoidElements';
 import withBlockReferences from 'editor/plugins/withBlockReferences';
+import withCodeBlocks from 'editor/plugins/withCodeBlocks';
 import withTags from 'editor/plugins/withTags';
 import withHtml from 'editor/plugins/withHtml';
 import withTables, { insertTable, onKeyDown as onTableKeyDown } from 'editor/plugins/withTables';
@@ -64,10 +57,12 @@ function SoloEditor(props: Props) {
     editorRef.current = withNormalization(
       withCustomDeleteBackward(
         withAutoMarkdown(
-          withHtml(
-            withBlockBreakout(
-              withVoidElements(
-                withBlockReferences(withImages(withTags(withLinks(withTables(withHistory(withReact(createEditor()))))))),
+          withCodeBlocks(
+            withHtml(
+              withBlockBreakout(
+                withVoidElements(
+                  withBlockReferences(withImages(withTags(withLinks(withTables(withHistory(withReact(createEditor()))))))),
+                ),
               ),
             ),
           ),
@@ -191,10 +186,6 @@ function SoloEditor(props: Props) {
         callback: () => handleUnindent(editor),
       },
       {
-        hotkey: 'enter',
-        callback: () => handleEnter(editor),
-      },
-      {
         hotkey: 'shift+enter',
         callback: () => Transforms.insertText(editor, '\n'),
       },
@@ -219,13 +210,20 @@ function SoloEditor(props: Props) {
   );
 
   const onKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLDivElement>, editor: Editor) => {
+    (event: KeyboardEvent<HTMLDivElement>, editor: SlateEditor) => {
       // Handle keyboard shortcuts
       if (
         isHotkey(['up', 'down', 'tab', 'shift+tab', 'enter'], event.nativeEvent) &&
         isElementActive(editor, ElementType.Table)
       ) {
         onTableKeyDown(event, editor);
+      } else if (isHotkey('mod+a', event.nativeEvent) && isElementActive(editor, ElementType.CodeBlock)) {
+        const codeBlock = SlateEditor.above(editor, { match: n => n.type === ElementType.CodeBlock });
+        if (!codeBlock) return;
+        const [, codeBlockPath] = codeBlock;
+        event.preventDefault();
+        event.stopPropagation();
+        Transforms.select(editor, codeBlockPath);
       } else {
         for (const { hotkey, callback } of hotkeys) {
           if (isHotkey(hotkey, event.nativeEvent)) {
