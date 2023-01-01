@@ -12,6 +12,7 @@ import withLinks from 'editor/plugins/withLinks';
 import withTags from 'editor/plugins/withTags';
 import withImages from 'editor/plugins/withImages';
 import withNormalization from 'editor/plugins/withNormalization';
+import withCodeBlocks from 'editor/plugins/withCodeBlocks';
 import { getDefaultEditorValue } from 'editor/constants';
 import { DeckEditor } from 'types/slate';
 import { useStore } from 'lib/store';
@@ -67,7 +68,9 @@ function ReadOnlyNoteEditor(props: Props) {
   const editor = useMemo(() => {
     const editor = withCursor(
       withYjs(
-        withNormalization(withVoidElements(withImages(withTags(withLinks(withReact(createEditor() as DeckEditor)))))),
+        withNormalization(
+          withCodeBlocks(withVoidElements(withImages(withTags(withLinks(withReact(createEditor() as DeckEditor)))))),
+        ),
         sharedType,
       ),
       provider.awareness,
