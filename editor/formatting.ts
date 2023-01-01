@@ -200,6 +200,26 @@ const handleTableIndentation = (editor: Editor, type: IndentationType) => {
   }
 };
 
+export const handleExitBreak = (editor: Editor) => {
+  // Exit code block into an empty paragraph block
+  if (isElementActive(editor, ElementType.CodeBlock)) {
+    if (!editor.selection) return;
+    const selectionPath = Editor.path(editor, editor.selection);
+    const insertPath = Path.next(selectionPath.slice(0, 1));
+    Transforms.insertNodes(
+      editor,
+      {
+        id: createNodeId(),
+        type: ElementType.Paragraph,
+        children: [{ text: '' }],
+      },
+      { at: insertPath, select: true },
+    );
+  } else {
+    editor.insertBreak();
+  }
+};
+
 export const removeLink = (editor: Editor) => {
   unwrapLink(editor);
   Transforms.collapse(editor, { edge: 'end' });

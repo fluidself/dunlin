@@ -155,13 +155,6 @@ const maybePreserveSpace = (editor: Editor, entry: NodeEntry): boolean | void =>
         }
       }
     }
-
-    if (type === ElementType.CodeBlock) {
-      if (!next) {
-        insertParagraph(editor, Path.next(path));
-        preserved = true;
-      }
-    }
   } catch (error) {
     return preserved;
   }
