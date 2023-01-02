@@ -23,8 +23,9 @@ export default function handleNoteLink(
     startMark: startMark.length,
     text: noteTitle.length,
     endMark: endMark.length,
-    textToInsert: textToInsertLength,
+    textToInsert: textToInsertLength - 1,
   });
+
   const link: NoteLink = {
     id: createNodeId(),
     type: ElementType.NoteLink,
@@ -38,6 +39,7 @@ export default function handleNoteLink(
     split: true,
   });
   Transforms.move(editor, { unit: 'offset' });
+  Transforms.insertText(editor, ' '); // Insert the trigger character (a space)
 
   return true;
 }

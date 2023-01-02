@@ -387,22 +387,20 @@ export const BRACKET_MAP: Record<string, string> = {
 };
 
 export const handleBrackets = (editor: Editor, openingBracket: string) => {
-  try {
-    const closingBracket: string = BRACKET_MAP[openingBracket];
+  const closingBracket: string = BRACKET_MAP[openingBracket];
 
-    const block = Editor.above(editor, { match: n => Editor.isBlock(editor, n) });
-    const [lineElement] = block ?? [];
-    const lineString = Node.string(lineElement);
+  const block = Editor.above(editor, { match: n => Editor.isBlock(editor, n) });
+  if (!block) return editor.insertText(openingBracket);
 
-    const nextCharacter = lineString[editor.selection.anchor.offset] ?? null;
+  const [lineElement] = block;
+  const lineString = Node.string(lineElement);
+  const nextCharacter = lineString[editor.selection.anchor.offset] ?? null;
 
-    if (!nextCharacter || nextCharacter.match(/\s|\)|\]|}/)) {
-      Transforms.insertText(editor, `${openingBracket}${closingBracket}`);
-      Transforms.move(editor, { unit: 'offset', reverse: true });
-    } else {
-      Transforms.insertText(editor, openingBracket);
-    }
-  } catch (error) {
-    Transforms.insertText(editor, openingBracket);
+  if (!nextCharacter || nextCharacter.match(/\s|\)|\]|}/)) {
+    editor.insertText(openingBracket);
+    Transforms.insertText(editor, closingBracket);
+    Transforms.move(editor, { unit: 'offset', reverse: true });
+  } else {
+    editor.insertText(openingBracket);
   }
 };

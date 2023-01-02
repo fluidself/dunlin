@@ -8,7 +8,7 @@ export default function handleExternalLink(
   editor: Editor,
   result: RegExpMatchArray,
   endOfMatchPoint: Point,
-  textToInsertLength: number
+  textToInsertLength: number,
 ): boolean {
   const [, startMark, linkText, middleMark, linkUrl, endMark] = result;
 
@@ -19,7 +19,7 @@ export default function handleExternalLink(
   const linkTextRange = deleteMarkup(editor, endOfMatchPoint, {
     startMark: startMark.length,
     text: linkText.length,
-    endMark: middleMark.length + linkUrl.length + endMark.length,
+    endMark: middleMark.length + linkUrl.length + endMark.length + 1,
     textToInsert: textToInsertLength,
   });
   const link: ExternalLink = {
@@ -32,6 +32,8 @@ export default function handleExternalLink(
     at: linkTextRange,
     split: true,
   });
+  Transforms.move(editor, { unit: 'offset' });
+  Transforms.insertText(editor, ' '); // Insert the trigger character (a space)
 
   return true;
 }
