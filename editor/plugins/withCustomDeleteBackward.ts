@@ -44,35 +44,37 @@ const withCustomDeleteBackward = (editor: Editor) => {
       lineElement.type !== ElementType.BlockReference &&
       lineElement.type !== ElementType.TableCell
     ) {
-      // If it is a list item, unwrap the list
-      if (lineElement.type === ElementType.ListItem) {
-        Transforms.unwrapNodes(editor, {
-          match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
-          split: true,
-        });
+      Editor.withoutNormalizing(editor, () => {
+        // If it is a list item, unwrap the list
+        if (lineElement.type === ElementType.ListItem) {
+          Transforms.unwrapNodes(editor, {
+            match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
+            split: true,
+          });
 
-        const isInList = Editor.above(editor, {
-          match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
-        });
-        if (!isInList) {
+          const isInList = Editor.above(editor, {
+            match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
+          });
+          if (!isInList) {
+            Transforms.setNodes(editor, { type: ElementType.Paragraph });
+          }
+        } else if (lineElement.type === ElementType.CodeLine) {
+          const abovePath = Editor.before(editor, editor.selection);
+          if (!abovePath) return unwrapCodeBlock(editor);
+
+          const [nodeAbove] = Editor.parent(editor, abovePath);
+          if (nodeAbove && nodeAbove.type === ElementType.CodeLine) {
+            Transforms.mergeNodes(editor, {
+              match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.CodeLine,
+            });
+          } else {
+            unwrapCodeBlock(editor);
+          }
+        } else {
+          // Convert to paragraph
           Transforms.setNodes(editor, { type: ElementType.Paragraph });
         }
-      } else if (lineElement.type === ElementType.CodeLine) {
-        const abovePath = Editor.before(editor, editor.selection);
-        if (!abovePath) return unwrapCodeBlock(editor);
-
-        const [nodeAbove] = Editor.parent(editor, abovePath);
-        if (nodeAbove && nodeAbove.type === ElementType.CodeLine) {
-          Transforms.mergeNodes(editor, {
-            match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.CodeLine,
-          });
-        } else {
-          unwrapCodeBlock(editor);
-        }
-      } else {
-        // Convert to paragraph
-        Transforms.setNodes(editor, { type: ElementType.Paragraph });
-      }
+      });
 
       return;
     }

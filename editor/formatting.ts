@@ -71,48 +71,50 @@ export const toggleElement = (editor: Editor, format: ElementType, path?: Path) 
     return formatIsTextAndNotActive && hasListTypeAbove;
   };
 
-  do {
+  Editor.withoutNormalizing(editor, () => {
+    do {
+      Transforms.unwrapNodes(editor, {
+        at: getCurrentLocation(),
+        match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
+        split: true,
+      });
+    } while (continueUnwrappingList());
+
     Transforms.unwrapNodes(editor, {
       at: getCurrentLocation(),
-      match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
+      match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.CodeBlock,
       split: true,
     });
-  } while (continueUnwrappingList());
 
-  Transforms.unwrapNodes(editor, {
-    at: getCurrentLocation(),
-    match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.CodeBlock,
-    split: true,
+    let newProperties: Partial<Element>;
+    if (isActive) {
+      newProperties = { type: ElementType.Paragraph };
+    } else if (isListType(format)) {
+      newProperties = { type: ElementType.ListItem };
+    } else if (format === ElementType.CheckListItem) {
+      newProperties = { type: ElementType.CheckListItem, checked: false };
+    } else {
+      newProperties = { type: format };
+    }
+    Transforms.setNodes(editor, newProperties, { at: getCurrentLocation() });
+
+    if (!isActive && isListType(format)) {
+      const block: ListElement = {
+        id: createNodeId(),
+        type: format,
+        children: [],
+      };
+      Transforms.wrapNodes(editor, block, { at: getCurrentLocation() });
+    }
+    if (!isActive && format === ElementType.CodeLine) {
+      const block: CodeBlock = {
+        id: createNodeId(),
+        type: ElementType.CodeBlock,
+        children: [],
+      };
+      Transforms.wrapNodes(editor, block, { at: getCurrentLocation() });
+    }
   });
-
-  let newProperties: Partial<Element>;
-  if (isActive) {
-    newProperties = { type: ElementType.Paragraph };
-  } else if (isListType(format)) {
-    newProperties = { type: ElementType.ListItem };
-  } else if (format === ElementType.CheckListItem) {
-    newProperties = { type: ElementType.CheckListItem, checked: false };
-  } else {
-    newProperties = { type: format };
-  }
-  Transforms.setNodes(editor, newProperties, { at: getCurrentLocation() });
-
-  if (!isActive && isListType(format)) {
-    const block: ListElement = {
-      id: createNodeId(),
-      type: format,
-      children: [],
-    };
-    Transforms.wrapNodes(editor, block, { at: getCurrentLocation() });
-  }
-  if (!isActive && format === ElementType.CodeLine) {
-    const block: CodeBlock = {
-      id: createNodeId(),
-      type: ElementType.CodeBlock,
-      children: [],
-    };
-    Transforms.wrapNodes(editor, block, { at: getCurrentLocation() });
-  }
 };
 
 export const DEFAULT_INDENTATION = '  ';
