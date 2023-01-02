@@ -1,11 +1,12 @@
 import { useMemo, useState, useCallback, useEffect } from 'react';
-import { Editor, Range, Transforms } from 'slate';
+import { Editor, Element, Range, Transforms } from 'slate';
 import { useSlate } from 'slate-react';
 import type { TablerIcon } from '@tabler/icons';
 import { insertNoteLink } from 'editor/formatting';
 import { deleteText } from 'editor/transforms';
 import useNoteSearch from 'utils/useNoteSearch';
 import useDebounce from 'utils/useDebounce';
+import { ElementType } from 'types/slate';
 import EditorPopover from './EditorPopover';
 
 const NOTE_LINK_REGEX = /(?:^|\s)(\[\[)(.+)/;
@@ -60,8 +61,11 @@ export default function LinkAutocompletePopover() {
 
   const getRegexResult = useCallback(() => {
     const { selection } = editor;
+    const inCodeBlock = Editor.above(editor, {
+      match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.CodeBlock,
+    });
 
-    if (!selection || !Range.isCollapsed(selection)) {
+    if (!selection || !Range.isCollapsed(selection) || inCodeBlock) {
       return null;
     }
 
