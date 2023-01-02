@@ -11,10 +11,12 @@ import { isReferenceableBlockElement } from 'editor/checks';
 import { store } from 'lib/store';
 import supabase from 'lib/supabase';
 import { Note } from 'types/supabase';
+import { ElementType } from 'types/slate';
 import useDebounce from 'utils/useDebounce';
 import { encrypt } from 'utils/encryption';
 import EditorPopover from './EditorPopover';
 
+const REGEX = /(?:^|\s)(\(\()([^()]+)/;
 const DEBOUNCE_MS = 100;
 
 enum OptionType {
@@ -69,12 +71,14 @@ export default function BlockAutocompletePopover() {
   }, []);
 
   const getRegexResult = useCallback(() => {
-    const REGEX = /(?:^|\s)(\(\()([^()]+)/;
     const { selection } = editor;
+    const inCodeBlock = Editor.above(editor, {
+      match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.CodeBlock,
+    });
 
     const returnValue: { result: RegExpMatchArray | null; onOwnLine: boolean } = { result: null, onOwnLine: false };
 
-    if (!selection || !Range.isCollapsed(selection)) {
+    if (!selection || !Range.isCollapsed(selection) || inCodeBlock) {
       return returnValue;
     }
 
