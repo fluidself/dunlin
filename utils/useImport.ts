@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Descendant, Element } from 'slate';
+import { Descendant, Element, Node } from 'slate';
 import { toast } from 'react-toastify';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
@@ -166,8 +166,8 @@ const setNoteLinkIds = (
   noteTitleToIdCache: Record<string, string | undefined>,
   upsertData: any[],
   deckId: string,
-): Descendant => {
-  if (Element.isElement(node) && node.type !== ElementType.Table && node.type !== ElementType.TableRow) {
+): Node => {
+  if (Element.isElement(node)) {
     return {
       ...node,
       ...(node.type === ElementType.NoteLink ? { noteId: getNoteId(node, notes, noteTitleToIdCache, upsertData, deckId) } : {}),

@@ -22,7 +22,7 @@ THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 
 import type { Descendant } from 'slate';
-import { ElementType, Mark, TableCell, TableRow } from 'types/slate';
+import { CodeLine, ElementType, Mark, TableCell, TableRow } from 'types/slate';
 import { createNodeId } from 'editor/plugins/withNodeId';
 import { createTableRowNode } from 'editor/plugins/withTables/lib';
 import { MdastNode } from './types';
@@ -106,11 +106,18 @@ export default function deserialize(node: MdastNode, opts?: OptionType): Descend
     case 'blockquote':
       return { id: createNodeId(), type: ElementType.Blockquote, children };
     case 'code':
+      const codeLines: CodeLine[] =
+        node.value?.split('\n').map(line => ({
+          id: createNodeId(),
+          type: ElementType.CodeLine,
+          children: [{ text: line }],
+        })) || [];
+
       return {
         id: createNodeId(),
         type: ElementType.CodeBlock,
         lang: node.lang ?? '',
-        children: [{ text: node.value ?? '' }],
+        children: codeLines,
       };
     case 'detailsDisclosure':
       return {
