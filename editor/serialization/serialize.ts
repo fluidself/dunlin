@@ -144,9 +144,11 @@ export default function serialize(
       // happen
       return `> ${children}\n\n`;
 
+    case ElementType.CodeLine:
+      return `${children}\n`;
     case ElementType.CodeBlock:
       const codeBlock = chunk as CodeBlock;
-      return codeBlock.lang ? `\`\`\`${codeBlock.lang}\n${children}\n\`\`\`\n` : `\`\`\`\n${children}\n\`\`\`\n`;
+      return `\`\`\`${codeBlock.lang}\n${children}\`\`\`\n`;
 
     case ElementType.NoteLink: {
       const noteLink = chunk as NoteLink;
