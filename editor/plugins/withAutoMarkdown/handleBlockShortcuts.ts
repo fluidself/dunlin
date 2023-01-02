@@ -74,47 +74,49 @@ const handleBlockShortcuts = (editor: Editor, text: string): boolean => {
       return true;
     }
 
-    // Delete markdown text
-    Transforms.select(editor, beforeRange);
-    Transforms.delete(editor);
+    Editor.withoutNormalizing(editor, () => {
+      // Delete markdown text
+      Transforms.select(editor, beforeRange);
+      Transforms.delete(editor);
 
-    // Unwrap lists if there are any
-    Transforms.unwrapNodes(editor, {
-      match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
-      split: true,
+      // Unwrap lists if there are any
+      Transforms.unwrapNodes(editor, {
+        match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
+        split: true,
+      });
+
+      // Update node type
+      Transforms.setNodes(editor, { type }, { match: n => Editor.isBlock(editor, n) });
+
+      if (type === ElementType.ListItem) {
+        const list: ListElement = {
+          id: createNodeId(),
+          type: shortcut.listType,
+          children: [],
+        };
+        Transforms.wrapNodes(editor, list, {
+          match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.ListItem,
+        });
+      } else if (type === ElementType.ThematicBreak) {
+        // Insert a new paragraph below thematic break
+        Transforms.insertNodes(editor, {
+          id: createNodeId(),
+          type: ElementType.Paragraph,
+          children: [{ text: '' }],
+        });
+      } else if (type === ElementType.CheckListItem) {
+        Transforms.setNodes(editor, { checked: false });
+      } else if (type === ElementType.CodeLine) {
+        const codeBlock: CodeBlock = {
+          id: createNodeId(),
+          type: ElementType.CodeBlock,
+          children: [],
+        };
+        Transforms.wrapNodes(editor, codeBlock, {
+          match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.CodeLine,
+        });
+      }
     });
-
-    // Update node type
-    Transforms.setNodes(editor, { type }, { match: n => Editor.isBlock(editor, n) });
-
-    if (type === ElementType.ListItem) {
-      const list: ListElement = {
-        id: createNodeId(),
-        type: shortcut.listType,
-        children: [],
-      };
-      Transforms.wrapNodes(editor, list, {
-        match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.ListItem,
-      });
-    } else if (type === ElementType.ThematicBreak) {
-      // Insert a new paragraph below thematic break
-      Transforms.insertNodes(editor, {
-        id: createNodeId(),
-        type: ElementType.Paragraph,
-        children: [{ text: '' }],
-      });
-    } else if (type === ElementType.CheckListItem) {
-      Transforms.setNodes(editor, { checked: false });
-    } else if (type === ElementType.CodeLine) {
-      const codeBlock: CodeBlock = {
-        id: createNodeId(),
-        type: ElementType.CodeBlock,
-        children: [],
-      };
-      Transforms.wrapNodes(editor, codeBlock, {
-        match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.CodeLine,
-      });
-    }
 
     return true;
   }
