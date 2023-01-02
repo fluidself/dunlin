@@ -35,19 +35,16 @@ const INLINE_SHORTCUTS: Array<{
   { match: /(?:^|\s)(`)([^`]+)(`)/, type: Mark.Code },
   { match: /(?:^|\s)(~~)([^~]+)(~~)/, type: Mark.Strikethrough },
   {
-    match: /(?:^|\s)(\[)(.+)(\]\(\[\[)(.+)(\]\]\))/,
+    match: /(?:^|\s)(\[)(.+)(\]\(\[\[)(.+)(\]\]\))(\s)/,
     type: CustomInlineShortcuts.CustomNoteLink,
   },
-  { match: /(?:^|\s)(\[)(.+)(\]\()(.+)(\))/, type: ElementType.ExternalLink },
+  { match: /(?:^|\s)(\[)(.+)(\]\()(.+)(\))(\s)/, type: ElementType.ExternalLink },
+  { match: /(?:^|\s)(\[\[)(.+)(\]\])(\s)/, type: ElementType.NoteLink },
+  { match: /(?:^|\s)(#[^\s]+)(\s)/, type: ElementType.Tag },
   {
-    match: /(?:^|\s)(\[\[)(.+)(\]\])/,
-    type: ElementType.NoteLink,
+    match: /(?:^|\s)(\(\()(([0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}))(\)\))/,
+    type: ElementType.BlockReference,
   },
-  {
-    match: /(?:^|\s)(#[^\s]+)(\s)/,
-    type: ElementType.Tag,
-  },
-  { match: /(?:^|\s)(\(\()([^\(\)]+)(\)\))/, type: ElementType.BlockReference },
 ];
 
 // Handle inline shortcuts

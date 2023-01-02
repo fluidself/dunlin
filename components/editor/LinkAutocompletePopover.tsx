@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback, useEffect } from 'react';
-import { Editor, Element, Range, Transforms } from 'slate';
+import { Editor, Element, Node, Range, Transforms } from 'slate';
 import { useSlate } from 'slate-react';
 import type { TablerIcon } from '@tabler/icons';
 import { insertNoteLink } from 'editor/formatting';
@@ -104,9 +104,20 @@ export default function LinkAutocompletePopover() {
       const { path: selectionPath, offset: endOfSelection } = editor.selection.anchor;
 
       const [, startMark, noteTitle] = regexResult;
-      const lengthToDelete = startMark.length + noteTitle.length;
 
-      deleteText(editor, selectionPath, endOfSelection, lengthToDelete);
+      const block = Editor.above(editor, { match: n => Editor.isBlock(editor, n) });
+      if (!block) return;
+      const [lineElement] = block;
+      const lineString = Node.string(lineElement);
+      const nextTwoCharacters = lineString.slice(endOfSelection, endOfSelection + 2) ?? '';
+      let deletionOffset = endOfSelection;
+      let lengthToDelete = startMark.length + noteTitle.length;
+      if (nextTwoCharacters && nextTwoCharacters === ']]') {
+        deletionOffset += 2;
+        lengthToDelete += 2;
+      }
+
+      deleteText(editor, selectionPath, deletionOffset, lengthToDelete);
 
       // Handle inserting note link
       if (option.type === OptionType.NOTE) {
