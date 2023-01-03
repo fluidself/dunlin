@@ -13,7 +13,7 @@ import {
 } from '@tabler/icons';
 import { useAuth } from 'utils/useAuth';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
-import { isMobile } from 'utils/device';
+import { isMobile, modifierKey } from 'utils/device';
 import { useStore } from 'lib/store';
 import Tooltip from 'components/Tooltip';
 import { DropdownItem } from 'components/Dropdown';
@@ -41,7 +41,7 @@ export default function Header(props: Props) {
               <span className="mr-1 font-semibold select-none">DECK</span>
               <IconSelector size={18} className="text-gray-500 dark:text-gray-400" />
             </div>
-            <Tooltip content="Collapse sidebar (Ctrl+\)" placement="right">
+            <Tooltip content={`Collapse sidebar (${modifierKey()}+\\)`} placement="right">
               <span
                 className="p-1 mr-2 rounded hover:bg-gray-300 active:bg-gray-400 dark:hover:bg-gray-600 dark:active:bg-gray-500"
                 onClick={e => {
@@ -108,7 +108,7 @@ export default function Header(props: Props) {
             </DropdownItem>
             <DropdownItem disabled={isOffline} onClick={signOut}>
               <IconLogout size={18} className="mr-1" />
-              <span>Sign Out</span>
+              <span>Sign out</span>
             </DropdownItem>
           </Menu.Items>
         </Menu>

@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { IconMenu2 } from '@tabler/icons';
 import Tooltip from 'components/Tooltip';
+import { modifierKey } from 'utils/device';
 import { useStore } from 'lib/store';
 
 type Props = {
@@ -9,10 +10,10 @@ type Props = {
 
 function OpenSidebarButton(props: Props) {
   const { className = '' } = props;
-  const setIsSidebarOpen = useStore((state) => state.setIsSidebarOpen);
+  const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
 
   return (
-    <Tooltip content="Open sidebar (Ctrl+\)" placement="right">
+    <Tooltip content={`Open sidebar (${modifierKey()}+\\)`} placement="right">
       <button
         aria-label="Open sidebar"
         className={`p-1 rounded hover:bg-gray-300 active:bg-gray-400 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${className}`}

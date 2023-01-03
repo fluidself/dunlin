@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { IconAffiliate, IconSearch } from '@tabler/icons';
 import { useTransition, animated } from '@react-spring/web';
-import { isMobile } from 'utils/device';
+import { isMobile, modifierKey } from 'utils/device';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useStore } from 'lib/store';
 import { SPRING_CONFIG } from 'constants/spring';
@@ -122,7 +122,7 @@ const FindOrCreateModalButton = (props: FindOrCreateModalButtonProps) => {
   const { onClick } = props;
   return (
     <SidebarItem>
-      <Tooltip content="Quickly jump to a note, or create a new note (Ctrl+P)" placement="right" touch={false}>
+      <Tooltip content={`Quickly jump to a note, or create a new note (${modifierKey()}+P)`} placement="right" touch={false}>
         <button className="flex items-center w-full px-6 py-1 text-left" onClick={onClick}>
           <IconSearch className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
           <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Find or Create Note</span>
@@ -143,7 +143,11 @@ const GraphButton = (props: GraphButtonProps) => {
 
   return (
     <SidebarItem isHighlighted={router.pathname.includes(`/app/${deckId}/graph`)} onClick={onClick}>
-      <Tooltip content="Visualization of all of your notes as a network (Ctrl+Shift+G)" placement="right" touch={false}>
+      <Tooltip
+        content={`Visualization of all of your notes as a network (${modifierKey()}+Shift+G)`}
+        placement="right"
+        touch={false}
+      >
         <span>
           <Link href={`/app/${deckId}/graph`} className="flex items-center px-6 py-1">
             <IconAffiliate className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />

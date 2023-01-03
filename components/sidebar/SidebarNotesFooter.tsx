@@ -4,7 +4,7 @@ import { useStore } from 'lib/store';
 import useImport from 'utils/useImport';
 import { Sort } from 'lib/createUserSettingsSlice';
 import Tooltip from 'components/Tooltip';
-import { isMobile } from 'utils/device';
+import { isMobile, modifierKey } from 'utils/device';
 import SidebarNotesSortDropdown from './SidebarNotesSortDropdown';
 
 type Props = {
@@ -28,7 +28,7 @@ function SidebarNotesFooter(props: Props) {
 
   return (
     <div className="flex items-center justify-between border-t dark:border-gray-700">
-      <Tooltip content="Create a new note (Ctrl+P)">
+      <Tooltip content={`Create a new note (${modifierKey()}+P)`}>
         <button
           className="p-1 mx-2 my-1 rounded hover:bg-gray-200 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600"
           onClick={onCreateNoteClick}

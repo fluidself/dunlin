@@ -14,7 +14,7 @@ import classNames from 'classnames';
 import { toggleMark, isMarkActive, isElementActive } from 'editor/formatting';
 import { ElementType, Mark } from 'types/slate';
 import Tooltip from 'components/Tooltip';
-import { isMobile } from 'utils/device';
+import { isMobile, modifierKey } from 'utils/device';
 import EditorPopover from './EditorPopover';
 import type { AddLinkPopoverState } from './Editor';
 
@@ -23,20 +23,21 @@ type Props = {
 };
 export default function HoveringToolbar(props: Props) {
   const { setAddLinkPopoverState } = props;
+  const key = modifierKey();
   return (
     <EditorPopover placement={isMobile() ? 'bottom-start' : 'top-start'}>
       <LinkButton setAddLinkPopoverState={setAddLinkPopoverState} className="border-r dark:border-gray-700" />
-      <FormatButton format={Mark.Bold} Icon={IconBold} tooltip="Bold (Ctrl+B)" aria-label="Bold" />
-      <FormatButton format={Mark.Italic} Icon={IconItalic} tooltip="Italic (Ctrl+I)" aria-label="Italic" />
-      <FormatButton format={Mark.Underline} Icon={IconUnderline} tooltip="Underline (Ctrl+U)" aria-label="Underline" />
+      <FormatButton format={Mark.Bold} Icon={IconBold} tooltip={`Bold (${key}+B)`} aria-label="Bold" />
+      <FormatButton format={Mark.Italic} Icon={IconItalic} tooltip={`Italic (${key}+I)`} aria-label="Italic" />
+      <FormatButton format={Mark.Underline} Icon={IconUnderline} tooltip={`Underline (${key}+U)`} aria-label="Underline" />
       <FormatButton
         format={Mark.Strikethrough}
         Icon={IconStrikethrough}
-        tooltip="Strikethrough (Ctrl+Shift+S)"
+        tooltip={`Strikethrough (${key}+Shift+S)`}
         aria-label="Strikethrough"
       />
-      <FormatButton format={Mark.Code} Icon={IconCode} tooltip="Code (Ctrl+E)" aria-label="Code" />
-      <FormatButton format={Mark.Highlight} Icon={IconHighlight} tooltip="Highlight (Ctrl+Shift+H)" aria-label="Highlight" />
+      <FormatButton format={Mark.Code} Icon={IconCode} tooltip={`Code (${key}+E)`} aria-label="Code" />
+      <FormatButton format={Mark.Highlight} Icon={IconHighlight} tooltip={`Highlight (${key}+Shift+H)`} aria-label="Highlight" />
     </EditorPopover>
   );
 }
@@ -131,7 +132,7 @@ const LinkButton = (props: LinkButtonProps) => {
       text="Link"
       isActive={isActive}
       className={className}
-      tooltip="Link to a note or web page (Ctrl+K)"
+      tooltip={`Link to a note or web page (${modifierKey()}+K)`}
     />
   );
 };

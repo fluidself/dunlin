@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { IconFile, IconSearch } from '@tabler/icons';
 import Tooltip from 'components/Tooltip';
 import { SidebarTab as SidebarTabType, useStore } from 'lib/store';
+import { modifierKey } from 'utils/device';
 import SidebarNotes from './SidebarNotes';
 import SidebarSearch from './SidebarSearch';
 import SidebarTab from './SidebarTab';
@@ -34,10 +35,11 @@ type TabsProps = {
 
 const Tabs = (props: TabsProps) => {
   const { activeTab, setActiveTab } = props;
+  const key = modifierKey();
 
   return (
     <div className="flex">
-      <Tooltip content="Notes List (Ctrl+Shift+E)">
+      <Tooltip content={`Notes List (${key}+Shift+E)`}>
         <SidebarTab
           isActive={activeTab === SidebarTabType.Notes}
           setActive={() => setActiveTab(SidebarTabType.Notes)}
@@ -45,7 +47,7 @@ const Tabs = (props: TabsProps) => {
           className={activeTab === SidebarTabType.Notes ? 'border-r' : ''}
         />
       </Tooltip>
-      <Tooltip content="Search (Ctrl+Shift+F)">
+      <Tooltip content={`Search (${key}+Shift+F)`}>
         <SidebarTab
           isActive={activeTab === SidebarTabType.Search}
           setActive={() => setActiveTab(SidebarTabType.Search)}
