@@ -16,10 +16,9 @@ const withCodeBlocks = (editor: Editor) => {
           Transforms.setNodes(editor, { type: ElementType.CodeLine }, { at: childPath });
           return;
         }
-        // Ensure backwards compatibility by converting obsolete pure text code blocks to current structure
+        // Convert any pure text children to correct code line structure
         else if (!Element.isElement(child) && (child as FormattedText).text) {
-          // Convert text to code lines
-          const codeLines = deserializeCode((child as FormattedText).text.split('\n'));
+          const codeLines = (child as FormattedText).text.split('\n').map(deserializeCodeLine);
           // Create updated code block with code line children
           const nodeToInsert: CodeBlock = {
             id: createNodeId(),
@@ -51,7 +50,7 @@ const withCodeBlocks = (editor: Editor) => {
       const transformedFragment = fragment.flatMap((node: any) =>
         node.type === ElementType.CodeBlock
           ? node.children.map((child: CodeLine) => ({ ...child, id: createNodeId() }))
-          : { id: createNodeId(), type: ElementType.CodeLine, children: [{ text: Node.string(node) }] },
+          : deserializeCodeLine(Node.string(node)),
       );
       Transforms.insertFragment(editor, transformedFragment);
       return;
@@ -68,12 +67,26 @@ const withCodeBlocks = (editor: Editor) => {
     });
 
     if (inCodeLine && html && !isSlateFragment) {
-      const parsed = new DOMParser().parseFromString(html, 'text/html');
-      const fragment = deserialize(parsed.body);
-      const text = fragment.map(t => t.text).filter(t => !!t);
-      const fragmentToInsert = deserializeCode(text);
-      Transforms.insertFragment(editor, fragmentToInsert);
-      return;
+      try {
+        const parsed = new DOMParser().parseFromString(html, 'text/html');
+        const fragment = deserialize(parsed.body);
+        const transformedFragment = [];
+
+        for (const node of fragment) {
+          if (node.text) {
+            transformedFragment.push(deserializeCodeLine(node.text));
+          } else if (node.text === '') {
+            continue;
+          } else {
+            transformedFragment.push(node);
+          }
+        }
+
+        Transforms.insertFragment(editor, transformedFragment);
+        return;
+      } catch (error) {
+        insertData(data);
+      }
     }
 
     insertData(data);
@@ -82,12 +95,12 @@ const withCodeBlocks = (editor: Editor) => {
   return editor;
 };
 
-function deserializeCode(lines: string[]): CodeLine[] {
-  return lines.map(line => ({
+function deserializeCodeLine(line: string): CodeLine {
+  return {
     id: createNodeId(),
     type: ElementType.CodeLine,
     children: [{ text: line }],
-  }));
+  };
 }
 
 export default withCodeBlocks;
