@@ -4,13 +4,14 @@ import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 import { store, useStore } from 'lib/store';
 import type { Note } from 'types/supabase';
-import { DecryptedNote } from 'types/decrypted';
+import type { DecryptedNote } from 'types/decrypted';
 import type { PickPartial } from 'types/utils';
 import updateDbNote, { NoteUpdate } from 'lib/api/updateNote';
 import { ProvideCurrentNote } from 'utils/useCurrentNote';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useAuth } from 'utils/useAuth';
 import { encryptNote } from 'utils/encryption';
+import { caseInsensitiveStringEqual } from 'utils/string';
 import updateBacklinks from 'editor/backlinks/updateBacklinks';
 import ErrorBoundary from 'components/ErrorBoundary';
 import Backlinks from 'components/editor/backlinks/Backlinks';
@@ -56,10 +57,16 @@ function Note(props: Props) {
 
   const onTitleChange = useCallback(
     (title: string) => {
-      const newTitle = title || 'Untitled';
+      const newTitle = title || getUntitledTitle(noteId);
+      const notesArr = Object.values(store.getState().notes);
+      const isTitleUnique = notesArr.findIndex(n => n.id !== noteId && caseInsensitiveStringEqual(n.title, newTitle)) === -1;
 
-      updateNote({ id: noteId, title: newTitle });
-      setSyncState(syncState => ({ ...syncState, isTitleSynced: false }));
+      if (isTitleUnique) {
+        updateNote({ id: noteId, title: newTitle });
+        setSyncState(syncState => ({ ...syncState, isTitleSynced: false }));
+      } else {
+        toast.error(`There's already a note called ${newTitle}. Please use a different title.`);
+      }
     },
     [noteId, updateNote],
   );
@@ -206,3 +213,17 @@ function Note(props: Props) {
 }
 
 export default memo(Note);
+
+const getUntitledTitle = (noteId: string) => {
+  const title = 'Untitled';
+
+  const getResult = () => (suffix > 0 ? `${title} ${suffix}` : title);
+
+  let suffix = 0;
+  const notesArr = Object.values(store.getState().notes);
+  while (notesArr.findIndex(note => note.id !== noteId && caseInsensitiveStringEqual(note.title, getResult())) > -1) {
+    suffix += 1;
+  }
+
+  return getResult();
+};
