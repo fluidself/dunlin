@@ -84,7 +84,7 @@ const BlockButton = ({ format, element, Icon, tooltip, className = '' }: BlockBu
                 insertDetailsDisclosure(editor, path);
                 break;
               case ElementType.Table:
-                insertTable(editor);
+                insertTable(editor, path);
                 break;
               default:
                 toggleElement(editor, format, path);

@@ -1,6 +1,6 @@
 import { type Location, Transforms, Editor } from 'slate';
 import { ReactEditor } from 'slate-react';
-import { ElementType } from 'types/slate';
+import type { Table } from 'types/slate';
 import type { TablesEditor } from '../TablesEditor';
 import { createTable } from '../nodes';
 import { isInTable } from '../queries';
@@ -10,22 +10,22 @@ export function insertTable(
   location: Location | undefined = editor.selection ?? undefined,
   props?: Parameters<typeof createTable>[1],
 ) {
-  if (!location || isInTable(editor)) {
-    return false;
-  }
+  if (!location || isInTable(editor)) return false;
 
-  Transforms.insertNodes(editor, createTable(editor, props), {
-    at: location,
-  });
+  const table = createTable(editor, props);
+  Transforms.insertNodes(editor, table, { at: location });
 
-  const createdTable = Editor.next(editor, {
-    match: n => n.type === ElementType.Table,
-  });
+  const [tablePath] = Array.from(
+    Editor.nodes<Table>(editor, {
+      at: [],
+      match: n => editor.isTableNode(n) && n.id === table.id,
+    }),
+  ).map(entry => entry[1]);
 
-  if (createdTable) {
+  if (tablePath) {
     Transforms.setSelection(editor, {
-      anchor: { path: [...createdTable[1], 0, 0, 0], offset: 0 },
-      focus: { path: [...createdTable[1], 0, 0, 0], offset: 0 },
+      anchor: { path: [...tablePath, 0, 0, 0], offset: 0 },
+      focus: { path: [...tablePath, 0, 0, 0], offset: 0 },
     });
   }
 
