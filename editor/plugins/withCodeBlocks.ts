@@ -1,5 +1,8 @@
-import { Editor, Element, Node, Transforms } from 'slate';
+import { Editor, Element, Location, Node, Transforms } from 'slate';
+import type { KeyboardEvent } from 'react';
+import { isHotkey } from 'is-hotkey';
 import { CodeBlock, CodeLine, ElementType, FormattedText } from 'types/slate';
+import { getIndent } from 'editor/formatting';
 import { createNodeId } from './withNodeId';
 import { deserialize } from './withHtml';
 
@@ -101,6 +104,37 @@ function deserializeCodeLine(line: string): CodeLine {
     type: ElementType.CodeLine,
     children: [{ text: line }],
   };
+}
+
+export function onKeyDown(event: KeyboardEvent<HTMLDivElement>, editor: Editor) {
+  if (!editor.selection) return;
+
+  let locationToSelect: Location | undefined = undefined;
+
+  if (isHotkey('mod+a', event)) {
+    const codeBlock = Editor.above(editor, { match: n => n.type === ElementType.CodeBlock });
+    if (!codeBlock) return;
+    const [, codeBlockPath] = codeBlock;
+    locationToSelect = codeBlockPath;
+  }
+
+  if (isHotkey('mod+left', event)) {
+    const codeLine = Editor.above(editor, { match: n => n.type === ElementType.CodeLine });
+    if (!codeLine) return;
+    const lineString = Node.string(codeLine[0]);
+    const indent = getIndent(lineString);
+    const offset = editor.selection.anchor.offset > indent.length ? indent.length : 0;
+    locationToSelect = {
+      anchor: { ...editor.selection.anchor, offset },
+      focus: { ...editor.selection.focus, offset },
+    };
+  }
+
+  if (locationToSelect) {
+    event.stopPropagation();
+    event.preventDefault();
+    Transforms.select(editor, locationToSelect);
+  }
 }
 
 export default withCodeBlocks;

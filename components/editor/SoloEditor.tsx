@@ -22,7 +22,7 @@ import withNormalization from 'editor/plugins/withNormalization';
 import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
 import withVoidElements from 'editor/plugins/withVoidElements';
 import withBlockReferences from 'editor/plugins/withBlockReferences';
-import withCodeBlocks from 'editor/plugins/withCodeBlocks';
+import withCodeBlocks, { onKeyDown as onCodeBlockKeyDown } from 'editor/plugins/withCodeBlocks';
 import withTags from 'editor/plugins/withTags';
 import withHtml from 'editor/plugins/withHtml';
 import withTables, { insertTable, onKeyDown as onTableKeyDown } from 'editor/plugins/withTables';
@@ -225,13 +225,8 @@ function SoloEditor(props: Props) {
         isElementActive(editor, ElementType.Table)
       ) {
         onTableKeyDown(event, editor);
-      } else if (isHotkey('mod+a', event.nativeEvent) && isElementActive(editor, ElementType.CodeBlock)) {
-        const codeBlock = SlateEditor.above(editor, { match: n => n.type === ElementType.CodeBlock });
-        if (!codeBlock) return;
-        const [, codeBlockPath] = codeBlock;
-        event.preventDefault();
-        event.stopPropagation();
-        Transforms.select(editor, codeBlockPath);
+      } else if (isHotkey(['mod+a', 'mod+left'], event.nativeEvent) && isElementActive(editor, ElementType.CodeBlock)) {
+        onCodeBlockKeyDown(event, editor);
       } else {
         for (const { hotkey, callback } of hotkeys) {
           if (isHotkey(hotkey, event.nativeEvent)) {

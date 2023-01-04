@@ -24,7 +24,7 @@ import decorateCodeBlocks from 'editor/decorateCodeBlocks';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
 import withBlockReferences from 'editor/plugins/withBlockReferences';
-import withCodeBlocks from 'editor/plugins/withCodeBlocks';
+import withCodeBlocks, { onKeyDown as onCodeBlockKeyDown } from 'editor/plugins/withCodeBlocks';
 import withImages from 'editor/plugins/withImages';
 import withLinks from 'editor/plugins/withLinks';
 import withNormalization from 'editor/plugins/withNormalization';
@@ -291,13 +291,8 @@ function Editor(props: Props) {
         isElementActive(editor, ElementType.Table)
       ) {
         onTableKeyDown(event, editor);
-      } else if (isHotkey('mod+a', event.nativeEvent) && isElementActive(editor, ElementType.CodeBlock)) {
-        const codeBlock = SlateEditor.above(editor, { match: n => n.type === ElementType.CodeBlock });
-        if (!codeBlock) return;
-        const [, codeBlockPath] = codeBlock;
-        event.preventDefault();
-        event.stopPropagation();
-        Transforms.select(editor, codeBlockPath);
+      } else if (isHotkey(['mod+a', 'mod+left'], event.nativeEvent) && isElementActive(editor, ElementType.CodeBlock)) {
+        onCodeBlockKeyDown(event, editor);
       } else {
         for (const { hotkey, callback } of hotkeys) {
           if (isHotkey(hotkey, event.nativeEvent)) {
