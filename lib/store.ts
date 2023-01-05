@@ -247,6 +247,7 @@ export const store = createVanilla<Store>()(
         // darkMode: state.darkMode,
         darkMode: true,
         isPageStackingOn: state.isPageStackingOn,
+        confirmNoteDeletion: state.confirmNoteDeletion,
       }),
       onRehydrateStorage: () => () => {
         useStore.setState({ _hasHydrated: true });
