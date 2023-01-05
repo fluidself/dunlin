@@ -14,16 +14,19 @@ import { DropdownItem } from 'components/Dropdown';
 type Props = {
   note: DecryptedNote;
   setIsMoveToModalOpen: Dispatch<SetStateAction<boolean>>;
+  setIsDeleteModalOpen: Dispatch<SetStateAction<boolean>>;
   onPublishClick?: () => void;
 };
 
 export default function NoteEditMenu(props: Props) {
-  const { note, setIsMoveToModalOpen, onPublishClick } = props;
+  const { note, setIsMoveToModalOpen, setIsDeleteModalOpen, onPublishClick } = props;
 
   const { user } = useAuth();
   const { id: deckId, user_id: deckOwner, author_control_notes } = useCurrentDeck();
-  const isOffline = useStore(state => state.isOffline);
   const onDeleteClick = useDeleteNote(note.id);
+  const isOffline = useStore(state => state.isOffline);
+  const confirmNoteDeletion = useStore(state => state.confirmNoteDeletion);
+
   const onMoveToClick = useCallback(() => setIsMoveToModalOpen(true), [setIsMoveToModalOpen]);
   const [authorControlNotes, setAuthorControlNotes] = useState(author_control_notes);
 
@@ -78,7 +81,7 @@ export default function NoteEditMenu(props: Props) {
         <IconCornerDownRight size={18} className="mr-1" />
         <span>Move to</span>
       </DropdownItem>
-      <DropdownItem onClick={onDeleteClick}>
+      <DropdownItem onClick={() => (confirmNoteDeletion ? setIsDeleteModalOpen(true) : onDeleteClick())}>
         <IconTrash size={18} className="mr-1" />
         <span>Delete</span>
       </DropdownItem>

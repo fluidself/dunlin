@@ -25,6 +25,7 @@ import NoteEditMenu from 'components/NoteEditMenu';
 import NoteMetadata from 'components/NoteMetadata';
 import MoveToModal from 'components/MoveToModal';
 import PublishNoteModal from 'components/PublishNoteModal';
+import DeleteNoteModal from 'components/DeleteNoteModal';
 import Identicon from 'components/home/Identicon';
 import { NoteHeaderDivider } from './NoteHeaderDivider';
 
@@ -121,6 +122,7 @@ export default function NoteHeader() {
 
   const [isMoveToModalOpen, setIsMoveToModalOpen] = useState(false);
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const onPublishClick = useCallback(() => setIsPublishModalOpen(true), []);
 
   const renderPermissionIcon = () => {
@@ -237,7 +239,12 @@ export default function NoteHeader() {
                         <IconCloudDownload size={18} className="mr-1" />
                         <span>Export all</span>
                       </DropdownItem>
-                      <NoteEditMenu note={note} setIsMoveToModalOpen={setIsMoveToModalOpen} onPublishClick={onPublishClick} />
+                      <NoteEditMenu
+                        note={note}
+                        setIsMoveToModalOpen={setIsMoveToModalOpen}
+                        setIsDeleteModalOpen={setIsDeleteModalOpen}
+                        onPublishClick={onPublishClick}
+                      />
                       <NoteMetadata note={note} />
                     </Menu.Items>
                   </Portal>
@@ -255,6 +262,11 @@ export default function NoteHeader() {
       {isPublishModalOpen ? (
         <Portal>
           <PublishNoteModal note={note} userId={user?.id} setIsOpen={setIsPublishModalOpen} />
+        </Portal>
+      ) : null}
+      {isDeleteModalOpen ? (
+        <Portal>
+          <DeleteNoteModal note={note} setIsOpen={setIsDeleteModalOpen} />
         </Portal>
       ) : null}
     </div>

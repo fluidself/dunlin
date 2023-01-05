@@ -1,0 +1,84 @@
+import { useMemo, useState } from 'react';
+import { IconTrash } from '@tabler/icons';
+import { DecryptedNote } from 'types/decrypted';
+import useHotkeys from 'utils/useHotkeys';
+import useDeleteNote from 'utils/useDeleteNote';
+import useBacklinks from 'editor/backlinks/useBacklinks';
+import { useStore } from 'lib/store';
+import Button from 'components/home/Button';
+
+type Props = {
+  note: DecryptedNote;
+  setIsOpen: (isOpen: boolean) => void;
+};
+
+export default function DeleteNoteModal(props: Props) {
+  const { note, setIsOpen } = props;
+  const { linkedBacklinks } = useBacklinks(note.id);
+  const onDeleteClick = useDeleteNote(note.id);
+  const setConfirmNoteDeletion = useStore(state => state.setConfirmNoteDeletion);
+  const [isChecked, setIsChecked] = useState(false);
+
+  const hotkeys = useMemo(
+    () => [
+      {
+        hotkey: 'esc',
+        callback: () => setIsOpen(false),
+      },
+    ],
+    [setIsOpen],
+  );
+  useHotkeys(hotkeys);
+
+  const onConfirm = () => {
+    if (isChecked) {
+      setConfirmNoteDeletion(false);
+    }
+
+    setIsOpen(false);
+    onDeleteClick();
+  };
+
+  const singleBacklink = linkedBacklinks.length === 1;
+
+  return (
+    <div className="fixed inset-0 z-20 overflow-y-auto">
+      <div className="fixed inset-0 bg-black opacity-30" onClick={() => setIsOpen(false)} />
+      <div className="flex justify-center px-6 max-h-screen-80 my-screen-10">
+        <div className="flex flex-col z-30 w-full max-w-screen-sm rounded shadow-popover bg-gray-800 text-gray-200 border border-gray-600">
+          <div className="flex items-center flex-shrink-0 w-full">
+            <IconTrash className="ml-4 mr-1 text-gray-200" size={32} />
+            <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0 bg-gray-800">Delete note</span>
+          </div>
+          <div className="px-4 py-2 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br bg-gray-700 border-gray-700">
+            <div className="px-4 py-4 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br bg-gray-700 border-gray-700">
+              <div className="mb-2">{`Are you sure you want to delete "${note.title}"?`}</div>
+              {linkedBacklinks.length ? (
+                <div className="mb-2 text-red-500">{`There ${singleBacklink ? 'is' : 'are'} currently ${
+                  linkedBacklinks.length
+                } link${!singleBacklink ? 's' : ''} pointing to this note.`}</div>
+              ) : null}
+              <div className="flex space-x-8 justify-between mt-4">
+                <div className="flex items-center justify-center select-none" onClick={() => setIsChecked(!isChecked)}>
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => setIsChecked(!isChecked)}
+                    className="bg-transparent border-2 border-gray-500 p-2 mr-2 rounded-sm hover:cursor-pointer text-primary-500 hover:bg-gray-800 active:bg-gray-700 focus:ring-0 hover:text-primary-600 active:text-primary-700"
+                  />
+                  <span>Don&apos;t ask again</span>
+                </div>
+                <div className="flex items-center justify-center space-x-2">
+                  <Button primary onClick={onConfirm}>
+                    Delete
+                  </Button>
+                  <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
