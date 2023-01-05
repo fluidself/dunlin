@@ -4,6 +4,7 @@ import { IconDots } from '@tabler/icons';
 import { usePopper } from 'react-popper';
 import { DecryptedNote } from 'types/decrypted';
 import MoveToModal from 'components/MoveToModal';
+import DeleteNoteModal from 'components/DeleteNoteModal';
 import NoteEditMenu from 'components/NoteEditMenu';
 import NoteMetadata from 'components/NoteMetadata';
 import Portal from '../Portal';
@@ -21,6 +22,7 @@ const SidebarNoteLinkDropdown = (props: Props) => {
   const { styles, attributes } = usePopper(containerRef.current, popperElement, { placement: 'right-start' });
 
   const [isMoveToModalOpen, setIsMoveToModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   return (
     <>
@@ -44,7 +46,11 @@ const SidebarNoteLinkDropdown = (props: Props) => {
                   style={styles.popper}
                   {...attributes.popper}
                 >
-                  <NoteEditMenu note={note} setIsMoveToModalOpen={setIsMoveToModalOpen} />
+                  <NoteEditMenu
+                    note={note}
+                    setIsMoveToModalOpen={setIsMoveToModalOpen}
+                    setIsDeleteModalOpen={setIsDeleteModalOpen}
+                  />
                   <NoteMetadata note={note} />
                 </Menu.Items>
               </Portal>
@@ -55,6 +61,11 @@ const SidebarNoteLinkDropdown = (props: Props) => {
       {isMoveToModalOpen ? (
         <Portal>
           <MoveToModal noteId={note.id} setIsOpen={setIsMoveToModalOpen} />
+        </Portal>
+      ) : null}
+      {isDeleteModalOpen ? (
+        <Portal>
+          <DeleteNoteModal note={note} setIsOpen={setIsDeleteModalOpen} />
         </Portal>
       ) : null}
     </>
