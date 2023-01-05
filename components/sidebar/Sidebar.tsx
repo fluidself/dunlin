@@ -22,7 +22,7 @@ type Props = {
 };
 
 function Sidebar(props: Props) {
-  const { setIsFindOrCreateModalOpen, setIsSettingsOpen, setCreateJoinRenameModal, className } = props;
+  const { setIsFindOrCreateModalOpen, setIsSettingsOpen, setCreateJoinRenameModal, className = '' } = props;
 
   const { id: deckId } = useCurrentDeck();
   const isSidebarOpen = useStore(state => state.isSidebarOpen);
@@ -86,7 +86,7 @@ function Sidebar(props: Props) {
             />
           ) : null}
           <animated.div
-            className="fixed top-0 bottom-0 left-0 z-20 w-64 shadow-popover md:shadow-none md:static md:z-0"
+            className="fixed top-0 bottom-0 left-0 z-20 w-72 shadow-popover md:shadow-none md:static md:z-0"
             style={{
               transform: styles.transform,
               display: styles.dspl.to(displ => (displ === 0 ? 'none' : 'initial')),
