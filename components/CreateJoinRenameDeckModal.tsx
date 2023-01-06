@@ -80,7 +80,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
       access_params: accessParams,
     });
     if (!deck) {
-      toast.error('There was an error creating the DECK');
+      toast.error('There was an error creating the workspace');
       return;
     }
 
@@ -104,7 +104,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
     const { data, error } = await supabase.from<Deck>('decks').update({ deck_name: inputText }).eq('id', deckId).single();
 
     if (error || !data) {
-      toast.error('There was an error updating the DECK');
+      toast.error('There was an error updating the workspace');
       return;
     }
 
@@ -120,7 +120,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
 
     try {
       const { error } = await supabase.from<Deck>('decks').delete().eq('id', deckId);
-      if (error) toast.error('There was an error deleting the DECK');
+      if (error) toast.error('There was an error deleting the workspace');
 
       if (deckId === currentDeckId) {
         await fetch('/api/reset-recent-deck', { method: 'POST' });
@@ -135,7 +135,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
         window.location.assign(`${process.env.BASE_URL}/app`);
       }
     } catch (error) {
-      toast.error('There was an error deleting the DECK');
+      toast.error('There was an error deleting the workspace');
     }
   };
 
@@ -146,7 +146,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
     const success = await verifyDeckAccess(inputText, user);
 
     if (success) {
-      toast.success('Access to DECK is granted');
+      toast.success('Access to workspace is granted');
       setProcessing(false);
       closeModal();
       window.location.assign(`${process.env.BASE_URL}/app/${inputText}`);
@@ -159,10 +159,10 @@ export default function CreateJoinRenameDeckModal(props: Props) {
   if (type === CreateJoinRenameDeckType.None) return null;
 
   const headings = {
-    [CreateJoinRenameDeckType.Create]: 'Create a new DECK',
-    [CreateJoinRenameDeckType.Join]: 'Join a DECK',
-    [CreateJoinRenameDeckType.Rename]: 'Rename DECK',
-    [CreateJoinRenameDeckType.Delete]: 'Delete DECK',
+    [CreateJoinRenameDeckType.Create]: 'Create a new workspace',
+    [CreateJoinRenameDeckType.Join]: 'Join a workspace',
+    [CreateJoinRenameDeckType.Rename]: 'Rename workspace',
+    [CreateJoinRenameDeckType.Delete]: 'Delete workspace',
   };
   const icons = {
     [CreateJoinRenameDeckType.Create]: <IconFolderPlus className="ml-4 mr-1 text-gray-200" size={32} />,
@@ -171,9 +171,9 @@ export default function CreateJoinRenameDeckModal(props: Props) {
     [CreateJoinRenameDeckType.Delete]: <IconTrash className="ml-4 mr-1 text-gray-200" size={32} />,
   };
   const placeholders = {
-    [CreateJoinRenameDeckType.Create]: 'Enter DECK name',
-    [CreateJoinRenameDeckType.Join]: 'Enter DECK ID',
-    [CreateJoinRenameDeckType.Rename]: 'Enter new DECK name',
+    [CreateJoinRenameDeckType.Create]: 'Enter workspace name',
+    [CreateJoinRenameDeckType.Join]: 'Enter workspace ID',
+    [CreateJoinRenameDeckType.Rename]: 'Enter new workspace name',
   };
   const onClickHandlers = {
     [CreateJoinRenameDeckType.Create]: createNewDeck,
@@ -198,7 +198,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
       case CreateJoinRenameDeckType.Delete:
         return (
           <>
-            <div className="mb-2">Are you sure you want to delete this DECK?</div>
+            <div className="mb-2">Are you sure you want to delete this workspace?</div>
             {deckTags()}
           </>
         );

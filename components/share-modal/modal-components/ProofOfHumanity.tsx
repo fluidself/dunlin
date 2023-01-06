@@ -46,7 +46,7 @@ const ProofOfHumanity = (props: Props) => {
           >
             Proof Of Humanity
           </a>{' '}
-          protocol will be able to access the DECK.
+          protocol will be able to access the workspace.
         </p>
       </div>
 

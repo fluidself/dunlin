@@ -36,8 +36,8 @@ export default function Sidebar() {
                   <ul className="flex flex-col">
                     <Link href="/" className={`w-full flex focus:outline-none hover:bg-gray-800 border-b border-gray-600`}>
                       <li className="list-none flex items-center px-8 py-1 my-1 w-full">
-                        <Image src="/android-chrome-192x192.png" alt="DECK logo" width={24} height={24} />
-                        <div className="ml-2">DECK</div>
+                        <Image src="/android-chrome-192x192.png" alt="Dunlin logo" width={24} height={24} />
+                        <div className="ml-2">Dunlin</div>
                       </li>
                     </Link>
                     {items.map(link => {

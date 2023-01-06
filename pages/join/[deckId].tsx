@@ -34,7 +34,7 @@ export default function JoinDeck({ deckId }: Props) {
     const success = await verifyDeckAccess(deckId, user);
 
     if (success) {
-      toast.success('Access to DECK is granted');
+      toast.success('Access to workspace is granted');
       router.push(`/app/${deckId}`);
     } else {
       router.push(`/app`);

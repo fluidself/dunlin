@@ -60,7 +60,7 @@ export default function AppLayout(props: Props) {
     if (!isPageLoaded && isLoaded && user) {
       // Use user's specific store and rehydrate data
       useStore.persist.setOptions({
-        name: `deck-storage-${user.id}`,
+        name: `dunlin-storage-${user.id}`,
       });
       useStore.persist.rehydrate();
     }
@@ -303,7 +303,7 @@ export default function AppLayout(props: Props) {
     const success = await configureDeckAccess(deckId, user.id, deck?.key, acc);
 
     if (success) {
-      toast.success('Access to your DECK was configured');
+      toast.success('Access to workspace was configured');
       setProcessingAccess(false);
       return true;
     } else {

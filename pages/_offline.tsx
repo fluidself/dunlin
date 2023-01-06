@@ -5,7 +5,7 @@ export default function Offline() {
   return (
     <>
       <Head>
-        <title>You&apos;re offline | DECK</title>
+        <title>You&apos;re offline | Dunlin</title>
       </Head>
       <div className="flex flex-col items-center justify-center flex-1 h-screen p-4">
         <IconWifiOff size={64} className="p-2 text-white bg-yellow-500 rounded-full" />

@@ -72,7 +72,7 @@ export default function Graph() {
   return (
     <>
       <Head>
-        <title>Graph View | DECK</title>
+        <title>Graph View | Dunlin</title>
       </Head>
       <ErrorBoundary>
         {!isSidebarOpen ? <OpenSidebarButton className="absolute top-0 left-0 z-10 mx-4 my-1" /> : null}

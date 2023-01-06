@@ -13,9 +13,9 @@ import createUserSettingsSlice, { UserSettings } from './createUserSettingsSlice
 export { default as shallowEqual } from 'zustand/shallow';
 
 localforage.config({
-  name: 'deck',
+  name: 'dunlin',
   version: 1.0,
-  storeName: 'deck_data',
+  storeName: 'dunlin_data',
 });
 
 const storage: StateStorage = {
@@ -237,7 +237,7 @@ export const store = createVanilla<Store>()(
       ...createUserSettingsSlice(set),
     })),
     {
-      name: 'deck-storage',
+      name: 'dunlin-storage',
       version: 1,
       getStorage: () => storage,
       partialize: state => ({

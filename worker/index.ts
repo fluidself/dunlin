@@ -2,7 +2,7 @@ import { Queue } from 'workbox-background-sync';
 
 declare const self: ServiceWorkerGlobalScope;
 
-const queue = new Queue('deck-sync-requests', {
+const queue = new Queue('dunlin-sync-requests', {
   maxRetentionTime: 24 * 60,
   onSync: async ({ queue }) => {
     const nonPostRequests = [];

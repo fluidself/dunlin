@@ -130,8 +130,8 @@ export default function NoteHeader() {
 
     const viewOnlyTooltipContent =
       deckOwner === user?.id
-        ? 'Note author and DECK owner can edit'
-        : `${note.user_id === user?.id ? 'Only you' : 'Note author'} and DECK owner can edit`;
+        ? 'Note author and workspace owner can edit'
+        : `${note.user_id === user?.id ? 'Only you' : 'Note author'} and workspace owner can edit`;
 
     return note.author_only ? (
       <Tooltip content={viewOnlyTooltipContent}>
@@ -140,7 +140,7 @@ export default function NoteHeader() {
         </span>
       </Tooltip>
     ) : (
-      <Tooltip content="All DECK members can edit">
+      <Tooltip content="All workspace members can edit">
         <span className="flex items-center justify-center w-8 h-8">
           <IconPencil className="text-gray-600 dark:text-gray-400" />
         </span>
@@ -171,7 +171,7 @@ export default function NoteHeader() {
                 <Select
                   className="react-select-container-header"
                   classNamePrefix="react-select-header"
-                  placeholder="Select DECK..."
+                  placeholder="Select workspace..."
                   isDisabled={isOffline}
                   options={deckOptions}
                   value={selectedDeck}
@@ -184,7 +184,7 @@ export default function NoteHeader() {
                 />
               </div>
               {user.id === deckOwner && (
-                <Tooltip content="Share DECK">
+                <Tooltip content="Share workspace">
                   <button
                     className={`${buttonClassName} ${isOffline && 'pointer-events-none'}`}
                     disabled={isOffline}

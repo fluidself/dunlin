@@ -1,8 +1,8 @@
 import Document, { Html, Head, Main, NextScript } from 'next/document';
 
-const TITLE = 'DECK';
+const TITLE = 'Dunlin';
 const DESCRIPTION = 'Knowledge management for crypto natives';
-const URL = 'https://usedeck.vercel.app';
+const URL = 'https://dunlin.xyz';
 
 class MyDocument extends Document {
   render() {

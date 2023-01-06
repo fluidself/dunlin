@@ -22,7 +22,7 @@ const RequestDeckAccess = ({ onDeckNameProvided, onCancel, processing }: Props) 
         className="input-subdued block w-full px-3 py-1 text-sm"
         value={inputValue}
         onChange={event => setInputValue(event.target.value)}
-        placeholder="Enter DECK name"
+        placeholder="Enter workspace name"
         autoFocus={true}
         autoComplete="off"
         maxLength={20}

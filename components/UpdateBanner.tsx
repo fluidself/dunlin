@@ -5,7 +5,7 @@ export default function UpdateBanner() {
       className="hidden w-full py-1 font-semibold text-center text-blue-900 bg-blue-300"
       onClick={updateAndReloadApp}
     >
-      A new version of DECK is available. Click here to reload the app.
+      A new version of Dunlin is available. Click here to reload the app.
     </button>
   );
 }
