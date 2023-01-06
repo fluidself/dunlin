@@ -8,4 +8,4 @@ Dunlin is experimental software, so for peace of mind you might want to take reg
 
 ## Where can I see the code?
 
-[Here](https://github.com/fluidself/deck).
+[Here](https://github.com/fluidself/dunlin).

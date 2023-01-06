@@ -99,7 +99,7 @@ export default function Header(props: Props) {
             <DropdownItem
               disabled={isOffline}
               as="a"
-              href="https://github.com/fluidself/deck"
+              href="https://github.com/fluidself/dunlin"
               rel="noopener noreferrer"
               target="_blank"
             >
