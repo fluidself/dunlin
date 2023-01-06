@@ -36,7 +36,7 @@ export default function MyApp({ Component, pageProps, router }: AppProps) {
   return (
     <>
       <Head>
-        <title>DECK</title>
+        <title>Dunlin</title>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
 

@@ -68,7 +68,7 @@ export default function CurrentAccess(props: Props) {
 
   return (
     <div>
-      <div className="text-lg">Current DECK access control conditions</div>
+      <div className="text-lg">Current workspace access control conditions</div>
       <div className="flex space-x-4 items-center">
         <span className="text-xs inline-block mt-2 py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
           {deck_name}

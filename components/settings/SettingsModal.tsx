@@ -107,7 +107,7 @@ const SettingsModalSidebar = (props: SettingsModalSidebarProps) => {
           onClick={() => setCurrentTab(SettingsTab.DeckManagement)}
         >
           <IconBook2 size={18} className={`mr-1 text-gray-800 dark:text-gray-200 ${isOffline && 'dark:text-gray-500'}`} />
-          <span>Manage DECKs</span>
+          <span>Workspaces</span>
         </button>
       </SidebarItem>
     </div>

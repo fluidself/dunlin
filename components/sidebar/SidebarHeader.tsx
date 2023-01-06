@@ -38,7 +38,7 @@ export default function Header(props: Props) {
         <Menu>
           <Menu.Button className="flex items-center justify-between w-full py-2 pl-6 overflow-x-hidden text-left text-gray-800 hover:bg-gray-200 active:bg-gray-300 dark:text-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 overflow-ellipsis whitespace-nowrap focus:outline-none border-b border-gray-700">
             <div className="flex items-center flex-1">
-              <span className="mr-1 font-semibold select-none">DECK</span>
+              <span className="mr-1 font-semibold select-none">Dunlin</span>
               <IconSelector size={18} className="text-gray-500 dark:text-gray-400" />
             </div>
             <Tooltip content={`Collapse sidebar (${modifierKey()}+\\)`} placement="right">

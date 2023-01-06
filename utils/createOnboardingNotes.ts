@@ -12,7 +12,7 @@ export default function createOnboardingNotes() {
       content: [
         {
           type: 'paragraph',
-          children: [{ text: 'Here are some basics to help you get started using your DECK.' }],
+          children: [{ text: 'Here are some basics to help you get started using Dunlin.' }],
         },
         { type: 'heading-one', children: [{ text: 'Bidirectional linking' }] },
         {
@@ -105,7 +105,7 @@ export default function createOnboardingNotes() {
             },
           ],
         },
-        { type: 'heading-one', children: [{ text: 'Sharing DECKs' }] },
+        { type: 'heading-one', children: [{ text: 'Sharing workspaces' }] },
         {
           type: 'bulleted-list',
           children: [
@@ -113,7 +113,7 @@ export default function createOnboardingNotes() {
               type: 'list-item',
               children: [
                 {
-                  text: 'You can share your DECK with a friend or a community by clicking on "Share" in the dropdown menu from the top of the sidebar. Among other options, you can grant access to an individual wallet, members of a certain DAO, or holders of a specific NFT.',
+                  text: 'You can share your workspace with a friend or a community by clicking on "Share" in the dropdown menu from the top of the sidebar. Among other options, you can grant access to an individual wallet, members of a certain DAO, or holders of a specific NFT.',
                 },
               ],
             },
@@ -121,7 +121,7 @@ export default function createOnboardingNotes() {
               type: 'list-item',
               children: [
                 {
-                  text: 'To accept an invitation to another DECK, click on "Join" in the dropdown menu from the top of the sidebar and enter the unique ID of the DECK you want to join.',
+                  text: 'To accept an invitation to another workspace, click on "Join" in the dropdown menu from the top of the sidebar and enter the unique ID of the workspace you want to join.',
                 },
               ],
             },

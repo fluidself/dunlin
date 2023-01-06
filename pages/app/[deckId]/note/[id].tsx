@@ -21,7 +21,7 @@ export default function NotePage() {
 
   const pageTitle = useStore(state => {
     if (!noteId || typeof noteId !== 'string' || !state.notes[noteId]?.title) {
-      return 'DECK';
+      return 'Dunlin';
     } else if (window.matchMedia('(display-mode: standalone)').matches) {
       return `${state.notes[noteId].title} (${noteId})`;
     } else {
@@ -73,7 +73,7 @@ export default function NotePage() {
     return (
       <>
         <Head>
-          <title>Not Found | DECK</title>
+          <title>Not Found | Dunlin</title>
         </Head>
         <div className="flex flex-col items-center justify-center flex-1 h-screen p-4">
           <p className="text-2xl text-center">Whoops&mdash;it doesn&apos;t look like this note exists!</p>

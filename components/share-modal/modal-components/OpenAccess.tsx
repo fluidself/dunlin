@@ -36,7 +36,7 @@ const OpenAccess = (props: Props) => {
     <div>
       <div className="text-lg">Grant all users access?</div>
       <div className="mt-4">
-        <p>Anyone with an Ethereum address will be able to access the DECK.</p>
+        <p>Anyone with an Ethereum address will be able to access the workspace.</p>
       </div>
 
       <Navigation

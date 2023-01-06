@@ -52,14 +52,14 @@ const RevokeAccess = (props: Props) => {
 
     await setCollaborativeDeck(false);
 
-    toast.success('DECK access was revoked');
+    toast.success('Workspace access was revoked');
     setProcessing(false);
     setTimeout(() => onClose(), 1000);
   };
 
   return (
     <div>
-      <div className="text-lg">Revoke all DECK access</div>
+      <div className="text-lg">Revoke all workspace access</div>
       <div className="flex space-x-4 items-center">
         <span className="text-xs inline-block mt-2 py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
           {deck_name}
@@ -69,7 +69,7 @@ const RevokeAccess = (props: Props) => {
         </span>
       </div>
       <div className="mt-4">
-        <p>After revoking access, only you will be able to view this DECK.</p>
+        <p>After revoking access, only you will be able to view this workspace.</p>
       </div>
 
       <Navigation

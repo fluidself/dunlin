@@ -13,7 +13,7 @@ export default function DocsPage(props: Props) {
   return (
     <>
       <Head>
-        <title>Docs | DECK</title>
+        <title>Docs | Dunlin</title>
       </Head>
       <div className="flex flex-col md:flex-row docs">
         <Sidebar />

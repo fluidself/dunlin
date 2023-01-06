@@ -87,7 +87,7 @@ export default function AppHome() {
     });
 
     if (!deck) {
-      toast.error('There was an error creating the DECK');
+      toast.error('There was an error creating the workspace');
       setProcessing(false);
       return;
     }
@@ -111,7 +111,7 @@ export default function AppHome() {
     const success = await verifyDeckAccess(requestedDeck, user);
 
     if (success) {
-      toast.success('Access to DECK is granted');
+      toast.success('Access to workspace is granted');
       router.push(`/app/${requestedDeck}`);
     } else {
       toast.error('Unable to verify access');
@@ -152,14 +152,14 @@ export default function AppHome() {
                   onClick={() => setCreatingDeck(true)}
                 >
                   <Image src={create} width={256} height={256} alt="" priority />
-                  <div className="mt-8">Create a new DECK</div>
+                  <div className="mt-8">Create a new workspace</div>
                 </button>
                 <button
                   className="flex flex-col justify-between items-center py-4 w-[280px] h-[290px] border border-white cursor-pointer box-border text-white hover:bg-gray-800 focus:bg-gray-800"
                   onClick={() => setRequestingAccess(true)}
                 >
                   <Image src={join} width={256} height={256} alt="" priority />
-                  <div className="mt-8">Join a DECK</div>
+                  <div className="mt-8">Join a workspace</div>
                 </button>
               </div>
             )}

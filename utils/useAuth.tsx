@@ -67,7 +67,7 @@ function useProvideAuth(): AuthContextType {
       const message = new SiweMessage({
         domain: window.location.host,
         address,
-        statement: 'Sign in with Ethereum to use DECK',
+        statement: 'Sign in with Ethereum to use Dunlin',
         uri: window.location.origin,
         version: '1',
         chainId,
