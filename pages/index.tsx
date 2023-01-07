@@ -1,23 +1,25 @@
 import { withIronSessionSsr } from 'iron-session/next';
 import { useRouter } from 'next/router';
-import { IconInfoCircle } from '@tabler/icons';
-import { useEffect } from 'react';
-import { useAccount } from 'wagmi';
+import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { IconInfoCircle } from '@tabler/icons';
+import { useAccount } from 'wagmi';
+import useSWR from 'swr';
 import { ironOptions } from 'constants/iron-session';
 import selectDecks from 'lib/api/selectDecks';
 import { useAuth } from 'utils/useAuth';
 import { EthereumIcon } from 'components/home/EthereumIcon';
+import OnboardingModal from 'components/onboarding/OnboardingModal';
 import Button from 'components/home/Button';
+import Portal from 'components/Portal';
 
 export default function Home() {
-  const { connector } = useAccount();
-  const { signIn, signOut, user } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    if (user) router.push('/app');
-  }, [user, router]);
+  const { connector } = useAccount();
+  const { signIn, signOut, user, isLoaded } = useAuth();
+  const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
+  const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
 
   useEffect(() => {
     const onDisconnect = () => signOut();
@@ -28,41 +30,69 @@ export default function Home() {
     };
   }, [connector, signOut]);
 
-  return (
-    <div className="mt-2">
-      <Link
-        href={`${process.env.BASE_URL}/docs`}
-        className="focus:outline-none absolute top-3 right-6"
-        aria-label="Documentation"
-      >
-        <IconInfoCircle size={24} className="hover:text-gray-500" />
-      </Link>
-      <main className="container mt-28 lg:mt-48 flex flex-col">
-        <div className="mx-auto pl-2 mb-16">
-          <h1 className="text-5xl space-y-4 tracking-wider">
-            <span className="block">
-              <span className="hero-decoration">D</span>
-              ecentralized
-            </span>
-            <span className="block">
-              <span className="hero-decoration">E</span>ncrypted
-            </span>
-            <span className="block">
-              <span className="hero-decoration">C</span>
-              ollaborative
-            </span>
-            <span className="block">
-              <span className="hero-decoration">K</span>nowledge
-            </span>
-          </h1>
-        </div>
+  useEffect(() => {
+    if (decks?.length) {
+      router.push(`/app/${decks[decks.length - 1].id}`);
+    } else if (isLoaded && user && decks?.length === 0) {
+      setIsOnboardingModalOpen(true);
+    } else {
+      setIsOnboardingModalOpen(false);
+    }
+  }, [isLoaded, user, decks, router]);
 
-        <Button className="py-4 w-80 mx-auto" primary onClick={signIn}>
-          <EthereumIcon />
-          Sign-in with Ethereum
-        </Button>
-      </main>
-    </div>
+  const handleSignIn = async () => {
+    if (user) {
+      setIsOnboardingModalOpen(true);
+      return;
+    }
+
+    await signIn();
+  };
+
+  return (
+    <>
+      <div id="app-container" className="h-screen">
+        <header className="flex justify-between items-center px-8 py-4">
+          <div className="flex">
+            <Image src="/favicon-32x32.png" alt="Dunlin logo" width={24} height={24} />
+            <h2 className="ml-2">Dunlin</h2>
+          </div>
+          <Link href="/docs" className="focus:outline-none" aria-label="Documentation">
+            <IconInfoCircle size={24} className="hover:text-gray-400" />
+          </Link>
+        </header>
+        <main className="container flex flex-col overflow-y-hidden mt-20 md:mt-52">
+          <div className="mx-auto pl-2 mb-16">
+            <h1 className="text-4xl md:text-5xl space-y-4 tracking-wider">
+              <span className="block">
+                <span className="hero-decoration">D</span>
+                ecentralized
+              </span>
+              <span className="block">
+                <span className="hero-decoration">E</span>ncrypted
+              </span>
+              <span className="block">
+                <span className="hero-decoration">C</span>
+                ollaborative
+              </span>
+              <span className="block">
+                <span className="hero-decoration">K</span>nowledge
+              </span>
+            </h1>
+          </div>
+
+          <Button className="py-4 md:w-80 mx-auto" primary onClick={handleSignIn}>
+            <EthereumIcon />
+            <span>Sign-in with Ethereum</span>
+          </Button>
+        </main>
+      </div>
+      {isOnboardingModalOpen ? (
+        <Portal>
+          <OnboardingModal setIsOpen={setIsOnboardingModalOpen} />
+        </Portal>
+      ) : null}
+    </>
   );
 }
 
@@ -79,7 +109,5 @@ export const getServerSideProps = withIronSessionSsr(async function ({ req }) {
 
   const decks = await selectDecks(user.id);
 
-  return decks.length
-    ? { redirect: { destination: `/app/${decks[decks.length - 1].id}`, permanent: false } }
-    : { redirect: { destination: '/app', permanent: false } };
+  return decks.length ? { redirect: { destination: `/app/${decks[decks.length - 1].id}`, permanent: false } } : { props: {} };
 }, ironOptions);
