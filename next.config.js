@@ -17,6 +17,11 @@ module.exports = withPWA({
         permanent: false,
       },
       {
+        source: '/app',
+        destination: '/',
+        permanent: false,
+      },
+      {
         source: '/publications',
         destination: '/',
         permanent: false,

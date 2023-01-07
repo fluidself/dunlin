@@ -91,7 +91,7 @@ export default function AppLayout(props: Props) {
         await supabase.from<Contributor>('contributors').delete().match({ deck_id: deckId, user_id: user?.id }).single();
       }
       await fetch('/api/reset-recent-deck', { method: 'POST' });
-      router.push('/app');
+      router.push('/');
     },
     [deckId, router, user?.id],
   );

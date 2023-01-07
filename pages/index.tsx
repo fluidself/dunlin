@@ -20,6 +20,7 @@ export default function Home() {
   const { signIn, signOut, user, isLoaded } = useAuth();
   const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
+  const [hasClicked, setHasClicked] = useState(false);
 
   useEffect(() => {
     const onDisconnect = () => signOut();
@@ -33,14 +34,16 @@ export default function Home() {
   useEffect(() => {
     if (decks?.length) {
       router.push(`/app/${decks[decks.length - 1].id}`);
-    } else if (isLoaded && user && decks?.length === 0) {
+    } else if (hasClicked && isLoaded && user && decks?.length === 0) {
       setIsOnboardingModalOpen(true);
     } else {
       setIsOnboardingModalOpen(false);
     }
-  }, [isLoaded, user, decks, router]);
+  }, [hasClicked, isLoaded, user, decks, router]);
 
   const handleSignIn = async () => {
+    setHasClicked(true);
+
     if (user) {
       setIsOnboardingModalOpen(true);
       return;
