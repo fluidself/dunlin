@@ -5,7 +5,7 @@ import supabase from 'lib/supabase';
 import { useStore } from 'lib/store';
 import { Note, Deck } from 'types/supabase';
 import Toggle from 'components/Toggle';
-import Button from 'components/home/Button';
+import Button from 'components/Button';
 
 export default function Permissions() {
   const { id: deckId } = useCurrentDeck();

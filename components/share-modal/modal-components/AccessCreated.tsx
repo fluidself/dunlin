@@ -1,6 +1,6 @@
 import { IconCopy } from '@tabler/icons';
 import copyToClipboard from 'utils/copyToClipboard';
-import Button from 'components/home/Button';
+import Button from 'components/Button';
 
 type Props = {
   deckToShare: string;

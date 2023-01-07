@@ -9,8 +9,8 @@ import { ironOptions } from 'constants/iron-session';
 import { useAuth } from 'utils/useAuth';
 import useIsMounted from 'utils/useIsMounted';
 import { verifyDeckAccess } from 'utils/accessControl';
-import { EthereumIcon } from 'components/home/EthereumIcon';
-import Button from 'components/home/Button';
+import { EthereumIcon } from 'components/EthereumIcon';
+import Button from 'components/Button';
 
 type Props = {
   deckId: string;
