@@ -47,6 +47,8 @@ export default function CreateJoinRenameDeckModal(props: Props) {
   );
   useHotkeys(hotkeys);
 
+  const BASE_URL = process.env.BASE_URL as string;
+
   const createNewDeck = async () => {
     if (!user || !inputText) return;
     setProcessing(true);
@@ -94,7 +96,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
     toast.success(`Successfully created ${deck.deck_name}`);
     setProcessing(false);
     closeModal();
-    window.location.assign(`${process.env.BASE_URL}/app/${deck.id}`);
+    window.location.assign(`${BASE_URL}/app/${deck.id}`);
   };
 
   const renameDeck = async () => {
@@ -132,7 +134,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
       closeModal();
 
       if (deckId === currentDeckId) {
-        window.location.assign(`${process.env.BASE_URL}/app`);
+        window.location.assign(BASE_URL);
       }
     } catch (error) {
       toast.error('There was an error deleting the workspace');
@@ -149,7 +151,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
       toast.success('Access to workspace is granted');
       setProcessing(false);
       closeModal();
-      window.location.assign(`${process.env.BASE_URL}/app/${inputText}`);
+      window.location.assign(`${BASE_URL}/app/${inputText}`);
     } else {
       toast.error('Unable to verify access');
       setProcessing(false);

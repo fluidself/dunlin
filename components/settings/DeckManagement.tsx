@@ -30,7 +30,7 @@ export default function DeckManagement(props: Props) {
 
       if (deckId === currentDeckId) {
         await fetch('/api/reset-recent-deck', { method: 'POST' });
-        window.location.assign(`${process.env.BASE_URL}/app`);
+        window.location.assign(process.env.BASE_URL as string);
       }
     } catch (error) {
       console.error(error);

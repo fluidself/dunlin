@@ -37,7 +37,7 @@ export default function JoinDeck({ deckId }: Props) {
       toast.success('Access to workspace is granted');
       router.push(`/app/${deckId}`);
     } else {
-      router.push(`/app`);
+      router.push(`/`);
     }
   }, [deckId, router, user]);
 
@@ -52,7 +52,7 @@ export default function JoinDeck({ deckId }: Props) {
 
   return (
     <div className="mt-2">
-      <Link href={`${process.env.BASE_URL}/docs`} className="focus:outline-none absolute top-3 right-6">
+      <Link href="/docs" className="focus:outline-none absolute top-3 right-6">
         <IconInfoCircle size={24} className="hover:text-gray-500" />
       </Link>
       <main className="container mt-28 lg:mt-48 flex flex-col">
