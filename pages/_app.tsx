@@ -1,6 +1,5 @@
 import Head from 'next/head';
 import Router from 'next/router';
-import { Roboto_Mono } from '@next/font/google';
 import { ToastContainer } from 'react-toastify';
 import NProgress from 'nprogress';
 import type { AppProps } from 'next/app';
@@ -21,8 +20,6 @@ Router.events.on('routeChangeStart', () => NProgress.start());
 Router.events.on('routeChangeComplete', () => NProgress.done());
 Router.events.on('routeChangeError', () => NProgress.done());
 
-const robotoMono = Roboto_Mono({ subsets: ['latin'] });
-
 const infuraId = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID as string;
 const { chains, provider } = configureChains(defaultChains, [infuraProvider({ apiKey: infuraId }), publicProvider()]);
 
@@ -39,12 +36,6 @@ export default function MyApp({ Component, pageProps, router }: AppProps) {
         <title>Dunlin</title>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
-
-      <style jsx global>{`
-        body {
-          font-family: ${robotoMono.style.fontFamily};
-        }
-      `}</style>
 
       <ServiceWorker>
         <WagmiConfig client={client}>

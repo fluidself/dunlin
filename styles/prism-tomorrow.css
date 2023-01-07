@@ -1,7 +1,7 @@
 code[class*='language-'],
 pre[class*='language-'] {
   background: none;
-  font-family: '__Roboto_Mono_77395d', '__Roboto_Mono_Fallback_77395d', Roboto Mono, monospace;
+  font-family: 'Roboto Mono', monospace;
   font-size: 1em;
   text-align: left;
   white-space: pre;
