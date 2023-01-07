@@ -11,7 +11,7 @@ import copyToClipboard from 'utils/copyToClipboard';
 import useIpfs from 'utils/useIpfs';
 import { store } from 'lib/store';
 import { getSerializedNote } from 'components/editor/NoteHeader';
-import Button from 'components/home/Button';
+import Button from 'components/Button';
 import Toggle from 'components/Toggle';
 
 type Props = {

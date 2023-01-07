@@ -11,7 +11,7 @@ import useHotkeys from 'utils/useHotkeys';
 import { generateKey, encryptNote, encryptWithLit } from 'utils/encryption';
 import createOnboardingNotes from 'utils/createOnboardingNotes';
 import { verifyDeckAccess } from 'utils/accessControl';
-import Button from 'components/home/Button';
+import Button from 'components/Button';
 
 export enum CreateJoinRenameDeckType {
   Create = 'create',

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { WindowedMenuList, createFilter, components } from 'react-windowed-select';
 import Creatable from 'react-select/creatable';
-import Button from 'components/home/Button';
+import Button from 'components/Button';
 
 const Option = ({ data: { label, logo, symbol }, ...props }) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

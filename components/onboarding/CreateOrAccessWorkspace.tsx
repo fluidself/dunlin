@@ -8,7 +8,7 @@ import { useAuth } from 'utils/useAuth';
 import { generateKey, encryptWithLit, encryptNote } from 'utils/encryption';
 import createOnboardingNotes from 'utils/createOnboardingNotes';
 import { verifyDeckAccess } from 'utils/accessControl';
-import Button from 'components/home/Button';
+import Button from 'components/Button';
 import { OnboardingStep } from './OnboardingModal';
 
 export enum InputType {

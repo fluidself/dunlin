@@ -5,7 +5,7 @@ import useHotkeys from 'utils/useHotkeys';
 import useDeleteNote from 'utils/useDeleteNote';
 import useBacklinks from 'editor/backlinks/useBacklinks';
 import { useStore } from 'lib/store';
-import Button from 'components/home/Button';
+import Button from 'components/Button';
 
 type Props = {
   note: DecryptedNote;

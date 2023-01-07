@@ -1,6 +1,6 @@
 import React from 'react';
 import { IconArrowNarrowLeft, IconArrowNarrowRight } from '@tabler/icons';
-import Button from 'components/home/Button';
+import Button from 'components/Button';
 
 type Props = {
   backward?: {

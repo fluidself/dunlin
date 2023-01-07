@@ -9,10 +9,10 @@ import useSWR from 'swr';
 import { ironOptions } from 'constants/iron-session';
 import selectDecks from 'lib/api/selectDecks';
 import { useAuth } from 'utils/useAuth';
-import { EthereumIcon } from 'components/home/EthereumIcon';
-import OnboardingModal from 'components/onboarding/OnboardingModal';
-import Button from 'components/home/Button';
+import { EthereumIcon } from 'components/EthereumIcon';
+import Button from 'components/Button';
 import Portal from 'components/Portal';
+import OnboardingModal from 'components/onboarding/OnboardingModal';
 
 export default function Home() {
   const router = useRouter();

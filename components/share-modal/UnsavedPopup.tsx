@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from 'components/home/Button';
+import Button from 'components/Button';
 
 type Props = {
   open: boolean;

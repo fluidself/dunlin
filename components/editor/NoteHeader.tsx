@@ -26,7 +26,7 @@ import NoteMetadata from 'components/NoteMetadata';
 import MoveToModal from 'components/MoveToModal';
 import PublishNoteModal from 'components/PublishNoteModal';
 import DeleteNoteModal from 'components/DeleteNoteModal';
-import Identicon from 'components/home/Identicon';
+import Identicon from 'components/Identicon';
 import { NoteHeaderDivider } from './NoteHeaderDivider';
 
 type DeckSelectOption = {
