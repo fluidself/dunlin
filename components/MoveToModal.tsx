@@ -17,16 +17,13 @@ export default function MoveToModal(props: Props) {
         callback: () => setIsOpen(false),
       },
     ],
-    [setIsOpen]
+    [setIsOpen],
   );
   useHotkeys(hotkeys);
 
   return (
     <div className="fixed inset-0 z-20 overflow-y-auto">
-      <div
-        className="fixed inset-0 bg-black opacity-30"
-        onClick={() => setIsOpen(false)}
-      />
+      <div className="fixed inset-0 bg-black opacity-30" onClick={() => setIsOpen(false)} />
       <div className="flex justify-center px-6 max-h-screen-80 my-screen-10">
         <MoveToInput
           noteId={noteId}

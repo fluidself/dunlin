@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useMemo, useState, useEffect } from 'react';
 import { createEditor, Editor, Element, Node } from 'slate';
-import { IconSend, IconConfetti } from '@tabler/icons';
+import { IconSend, IconConfetti, IconX } from '@tabler/icons';
 import * as Name from 'w3name';
 import { toast } from 'react-toastify';
 import { ElementType, NoteLink } from 'types/slate';
@@ -12,7 +12,6 @@ import useIpfs from 'utils/useIpfs';
 import { store } from 'lib/store';
 import { getSerializedNote } from 'components/editor/NoteHeader';
 import Button from 'components/Button';
-import Toggle from 'components/Toggle';
 
 type Props = {
   note: DecryptedNote;
@@ -187,17 +186,22 @@ export default function PublishNoteModal(props: Props) {
   return (
     <div className="fixed inset-0 z-20 overflow-y-auto">
       <div className="fixed inset-0 bg-black opacity-30" onClick={() => setIsOpen(false)} />
-      <div className="flex justify-center px-6 max-h-screen-80 my-screen-10">
+      <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col z-30 w-full max-w-screen-sm rounded shadow-popover bg-gray-800 text-gray-200 border border-gray-600">
-          <div className="flex items-center flex-shrink-0 w-full">
-            {published ? (
-              <IconConfetti className="ml-4 mr-1 text-gray-200" size={32} />
-            ) : (
-              <IconSend className="ml-4 mr-1 text-gray-200" size={32} />
-            )}
-            <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0 bg-gray-800">
-              {published ? 'Note published' : 'Confirm publishing'}
-            </span>
+          <div className="flex items-center justify-between flex-shrink-0 w-full">
+            <div className="flex items-center">
+              {published ? (
+                <IconConfetti className="ml-4 mr-1 text-gray-200" size={32} />
+              ) : (
+                <IconSend className="ml-4 mr-1 text-gray-200" size={32} />
+              )}
+              <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0 bg-gray-800">
+                {published ? 'Note published' : 'Publish note'}
+              </span>
+            </div>
+            <button className="mb-6 mr-2 text-gray-300 hover:text-gray-100" onClick={() => setIsOpen(false)}>
+              <IconX size={20} />
+            </button>
           </div>
           <div className="px-4 py-2 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br bg-gray-700 border-gray-700">
             <div className="flex mb-2 m-[-4px] flex-wrap">
@@ -238,36 +242,43 @@ export default function PublishNoteModal(props: Props) {
                   intended.
                 </p>
                 {noteLinks.length > 0 && (
-                  <>
-                    <p className="my-4">
-                      {`The note contains ${singleNoteLink ? 'a link' : 'links'} to ${
-                        singleNoteLink ? 'another note' : 'other notes'
-                      }. Do you want to publish the note${!singleNoteLink ? 's' : ''} that ${
-                        singleNoteLink ? 'is' : 'are'
-                      } linked to? If ${singleNoteLink ? 'that note' : 'those notes'} in turn link${
-                        singleNoteLink ? 's' : ''
-                      } to other notes, those would also be published.`}
-                    </p>
-                    <div className="flex items-center">
-                      <span className="text-sm">No</span>
-                      <Toggle className="mx-2" id="1" isChecked={publishLinkedNotes} setIsChecked={setPublishLinkedNotes} />
-                      <span className="text-sm">Yes, publish linked notes</span>
-                    </div>
-                  </>
+                  <p className="my-4">
+                    {`The note contains ${singleNoteLink ? 'a link' : 'links'} to ${
+                      singleNoteLink ? 'another note' : 'other notes'
+                    }. Do you want to publish the note${!singleNoteLink ? 's' : ''} that ${
+                      singleNoteLink ? 'is' : 'are'
+                    } linked to? If ${singleNoteLink ? 'that note' : 'those notes'} in turn link${
+                      singleNoteLink ? 's' : ''
+                    } to other notes, those would also be published.`}
+                  </p>
                 )}
-                <div className="flex space-x-8 ">
-                  <Button
-                    className={`my-4 ${processing ? 'bg-gray-800 text-gray-400 hover:bg-gray-800 hover:text-gray-400' : ''}`}
-                    primary
-                    onClick={onConfirm}
-                    disabled={processing}
-                    loading={processing}
-                  >
-                    Publish
-                  </Button>
-                  <Button className="my-4" onClick={() => setIsOpen(false)}>
-                    Cancel
-                  </Button>
+                <div className={`flex mt-4 mb-2 ${noteLinks.length > 0 ? 'justify-between' : 'justify-end'}`}>
+                  {noteLinks.length > 0 && (
+                    <div
+                      className="flex items-center justify-center select-none"
+                      onClick={() => setPublishLinkedNotes(!publishLinkedNotes)}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={publishLinkedNotes}
+                        onChange={() => setPublishLinkedNotes(!publishLinkedNotes)}
+                        className="bg-transparent border-2 border-gray-500 p-2 mr-2 rounded-sm hover:cursor-pointer text-primary-500 hover:bg-gray-800 active:bg-gray-700 focus:ring-0 hover:text-primary-600 active:text-primary-700"
+                      />
+                      <span>Yes, publish linked notes</span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-center space-x-4">
+                    <Button
+                      className={`${processing ? 'bg-gray-800 text-gray-400 hover:bg-gray-800 hover:text-gray-400' : ''}`}
+                      primary
+                      onClick={onConfirm}
+                      disabled={processing}
+                      loading={processing}
+                    >
+                      Publish
+                    </Button>
+                    <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+                  </div>
                 </div>
               </>
             )}

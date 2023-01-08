@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { IconTrash } from '@tabler/icons';
+import { IconTrash, IconX } from '@tabler/icons';
 import { DecryptedNote } from 'types/decrypted';
 import useHotkeys from 'utils/useHotkeys';
 import useDeleteNote from 'utils/useDeleteNote';
@@ -44,21 +44,26 @@ export default function DeleteNoteModal(props: Props) {
   return (
     <div className="fixed inset-0 z-20 overflow-y-auto">
       <div className="fixed inset-0 bg-black opacity-30" onClick={() => setIsOpen(false)} />
-      <div className="flex justify-center px-6 max-h-screen-80 my-screen-10">
+      <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col z-30 w-full max-w-screen-sm rounded shadow-popover bg-gray-800 text-gray-200 border border-gray-600">
-          <div className="flex items-center flex-shrink-0 w-full">
-            <IconTrash className="ml-4 mr-1 text-gray-200" size={32} />
-            <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0 bg-gray-800">Delete note</span>
+          <div className="flex items-center justify-between flex-shrink-0 w-full">
+            <div className="flex items-center">
+              <IconTrash className="ml-4 mr-1 text-gray-200" size={32} />
+              <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0 bg-gray-800">Delete note</span>
+            </div>
+            <button className="mb-6 mr-2 text-gray-300 hover:text-gray-100" onClick={() => setIsOpen(false)}>
+              <IconX size={20} />
+            </button>
           </div>
-          <div className="px-4 py-2 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br bg-gray-700 border-gray-700">
-            <div className="px-4 py-4 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br bg-gray-700 border-gray-700">
+          <div className="px-2 py-2 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br bg-gray-700 border-gray-700">
+            <div className="px-2 pt-4 pb-2 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br bg-gray-700 border-gray-700">
               <div className="mb-2">{`Are you sure you want to delete "${note.title}"?`}</div>
               {linkedBacklinks.length ? (
                 <div className="mb-2 text-red-500">{`There ${singleBacklink ? 'is' : 'are'} currently ${
                   linkedBacklinks.length
                 } link${!singleBacklink ? 's' : ''} pointing to this note.`}</div>
               ) : null}
-              <div className="flex space-x-8 justify-between mt-4">
+              <div className="flex justify-between mt-4">
                 <div className="flex items-center justify-center select-none" onClick={() => setIsChecked(!isChecked)}>
                   <input
                     type="checkbox"
@@ -68,7 +73,7 @@ export default function DeleteNoteModal(props: Props) {
                   />
                   <span>Don&apos;t ask again</span>
                 </div>
-                <div className="flex items-center justify-center space-x-2">
+                <div className="flex items-center justify-center space-x-4">
                   <Button primary onClick={onConfirm}>
                     Delete
                   </Button>

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { IconFolderPlus, IconGitPullRequest, IconPencil, IconTrash } from '@tabler/icons';
+import { IconFolderPlus, IconGitPullRequest, IconPencil, IconTrash, IconX } from '@tabler/icons';
 import { useSWRConfig } from 'swr';
 import { toast } from 'react-toastify';
 import supabase from 'lib/supabase';
@@ -210,7 +210,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
             {deckTags()}
             <input
               type="text"
-              className="w-full py-4 px-2 text-xl border-none rounded focus:ring-0 bg-gray-800 text-gray-200"
+              className="w-full py-3 px-2 text-xl border-none rounded focus:ring-0 bg-gray-800 text-gray-200"
               placeholder={placeholders[type]}
               value={inputText}
               onChange={e => setInputText(e.target.value)}
@@ -224,7 +224,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
         return (
           <input
             type="text"
-            className="w-full py-4 px-2 text-xl border-none rounded focus:ring-0 bg-gray-800 text-gray-200"
+            className="w-full py-3 px-2 text-xl border-none rounded focus:ring-0 bg-gray-800 text-gray-200"
             placeholder={placeholders[type]}
             value={inputText}
             onChange={e => setInputText(e.target.value)}
@@ -239,17 +239,24 @@ export default function CreateJoinRenameDeckModal(props: Props) {
   return (
     <div className="fixed inset-0 z-20 overflow-y-auto">
       <div className="fixed inset-0 bg-black opacity-30" onClick={closeModal} />
-      <div className="flex justify-center px-6 max-h-screen-80 my-screen-10">
+      <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col z-30 w-full max-w-screen-sm rounded shadow-popover bg-gray-800 text-gray-200 border border-gray-600">
-          <div className="flex items-center flex-shrink-0 w-full">
-            {icons[type]}
-            <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0 bg-gray-800">{headings[type]}</span>
+          <div className="flex items-center justify-between flex-shrink-0 w-full">
+            <div className="flex items-center">
+              {icons[type]}
+              <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0 bg-gray-800">
+                {headings[type]}
+              </span>
+            </div>
+            <button className="mb-6 mr-2 text-gray-300 hover:text-gray-100" onClick={closeModal}>
+              <IconX size={20} />
+            </button>
           </div>
           <div className="px-4 py-4 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br bg-gray-700 border-gray-700">
             {renderModalContent()}
-            <div className="flex space-x-8">
+            <div className="flex space-x-4 justify-end mt-4">
               <Button
-                className={`my-4 ${processing ? 'bg-gray-800 text-gray-400 hover:bg-gray-800 hover:text-gray-400' : ''}`}
+                className={`${processing ? 'bg-gray-800 text-gray-400 hover:bg-gray-800 hover:text-gray-400' : ''}`}
                 primary
                 onClick={onClickHandlers[type]}
                 disabled={processing}
@@ -257,9 +264,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
               >
                 {type}
               </Button>
-              <Button className="my-4" onClick={closeModal}>
-                Cancel
-              </Button>
+              <Button onClick={closeModal}>Cancel</Button>
             </div>
           </div>
         </div>
