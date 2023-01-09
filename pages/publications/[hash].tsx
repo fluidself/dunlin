@@ -18,6 +18,7 @@ import { LANGUAGE_CLASSES, TOKEN_CLASSES } from 'editor/decorateCodeBlocks';
 import { addEllipsis } from 'utils/string';
 import { getReadableDatetime } from 'utils/date';
 import PageLoading from 'components/PageLoading';
+import dunlinLogo from 'public/dunlin-logo.png';
 
 type Publication = {
   title: string;
@@ -74,9 +75,9 @@ export default function PublicationPage(props: Props) {
       <Head>
         <title>{title}</title>
       </Head>
-      <header className="header sticky top-0 flex items-center justify-between pl-6 py-4">
-        <Link href="/" className="flex focus:outline-none">
-          <Image src="/android-chrome-192x192.png" alt="Dunlin logo" width={24} height={24} />
+      <header className="header sticky top-0 flex items-center justify-between pl-10 py-6">
+        <Link href="/" className="flex items-center focus:outline-none">
+          <Image src={dunlinLogo} alt="Dunlin logo" width={24} height={24} />
           <div className="ml-2">Dunlin</div>
         </Link>
       </header>
