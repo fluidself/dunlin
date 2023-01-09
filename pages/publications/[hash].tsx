@@ -77,7 +77,7 @@ export default function PublicationPage(props: Props) {
       </Head>
       <header className="header sticky top-0 flex items-center justify-between pl-10 py-6">
         <Link href="/" className="flex items-center focus:outline-none">
-          <Image src={dunlinLogo} alt="Dunlin logo" width={24} height={24} />
+          <Image src={dunlinLogo} alt="Dunlin logo" priority width={24} height={24} />
           <div className="ml-2">Dunlin</div>
         </Link>
       </header>

@@ -1,7 +1,7 @@
 import { withIronSessionSsr } from 'iron-session/next';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 import Link from 'next/link';
-import { IconInfoCircle } from '@tabler/icons';
 import { useCallback, useEffect, useState } from 'react';
 import LitJsSdk from 'lit-js-sdk';
 import { toast } from 'react-toastify';
@@ -11,6 +11,8 @@ import useIsMounted from 'utils/useIsMounted';
 import { verifyDeckAccess } from 'utils/accessControl';
 import { EthereumIcon } from 'components/EthereumIcon';
 import Button from 'components/Button';
+import dunlinLogo from 'public/dunlin-logo.png';
+import dunlinDemo from 'public/dunlin-demo.png';
 
 type Props = {
   deckId: string;
@@ -51,34 +53,35 @@ export default function JoinDeck({ deckId }: Props) {
   }, [isMounted, litReady, user, verifyAccess]);
 
   return (
-    <div className="mt-2">
-      <Link href="/docs" className="focus:outline-none absolute top-3 right-6">
-        <IconInfoCircle size={24} className="hover:text-gray-500" />
-      </Link>
-      <main className="container mt-28 lg:mt-48 flex flex-col">
-        <div className="mx-auto pl-2 mb-16">
-          <h1 className="text-5xl space-y-4 tracking-wider">
-            <span className="block">
-              <span className="hero-decoration">D</span>
-              ecentralized
-            </span>
-            <span className="block">
-              <span className="hero-decoration">E</span>ncrypted
-            </span>
-            <span className="block">
-              <span className="hero-decoration">C</span>
-              ollaborative
-            </span>
-            <span className="block">
-              <span className="hero-decoration">K</span>nowledge
-            </span>
+    <div id="app-container" className="h-screen">
+      <header className="flex justify-between items-center px-2 py-2 md:px-10 md:py-6">
+        <div className="flex items-center">
+          <Image src={dunlinLogo} alt="Dunlin logo" priority width={24} height={24} />
+          <h2 className="ml-2">Dunlin</h2>
+        </div>
+        <div className="flex items-center space-x-8">
+          <Link href="/docs" className="focus:outline-none text-gray-300 hover:text-white" aria-label="Documentation">
+            Docs
+          </Link>
+        </div>
+      </header>
+      <main className="container flex flex-col overflow-y-hidden mt-16 md:mt-20 pb-8">
+        <div className="mx-auto mb-12 max-w-4xl text-center">
+          <h1 className="text-3xl md:text-7xl font-bold tracking-tighter leading-[3.5rem] md:!leading-[6rem] bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
+            Organized knowledge.
           </h1>
+          <div className="mt-6 md:mt-12 md:text-xl text-center">
+            Dunlin is a note-taking app that helps individuals and communities capture, organize, make sense of, and share complex
+            information.
+          </div>
         </div>
 
-        <Button className="py-4 w-80 mx-auto" primary onClick={signIn}>
+        <Button className="md:w-80 mx-auto" primary onClick={signIn}>
           <EthereumIcon />
-          Sign-in with Ethereum
+          <span>Sign-in with Ethereum</span>
         </Button>
+
+        <Image src={dunlinDemo} alt="Dunlin editor" priority className="mt-24 border border-gray-600 rounded-lg" />
       </main>
     </div>
   );

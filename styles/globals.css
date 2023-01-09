@@ -153,30 +153,6 @@
   }
 }
 
-.hero-decoration {
-  background: linear-gradient(-45deg, #ec4899, #ec4899, #8b5cf6, #8b5cf6);
-  background-size: 300%;
-  background-clip: text;
-  -moz-background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: animated_text 7s ease-in-out infinite;
-  -moz-animation: animated_text 7s ease-in-out infinite;
-  -webkit-animation: animated_text 7s ease-in-out infinite;
-}
-
-@keyframes animated_text {
-  0% {
-    background-position: 0px 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0px 50%;
-  }
-}
-
 .settings-modal-tooltip > .tooltiptext {
   right: 105%;
 }
