@@ -3,7 +3,8 @@ import Router from 'next/router';
 import { ToastContainer } from 'react-toastify';
 import NProgress from 'nprogress';
 import type { AppProps } from 'next/app';
-import { WagmiConfig, configureChains, createClient, defaultChains } from 'wagmi';
+import { WagmiConfig, configureChains, createClient } from 'wagmi';
+import { mainnet, goerli } from 'wagmi/chains';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { infuraProvider } from 'wagmi/providers/infura';
 import { publicProvider } from 'wagmi/providers/public';
@@ -21,10 +22,13 @@ Router.events.on('routeChangeComplete', () => NProgress.done());
 Router.events.on('routeChangeError', () => NProgress.done());
 
 const infuraId = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID as string;
-const { chains, provider } = configureChains(defaultChains, [infuraProvider({ apiKey: infuraId }), publicProvider()]);
+const { chains, provider } = configureChains(
+  [mainnet, goerli],
+  [infuraProvider({ apiKey: infuraId }), publicProvider()],
+);
 
 const client = createClient({
-  autoConnect: true,
+  autoConnect: false,
   connectors: [new InjectedConnector({ chains })],
   provider,
 });
