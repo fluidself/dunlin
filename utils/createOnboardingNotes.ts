@@ -113,7 +113,7 @@ export default function createOnboardingNotes() {
               type: 'list-item',
               children: [
                 {
-                  text: 'You can share your workspace with a friend or a community by clicking on "Share" in the dropdown menu from the top of the sidebar. Among other options, you can grant access to an individual wallet, members of a certain DAO, or holders of a specific NFT.',
+                  text: 'You can join forces with a friend or community by sharing your workspace with them. Get started by clicking the "Share workspace" button in the top toolbar. Among other options, you can grant access to an individual wallet, members of a certain DAO, or holders of a specific NFT.',
                 },
               ],
             },

@@ -1,6 +1,6 @@
 # Dunlin
 
-Dunlin is an open-source notebook and knowledge graph that helps individuals, DAOs, and other communities capture, organize, make sense of, and share complex information. All notes are encrypted and can only by decrypted by the intended audience.
+Dunlin is an open source notebook and knowledge graph that helps individuals, DAOs, and other communities capture, organize, make sense of, and share complex information. All notes are encrypted and can only by decrypted by the intended audience.
 
 Individuals can use Dunlin to take notes, journal, and compile their ideas, thoughts, and research in an interconnected context.
 

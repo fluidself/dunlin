@@ -10,7 +10,7 @@ When you compile notes and link them together, they form a graph of interconnect
 
 ## Sharing a workspace
 
-You can join forces with a friend or community by sharing your workspace with them. To set up the access conditions, click on "Share" in the dropdown menu from the top of the sidebar. Among other options, you can grant access to an individual wallet, members of a certain DAO, or holders of a specific NFT. To accept an invitation to another workspace, click on "Join" in the dropdown menu from the top of the sidebar and enter the unique ID of the workspace you want to join.
+You can join forces with a friend or community by sharing your workspace with them. To set up the access conditions, click the "Share workspace" button in the top toolbar. Among other options, you can grant access to an individual wallet, members of a certain DAO, or holders of a specific NFT. To accept an invitation to another workspace, click on "Join" in the dropdown menu from the top of the sidebar and enter the unique ID of the workspace you want to join.
 
 ## IPFS publishing
 
