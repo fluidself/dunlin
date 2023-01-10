@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import * as Name from 'w3name';
 import { IconExternalLink } from '@tabler/icons';
@@ -18,7 +17,7 @@ import { LANGUAGE_CLASSES, TOKEN_CLASSES } from 'editor/decorateCodeBlocks';
 import { addEllipsis } from 'utils/string';
 import { getReadableDatetime } from 'utils/date';
 import PageLoading from 'components/PageLoading';
-import dunlinLogo from 'public/dunlin-logo.png';
+import DunlinIcon from 'components/DunlinIcon';
 
 type Publication = {
   title: string;
@@ -77,7 +76,7 @@ export default function PublicationPage(props: Props) {
       </Head>
       <header className="header sticky top-0 flex items-center justify-between pl-10 py-6">
         <Link href="/" className="flex items-center focus:outline-none">
-          <Image src={dunlinLogo} alt="Dunlin logo" priority width={24} height={24} />
+          <DunlinIcon />
           <div className="ml-2">Dunlin</div>
         </Link>
       </header>

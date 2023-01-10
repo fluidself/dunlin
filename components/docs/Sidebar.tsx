@@ -1,10 +1,9 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Disclosure } from '@headlessui/react';
 import { IconMenu2, IconX } from '@tabler/icons';
-import dunlinLogo from 'public/dunlin-logo.png';
+import DunlinIcon from 'components/DunlinIcon';
 
 const items = [
   { href: '/docs', active: '/docs', children: 'Overview' },
@@ -35,9 +34,12 @@ export default function Sidebar() {
               <div className="flex-1 flex items-center justify-center md:items-stretch md:justify-start">
                 <div className="hidden md:block">
                   <ul className="flex flex-col">
-                    <Link href="/" className={`w-full flex focus:outline-none hover:bg-gray-800 border-b border-gray-600`}>
+                    <Link
+                      href="/"
+                      className={`w-full flex focus:outline-none hover:bg-gray-800 border-b border-gray-600`}
+                    >
                       <li className="list-none flex items-center px-8 py-1 my-1 w-full">
-                        <Image src={dunlinLogo} alt="Dunlin logo" priority width={24} height={24} />
+                        <DunlinIcon />
                         <div className="ml-2">Dunlin</div>
                       </li>
                     </Link>
@@ -70,7 +72,9 @@ export default function Sidebar() {
                     <Link
                       {...link}
                       href={link.href}
-                      className={`w-full focus:outline-none hover:bg-gray-800 ${active ? 'bg-gray-800 text-primary-500' : ''}`}
+                      className={`w-full focus:outline-none hover:bg-gray-800 ${
+                        active ? 'bg-gray-800 text-primary-500' : ''
+                      }`}
                     >
                       {link.children}
                     </Link>
