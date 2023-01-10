@@ -43,7 +43,7 @@ class MyDocument extends Document {
           <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#171717" />
 
           <meta name="msapplication-config" content="/browserconfig.xml" />
-          <meta name="msapplication-TileColor" content="#171717" />
+          <meta name="msapplication-TileColor" content="#1e1e1e" />
           <meta name="msapplication-tap-highlight" content="no" />
         </Head>
         <body className="bg-gray-900 text-gray-100 font-display">
