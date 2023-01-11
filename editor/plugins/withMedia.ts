@@ -1,11 +1,11 @@
 import { Editor, Path } from 'slate';
 import { Web3Storage } from 'web3.storage';
 import { toast } from 'react-toastify';
-import { insertImage } from 'editor/formatting';
+import { insertImage, insertVideo } from 'editor/formatting';
 import { isUrl } from 'utils/url';
 import imageExtensions from 'utils/image-extensions';
 
-const withImages = (editor: Editor) => {
+const withMedia = (editor: Editor) => {
   const { insertData } = editor;
 
   editor.insertData = (data: any) => {
@@ -25,6 +25,9 @@ const withImages = (editor: Editor) => {
       }
     } else if (isImageUrl(text)) {
       insertImage(editor, text);
+    } else if (isYouTubeUrl(text)) {
+      const embedLink = extractYoutubeEmbedLink(text);
+      if (embedLink) insertVideo(editor, embedLink);
     } else {
       insertData(data);
     }
@@ -66,4 +69,46 @@ export const uploadAndInsertImage = async (editor: Editor, file: File, path?: Pa
   }
 };
 
-export default withImages;
+const isYouTubeUrl = (url: string) => {
+  const YOUTUBE_REGEX =
+    /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+
+  return url?.match(YOUTUBE_REGEX);
+};
+
+export const extractYoutubeEmbedLink = (url: string): string | null => {
+  const linkType = extractYoutubeLinkType(url);
+  let embedUrl: string | null = null;
+
+  if (linkType) {
+    const { pathname, search } = new URL(url);
+    const urlSearchParams = new URLSearchParams(search);
+
+    if (linkType === 'youtube_link') {
+      embedUrl = `https://www.youtube.com/embed/${urlSearchParams.get('v')}`;
+    } else if (linkType === 'youtube_shared_link') {
+      embedUrl = `https://www.youtube.com/embed${pathname}`;
+    } else {
+      embedUrl = url;
+    }
+    if (urlSearchParams.has('t')) {
+      embedUrl += `?start=${urlSearchParams.get('t')}`;
+    }
+  }
+
+  return embedUrl;
+};
+
+const extractYoutubeLinkType = (url: string) => {
+  if (url.includes('https://www.youtube.com/embed')) {
+    return 'youtube_embed_link';
+  } else if (url.includes('youtube.com')) {
+    return 'youtube_link';
+  } else if (url.includes('youtu.be')) {
+    return 'youtube_shared_link';
+  }
+
+  return null;
+};
+
+export default withMedia;
