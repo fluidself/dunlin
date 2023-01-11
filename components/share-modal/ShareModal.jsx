@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { IconX } from '@tabler/icons';
 import { toast } from 'react-toastify';
 import LitJsSdk from 'lit-js-sdk';
+import useHotkeys from 'utils/useHotkeys';
 import {
   AbleToAccess,
   CurrentAccess,
@@ -32,7 +33,13 @@ const ModalComponents = {
 };
 
 export default function ShareModal(props) {
-  const { onClose = () => false, showStep, deckToShare = '', processingAccess, onAccessControlConditionsSelected } = props;
+  const {
+    onClose = () => false,
+    showStep,
+    deckToShare = '',
+    processingAccess,
+    onAccessControlConditionsSelected,
+  } = props;
 
   const [activeStep, setActiveStep] = useState(showStep || 'ableToAccess');
   const [tokenList, setTokenList] = useState([]);
@@ -73,21 +80,31 @@ export default function ShareModal(props) {
     );
   };
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (!['ableToAccess', 'currentAccess', 'revokeAccess', 'accessCreated'].includes(activeStep)) {
       setShowUnsavedPopup(true);
     } else {
       onClose();
     }
-  };
+  }, [setShowUnsavedPopup, activeStep, onClose]);
+
+  const hotkeys = useMemo(
+    () => [
+      {
+        hotkey: 'esc',
+        callback: () => handleClose(),
+      },
+    ],
+    [handleClose],
+  );
+  useHotkeys(hotkeys);
 
   return (
     <div className="fixed inset-0 z-20 overflow-y-auto">
       <div className="fixed inset-0 bg-black opacity-30" onClick={handleClose} />
       <div className="flex items-center justify-center h-screen p-6">
         <div className="z-30 flex flex-col w-full h-full max-w-full bg-gray-900 border overflow-x-hidden overflow-y-scroll no-scrollbar rounded border-gray-600 sm:max-h-[540px] sm:w-[740px] py-2 px-4 text-gray-100">
-          <div className="flex flex-row justify-between items-center">
-            <span></span>
+          <div className="flex flex-row justify-end items-center">
             <button onClick={handleClose} className="mr-[-4px] text-gray-300 hover:text-gray-100">
               <IconX size={20} />
             </button>

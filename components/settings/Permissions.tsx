@@ -142,7 +142,7 @@ export default function Permissions() {
   };
 
   return (
-    <div className="flex-1 w-full h-full p-6 flex flex-col justify-between overflow-y-auto dark:bg-gray-800 dark:text-gray-100">
+    <div className="flex-1 w-full h-full p-6 flex flex-col justify-between overflow-y-auto dark:bg-gray-900 dark:text-gray-100">
       {renderSettings()}
     </div>
   );

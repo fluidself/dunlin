@@ -27,7 +27,8 @@ type NotePublication = {
 };
 
 const UUID_REGEX = /[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/gm;
-const NOTE_LINK_REGEX = /\[(.+)\]\(([0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12})\)/gm;
+const NOTE_LINK_REGEX =
+  /\[(.+)\]\(([0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12})\)/gm;
 
 export default function PublishNoteModal(props: Props) {
   const { note, userId, setIsOpen } = props;
@@ -63,7 +64,10 @@ export default function PublishNoteModal(props: Props) {
     setNoteLinks(matchingElements);
   }, [note.content]);
 
-  const getNotesToPublish = (note: DecryptedNote, mapOfNotes: Map<string, { id: string; title: string; body: string }>) => {
+  const getNotesToPublish = (
+    note: DecryptedNote,
+    mapOfNotes: Map<string, { id: string; title: string; body: string }>,
+  ) => {
     const SERIALIZE_OPTS = { forPublication: true, publishLinkedNotes };
     const serializedBody = getSerializedNote(note, SERIALIZE_OPTS);
     const linkedNotes = serializedBody.match(UUID_REGEX);
@@ -135,7 +139,12 @@ export default function PublishNoteModal(props: Props) {
     try {
       for (const noteToPublish of notesToPublish.values()) {
         const hasNoteLinks = noteToPublish.body.match(NOTE_LINK_REGEX) !== null;
-        const publication = { address: userId, timestamp: Date.now(), title: noteToPublish.title, body: noteToPublish.body };
+        const publication = {
+          address: userId,
+          timestamp: Date.now(),
+          title: noteToPublish.title,
+          body: noteToPublish.body,
+        };
         const cid = await publishNote(publication);
 
         if (hasNoteLinks) {
@@ -187,7 +196,7 @@ export default function PublishNoteModal(props: Props) {
     <div className="fixed inset-0 z-20 overflow-y-auto">
       <div className="fixed inset-0 bg-black opacity-30" onClick={() => setIsOpen(false)} />
       <div className="flex items-center justify-center h-screen">
-        <div className="flex flex-col z-30 w-full max-w-screen-sm rounded shadow-popover bg-gray-800 text-gray-200 border border-gray-600">
+        <div className="flex flex-col z-30 w-full max-w-screen-sm rounded shadow-popover bg-gray-900 text-gray-200 border border-gray-600">
           <div className="flex items-center justify-between flex-shrink-0 w-full">
             <div className="flex items-center">
               {published ? (
@@ -195,7 +204,7 @@ export default function PublishNoteModal(props: Props) {
               ) : (
                 <IconSend className="ml-4 mr-1 text-gray-200" size={32} />
               )}
-              <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0 bg-gray-800">
+              <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0">
                 {published ? 'Note published' : 'Publish note'}
               </span>
             </div>
@@ -203,12 +212,12 @@ export default function PublishNoteModal(props: Props) {
               <IconX size={20} />
             </button>
           </div>
-          <div className="px-4 py-2 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br bg-gray-700 border-gray-700">
+          <div className="px-4 py-4 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br bg-gray-800 border-gray-700">
             <div className="flex mb-2 m-[-4px] flex-wrap">
-              <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
+              <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-900 text-gray-300 rounded">
                 {note.title}
               </span>
-              <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
+              <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-900 text-gray-300 rounded">
                 {note.id}
               </span>
             </div>
@@ -228,7 +237,9 @@ export default function PublishNoteModal(props: Props) {
                 <div className="flex space-x-8 my-4">
                   <Button
                     primary
-                    onClick={async () => await copyToClipboard(`${process.env.BASE_URL}/publications/${publicationCid}`)}
+                    onClick={async () =>
+                      await copyToClipboard(`${process.env.BASE_URL}/publications/${publicationCid}`)
+                    }
                   >
                     Copy Link
                   </Button>
@@ -238,11 +249,11 @@ export default function PublishNoteModal(props: Props) {
             ) : (
               <>
                 <p>
-                  You are about to publish this note to the public. Please double check that you are only including what you
-                  intended.
+                  You are about to publish this note to the public. Please double check that you are only including what
+                  you intend to.
                 </p>
                 {noteLinks.length > 0 && (
-                  <p className="my-4">
+                  <p className="mt-4">
                     {`The note contains ${singleNoteLink ? 'a link' : 'links'} to ${
                       singleNoteLink ? 'another note' : 'other notes'
                     }. Do you want to publish the note${!singleNoteLink ? 's' : ''} that ${
@@ -252,7 +263,7 @@ export default function PublishNoteModal(props: Props) {
                     } to other notes, those would also be published.`}
                   </p>
                 )}
-                <div className={`flex mt-4 mb-2 ${noteLinks.length > 0 ? 'justify-between' : 'justify-end'}`}>
+                <div className={`flex mt-4 ${noteLinks.length > 0 ? 'justify-between' : 'justify-end'}`}>
                   {noteLinks.length > 0 && (
                     <div
                       className="flex items-center justify-center select-none"
@@ -269,7 +280,9 @@ export default function PublishNoteModal(props: Props) {
                   )}
                   <div className="flex items-center justify-center space-x-4">
                     <Button
-                      className={`${processing ? 'bg-gray-800 text-gray-400 hover:bg-gray-800 hover:text-gray-400' : ''}`}
+                      className={`${
+                        processing ? 'bg-gray-800 text-gray-400 hover:bg-gray-800 hover:text-gray-400' : ''
+                      }`}
                       primary
                       onClick={onConfirm}
                       disabled={processing}
