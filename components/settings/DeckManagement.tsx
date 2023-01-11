@@ -115,7 +115,7 @@ export default function DeckManagement(props: Props) {
   };
 
   return (
-    <div className="flex-1 w-full h-full p-6 overflow-y-auto dark:bg-gray-800 dark:text-gray-100">
+    <div className="flex-1 w-full h-full p-6 overflow-y-auto dark:bg-gray-900 dark:text-gray-100">
       <div className="mb-4">
         <h2 className="text-lg font-medium">Manage your workspaces</h2>
       </div>
