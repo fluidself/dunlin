@@ -1,12 +1,14 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Editor, Element, Transforms } from 'slate';
 import { ReactEditor, useSlateStatic } from 'slate-react';
 import { IconDotsVertical, IconLink, IconPlus } from '@tabler/icons';
 import { ReferenceableBlockElement, ElementType } from 'types/slate';
-import Dropdown, { DropdownItem } from 'components/Dropdown';
 import { isReferenceableBlockElement } from 'editor/checks';
 import { createNodeId } from 'editor/plugins/withNodeId';
+import Dropdown, { DropdownItem } from 'components/Dropdown';
+import Portal from 'components/Portal';
 import ChangeBlockOptions from './ChangeBlockOptions';
+import VideoUrlModal, { type VideUrlModalState } from './VideoUrlModal';
 
 type BlockMenuDropdownProps = {
   element: ReferenceableBlockElement;
@@ -16,6 +18,7 @@ type BlockMenuDropdownProps = {
 export default function BlockMenuDropdown(props: BlockMenuDropdownProps) {
   const { element, className = '' } = props;
   const editor = useSlateStatic();
+  const [videoModalState, setVideoModalState] = useState<VideUrlModalState>({ isOpen: false });
 
   const onAddBlock = useCallback(() => {
     // Insert new paragraph after the current block
@@ -75,23 +78,35 @@ export default function BlockMenuDropdown(props: BlockMenuDropdownProps) {
   }, [element.type, className]);
 
   return (
-    <Dropdown
-      buttonChildren={buttonChildren}
-      buttonClassName={buttonClassName}
-      placement="left-start"
-      offset={[0, 6]}
-      tooltipContent={<span className="text-xs">Click to open menu</span>}
-      tooltipPlacement="bottom"
-    >
-      <DropdownItem onClick={onAddBlock}>
-        <IconPlus size={18} className="mr-1" />
-        <span>Add block below</span>
-      </DropdownItem>
-      <DropdownItem onClick={onCopyBlockRef}>
-        <IconLink size={18} className="mr-1" />
-        <span>Copy block reference</span>
-      </DropdownItem>
-      <ChangeBlockOptions element={element} className="px-8 border-t dark:border-gray-700" />
-    </Dropdown>
+    <>
+      <Dropdown
+        buttonChildren={buttonChildren}
+        buttonClassName={buttonClassName}
+        itemsClassName="w-60"
+        placement="left-start"
+        offset={[0, 6]}
+        tooltipContent={<span className="text-xs">Click to open menu</span>}
+        tooltipPlacement="bottom"
+      >
+        <DropdownItem onClick={onAddBlock}>
+          <IconPlus size={18} className="mr-1" />
+          <span>Add block below</span>
+        </DropdownItem>
+        <DropdownItem onClick={onCopyBlockRef}>
+          <IconLink size={18} className="mr-1" />
+          <span>Copy block reference</span>
+        </DropdownItem>
+        <ChangeBlockOptions
+          element={element}
+          setVideoModalState={setVideoModalState}
+          className="px-8 border-t dark:border-gray-700"
+        />
+      </Dropdown>
+      {videoModalState.isOpen ? (
+        <Portal>
+          <VideoUrlModal state={videoModalState} setState={setVideoModalState} />
+        </Portal>
+      ) : null}
+    </>
   );
 }
