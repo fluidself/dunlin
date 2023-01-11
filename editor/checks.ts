@@ -12,6 +12,8 @@ export const isReferenceableBlockElement = (element: Element): element is Refere
     element.type === ElementType.CodeBlock ||
     element.type === ElementType.ThematicBreak ||
     element.type === ElementType.Image ||
+    element.type === ElementType.Video ||
+    element.type === ElementType.Table ||
     element.type === ElementType.BlockReference ||
     element.type === ElementType.CheckListItem ||
     element.type === ElementType.DetailsDisclosure

@@ -6,6 +6,7 @@ const VOID_ELEMENTS: Array<ElementType> = [
   ElementType.Tag,
   ElementType.ThematicBreak,
   ElementType.Image,
+  ElementType.Video,
   ElementType.BlockReference,
 ];
 
