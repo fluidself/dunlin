@@ -1,36 +1,41 @@
-import { useCallback, useMemo } from 'react';
+import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import { ReactEditor, useSlate } from 'slate-react';
+import { Element } from 'slate';
 import {
+  IconBlockquote,
+  IconBraces,
+  IconBrandYoutube,
   IconH1,
   IconH2,
   IconH3,
-  IconBlockquote,
+  IconLayoutSidebarRightCollapse,
   IconList,
+  IconListCheck,
   IconListNumbers,
-  IconBraces,
+  IconPageBreak,
+  IconPhoto,
+  IconTable,
   IconTypography,
   TablerIcon,
-  IconPhoto,
-  IconListCheck,
-  IconTable,
-  IconLayoutSidebarRightCollapse,
 } from '@tabler/icons';
-import { Element } from 'slate';
 import { toggleElement, isElementActive, insertDetailsDisclosure } from 'editor/formatting';
+import { uploadAndInsertImage } from 'editor/plugins/withMedia';
+import { insertTable } from 'editor/plugins/withTables';
 import { ElementType } from 'types/slate';
 import { useStore } from 'lib/store';
 import Tooltip from 'components/Tooltip';
 import { DropdownItem } from 'components/Dropdown';
-import { uploadAndInsertImage } from 'editor/plugins/withImages';
-import { insertTable } from 'editor/plugins/withTables';
+import type { VideUrlModalState } from './VideoUrlModal';
 
 type ChangeBlockOptionsProps = {
   element: Element;
+  setVideoModalState: Dispatch<SetStateAction<VideUrlModalState>>;
   className?: string;
 };
 
 export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
-  const { element, className = '' } = props;
+  const { element, className = '', setVideoModalState } = props;
+
   return (
     <div className={`divide-y dark:divide-gray-700 ${className}`}>
       <div className="flex items-center justify-center">
@@ -38,23 +43,41 @@ export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
         <BlockButton format={ElementType.HeadingOne} element={element} Icon={IconH1} tooltip="Heading 1" />
         <BlockButton format={ElementType.HeadingTwo} element={element} Icon={IconH2} tooltip="Heading 2" />
         <BlockButton format={ElementType.HeadingThree} element={element} Icon={IconH3} tooltip="Heading 3" />
+        <BlockButton
+          format={ElementType.ThematicBreak}
+          element={element}
+          Icon={IconPageBreak}
+          tooltip="Thematic break"
+        />
       </div>
       <div className="flex items-center justify-center">
-        <BlockButton format={ElementType.BulletedList} element={element} Icon={IconList} tooltip="Bulleted List" />
-        <BlockButton format={ElementType.NumberedList} element={element} Icon={IconListNumbers} tooltip="Numbered List" />
+        <BlockButton format={ElementType.BulletedList} element={element} Icon={IconList} tooltip="Bulleted list" />
+        <BlockButton
+          format={ElementType.NumberedList}
+          element={element}
+          Icon={IconListNumbers}
+          tooltip="Numbered list"
+        />
         <BlockButton format={ElementType.CheckListItem} element={element} Icon={IconListCheck} tooltip="Checklist" />
+        <BlockButton format={ElementType.Blockquote} element={element} Icon={IconBlockquote} tooltip="Blockquote" />
+        <BlockButton format={ElementType.CodeLine} element={element} Icon={IconBraces} tooltip="Code block" />
+      </div>
+      <div className="flex items-center justify-center">
+        <ImageButton format={ElementType.Image} element={element} Icon={IconPhoto} tooltip="Image" />
+        <VideoButton
+          format={ElementType.Video}
+          element={element}
+          Icon={IconBrandYoutube}
+          setVideoModalState={setVideoModalState}
+          tooltip="Video"
+        />
+        <BlockButton format={ElementType.Table} element={element} Icon={IconTable} tooltip="Table" />
         <BlockButton
           format={ElementType.DetailsDisclosure}
           element={element}
           Icon={IconLayoutSidebarRightCollapse}
-          tooltip="Details Disclosure"
+          tooltip="Details disclosure"
         />
-      </div>
-      <div className="flex items-center justify-center">
-        <ImageButton format={ElementType.Image} element={element} Icon={IconPhoto} tooltip="Image" />
-        <BlockButton format={ElementType.Blockquote} element={element} Icon={IconBlockquote} tooltip="Quote Block" />
-        <BlockButton format={ElementType.CodeLine} element={element} Icon={IconBraces} tooltip="Code Block" />
-        <BlockButton format={ElementType.Table} element={element} Icon={IconTable} tooltip="Table" />
       </div>
     </div>
   );
@@ -91,7 +114,10 @@ const BlockButton = ({ format, element, Icon, tooltip, className = '' }: BlockBu
             }
           }}
         >
-          <Icon size={18} className={isActive ? 'text-primary-500 dark:text-primary-400' : 'text-gray-800 dark:text-gray-200'} />
+          <Icon
+            size={18}
+            className={isActive ? 'text-primary-500 dark:text-primary-400' : 'text-gray-800 dark:text-gray-200'}
+          />
         </DropdownItem>
       </span>
     </Tooltip>
@@ -149,6 +175,32 @@ const ImageButton = ({ format, element, Icon, tooltip, className = '' }: BlockBu
                 ? 'text-gray-500 dark:text-gray-500'
                 : 'text-gray-800 dark:text-gray-200'
             }
+          />
+        </DropdownItem>
+      </span>
+    </Tooltip>
+  );
+};
+
+type VideoButtonProps = {
+  setVideoModalState: Dispatch<SetStateAction<VideUrlModalState>>;
+} & BlockButtonProps;
+
+const VideoButton = ({ format, element, Icon, tooltip, className = '', setVideoModalState }: VideoButtonProps) => {
+  const editor = useSlate();
+  const path = useMemo(() => ReactEditor.findPath(editor, element), [editor, element]);
+  const isActive = isElementActive(editor, format, path);
+
+  return (
+    <Tooltip content={tooltip} placement="top" disabled={!tooltip}>
+      <span>
+        <DropdownItem
+          className={`flex items-center px-2 py-2 cursor-pointer rounded hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${className}`}
+          onClick={() => setVideoModalState({ isOpen: true, path })}
+        >
+          <Icon
+            size={18}
+            className={isActive ? 'text-primary-500 dark:text-primary-400' : 'text-gray-800 dark:text-gray-200'}
           />
         </DropdownItem>
       </span>
