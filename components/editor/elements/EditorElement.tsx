@@ -3,6 +3,7 @@ import { ElementType } from 'types/slate';
 import ParagraphElement from './ParagraphElement';
 import BlockRefElement from './BlockRefElement';
 import ImageElement from './ImageElement';
+import VideoElement from './VideoElement';
 import ThematicBreakElement from './ThematicBreakElement';
 import ExternalLinkElement from './ExternalLinkElement';
 import NoteLinkElement from './NoteLinkElement';
@@ -107,6 +108,12 @@ export default function EditorElement(props: EditorElementProps) {
         <ImageElement className={className} element={element} attributes={attributes}>
           {children}
         </ImageElement>
+      );
+    case ElementType.Video:
+      return (
+        <VideoElement className={className} element={element} attributes={attributes}>
+          {children}
+        </VideoElement>
       );
     case ElementType.BlockReference:
       return (
