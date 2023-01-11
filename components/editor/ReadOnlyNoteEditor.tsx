@@ -10,7 +10,6 @@ import decorateCodeBlocks from 'editor/decorateCodeBlocks';
 import withVoidElements from 'editor/plugins/withVoidElements';
 import withLinks from 'editor/plugins/withLinks';
 import withTags from 'editor/plugins/withTags';
-import withImages from 'editor/plugins/withImages';
 import withNormalization from 'editor/plugins/withNormalization';
 import withCodeBlocks from 'editor/plugins/withCodeBlocks';
 import { getDefaultEditorValue } from 'editor/constants';
@@ -28,7 +27,9 @@ type Props = {
 };
 
 const WEBSOCKET_ENDPOINT =
-  process.env.NODE_ENV === 'development' ? 'ws://localhost:1234' : (process.env.NEXT_PUBLIC_Y_WEBSOCKET_ENDPOINT as string);
+  process.env.NODE_ENV === 'development'
+    ? 'ws://localhost:1234'
+    : (process.env.NEXT_PUBLIC_Y_WEBSOCKET_ENDPOINT as string);
 
 function ReadOnlyNoteEditor(props: Props) {
   const { noteId, className } = props;
@@ -69,7 +70,7 @@ function ReadOnlyNoteEditor(props: Props) {
     const editor = withCursor(
       withYjs(
         withNormalization(
-          withCodeBlocks(withVoidElements(withImages(withTags(withLinks(withReact(createEditor() as DeckEditor)))))),
+          withCodeBlocks(withVoidElements(withTags(withLinks(withReact(createEditor() as DeckEditor))))),
         ),
         sharedType,
       ),

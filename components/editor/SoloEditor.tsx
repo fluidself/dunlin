@@ -16,7 +16,7 @@ import {
 import decorateCodeBlocks from 'editor/decorateCodeBlocks';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
-import withImages from 'editor/plugins/withImages';
+import withMedia from 'editor/plugins/withMedia';
 import withLinks from 'editor/plugins/withLinks';
 import withNormalization from 'editor/plugins/withNormalization';
 import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
@@ -58,7 +58,10 @@ function SoloEditor(props: Props) {
   const isMounted = useIsMounted();
 
   const value = useStore(state => state.notes[noteId]?.content ?? getDefaultEditorValue());
-  const setValue = useCallback((value: Descendant[]) => store.getState().updateNote({ id: noteId, content: value }), [noteId]);
+  const setValue = useCallback(
+    (value: Descendant[]) => store.getState().updateNote({ id: noteId, content: value }),
+    [noteId],
+  );
 
   const editorRef = useRef<SlateEditor>();
   if (!editorRef.current) {
@@ -69,7 +72,9 @@ function SoloEditor(props: Props) {
             withHtml(
               withBlockBreakout(
                 withVoidElements(
-                  withBlockReferences(withImages(withTags(withLinks(withTables(withHistory(withReact(createEditor()))))))),
+                  withBlockReferences(
+                    withMedia(withTags(withLinks(withTables(withHistory(withReact(createEditor())))))),
+                  ),
                 ),
               ),
             ),
@@ -176,7 +181,8 @@ function SoloEditor(props: Props) {
             setAddLinkPopoverState({
               isVisible: true,
               selection: editor.selection,
-              isLink: isElementActive(editor, ElementType.ExternalLink) || isElementActive(editor, ElementType.NoteLink),
+              isLink:
+                isElementActive(editor, ElementType.ExternalLink) || isElementActive(editor, ElementType.NoteLink),
             });
           }
         },

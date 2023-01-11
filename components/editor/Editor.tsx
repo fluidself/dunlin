@@ -25,7 +25,7 @@ import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
 import withBlockReferences from 'editor/plugins/withBlockReferences';
 import withCodeBlocks, { onKeyDown as onCodeBlockKeyDown } from 'editor/plugins/withCodeBlocks';
-import withImages from 'editor/plugins/withImages';
+import withMedia from 'editor/plugins/withMedia';
 import withLinks from 'editor/plugins/withLinks';
 import withNormalization from 'editor/plugins/withNormalization';
 import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
@@ -63,7 +63,9 @@ type Props = {
 };
 
 const WEBSOCKET_ENDPOINT =
-  process.env.NODE_ENV === 'development' ? 'ws://localhost:1234' : (process.env.NEXT_PUBLIC_Y_WEBSOCKET_ENDPOINT as string);
+  process.env.NODE_ENV === 'development'
+    ? 'ws://localhost:1234'
+    : (process.env.NEXT_PUBLIC_Y_WEBSOCKET_ENDPOINT as string);
 
 function Editor(props: Props) {
   const { noteId, onChange, className = '', highlightedPath } = props;
@@ -72,7 +74,10 @@ function Editor(props: Props) {
 
   const note = useStore(state => state.notes[noteId]);
   const value = note?.content ?? getDefaultEditorValue();
-  const setValue = useCallback((value: Descendant[]) => store.getState().updateNote({ id: noteId, content: value }), [noteId]);
+  const setValue = useCallback(
+    (value: Descendant[]) => store.getState().updateNote({ id: noteId, content: value }),
+    [noteId],
+  );
 
   const color = useMemo(
     () =>
@@ -105,7 +110,9 @@ function Editor(props: Props) {
                   withBlockBreakout(
                     withVoidElements(
                       withBlockReferences(
-                        withImages(withTags(withLinks(withTables(withHistory(withReact(createEditor() as DeckEditor)))))),
+                        withMedia(
+                          withTags(withLinks(withTables(withHistory(withReact(createEditor() as DeckEditor))))),
+                        ),
                       ),
                     ),
                   ),
@@ -242,7 +249,8 @@ function Editor(props: Props) {
             setAddLinkPopoverState({
               isVisible: true,
               selection: editor.selection,
-              isLink: isElementActive(editor, ElementType.ExternalLink) || isElementActive(editor, ElementType.NoteLink),
+              isLink:
+                isElementActive(editor, ElementType.ExternalLink) || isElementActive(editor, ElementType.NoteLink),
             });
           }
         },

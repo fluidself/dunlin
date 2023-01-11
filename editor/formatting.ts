@@ -2,9 +2,20 @@ import { Editor, Element, Transforms, Range, Text, Node, Path } from 'slate';
 import _isEqual from 'lodash/isEqual';
 import detectIndent from 'detect-indent';
 import { store } from 'lib/store';
-import type { ExternalLink, NoteLink, ListElement, Image, BlockReference, Tag, DetailsDisclosure, CodeBlock } from 'types/slate';
+import type {
+  BlockReference,
+  CodeBlock,
+  DetailsDisclosure,
+  ExternalLink,
+  Image,
+  ListElement,
+  NoteLink,
+  Tag,
+  Video,
+} from 'types/slate';
 import { ElementType, Mark } from 'types/slate';
 import { computeBlockReference } from './backlinks/useBlockReference';
+import { isInTable } from './plugins/withTables';
 import { createNodeId } from './plugins/withNodeId';
 import { isTextType } from './checks';
 
@@ -318,6 +329,23 @@ export const insertImage = (editor: Editor, url: string, path?: Path) => {
   }
 };
 
+export const insertVideo = (editor: Editor, url: string, path?: Path) => {
+  const video: Video = {
+    id: createNodeId(),
+    type: ElementType.Video,
+    url,
+    children: [{ text: '' }],
+  };
+
+  if (path) {
+    // Set the node at the given path to be a video
+    Transforms.setNodes(editor, video, { at: path });
+  } else {
+    // Insert a new video node
+    Transforms.insertNodes(editor, video);
+  }
+};
+
 export const insertBlockReference = (editor: Editor, blockId: string, onOwnLine: boolean) => {
   if (!editor.selection) {
     return;
@@ -352,6 +380,8 @@ export const insertBlockReference = (editor: Editor, blockId: string, onOwnLine:
 };
 
 export const insertDetailsDisclosure = (editor: Editor, path?: Path) => {
+  if (isInTable(editor)) return;
+
   const details: DetailsDisclosure = {
     id: createNodeId(),
     type: ElementType.DetailsDisclosure,
