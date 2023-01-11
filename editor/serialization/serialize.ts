@@ -33,6 +33,7 @@ import {
   Image,
   NoteLink,
   Tag,
+  Video,
 } from 'types/slate';
 import { isVoid } from 'editor/plugins/withVoidElements';
 import { computeBlockReference } from 'editor/backlinks/useBlockReference';
@@ -170,6 +171,13 @@ export default function serialize(
     case ElementType.Image: {
       const image = chunk as Image;
       return `![${image.caption ?? image.url}](${image.url})\n\n`;
+    }
+    case ElementType.Video: {
+      const video = chunk as Video;
+      const videoId = new URL(video.url).pathname.split('/').pop();
+      const imageUrl = `https://img.youtube.com/vi/${videoId}/0.jpg`;
+      const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+      return `[![${videoUrl}](${imageUrl})](${videoUrl} "${videoUrl}")\n\n`;
     }
 
     case ElementType.BulletedList:
