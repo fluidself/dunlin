@@ -9,8 +9,9 @@ import { computeLinkedBacklinks } from './useBacklinks';
 /**
  * Deletes the backlinks on each backlinked note and replaces them with the link text.
  */
-const deleteBacklinks = async (noteId: string, key: string) => {
+const deleteBacklinks = async (noteId: string) => {
   const notes = store.getState().notes;
+  const key = store.getState().deckKey;
   const backlinks = computeLinkedBacklinks(notes, noteId);
   const updateData: any[] = [];
 
@@ -26,7 +27,8 @@ const deleteBacklinks = async (noteId: string, key: string) => {
 
     Transforms.unwrapNodes(editor, {
       at: [],
-      match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.NoteLink && n['noteId'] === noteId,
+      match: n =>
+        !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.NoteLink && n['noteId'] === noteId,
     });
 
     updateData.push({

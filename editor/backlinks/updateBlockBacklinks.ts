@@ -9,8 +9,9 @@ import { Backlink } from './useBacklinks';
  * Updates the block text for each block reference. This is necessary for
  * full-text search.
  */
-const updateBlockBacklinks = async (blockBacklinks: Backlink[], newText: string, key: string) => {
+const updateBlockBacklinks = async (blockBacklinks: Backlink[], newText: string) => {
   const notes = store.getState().notes;
+  const key = store.getState().deckKey;
   const updateData: any[] = [];
 
   for (const backlink of blockBacklinks) {

@@ -7,7 +7,7 @@ import { useCurrentDeck } from 'utils/useCurrentDeck';
 
 export default function useDeleteNote(noteId: string) {
   const router = useRouter();
-  const { id: deckId, key } = useCurrentDeck();
+  const { id: deckId } = useCurrentDeck();
 
   const openNoteIds = useStore(state => state.openNoteIds);
 
@@ -34,7 +34,7 @@ export default function useDeleteNote(noteId: string) {
     }
 
     await deleteNote(noteId, deckId);
-    await deleteBacklinks(noteId, key);
+    await deleteBacklinks(noteId);
   }, [router, noteId, openNoteIds]);
 
   return onDeleteClick;

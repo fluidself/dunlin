@@ -59,7 +59,8 @@ function Note(props: Props) {
     (title: string) => {
       const newTitle = title || getUntitledTitle(noteId);
       const notesArr = Object.values(store.getState().notes);
-      const isTitleUnique = notesArr.findIndex(n => n.id !== noteId && caseInsensitiveStringEqual(n.title, newTitle)) === -1;
+      const isTitleUnique =
+        notesArr.findIndex(n => n.id !== noteId && caseInsensitiveStringEqual(n.title, newTitle)) === -1;
 
       if (isTitleUnique) {
         updateNote({ id: noteId, title: newTitle });
@@ -87,7 +88,7 @@ function Note(props: Props) {
         return;
       }
       if (note.title) {
-        await updateBacklinks(note.title, note.id, key);
+        await updateBacklinks(note.title, note.id);
       }
       setSyncState({ isTitleSynced: true, isContentSynced: true });
     },
@@ -138,7 +139,8 @@ function Note(props: Props) {
     };
   }, [router, isSynced, noteIsViewOnlyForUser]);
 
-  const noteContainerClassName = 'flex flex-col flex-shrink-0 md:flex-shrink w-full bg-white dark:bg-gray-900 dark:text-gray-100';
+  const noteContainerClassName =
+    'flex flex-col flex-shrink-0 md:flex-shrink w-full bg-white dark:bg-gray-900 dark:text-gray-100';
   const errorContainerClassName = `${noteContainerClassName} items-center justify-center h-full p-4`;
   const editorClassName = 'flex-1 px-8 pt-2 pb-8 md:pb-12 md:px-12';
   const titleClassName = 'px-8 pt-8 pb-1 md:pt-12 md:px-12';

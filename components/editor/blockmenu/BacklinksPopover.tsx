@@ -3,7 +3,6 @@ import { Node } from 'slate';
 import { Popover } from '@headlessui/react';
 import { usePopper } from 'react-popper';
 import { ReferenceableBlockElement } from 'types/slate';
-import { useCurrentDeck } from 'utils/useCurrentDeck';
 import Portal from 'components/Portal';
 import updateBlockBacklinks from 'editor/backlinks/updateBlockBacklinks';
 import { shallowEqual, Store, useStore } from 'lib/store';
@@ -19,7 +18,6 @@ type BacklinksPopoverProps = {
 export default function BacklinksPopover(props: BacklinksPopoverProps) {
   const { element } = props;
 
-  const { key } = useCurrentDeck();
   const referenceElementRef = useRef<HTMLButtonElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   const { styles, attributes, state } = usePopper(referenceElementRef.current, popperElement, {
@@ -27,7 +25,10 @@ export default function BacklinksPopover(props: BacklinksPopoverProps) {
     modifiers: [{ name: 'offset', options: { offset: [0, 6] } }],
   });
 
-  const blockBacklinksSelector = useCallback((state: Store) => state.blockIdToBacklinksMap[element.id] ?? [], [element.id]);
+  const blockBacklinksSelector = useCallback(
+    (state: Store) => state.blockIdToBacklinksMap[element.id] ?? [],
+    [element.id],
+  );
   const blockBacklinks = useStore(blockBacklinksSelector, shallowEqual);
   const numOfMatches = useMemo(() => getNumOfMatches(blockBacklinks), [blockBacklinks]);
 
@@ -38,7 +39,7 @@ export default function BacklinksPopover(props: BacklinksPopoverProps) {
     // Only update if it is not the first render, there are backlinks, and the element text has updated
     if (numOfMatches > 0 && prevSavedElementText.current !== currentElementText) {
       const handler = setTimeout(() => {
-        updateBlockBacklinks(blockBacklinks, currentElementText, key);
+        updateBlockBacklinks(blockBacklinks, currentElementText);
         prevSavedElementText.current = currentElementText;
       }, UPDATE_BLOCK_BACKLINKS_DEBOUNCE_MS);
 
@@ -46,7 +47,7 @@ export default function BacklinksPopover(props: BacklinksPopoverProps) {
         clearTimeout(handler);
       };
     }
-  }, [numOfMatches, currentElementText, blockBacklinks, key]);
+  }, [numOfMatches, currentElementText, blockBacklinks]);
 
   return numOfMatches > 0 ? (
     <Popover as={Fragment}>
