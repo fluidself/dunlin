@@ -1,4 +1,3 @@
-import LitJsSdk from 'lit-js-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useRouter } from 'next/router';
@@ -14,9 +13,9 @@ import { DecryptedDeck, DecryptedNote } from 'types/decrypted';
 import { AccessControlCondition } from 'types/lit';
 import { ProvideCurrentDeck } from 'utils/useCurrentDeck';
 import { decryptWithLit, decryptNote } from 'utils/encryption';
-import useIsMounted from 'utils/useIsMounted';
 import useHotkeys from 'utils/useHotkeys';
 import useIsOffline from 'utils/useIsOffline';
+import useLitProtocol from 'utils/useLitProtocol';
 import { useAuth } from 'utils/useAuth';
 import { isMobile } from 'utils/device';
 import { configureDeckAccess } from 'utils/accessControl';
@@ -26,6 +25,7 @@ import SettingsModal from './settings/SettingsModal';
 import Sidebar from './sidebar/Sidebar';
 import FindOrCreateModal from './FindOrCreateModal';
 import PageLoading from './PageLoading';
+import ErrorPage from './ErrorPage';
 import OfflineBanner from './OfflineBanner';
 import UpdateBanner from './UpdateBanner';
 
@@ -39,10 +39,10 @@ export default function AppLayout(props: Props) {
 
   useIsOffline();
   const router = useRouter();
+  const { isReady, isError } = useLitProtocol();
   const deckId = Array.isArray(router.query.deckId) ? router.query.deckId[0] : router.query.deckId;
   const { user, isLoaded, signOut } = useAuth();
   const { connector } = useAccount();
-  const isMounted = useIsMounted();
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [deck, setDeck] = useState<DecryptedDeck>();
   const [processingAccess, setProcessingAccess] = useState(false);
@@ -78,17 +78,15 @@ export default function AppLayout(props: Props) {
   const setAuthorOnlyNotes = useStore(state => state.setAuthorOnlyNotes);
   const setShareModalOpen = useStore(state => state.setShareModalOpen);
 
-  const initLit = async () => {
-    const client = new LitJsSdk.LitNodeClient({ alertWhenUnauthorized: false, debug: false });
-    await client.connect();
-    window.litNodeClient = client;
-  };
-
   const resetDeck = useCallback(
-    async (deleteAccess = false) => {
+    async (deleteContributor = false) => {
       toast.error('Unable to verify access');
-      if (deleteAccess) {
-        await supabase.from<Contributor>('contributors').delete().match({ deck_id: deckId, user_id: user?.id }).single();
+      if (deleteContributor) {
+        await supabase
+          .from<Contributor>('contributors')
+          .delete()
+          .match({ deck_id: deckId, user_id: user?.id })
+          .single();
       }
       await fetch('/api/reset-recent-deck', { method: 'POST' });
       router.push('/');
@@ -101,18 +99,15 @@ export default function AppLayout(props: Props) {
       try {
         const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = dbDeck.access_params;
         const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
-
         return deckKey;
       } catch (error) {
-        resetDeck(true);
+        await resetDeck(dbDeck.user_id !== user?.id);
       }
     },
-    [resetDeck],
+    [user?.id, resetDeck],
   );
 
   const initData = useCallback(async () => {
-    if (!window.litNodeClient && isMounted()) await initLit();
-
     if (!user || !deckId) return resetDeck();
     if (isOffline) return;
 
@@ -199,7 +194,6 @@ export default function AppLayout(props: Props) {
     router,
     deckKey,
     isOffline,
-    isMounted,
     setNotes,
     setNoteTree,
     setDeckId,
@@ -215,7 +209,11 @@ export default function AppLayout(props: Props) {
     if (isLoaded && !user) {
       // Redirect to root page if there is no user logged in
       router.replace('/');
-    } else if (isLoaded && user && !isPageLoaded) {
+    } else if (isError) {
+      console.error('Could not connect to Lit network');
+      return;
+      // } else if (isLoaded && isReady && user && !isPageLoaded) {
+    } else if (isLoaded && user && isReady && !isPageLoaded) {
       // Initialize data if there is a user and the data has not been initialized yet
       initData();
     }
@@ -226,7 +224,7 @@ export default function AppLayout(props: Props) {
       window.removeEventListener('focus', initData);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router, user, isLoaded, isPageLoaded]);
+  }, [router, user, isLoaded, isReady, isError, isPageLoaded]);
 
   const [isFindOrCreateModalOpen, setIsFindOrCreateModalOpen] = useState(false);
   const [createJoinRenameModal, setCreateJoinRenameModal] = useState<{
@@ -314,6 +312,9 @@ export default function AppLayout(props: Props) {
 
   const appContainerClassName = classNames('h-screen', { dark: darkMode }, className);
 
+  if (isError) {
+    return <ErrorPage />;
+  }
   if (!isPageLoaded || !deckId || typeof deckId !== 'string') {
     return <PageLoading />;
   }

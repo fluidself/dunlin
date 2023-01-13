@@ -10,10 +10,15 @@ export async function verifyDeckAccess(deckId: string, user: User) {
   try {
     if (!deckId.match(UUID_REGEX)) throw new Error('Unable to verify access');
 
-    const { data: deck } = await supabase.from<Deck>('decks').select('user_id, access_params').eq('id', deckId).single();
+    const { data: deck } = await supabase
+      .from<Deck>('decks')
+      .select('user_id, access_params')
+      .eq('id', deckId)
+      .single();
     if (!deck) throw new Error('Unable to verify access');
 
     if (deck.user_id === user.id) {
+      await supabase.from<Contributor>('contributors').upsert({ deck_id: deckId, user_id: user.id });
       return true;
     }
 
