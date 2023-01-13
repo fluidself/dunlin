@@ -1,9 +1,7 @@
-import LitJsSdk from 'lit-js-sdk';
-import { useState, useEffect, useMemo } from 'react';
+import { Dispatch, SetStateAction, useState, useMemo, useEffect } from 'react';
 import { IconX } from '@tabler/icons';
 import useHotkeys from 'utils/useHotkeys';
-import { useAuth } from 'utils/useAuth';
-import useIsMounted from 'utils/useIsMounted';
+import useLitProtocol from 'utils/useLitProtocol';
 import WorkspaceOptions from './WorkspaceOptions';
 import CreateOrAccessWorkspace, { InputType } from './CreateOrAccessWorkspace';
 
@@ -12,15 +10,20 @@ export enum OnboardingStep {
   CreateOrAccess = 'create-or-access',
 }
 
+type OnboardingModalState = {
+  isOpen: boolean;
+  hasError: boolean;
+};
+
 type Props = {
-  setIsOpen: (isOpen: boolean) => void;
+  state: OnboardingModalState;
+  setState: Dispatch<SetStateAction<OnboardingModalState>>;
 };
 
 export default function OnboardingModal(props: Props) {
-  const { setIsOpen } = props;
+  const { state, setState } = props;
 
-  const { user } = useAuth();
-  const isMounted = useIsMounted();
+  const { isError } = useLitProtocol();
   const [currentStep, setCurrentStep] = useState<OnboardingStep>(OnboardingStep.Options);
   const [inputType, setInputType] = useState<InputType>();
 
@@ -28,32 +31,29 @@ export default function OnboardingModal(props: Props) {
     () => [
       {
         hotkey: 'esc',
-        callback: () => setIsOpen(false),
+        callback: () => setState({ ...state, isOpen: false }),
       },
     ],
-    [setIsOpen],
+    [state, setState],
   );
   useHotkeys(hotkeys);
 
   useEffect(() => {
-    const initLit = async () => {
-      const client = new LitJsSdk.LitNodeClient({ alertWhenUnauthorized: false, debug: false });
-      await client.connect();
-      window.litNodeClient = client;
-    };
-
-    if (!window.litNodeClient && isMounted() && user) {
-      initLit();
+    if (isError) {
+      setState({ isOpen: false, hasError: true });
     }
-  }, [isMounted, user]);
+  }, [isError, setState]);
 
   return (
     <div className="fixed inset-0 z-20 overflow-y-auto">
-      <div className="fixed inset-0 bg-black opacity-30" onClick={() => setIsOpen(false)} />
-      <div className="flex items-center justify-center h-screen mt-[-24px]">
+      <div className="fixed inset-0 bg-black opacity-30" onClick={() => setState({ ...state, isOpen: false })} />
+      <div className="flex items-center justify-center h-screen">
         <div className="z-30 flex flex-col w-full h-full max-w-full overflow-hidden bg-gray-900 rounded sm:max-h-128 sm:w-[605px] shadow-popover border border-gray-600 text-center pb-8">
           <div className="flex justify-end items-center pr-2 pt-1">
-            <button className="mr-[-4px] text-gray-300 hover:text-gray-100" onClick={() => setIsOpen(false)}>
+            <button
+              className="mr-[-4px] text-gray-300 hover:text-gray-100"
+              onClick={() => setState({ ...state, isOpen: false })}
+            >
               <IconX size={20} />
             </button>
           </div>

@@ -2,15 +2,15 @@ import { withIronSessionSsr } from 'iron-session/next';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
-import LitJsSdk from 'lit-js-sdk';
+import { useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { ironOptions } from 'constants/iron-session';
 import { useAuth } from 'utils/useAuth';
-import useIsMounted from 'utils/useIsMounted';
+import useLitProtocol from 'utils/useLitProtocol';
 import { verifyDeckAccess } from 'utils/accessControl';
 import { EthereumIcon } from 'components/EthereumIcon';
 import DunlinIcon from 'components/DunlinIcon';
+import ErrorPage from 'components/ErrorPage';
 import Button from 'components/Button';
 import dunlinDemo from 'public/dunlin-demo.png';
 
@@ -20,16 +20,8 @@ type Props = {
 
 export default function JoinDeck({ deckId }: Props) {
   const { user, signIn } = useAuth();
-  const [litReady, setLitReady] = useState(false);
-  const isMounted = useIsMounted();
+  const { isReady, isError } = useLitProtocol();
   const router = useRouter();
-
-  const initLit = async () => {
-    const client = new LitJsSdk.LitNodeClient({ alertWhenUnauthorized: false, debug: false });
-    await client.connect();
-    window.litNodeClient = client;
-    setLitReady(true);
-  };
 
   const verifyAccess = useCallback(async () => {
     if (!user) return;
@@ -44,13 +36,14 @@ export default function JoinDeck({ deckId }: Props) {
   }, [deckId, router, user]);
 
   useEffect(() => {
-    if (isMounted() && !litReady) {
-      initLit();
-    }
-    if (user && litReady) {
+    if (user && isReady) {
       verifyAccess();
     }
-  }, [isMounted, litReady, user, verifyAccess]);
+  }, [isReady, user, verifyAccess]);
+
+  if (isError) {
+    return <ErrorPage />;
+  }
 
   return (
     <div id="app-container" className="h-screen">

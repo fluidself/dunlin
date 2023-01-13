@@ -13,14 +13,15 @@ import Button from 'components/Button';
 import Portal from 'components/Portal';
 import DunlinIcon from 'components/DunlinIcon';
 import OnboardingModal from 'components/onboarding/OnboardingModal';
+import ErrorPage from 'components/ErrorPage';
 import dunlinDemo from 'public/dunlin-demo.png';
 
 export default function Home() {
   const router = useRouter();
   const { connector } = useAccount();
-  const { signIn, signOut, user, isLoaded } = useAuth();
+  const { user, isLoaded, signIn, signOut } = useAuth();
   const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
-  const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
+  const [onboardingModalState, setOnboardingModalState] = useState({ isOpen: false, hasError: false });
   const [hasClicked, setHasClicked] = useState(false);
 
   useEffect(() => {
@@ -36,9 +37,9 @@ export default function Home() {
     if (decks?.length) {
       router.push(`/app/${decks[decks.length - 1].id}`);
     } else if (hasClicked && isLoaded && user && decks?.length === 0) {
-      setIsOnboardingModalOpen(true);
+      setOnboardingModalState(prevState => ({ ...prevState, isOpen: true }));
     } else {
-      setIsOnboardingModalOpen(false);
+      setOnboardingModalState(prevState => ({ ...prevState, isOpen: false }));
     }
   }, [hasClicked, isLoaded, user, decks, router]);
 
@@ -46,12 +47,16 @@ export default function Home() {
     setHasClicked(true);
 
     if (user) {
-      setIsOnboardingModalOpen(true);
+      setOnboardingModalState(prevState => ({ ...prevState, isOpen: true }));
       return;
     }
 
     await signIn();
   };
+
+  if (onboardingModalState.hasError) {
+    return <ErrorPage />;
+  }
 
   return (
     <>
@@ -88,9 +93,9 @@ export default function Home() {
           <Image src={dunlinDemo} alt="Dunlin editor" priority className="mt-24 border border-gray-600 rounded-lg" />
         </main>
       </div>
-      {isOnboardingModalOpen ? (
+      {onboardingModalState.isOpen ? (
         <Portal>
-          <OnboardingModal setIsOpen={setIsOnboardingModalOpen} />
+          <OnboardingModal state={onboardingModalState} setState={setOnboardingModalState} />
         </Portal>
       ) : null}
     </>
