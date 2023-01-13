@@ -1,6 +1,15 @@
-export default function DunlinIcon() {
+type Props = {
+  width?: number;
+  height?: number;
+};
+
+export default function DunlinIcon({ width, height }: Props) {
   return (
-    <svg className="w-6 h-6 rounded-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 544 544">
+    <svg
+      className={`rounded-full w-${width ?? '6'} h-${height ?? '6'} `}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 544 544"
+    >
       <path
         fill="#171717"
         opacity="1.000000"
