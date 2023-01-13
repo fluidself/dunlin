@@ -6,9 +6,11 @@ import classNames from 'classnames';
 import { toast } from 'react-toastify';
 import colors from 'tailwindcss/colors';
 import { useAccount } from 'wagmi';
+import useSWR from 'swr';
 import { useStore, store, NoteTreeItem, getNoteTreeItem, Notes, SidebarTab } from 'lib/store';
 import supabase from 'lib/supabase';
-import { Note, Deck, Contributor } from 'types/supabase';
+import selectDeckWithNotes from 'lib/api/selectDeckWithNotes';
+import { Deck, Contributor } from 'types/supabase';
 import { DecryptedDeck, DecryptedNote } from 'types/decrypted';
 import { AccessControlCondition } from 'types/lit';
 import { ProvideCurrentDeck } from 'utils/useCurrentDeck';
@@ -39,10 +41,12 @@ export default function AppLayout(props: Props) {
 
   useIsOffline();
   const router = useRouter();
-  const { isReady, isError } = useLitProtocol();
-  const deckId = Array.isArray(router.query.deckId) ? router.query.deckId[0] : router.query.deckId;
+  const { isReady: litReady, isError: litError } = useLitProtocol();
+  const deckId = Array.isArray(router.query.deckId) ? router.query.deckId[0] : (router.query.deckId as string);
   const { user, isLoaded, signOut } = useAuth();
   const { connector } = useAccount();
+  const { data, error: dataFetchError } = useSWR(deckId ? 'deck-with-notes' : null, () => selectDeckWithNotes(deckId));
+  const { dbDeck, dbNotes } = data || {};
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [deck, setDeck] = useState<DecryptedDeck>();
   const [processingAccess, setProcessingAccess] = useState(false);
@@ -91,7 +95,8 @@ export default function AppLayout(props: Props) {
       await fetch('/api/reset-recent-deck', { method: 'POST' });
       router.push('/');
     },
-    [deckId, router, user?.id],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
 
   const decryptDeck = useCallback(
@@ -101,21 +106,17 @@ export default function AppLayout(props: Props) {
         const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
         return deckKey;
       } catch (error) {
-        await resetDeck(dbDeck.user_id !== user?.id);
+        resetDeck(dbDeck.user_id !== user?.id);
       }
     },
     [user?.id, resetDeck],
   );
 
-  const initData = useCallback(async () => {
-    if (!user || !deckId) return resetDeck();
-    if (isOffline) return;
+  const prepareData = useCallback(async () => {
+    if (!user || !dbDeck || isOffline) return;
 
     setDeckId(deckId);
     setUserId(user.id);
-
-    const { data: dbDeck } = await supabase.from<Deck>('decks').select('*').match({ id: deckId }).single();
-    if (!dbDeck) return resetDeck();
 
     const {
       access_params: { access_control_conditions },
@@ -135,33 +136,28 @@ export default function AppLayout(props: Props) {
     setAuthorOnlyNotes(decryptedDeck.author_only_notes ?? false);
     setDeckKey(key);
 
-    const { data: encryptedNotes } = await supabase
-      .from<Note>('notes')
-      .select('id, title, content, user_id, author_only, created_at, updated_at')
-      .eq('deck_id', deckId);
-
-    if (!encryptedNotes) {
+    if (!dbNotes?.length) {
       setIsPageLoaded(true);
       return;
     }
 
-    const notes = encryptedNotes
-      .map(note => decryptNote(note, key))
-      .sort((a, b) => (a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1));
-
     // Redirect to most recent note or first note in database
     if (router.pathname.match(/^\/app\/[^/]+$/i)) {
       const openNoteIds = store.getState().openNoteIds;
-      if (openNoteIds.length > 0 && notes && notes.findIndex(note => note.id === openNoteIds[0]) > -1) {
+      if (openNoteIds.length > 0 && dbNotes && dbNotes.findIndex(note => note.id === openNoteIds[0]) > -1) {
         router.replace(`/app/${deckId}/note/${openNoteIds[0]}`);
         return;
-      } else if (notes && notes.length > 0) {
-        router.replace(`/app/${deckId}/note/${notes[0].id}`);
+      } else if (dbNotes && dbNotes.length > 0) {
+        router.replace(`/app/${deckId}/note/${dbNotes[0].id}`);
         return;
       }
     }
 
-    // Set notes
+    // Decrypt, sort, and set notes
+    const notes = dbNotes
+      .map(note => decryptNote(note, key))
+      .sort((a, b) => (a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1));
+
     const notesAsObj = notes.reduce<Record<DecryptedNote['id'], DecryptedNote>>((acc, note) => {
       acc[note.id] = note;
       return acc;
@@ -194,6 +190,8 @@ export default function AppLayout(props: Props) {
     router,
     deckKey,
     isOffline,
+    dbDeck,
+    dbNotes,
     setNotes,
     setNoteTree,
     setDeckId,
@@ -202,29 +200,36 @@ export default function AppLayout(props: Props) {
     decryptDeck,
     setAuthorOnlyNotes,
     setCollaborativeDeck,
-    resetDeck,
   ]);
 
   useEffect(() => {
     if (isLoaded && !user) {
       // Redirect to root page if there is no user logged in
       router.replace('/');
-    } else if (isError) {
+    } else if (litError) {
       console.error('Could not connect to Lit network');
       return;
-      // } else if (isLoaded && isReady && user && !isPageLoaded) {
-    } else if (isLoaded && user && isReady && !isPageLoaded) {
+    } else if (isLoaded && user && litReady && dbDeck && !isPageLoaded) {
       // Initialize data if there is a user and the data has not been initialized yet
-      initData();
+      prepareData();
     }
-
-    window.addEventListener('focus', initData);
-
-    return () => {
-      window.removeEventListener('focus', initData);
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router, user, isLoaded, isReady, isError, isPageLoaded]);
+  }, [router, user, isLoaded, litReady, litError, dbDeck, isPageLoaded]);
+
+  const dbNoteTree = useMemo(() => JSON.stringify(dbDeck?.note_tree), [dbDeck?.note_tree]);
+
+  useEffect(() => {
+    if (isPageLoaded) {
+      prepareData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dbNoteTree]);
+
+  useEffect(() => {
+    if (dataFetchError) {
+      resetDeck();
+    }
+  }, [dataFetchError, resetDeck]);
 
   const [isFindOrCreateModalOpen, setIsFindOrCreateModalOpen] = useState(false);
   const [createJoinRenameModal, setCreateJoinRenameModal] = useState<{
@@ -312,7 +317,7 @@ export default function AppLayout(props: Props) {
 
   const appContainerClassName = classNames('h-screen', { dark: darkMode }, className);
 
-  if (isError) {
+  if (litError) {
     return <ErrorPage />;
   }
   if (!isPageLoaded || !deckId || typeof deckId !== 'string') {
