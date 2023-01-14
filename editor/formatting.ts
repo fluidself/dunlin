@@ -419,14 +419,13 @@ export const BRACKET_MAP: Record<string, string> = {
 };
 
 export const handleBrackets = (editor: Editor, openingBracket: string) => {
-  const closingBracket: string = BRACKET_MAP[openingBracket];
-
   const block = Editor.above(editor, { match: n => Editor.isBlock(editor, n) });
   if (!block) return editor.insertText(openingBracket);
 
   const [lineElement] = block;
   const lineString = Node.string(lineElement);
   const nextCharacter = lineString[editor.selection.anchor.offset] ?? null;
+  const closingBracket = BRACKET_MAP[openingBracket];
 
   if (!nextCharacter || nextCharacter.match(/\s|\)|\]|}/)) {
     editor.insertText(openingBracket);
@@ -434,5 +433,36 @@ export const handleBrackets = (editor: Editor, openingBracket: string) => {
     Transforms.move(editor, { unit: 'offset', reverse: true });
   } else {
     editor.insertText(openingBracket);
+  }
+};
+
+export const QUOTE_MAP: Record<string, string> = {
+  "'": "'",
+  '"': '"',
+};
+
+export const handleQuotes = (editor: Editor, quote: string) => {
+  const block = Editor.above(editor, { match: n => Editor.isBlock(editor, n) });
+  if (!block) return editor.insertText(quote);
+
+  const [lineElement] = block;
+  const lineString = Node.string(lineElement);
+  const beforeCursor = lineString.slice(0, editor.selection.anchor.offset);
+  const prevCharacter = lineString[editor.selection.anchor.offset - 1] ?? null;
+  const nextCharacter = lineString[editor.selection.anchor.offset] ?? null;
+
+  if (
+    (prevCharacter === quote && nextCharacter === quote) ||
+    (beforeCursor.match(new RegExp(`${quote}([^${quote}]+$)`)) && nextCharacter === quote)
+  ) {
+    Transforms.move(editor, { unit: 'offset' });
+  } else if (prevCharacter === quote) {
+    editor.insertText(quote);
+  } else if ((!prevCharacter || prevCharacter.match(/\W/)) && (!nextCharacter || nextCharacter.match(/\W/))) {
+    editor.insertText(quote);
+    Transforms.insertText(editor, quote);
+    Transforms.move(editor, { unit: 'offset', reverse: true });
+  } else {
+    editor.insertText(quote);
   }
 };

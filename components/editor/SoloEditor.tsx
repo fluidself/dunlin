@@ -8,6 +8,7 @@ import {
   handleBrackets,
   handleExitBreak,
   handleIndent,
+  handleQuotes,
   handleUnindent,
   isElementActive,
   toggleElement,
@@ -218,6 +219,14 @@ function SoloEditor(props: Props) {
       {
         hotkey: 'shift+[',
         callback: () => handleBrackets(editor, '{'),
+      },
+      {
+        hotkey: "'",
+        callback: () => handleQuotes(editor, "'"),
+      },
+      {
+        hotkey: "shift+'",
+        callback: () => handleQuotes(editor, '"'),
       },
     ],
     [editor, setAddLinkPopoverState],
