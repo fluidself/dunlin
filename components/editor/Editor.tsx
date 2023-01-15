@@ -236,7 +236,7 @@ function Editor(props: Props) {
       },
       {
         hotkey: 'mod+shift+8',
-        callback: () => toggleElement(editor, ElementType.CodeBlock),
+        callback: () => toggleElement(editor, ElementType.CodeLine),
       },
       {
         hotkey: 'mod+shift+9',
