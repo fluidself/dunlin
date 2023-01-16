@@ -10,6 +10,7 @@ import { useAuth } from 'utils/useAuth';
 import useNoteSearch from 'utils/useNoteSearch';
 import { getDefaultEditorValue } from 'editor/constants';
 import useOnNoteLinkClick from 'editor/useOnNoteLinkClick';
+import { caseInsensitiveStringEqual } from 'utils/string';
 
 enum OptionType {
   NOTE,
@@ -45,7 +46,11 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
 
   const options = useMemo(() => {
     const result: Array<Option> = [];
-    if (inputText) {
+    // Show new note option if there isn't already a note called `inputText`
+    if (
+      inputText &&
+      (searchResults.length <= 0 || !caseInsensitiveStringEqual(inputText, searchResults[0].item.title))
+    ) {
       result.push({
         id: 'NEW_NOTE',
         type: OptionType.NEW_NOTE,
