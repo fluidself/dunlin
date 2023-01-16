@@ -1,6 +1,5 @@
 import type { ForwardedRef, KeyboardEvent } from 'react';
 import { forwardRef, useCallback, useMemo, useState } from 'react';
-import { useRouter } from 'next/router';
 import type { TablerIcon } from '@tabler/icons';
 import { IconFilePlus, IconSearch } from '@tabler/icons';
 import { toast } from 'react-toastify';
@@ -10,6 +9,7 @@ import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useAuth } from 'utils/useAuth';
 import useNoteSearch from 'utils/useNoteSearch';
 import { getDefaultEditorValue } from 'editor/constants';
+import useOnNoteLinkClick from 'editor/useOnNoteLinkClick';
 
 enum OptionType {
   NOTE,
@@ -30,10 +30,12 @@ type Props = {
 
 function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
   const { onOptionClick: onOptionClickCallback, className = '' } = props;
-  const router = useRouter();
-  const { id: deckId, key } = useCurrentDeck();
+
   const { user } = useAuth();
+  const { id: deckId, key } = useCurrentDeck();
   const authorOnlyNotes = useStore(state => state.authorOnlyNotes);
+  const lastOpenNoteId = useStore(state => state.openNoteIds[state.openNoteIds.length - 1]);
+  const { onClick: onNoteLinkClick } = useOnNoteLinkClick(lastOpenNoteId);
 
   const [inputText, setInputText] = useState('');
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0);
@@ -63,14 +65,12 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
   }, [searchResults, inputText]);
 
   const onOptionClick = useCallback(
-    async (option: Option) => {
-      if (!deckId || !user) {
-        return;
-      }
-
+    async (option: Option, stackNote: boolean) => {
       onOptionClickCallback?.();
 
       if (option.type === OptionType.NEW_NOTE) {
+        if (!deckId || !user) return;
+
         const newNote = {
           deck_id: deckId,
           user_id: user.id,
@@ -84,14 +84,14 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
           return;
         }
 
-        router.push(`/app/${deckId}/note/${note.id}`);
+        onNoteLinkClick(note.id, stackNote);
       } else if (option.type === OptionType.NOTE) {
-        router.push(`/app/${deckId}/note/${option.id}`);
+        onNoteLinkClick(option.id, stackNote);
       } else {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [deckId, authorOnlyNotes, key, user, router, inputText, onOptionClickCallback],
+    [deckId, authorOnlyNotes, key, user, inputText, onOptionClickCallback, onNoteLinkClick],
   );
 
   const onKeyDown = useCallback(
@@ -129,7 +129,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
           onKeyPress={event => {
             if (event.key === 'Enter') {
               event.preventDefault();
-              onOptionClick(options[selectedOptionIndex]);
+              onOptionClick(options[selectedOptionIndex], event.shiftKey);
             }
           }}
           autoFocus
@@ -142,7 +142,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
               key={option.id}
               option={option}
               isSelected={index === selectedOptionIndex}
-              onClick={() => onOptionClick(option)}
+              onClick={(option, stackNote) => onOptionClick(option, stackNote)}
             />
           ))}
         </div>
@@ -154,7 +154,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
 type OptionProps = {
   option: Option;
   isSelected: boolean;
-  onClick: () => void;
+  onClick: (option: Option, stackNote: boolean) => void;
 };
 
 const OptionItem = (props: OptionProps) => {
@@ -165,7 +165,7 @@ const OptionItem = (props: OptionProps) => {
       className={`flex flex-row w-full items-center px-4 py-2 text-gray-800 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${
         isSelected && 'bg-gray-100 dark:bg-gray-700'
       }`}
-      onClick={onClick}
+      onClick={e => onClick(option, e.shiftKey)}
     >
       {option.icon ? <option.icon size={18} className="flex-shrink-0 mr-1" /> : null}
       <span className="overflow-hidden overflow-ellipsis whitespace-nowrap">{option.text}</span>
