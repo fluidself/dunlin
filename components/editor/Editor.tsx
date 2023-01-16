@@ -40,7 +40,7 @@ import { DeckEditor, ElementType, Mark } from 'types/slate';
 import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';
 import { addEllipsis } from 'utils/string';
-import HoveringToolbar from './HoveringToolbar';
+import HoveringToolbar from './toolbar/HoveringToolbar';
 import AddLinkPopover from './AddLinkPopover';
 import EditorElement from './elements/EditorElement';
 import withVerticalSpacing from './elements/withVerticalSpacing';
