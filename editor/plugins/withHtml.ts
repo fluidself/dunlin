@@ -1,7 +1,8 @@
 import { Editor, Element, Node, Transforms } from 'slate';
 import { jsx } from 'slate-hyperscript';
-import { ElementType, Mark } from 'types/slate';
+import { ElementType, Mark, TableCell, TableRow } from 'types/slate';
 import { PickPartial } from 'types/utils';
+import { isTextType } from 'editor/checks';
 
 const ELEMENT_TAGS: Record<string, (el: HTMLElement) => PickPartial<Element, 'id' | 'children'>> = {
   A: (el: HTMLElement) => ({
@@ -25,6 +26,10 @@ const ELEMENT_TAGS: Record<string, (el: HTMLElement) => PickPartial<Element, 'id
   P: () => ({ type: ElementType.Paragraph }),
   PRE: () => ({ type: ElementType.CodeBlock }),
   // UL: () => ({ type: ElementType.BulletedList }),
+  TABLE: () => ({ type: ElementType.Table }),
+  TR: () => ({ type: ElementType.TableRow }),
+  TD: () => ({ type: ElementType.TableCell }),
+  TH: () => ({ type: ElementType.TableCell }),
 };
 
 // COMPAT: `B` is omitted here because Google Docs uses `<b>` in weird ways.
@@ -46,7 +51,7 @@ export const deserialize = (el: HTMLElement): Node[] => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return el.textContent && (!el.textContent.includes('\n') || el.textContent.trim()) ? el.textContent : null;
-  } else if (el.nodeType !== 1 || el.nodeName === 'BR') {
+  } else if (el.nodeType !== 1 || el.nodeName === 'BR' || el.nodeName === 'STYLE') {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return null;
@@ -100,7 +105,8 @@ const withHtml = (editor: Editor) => {
     // We can't currently differentiate between different editors; see https://github.com/ianstormtaylor/slate/issues/1024
     if (html && !isSlateFragment) {
       const parsed = new DOMParser().parseFromString(html, 'text/html');
-      const fragment = deserialize(parsed.body);
+      const fragment = deserialize(parsed.body).map(normalizeTable);
+
       Transforms.insertFragment(editor, fragment);
       return;
     }
@@ -109,6 +115,30 @@ const withHtml = (editor: Editor) => {
   };
 
   return editor;
+};
+
+const normalizeTable = (node: Node) => {
+  if (node.type !== ElementType.Table) return node;
+
+  return {
+    ...node,
+    children: node.children
+      // All table children should be table rows
+      .filter((c: Node) => c.type && c.type === ElementType.TableRow)
+      .map((row: TableRow) => ({
+        ...row,
+        children: row.children
+          // All table row children should be table cells
+          .filter((c: Node) => c.type && c.type === ElementType.TableCell)
+          // Table cells should not have text type children
+          .map((cell: TableCell) => ({
+            ...cell,
+            children: cell.children.map((c: Node) =>
+              typeof c.type !== 'undefined' && isTextType(c.type) ? { text: Node.string(c).trim() } : c,
+            ),
+          })),
+      })),
+  };
 };
 
 export default withHtml;
