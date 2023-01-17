@@ -1,11 +1,21 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { Menu } from '@headlessui/react';
 import Select from 'react-select';
-import { IconDots, IconDownload, IconUpload, IconCloudDownload, IconX, IconPencil, IconEye, IconShare } from '@tabler/icons';
+import {
+  IconDots,
+  IconDownload,
+  IconUpload,
+  IconCloudDownload,
+  IconX,
+  IconPencil,
+  IconEye,
+  IconShare,
+} from '@tabler/icons';
 import { usePopper } from 'react-popper';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 import useSWR from 'swr';
+import isHotkey from 'is-hotkey';
 import { useRouter } from 'next/router';
 import Portal from 'components/Portal';
 import { useCurrentNote } from 'utils/useCurrentNote';
@@ -69,9 +79,7 @@ export default function NoteHeader() {
     const currentNoteIndex = store.getState().openNoteIds.findIndex(openNoteId => openNoteId === currentNote.id);
     const stackedNoteIds = queryParamToArray(stackQuery);
 
-    if (currentNoteIndex < 0) {
-      return;
-    }
+    if (currentNoteIndex < 0) return;
 
     if (currentNoteIndex === 0) {
       // Changes current note to first note in stack
@@ -99,6 +107,21 @@ export default function NoteHeader() {
       );
     }
   }, [currentNote.id, stackQuery, router, deckId]);
+
+  useEffect(() => {
+    const handleCloseNote = (event: KeyboardEvent) => {
+      if (isHotkey('mod+esc', event)) {
+        if (!isCloseButtonVisible) return;
+        event.stopPropagation();
+        event.preventDefault();
+        onClosePane();
+      }
+    };
+
+    const noteElement = document.getElementById(currentNote.id);
+    noteElement?.addEventListener('keydown', handleCloseNote);
+    return () => noteElement?.removeEventListener('keydown', handleCloseNote);
+  }, [currentNote.id, isCloseButtonVisible, onClosePane]);
 
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
@@ -191,7 +214,9 @@ export default function NoteHeader() {
                     onClick={() => setShareModalOpen(true)}
                   >
                     <span className="flex items-center justify-center w-8 h-8">
-                      <IconShare className={`text-gray-600 ${isOffline ? 'dark:text-gray-500' : 'dark:text-gray-300'}`} />
+                      <IconShare
+                        className={`text-gray-600 ${isOffline ? 'dark:text-gray-500' : 'dark:text-gray-300'}`}
+                      />
                     </span>
                   </button>
                 </Tooltip>
