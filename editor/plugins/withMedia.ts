@@ -47,10 +47,20 @@ const isImageUrl = (url: string) => {
   return false;
 };
 
+export const getImageElementUrl = (cidOrUrl: string) => {
+  return isUrl(cidOrUrl) ? cidOrUrl : `${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${cidOrUrl}`;
+};
+
 export const uploadAndInsertImage = async (editor: Editor, file: File, path?: Path) => {
   const TOKEN = process.env.NEXT_PUBLIC_WEB3STORAGE_TOKEN as string;
   const ENDPOINT = process.env.NEXT_PUBLIC_WEB3STORAGE_ENDPOINT as string;
   const client = new Web3Storage({ token: TOKEN, endpoint: new URL(ENDPOINT) });
+  const UPLOAD_LIMIT = 2 * 1024 * 1024; // 2 MB
+
+  if (file.size > UPLOAD_LIMIT) {
+    toast.error('Your image is over the 2 MB limit. Please upload a smaller image.');
+    return;
+  }
 
   const uploadingToast = toast.info('Uploading image, please wait...', {
     autoClose: false,
@@ -62,8 +72,7 @@ export const uploadAndInsertImage = async (editor: Editor, file: File, path?: Pa
 
   toast.dismiss(uploadingToast);
   if (cid) {
-    const url = `${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${cid}`;
-    insertImage(editor, url, path);
+    insertImage(editor, cid, path);
   } else {
     toast.error('There was a problem uploading your image. Please try again later.');
   }

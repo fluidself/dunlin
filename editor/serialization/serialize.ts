@@ -39,6 +39,7 @@ import { isVoid } from 'editor/plugins/withVoidElements';
 import { computeBlockReference } from 'editor/backlinks/useBlockReference';
 import { store } from 'lib/store';
 import { isListType } from 'editor/formatting';
+import { getImageElementUrl } from 'editor/plugins/withMedia';
 
 type LeafType = FormattedText & { parentType?: ElementType };
 
@@ -170,7 +171,8 @@ export default function serialize(
 
     case ElementType.Image: {
       const image = chunk as Image;
-      return `![${image.caption ?? image.url}](${image.url})\n\n`;
+      const imageUrl = getImageElementUrl(image.url);
+      return `![${image.caption ?? imageUrl}](${imageUrl})\n\n`;
     }
     case ElementType.Video: {
       const video = chunk as Video;
