@@ -21,7 +21,9 @@ export default function SidebarContent(props: Props) {
     <div className={`flex flex-col ${className}`}>
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
       <div className="flex flex-col flex-1 overflow-x-hidden mt-1">
-        {activeTab === SidebarTabType.Notes ? <SidebarNotes setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen} /> : null}
+        {activeTab === SidebarTabType.Notes ? (
+          <SidebarNotes setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen} />
+        ) : null}
         {activeTab === SidebarTabType.Search ? <SidebarSearch /> : null}
       </div>
     </div>
@@ -39,7 +41,7 @@ const Tabs = (props: TabsProps) => {
 
   return (
     <div className="flex">
-      <Tooltip content={`Notes List (${key}+Shift+E)`}>
+      <Tooltip content={`Notes (${key}+Shift+E)`}>
         <SidebarTab
           isActive={activeTab === SidebarTabType.Notes}
           setActive={() => setActiveTab(SidebarTabType.Notes)}

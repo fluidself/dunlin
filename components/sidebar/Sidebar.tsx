@@ -95,7 +95,10 @@ function Sidebar(props: Props) {
             <div
               className={`flex flex-col flex-none h-full border-r bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 ${className}`}
             >
-              <SidebarHeader setIsSettingsOpen={setIsSettingsOpen} setCreateJoinRenameModal={setCreateJoinRenameModal} />
+              <SidebarHeader
+                setIsSettingsOpen={setIsSettingsOpen}
+                setCreateJoinRenameModal={setCreateJoinRenameModal}
+              />
               <FindOrCreateModalButton
                 onClick={() => {
                   hideSidebarOnMobile();
@@ -122,10 +125,16 @@ const FindOrCreateModalButton = (props: FindOrCreateModalButtonProps) => {
   const { onClick } = props;
   return (
     <SidebarItem>
-      <Tooltip content={`Quickly jump to a note, or create a new note (${modifierKey()}+P)`} placement="right" touch={false}>
-        <button className="flex items-center w-full px-6 py-1 text-left" onClick={onClick}>
-          <IconSearch className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
-          <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Find or Create Note</span>
+      <Tooltip
+        content={`Quickly jump to a note, or create a new note (${modifierKey()}+P)`}
+        placement="right"
+        touch={false}
+      >
+        <button className="flex items-center w-full h-8 px-6 py-1 text-left" onClick={onClick}>
+          <IconSearch className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={16} />
+          <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap text-sm">
+            Find or create note
+          </span>
         </button>
       </Tooltip>
     </SidebarItem>
@@ -149,9 +158,11 @@ const GraphButton = (props: GraphButtonProps) => {
         touch={false}
       >
         <span>
-          <Link href={`/app/${deckId}/graph`} className="flex items-center px-6 py-1">
-            <IconAffiliate className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={20} />
-            <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap">Graph View</span>
+          <Link href={`/app/${deckId}/graph`} className="flex items-center h-8 px-6 py-1">
+            <IconAffiliate className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={16} />
+            <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap text-sm">
+              Graph view
+            </span>
           </Link>
         </span>
       </Tooltip>
