@@ -25,6 +25,7 @@ export enum ElementType {
   ThematicBreak = 'thematic-break',
   Image = 'image',
   Video = 'video',
+  FileAttachment = 'file-attachment',
   BlockReference = 'block-reference',
   DetailsDisclosure = 'details-disclosure',
   Table = 'table',
@@ -138,6 +139,22 @@ export type ThematicBreak = {
   children: Descendant[];
 };
 
+export type UploadedFile = {
+  cid: string;
+  symmKey: string;
+  filename: string;
+  mimeType: string;
+  size: number;
+};
+
+export type FileAttachment = {
+  id: string;
+  type: ElementType.FileAttachment;
+  file: UploadedFile;
+  description?: string;
+  children: Descendant[];
+};
+
 export type Image = {
   id: string;
   type: ElementType.Image;
@@ -204,6 +221,7 @@ export type ReferenceableBlockElement =
   | ThematicBreak
   | Image
   | Video
+  | FileAttachment
   | BlockReference
   | DetailsDisclosure
   | Table;

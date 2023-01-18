@@ -13,16 +13,18 @@ import {
   IconListCheck,
   IconListNumbers,
   IconPageBreak,
+  IconPaperclip,
   IconPhoto,
   IconTable,
   IconTypography,
   TablerIcon,
 } from '@tabler/icons';
 import { toggleElement, isElementActive, insertDetailsDisclosure } from 'editor/formatting';
-import { uploadAndInsertImage } from 'editor/plugins/withMedia';
+import { uploadAndInsertFile, uploadAndInsertImage } from 'editor/plugins/withMedia';
 import { insertTable } from 'editor/plugins/withTables';
 import { ElementType } from 'types/slate';
 import { useStore } from 'lib/store';
+import mimeTypes from 'utils/mime-types';
 import Tooltip from 'components/Tooltip';
 import { DropdownItem } from 'components/Dropdown';
 import type { VideUrlModalState } from './VideoUrlModal';
@@ -63,7 +65,7 @@ export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
         <BlockButton format={ElementType.CodeLine} element={element} Icon={IconBraces} tooltip="Code block" />
       </div>
       <div className="flex items-center justify-center">
-        <ImageButton format={ElementType.Image} element={element} Icon={IconPhoto} tooltip="Image" />
+        <FileButton format={ElementType.Image} element={element} Icon={IconPhoto} onlyImages={true} tooltip="Image" />
         <VideoButton
           format={ElementType.Video}
           element={element}
@@ -77,6 +79,12 @@ export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
           element={element}
           Icon={IconLayoutSidebarRightCollapse}
           tooltip="Details disclosure"
+        />
+        <FileButton
+          format={ElementType.FileAttachment}
+          element={element}
+          Icon={IconPaperclip}
+          tooltip="File attachment"
         />
       </div>
     </div>
@@ -124,7 +132,11 @@ const BlockButton = ({ format, element, Icon, tooltip, className = '' }: BlockBu
   );
 };
 
-const ImageButton = ({ format, element, Icon, tooltip, className = '' }: BlockButtonProps) => {
+type FileButtonProps = {
+  onlyImages?: boolean;
+} & BlockButtonProps;
+
+const FileButton = ({ format, element, Icon, tooltip, className = '', onlyImages = false }: FileButtonProps) => {
   const editor = useSlate();
   const isOffline = useStore(state => state.isOffline);
   const path = useMemo(() => ReactEditor.findPath(editor, element), [editor, element]);
@@ -133,7 +145,7 @@ const ImageButton = ({ format, element, Icon, tooltip, className = '' }: BlockBu
   const onClick = useCallback(() => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = 'image/*';
+    input.accept = onlyImages ? 'image/*' : mimeTypes.join();
     input.multiple = false;
     input.className = 'absolute invisible hidden w-0 h-0';
 
@@ -150,13 +162,18 @@ const ImageButton = ({ format, element, Icon, tooltip, className = '' }: BlockBu
         return;
       }
 
-      await uploadAndInsertImage(editor, inputElement.files[0], path);
+      if (onlyImages) {
+        await uploadAndInsertImage(editor, inputElement.files[0], path);
+      } else {
+        await uploadAndInsertFile(editor, inputElement.files[0], path);
+      }
+
       document.body.removeChild(input);
     };
 
     document.body.appendChild(input);
     input.click();
-  }, [editor, path]);
+  }, [editor, path, onlyImages]);
 
   return (
     <Tooltip content={tooltip} placement="top" disabled={!tooltip}>

@@ -3,9 +3,10 @@ import { Path } from 'slate';
 import { useSlate } from 'slate-react';
 import { IconBrandYoutube, IconX } from '@tabler/icons';
 import useHotkeys from 'utils/useHotkeys';
-import { insertVideo } from 'editor/formatting';
+import { insertMedia } from 'editor/formatting';
 import { extractYoutubeEmbedLink } from 'editor/plugins/withMedia';
 import Button from 'components/Button';
+import { ElementType } from 'types/slate';
 
 export type VideUrlModalState = {
   isOpen: boolean;
@@ -43,7 +44,7 @@ export default function VideoUrlModal(props: Props) {
       return;
     }
 
-    insertVideo(editor, embedLink, state.path);
+    insertMedia(editor, ElementType.Video, embedLink, state.path);
     setState({ isOpen: false });
   };
 

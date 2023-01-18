@@ -7,10 +7,12 @@ import type {
   CodeBlock,
   DetailsDisclosure,
   ExternalLink,
+  FileAttachment,
   Image,
   ListElement,
   NoteLink,
   Tag,
+  UploadedFile,
   Video,
 } from 'types/slate';
 import { ElementType, Mark } from 'types/slate';
@@ -312,37 +314,37 @@ export const insertTag = (editor: Editor, name: string) => {
   Transforms.insertNodes(editor, tag);
 };
 
-export const insertImage = (editor: Editor, url: string, path?: Path) => {
-  const image: Image = {
+export const insertMedia = (editor: Editor, type: ElementType.Image | ElementType.Video, url: string, path?: Path) => {
+  const mediaElement = {
     id: createNodeId(),
-    type: ElementType.Image,
+    type,
     url,
     children: [{ text: '' }],
   };
 
   if (path) {
-    // Set the node at the given path to be an image
-    Transforms.setNodes(editor, image, { at: path });
+    // Set the node at the given path to be an image or video
+    Transforms.setNodes(editor, mediaElement, { at: path });
   } else {
-    // Insert a new image node
-    Transforms.insertNodes(editor, image);
+    // Insert a new image or video node
+    Transforms.insertNodes(editor, mediaElement);
   }
 };
 
-export const insertVideo = (editor: Editor, url: string, path?: Path) => {
-  const video: Video = {
+export const insertFileAttachment = (editor: Editor, file: UploadedFile, path?: Path) => {
+  const fileAttachment: FileAttachment = {
     id: createNodeId(),
-    type: ElementType.Video,
-    url,
+    type: ElementType.FileAttachment,
+    file,
     children: [{ text: '' }],
   };
 
   if (path) {
-    // Set the node at the given path to be a video
-    Transforms.setNodes(editor, video, { at: path });
+    // Set the node at the given path to be a file attachment
+    Transforms.setNodes(editor, fileAttachment, { at: path });
   } else {
-    // Insert a new video node
-    Transforms.insertNodes(editor, video);
+    // Insert a new file attachment node
+    Transforms.insertNodes(editor, fileAttachment);
   }
 };
 

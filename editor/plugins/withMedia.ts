@@ -1,7 +1,10 @@
+import LitJsSdk from 'lit-js-sdk';
+import { encodeBase64 } from 'tweetnacl-util';
 import { Editor, Path } from 'slate';
 import { Web3Storage } from 'web3.storage';
 import { toast } from 'react-toastify';
-import { insertImage, insertVideo } from 'editor/formatting';
+import { insertFileAttachment, insertMedia } from 'editor/formatting';
+import { ElementType, UploadedFile } from 'types/slate';
 import { isUrl } from 'utils/url';
 import imageExtensions from 'utils/image-extensions';
 
@@ -20,14 +23,14 @@ const withMedia = (editor: Editor) => {
         if (mime === 'image') {
           uploadAndInsertImage(editor, file);
         } else {
-          toast.error('Only images can be uploaded.');
+          uploadAndInsertFile(editor, file);
         }
       }
     } else if (isImageUrl(text)) {
-      insertImage(editor, text);
+      insertMedia(editor, ElementType.Image, text);
     } else if (isYouTubeUrl(text)) {
       const embedLink = extractYoutubeEmbedLink(text);
-      if (embedLink) insertVideo(editor, embedLink);
+      if (embedLink) insertMedia(editor, ElementType.Video, embedLink);
     } else {
       insertData(data);
     }
@@ -52,29 +55,64 @@ export const getImageElementUrl = (cidOrUrl: string) => {
 };
 
 export const uploadAndInsertImage = async (editor: Editor, file: File, path?: Path) => {
-  const TOKEN = process.env.NEXT_PUBLIC_WEB3STORAGE_TOKEN as string;
-  const ENDPOINT = process.env.NEXT_PUBLIC_WEB3STORAGE_ENDPOINT as string;
-  const client = new Web3Storage({ token: TOKEN, endpoint: new URL(ENDPOINT) });
-  const UPLOAD_LIMIT = 2 * 1024 * 1024; // 2 MB
+  const cid = await uploadFile(file);
+
+  if (cid) {
+    insertMedia(editor, ElementType.Image, cid, path);
+  }
+};
+
+export const uploadAndInsertFile = async (editor: Editor, file: File, path?: Path) => {
+  try {
+    const { encryptedFile, symmetricKey } = await LitJsSdk.encryptFile({ file });
+    const symmetricKeyBase64 = encodeBase64(symmetricKey);
+    const cid = await uploadFile(encryptedFile);
+
+    if (cid) {
+      const uploadedFile: UploadedFile = {
+        cid,
+        symmKey: symmetricKeyBase64,
+        filename: file.name,
+        mimeType: file.type,
+        size: file.size,
+      };
+      insertFileAttachment(editor, uploadedFile, path);
+    }
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+const uploadFile = async (file: File) => {
+  const UPLOAD_LIMIT = 5 * 1024 * 1024; // 5 MB
 
   if (file.size > UPLOAD_LIMIT) {
-    toast.error('Your image is over the 2 MB limit. Please upload a smaller image.');
+    toast.error('Your file is over the 5 MB limit. Please upload a smaller file.');
     return;
   }
 
-  const uploadingToast = toast.info('Uploading image, please wait...', {
-    autoClose: false,
-    closeButton: false,
-    draggable: false,
-  });
+  try {
+    const TOKEN = process.env.NEXT_PUBLIC_WEB3STORAGE_TOKEN as string;
+    const ENDPOINT = process.env.NEXT_PUBLIC_WEB3STORAGE_ENDPOINT as string;
+    const client = new Web3Storage({ token: TOKEN, endpoint: new URL(ENDPOINT) });
 
-  const cid = await client.put([file], { wrapWithDirectory: false });
+    const uploadingToast = toast.info('Uploading file, please wait...', {
+      autoClose: false,
+      closeButton: false,
+      draggable: false,
+    });
 
-  toast.dismiss(uploadingToast);
-  if (cid) {
-    insertImage(editor, cid, path);
-  } else {
-    toast.error('There was a problem uploading your image. Please try again later.');
+    const cid = await client.put([file], { wrapWithDirectory: false });
+
+    toast.dismiss(uploadingToast);
+
+    if (cid) {
+      return cid;
+    } else {
+      toast.error('There was a problem uploading your file. Please try again later.');
+    }
+  } catch (e) {
+    console.error(e);
   }
 };
 
