@@ -4,7 +4,7 @@ import { createEditor, Editor, Element, Node } from 'slate';
 import { IconSend, IconConfetti, IconX } from '@tabler/icons';
 import * as Name from 'w3name';
 import { toast } from 'react-toastify';
-import { ElementType, NoteLink } from 'types/slate';
+import { ElementType, FileAttachment, NoteLink } from 'types/slate';
 import { DecryptedNote } from 'types/decrypted';
 import useHotkeys from 'utils/useHotkeys';
 import copyToClipboard from 'utils/copyToClipboard';
@@ -35,6 +35,7 @@ export default function PublishNoteModal(props: Props) {
 
   const client = useIpfs();
   const [noteLinks, setNoteLinks] = useState<NoteLink[]>([]);
+  const [hasFileAttachments, setHasFileAttachments] = useState(false);
   const [publishLinkedNotes, setPublishLinkedNotes] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [published, setPublished] = useState(false);
@@ -54,14 +55,21 @@ export default function PublishNoteModal(props: Props) {
   useEffect(() => {
     const editor = createEditor();
     editor.children = note.content;
-    const matchingElements = Array.from(
+    const noteLinks = Array.from(
       Editor.nodes<NoteLink>(editor, {
         at: [],
         match: n => Element.isElement(n) && n.type === ElementType.NoteLink && !!Node.string(n),
       }),
     ).map(element => element[0]);
+    const fileAttachments = Array.from(
+      Editor.nodes<FileAttachment>(editor, {
+        at: [],
+        match: n => Element.isElement(n) && n.type === ElementType.FileAttachment,
+      }),
+    );
 
-    setNoteLinks(matchingElements);
+    setNoteLinks(noteLinks);
+    setHasFileAttachments(fileAttachments.length > 0);
   }, [note.content]);
 
   const getNotesToPublish = (
@@ -249,9 +257,12 @@ export default function PublishNoteModal(props: Props) {
             ) : (
               <>
                 <p>
-                  You are about to publish this note to the public. Please double check that you are only including what
-                  you intend to.
+                  {`You are about to publish "${note.title}" to the public. Please double check that you are only including what
+                  you intend to.`}
                 </p>
+                {hasFileAttachments && (
+                  <p className="mt-4">File attachments will not be included in the publication.</p>
+                )}
                 {noteLinks.length > 0 && (
                   <p className="mt-4">
                     {`The note contains ${singleNoteLink ? 'a link' : 'links'} to ${
