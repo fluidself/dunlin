@@ -1,5 +1,5 @@
 import { ForwardedRef, forwardRef, HTMLAttributes, memo, useCallback, useMemo } from 'react';
-import { IconCaretRight } from '@tabler/icons';
+import { IconChevronRight } from '@tabler/icons';
 import { Deck } from 'types/supabase';
 import supabase from 'lib/supabase';
 import { store, useStore } from 'lib/store';
@@ -31,7 +31,7 @@ const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement
     await supabase.from<Deck>('decks').update({ note_tree: store.getState().noteTree }).eq('id', deckId);
   }, [node, deckId, toggleNoteTreeItemCollapsed]);
 
-  const leftPadding = useMemo(() => node.depth * 12 + (node.hasChildren ? 6 : 28), [node.depth, node.hasChildren]);
+  const leftPadding = useMemo(() => node.depth * 14 + (node.hasChildren ? 4 : 26), [node.depth, node.hasChildren]);
 
   if (!note || !note.title) return null;
 
@@ -45,7 +45,7 @@ const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement
     >
       <div
         role="button"
-        className="flex items-center flex-1 px-2 py-1 overflow-hidden select-none overflow-ellipsis whitespace-nowrap"
+        className="flex items-center flex-1 px-1 py-1 overflow-hidden select-none overflow-ellipsis whitespace-nowrap"
         onClick={e => {
           e.preventDefault();
           onNoteLinkClick(note.id, e.shiftKey);
@@ -65,16 +65,15 @@ const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement
               onArrowClick?.();
             }}
           >
-            <IconCaretRight
+            <IconChevronRight
               className={`flex-shrink-0 text-gray-500 dark:text-gray-100 transform transition-transform ${
                 !node.collapsed ? 'rotate-90' : ''
               }`}
               size={16}
-              fill="currentColor"
             />
           </button>
         ) : null}
-        <span className="overflow-hidden overflow-ellipsis whitespace-nowrap">{note?.title ?? ''}</span>
+        <span className="overflow-hidden overflow-ellipsis whitespace-nowrap text-sm">{note?.title ?? ''}</span>
       </div>
       <SidebarNoteLinkDropdown note={note} className="opacity-0.1 group-hover:opacity-100" />
     </SidebarItem>

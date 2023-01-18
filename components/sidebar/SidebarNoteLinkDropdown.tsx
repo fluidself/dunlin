@@ -33,8 +33,8 @@ const SidebarNoteLinkDropdown = (props: Props) => {
               ref={containerRef}
               className={`rounded hover:bg-gray-300 active:bg-gray-400 dark:hover:bg-gray-600 dark:active:bg-gray-500 ${className}`}
             >
-              <span className="flex items-center justify-center w-8 h-8">
-                <IconDots className="text-gray-600 dark:text-gray-200" />
+              <span className="flex items-center justify-center p-0.5">
+                <IconDots className="text-gray-600 dark:text-gray-200" size={16} />
               </span>
             </Menu.Button>
             {open && (

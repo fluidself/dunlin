@@ -123,18 +123,25 @@ function SidebarNotesTree(props: Props) {
   const Row = useCallback(
     ({ index, style }: { index: number; style: CSSProperties }) => {
       const node = flattenedData[index];
-      return <DraggableSidebarNoteLink key={node.id} node={node} isHighlighted={node.id === currentNoteId} style={style} />;
+      return (
+        <DraggableSidebarNoteLink key={node.id} node={node} isHighlighted={node.id === currentNoteId} style={style} />
+      );
     },
     [currentNoteId, flattenedData],
   );
 
   return (
     <div className={className}>
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
         <SortableContext items={flattenedData} strategy={verticalListSortingStrategy}>
           <AutoSizer>
             {({ width, height }) => (
-              <List width={width} height={height} itemCount={flattenedData.length} itemSize={32}>
+              <List width={width} height={height} itemCount={flattenedData.length} itemSize={30}>
                 {Row}
               </List>
             )}
