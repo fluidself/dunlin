@@ -7,6 +7,7 @@ import { insertFileAttachment, insertMedia } from 'editor/formatting';
 import { ElementType, UploadedFile } from 'types/slate';
 import { isUrl } from 'utils/url';
 import imageExtensions from 'utils/image-extensions';
+import { extractYoutubeEmbedLink } from 'utils/video';
 
 const withMedia = (editor: Editor) => {
   const { insertData } = editor;
@@ -37,21 +38,6 @@ const withMedia = (editor: Editor) => {
   };
 
   return editor;
-};
-
-const isImageUrl = (url: string) => {
-  if (!url || !isUrl(url)) {
-    return false;
-  }
-  const ext = new URL(url).pathname.split('.').pop();
-  if (ext) {
-    return imageExtensions.includes(ext);
-  }
-  return false;
-};
-
-export const getImageElementUrl = (cidOrUrl: string) => {
-  return isUrl(cidOrUrl) ? cidOrUrl : `${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${cidOrUrl}`;
 };
 
 export const uploadAndInsertImage = async (editor: Editor, file: File, path?: Path) => {
@@ -116,46 +102,22 @@ const uploadFile = async (file: File) => {
   }
 };
 
+const isImageUrl = (url: string) => {
+  if (!url || !isUrl(url)) {
+    return false;
+  }
+  const ext = new URL(url).pathname.split('.').pop();
+  if (ext) {
+    return imageExtensions.includes(ext);
+  }
+  return false;
+};
+
 const isYouTubeUrl = (url: string) => {
   const YOUTUBE_REGEX =
     /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
 
   return url?.match(YOUTUBE_REGEX);
-};
-
-export const extractYoutubeEmbedLink = (url: string): string | null => {
-  const linkType = extractYoutubeLinkType(url);
-  let embedUrl: string | null = null;
-
-  if (linkType) {
-    const { pathname, search } = new URL(url);
-    const urlSearchParams = new URLSearchParams(search);
-
-    if (linkType === 'youtube_link') {
-      embedUrl = `https://www.youtube.com/embed/${urlSearchParams.get('v')}`;
-    } else if (linkType === 'youtube_shared_link') {
-      embedUrl = `https://www.youtube.com/embed${pathname}`;
-    } else {
-      embedUrl = url;
-    }
-    if (urlSearchParams.has('t')) {
-      embedUrl += `?start=${urlSearchParams.get('t')}`;
-    }
-  }
-
-  return embedUrl;
-};
-
-const extractYoutubeLinkType = (url: string) => {
-  if (url.includes('https://www.youtube.com/embed')) {
-    return 'youtube_embed_link';
-  } else if (url.includes('youtube.com')) {
-    return 'youtube_link';
-  } else if (url.includes('youtu.be')) {
-    return 'youtube_shared_link';
-  }
-
-  return null;
 };
 
 export default withMedia;

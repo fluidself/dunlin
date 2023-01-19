@@ -2,9 +2,9 @@ import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { Path } from 'slate';
 import { useSlate } from 'slate-react';
 import { IconBrandYoutube, IconX } from '@tabler/icons';
+import { extractYoutubeEmbedLink } from 'utils/video';
 import useHotkeys from 'utils/useHotkeys';
 import { insertMedia } from 'editor/formatting';
-import { extractYoutubeEmbedLink } from 'editor/plugins/withMedia';
 import Button from 'components/Button';
 import { ElementType } from 'types/slate';
 

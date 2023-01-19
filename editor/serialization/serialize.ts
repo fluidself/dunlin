@@ -39,7 +39,7 @@ import { isVoid } from 'editor/plugins/withVoidElements';
 import { computeBlockReference } from 'editor/backlinks/useBlockReference';
 import { store } from 'lib/store';
 import { isListType } from 'editor/formatting';
-import { getImageElementUrl } from 'editor/plugins/withMedia';
+import { getImageElementUrl } from 'components/editor/elements/ImageElement';
 
 type LeafType = FormattedText & { parentType?: ElementType };
 
