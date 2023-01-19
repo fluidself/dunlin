@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { RenderElementProps, useFocused, useSelected } from 'slate-react';
 import { Image as ImageType } from 'types/slate';
-import { getImageElementUrl } from 'editor/plugins/withMedia';
+import { isUrl } from 'utils/url';
 
 type ImageElementProps = {
   element: ImageType;
@@ -31,3 +31,7 @@ export default function ImageElement(props: ImageElementProps) {
     </div>
   );
 }
+
+export const getImageElementUrl = (cidOrUrl: string) => {
+  return isUrl(cidOrUrl) ? cidOrUrl : `${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${cidOrUrl}`;
+};
