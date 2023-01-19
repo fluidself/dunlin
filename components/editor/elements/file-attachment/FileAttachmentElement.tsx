@@ -6,6 +6,7 @@ import { decodeBase64 } from 'tweetnacl-util';
 import { toast } from 'react-toastify';
 import { saveAs } from 'file-saver';
 import { FileAttachment } from 'types/slate';
+import { useStore } from 'lib/store';
 import { formatBytes } from 'utils/string';
 import useIpfs from 'utils/useIpfs';
 import Tooltip from 'components/Tooltip';
@@ -26,6 +27,7 @@ export default function FileAttachmentElement(props: FileAttachmentElementProps)
   const focused = useFocused();
   const readOnly = useReadOnly();
   const client = useIpfs();
+  const isOffline = useStore(state => state.isOffline);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
 
@@ -63,7 +65,10 @@ export default function FileAttachmentElement(props: FileAttachmentElementProps)
         {!readOnly ? (
           <Tooltip content="Attachment settings" placement="top">
             <button
-              className="float-right p-1 rounded-sm hover:bg-gray-600 active:bg-gray-500 focus:outline-none"
+              className={`float-right p-1 rounded-sm hover:bg-gray-600 active:bg-gray-500 focus:outline-none ${
+                isOffline ? 'text-gray-500 pointer-events-none' : ''
+              }`}
+              disabled={isOffline}
               onClick={() => setMenuOpen(!isMenuOpen)}
             >
               <IconPencil size={20} />
@@ -71,7 +76,7 @@ export default function FileAttachmentElement(props: FileAttachmentElementProps)
           </Tooltip>
         ) : null}
         <div className="flex items-center justify-center p-3">
-          <Button className="ml-3 mr-6 !px-2 rounded-sm" disabled={processing} onClick={handleDownload}>
+          <Button className="ml-3 mr-6 !px-2 rounded-sm" disabled={isOffline || processing} onClick={handleDownload}>
             <IconDownload size={24} />
           </Button>
           <div className="flex-1 cursor-default">
