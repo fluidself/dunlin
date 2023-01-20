@@ -73,18 +73,18 @@ export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
           setVideoModalState={setVideoModalState}
           tooltip="Video"
         />
+        <FileButton
+          format={ElementType.FileAttachment}
+          element={element}
+          Icon={IconPaperclip}
+          tooltip="File attachment"
+        />
         <BlockButton format={ElementType.Table} element={element} Icon={IconTable} tooltip="Table" />
         <BlockButton
           format={ElementType.DetailsDisclosure}
           element={element}
           Icon={IconLayoutSidebarRightCollapse}
           tooltip="Details disclosure"
-        />
-        <FileButton
-          format={ElementType.FileAttachment}
-          element={element}
-          Icon={IconPaperclip}
-          tooltip="File attachment"
         />
       </div>
     </div>

@@ -24,7 +24,6 @@ type Props = {
 function Sidebar(props: Props) {
   const { setIsFindOrCreateModalOpen, setIsSettingsOpen, setCreateJoinRenameModal, className = '' } = props;
 
-  const { id: deckId } = useCurrentDeck();
   const isSidebarOpen = useStore(state => state.isSidebarOpen);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
   const hideSidebarOnMobile = useCallback(() => {
@@ -105,9 +104,9 @@ function Sidebar(props: Props) {
                   setIsFindOrCreateModalOpen(isOpen => !isOpen);
                 }}
               />
-              {deckId && <GraphButton onClick={hideSidebarOnMobile} deckId={deckId} />}
+              <GraphButton onClick={hideSidebarOnMobile} />
               <SidebarContent
-                className="flex-1 mt-3 overflow-x-hidden overflow-y-auto"
+                className="flex-1 mt-1 overflow-x-hidden overflow-y-auto"
                 setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen}
               />
             </div>
@@ -143,11 +142,11 @@ const FindOrCreateModalButton = (props: FindOrCreateModalButtonProps) => {
 
 type GraphButtonProps = {
   onClick: () => void;
-  deckId: string;
 };
 
 const GraphButton = (props: GraphButtonProps) => {
-  const { onClick, deckId } = props;
+  const { onClick } = props;
+  const { id: deckId } = useCurrentDeck();
   const router = useRouter();
 
   return (

@@ -82,7 +82,7 @@ export default function BlockMenuDropdown(props: BlockMenuDropdownProps) {
       <Dropdown
         buttonChildren={buttonChildren}
         buttonClassName={buttonClassName}
-        itemsClassName="w-[250px]"
+        itemsClassName="w-[252px] border border-gray-700"
         placement="left-start"
         offset={[0, 6]}
         tooltipContent={<span className="text-xs">Click to open menu</span>}
