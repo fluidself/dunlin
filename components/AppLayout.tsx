@@ -19,7 +19,6 @@ import useHotkeys from 'utils/useHotkeys';
 import useIsOffline from 'utils/useIsOffline';
 import useLitProtocol from 'utils/useLitProtocol';
 import { useAuth } from 'utils/useAuth';
-import { isMobile } from 'utils/device';
 import { configureDeckAccess } from 'utils/accessControl';
 import CreateJoinRenameDeckModal, { CreateJoinRenameDeckType } from './CreateJoinRenameDeckModal';
 import ShareModal from './share-modal/ShareModal';
@@ -51,27 +50,9 @@ export default function AppLayout(props: Props) {
   const [deck, setDeck] = useState<DecryptedDeck>();
   const [processingAccess, setProcessingAccess] = useState(false);
 
-  useEffect(() => {
-    const onDisconnect = () => signOut();
-    connector?.on('disconnect', onDisconnect);
-
-    return () => {
-      connector?.off('disconnect', onDisconnect);
-    };
-  }, [connector, signOut]);
-
-  useEffect(() => {
-    if (!isPageLoaded && isLoaded && user) {
-      // Use user's specific store and rehydrate data
-      useStore.persist.setOptions({
-        name: `dunlin-storage-${user.id}`,
-      });
-      useStore.persist.rehydrate();
-    }
-  }, [isPageLoaded, isLoaded, user]);
-
   const isOffline = useStore(state => state.isOffline);
   const deckKey = useStore(state => state.deckKey);
+  const darkMode = useStore(state => state.darkMode);
   const shareModalOpen = useStore(state => state.shareModalOpen);
   const setDeckKey = useStore(state => state.setDeckKey);
   const setNotes = useStore(state => state.setNotes);
@@ -81,6 +62,32 @@ export default function AppLayout(props: Props) {
   const setCollaborativeDeck = useStore(state => state.setCollaborativeDeck);
   const setAuthorOnlyNotes = useStore(state => state.setAuthorOnlyNotes);
   const setShareModalOpen = useStore(state => state.setShareModalOpen);
+  const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
+  const setSidebarTab = useStore(state => state.setSidebarTab);
+
+  useEffect(() => {
+    const onDisconnect = () => signOut();
+    connector?.on('disconnect', onDisconnect);
+
+    return () => {
+      connector?.off('disconnect', onDisconnect);
+    };
+  }, [connector, signOut]);
+
+  const setupStore = useCallback(async () => {
+    if (!isPageLoaded && isLoaded && user) {
+      // Use user's specific store and rehydrate data
+      useStore.persist.clearStorage();
+      useStore.persist.setOptions({
+        name: `dunlin-storage-${user.id}`,
+      });
+      await useStore.persist.rehydrate();
+    }
+  }, [isPageLoaded, isLoaded, user]);
+
+  useEffect(() => {
+    setupStore();
+  }, [setupStore]);
 
   const resetDeck = useCallback(
     async (deleteContributor = false) => {
@@ -243,24 +250,6 @@ export default function AppLayout(props: Props) {
   });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // const darkMode = useStore(state => state.darkMode);
-  const darkMode = true;
-  const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
-  const setIsPageStackingOn = useStore(state => state.setIsPageStackingOn);
-  const setSidebarTab = useStore(state => state.setSidebarTab);
-
-  const hasHydrated = useStore(state => state._hasHydrated);
-  useEffect(() => {
-    // If the user is mobile, the persisted data has been hydrated, and there are no open note ids (a proxy for the first load),
-    // change the initial values of isSidebarOpen and isPageStackingOn to better suit mobile devices
-    // We need to wait until after hydration because otherwise the persisted state gets overridden and thrown away
-    // After https://github.com/pmndrs/zustand/issues/562 is fixed, we can change this
-    if (isMobile() && hasHydrated && store.getState().openNoteIds.length === 0) {
-      setIsSidebarOpen(false);
-      setIsPageStackingOn(false);
-    }
-  }, [setIsSidebarOpen, setIsPageStackingOn, hasHydrated]);
-
   const hotkeys = useMemo(
     () => [
       {
@@ -320,7 +309,7 @@ export default function AppLayout(props: Props) {
   if (litError) {
     return <ErrorPage />;
   }
-  if (!isPageLoaded || !deckId || typeof deckId !== 'string') {
+  if (!isPageLoaded || !deckId) {
     return <PageLoading />;
   }
 

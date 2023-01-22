@@ -49,7 +49,6 @@ type NoteUpdate = PickPartial<
 >;
 
 export type Store = {
-  _hasHydrated: boolean; // TODO: temporary until https://github.com/pmndrs/zustand/issues/562 gets fixed
   notes: Notes;
   setNotes: Setter<Notes>;
   upsertNote: (note: DecryptedNote) => void;
@@ -108,7 +107,6 @@ export const setter =
 export const store = createVanilla<Store>()(
   persist(
     immer(set => ({
-      _hasHydrated: false,
       /**
        * Map of note id to notes
        */
@@ -244,14 +242,10 @@ export const store = createVanilla<Store>()(
         openNoteIds: state.openNoteIds,
         isSidebarOpen: state.isSidebarOpen,
         noteSort: state.noteSort,
-        // darkMode: state.darkMode,
-        darkMode: true,
+        darkMode: state.darkMode,
         isPageStackingOn: state.isPageStackingOn,
         confirmNoteDeletion: state.confirmNoteDeletion,
       }),
-      onRehydrateStorage: () => () => {
-        useStore.setState({ _hasHydrated: true });
-      },
     },
   ),
 );
