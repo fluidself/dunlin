@@ -1,8 +1,13 @@
-import supabase from 'lib/supabase';
+import supabaseClient from 'lib/supabase';
 import type { Deck } from 'types/supabase';
 
-export default async function selectDecks(userId?: string) {
+export default async function selectDecks(userId?: string, accessToken?: string) {
   if (!userId) return [];
+
+  const supabase = supabaseClient;
+  if (accessToken) {
+    supabase.auth.setAuth(accessToken);
+  }
 
   const { data, error } = await supabase
     .from<Deck>('decks')

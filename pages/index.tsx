@@ -4,7 +4,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
-import useSWR from 'swr';
 import { ironOptions } from 'constants/iron-session';
 import selectDecks from 'lib/api/selectDecks';
 import { useAuth } from 'utils/useAuth';
@@ -19,8 +18,7 @@ import dunlinDemo from 'public/dunlin-demo.png';
 export default function Home() {
   const router = useRouter();
   const { connector } = useAccount();
-  const { user, isLoaded, signIn, signOut } = useAuth();
-  const { data: decks } = useSWR(user ? 'decks' : null, () => selectDecks(user?.id), { revalidateOnFocus: false });
+  const { user, signIn, signOut } = useAuth();
   const [onboardingModalState, setOnboardingModalState] = useState({ isOpen: false, hasError: false });
   const [hasClicked, setHasClicked] = useState(false);
 
@@ -34,23 +32,26 @@ export default function Home() {
   }, [connector, signOut]);
 
   useEffect(() => {
-    if (decks?.length) {
-      router.push(`/app/${decks[decks.length - 1].id}`);
-    } else if (hasClicked && isLoaded && user && decks?.length === 0) {
-      setOnboardingModalState(prevState => ({ ...prevState, isOpen: true }));
-    } else {
-      setOnboardingModalState(prevState => ({ ...prevState, isOpen: false }));
+    const onboardUser = async (userId: string) => {
+      const decks = await selectDecks(userId, localStorage.getItem('dbToken') ?? '');
+      if (decks.length) {
+        router.push(`/app/${decks[decks.length - 1].id}`);
+      } else if (hasClicked) {
+        setOnboardingModalState(prevState => ({ ...prevState, isOpen: true }));
+      }
+    };
+
+    if (user && hasClicked) {
+      onboardUser(user.id);
     }
-  }, [hasClicked, isLoaded, user, decks, router]);
+  }, [hasClicked, user, router]);
 
   const handleSignIn = async () => {
     setHasClicked(true);
-
     if (user) {
       setOnboardingModalState(prevState => ({ ...prevState, isOpen: true }));
       return;
     }
-
     await signIn();
   };
 
@@ -103,7 +104,7 @@ export default function Home() {
 }
 
 export const getServerSideProps = withIronSessionSsr(async function ({ req }) {
-  const { user, recentDeck } = req.session;
+  const { user, recentDeck, dbToken } = req.session;
 
   if (!user) {
     return { props: {} };
@@ -113,7 +114,7 @@ export const getServerSideProps = withIronSessionSsr(async function ({ req }) {
     return { redirect: { destination: `/app/${recentDeck}`, permanent: false } };
   }
 
-  const decks = await selectDecks(user.id);
+  const decks = await selectDecks(user.id, dbToken);
 
   return decks.length
     ? { redirect: { destination: `/app/${decks[decks.length - 1].id}`, permanent: false } }

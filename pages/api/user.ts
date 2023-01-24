@@ -1,8 +1,16 @@
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { sign } from 'jsonwebtoken';
 import { ironOptions } from 'constants/iron-session';
-import { User } from 'types/supabase';
-import supabase from 'lib/supabase';
+import supabaseClient from 'lib/supabase';
+import type { User } from 'types/supabase';
+
+const SERVICE_ROLE_KEY = (
+  process.env.NODE_ENV === 'development' ? process.env.SERVICE_ROLE_KEY_ALT : process.env.SERVICE_ROLE_KEY
+) as string;
+const JWT_SECRET = (
+  process.env.NODE_ENV === 'development' ? process.env.JWT_SECRET_ALT : process.env.JWT_SECRET
+) as string;
 
 const headerName = 'Cache-Control';
 const headerValue = 'no-cache, no-store, max-age=0, must-revalidate';
@@ -21,28 +29,28 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return;
   }
 
-  const { data: user } = await supabase.from<User>('users').select('*').match({ id: address }).single();
+  const supabase = supabaseClient;
+  supabase.auth.setAuth(SERVICE_ROLE_KEY);
 
-  if (user) {
-    // DB user exists, return it
-    req.session.user = user;
-    await req.session.save();
+  let { data: user } = await supabase.from<User>('users').select('*').match({ id: address }).single();
 
-    res.setHeader(headerName, headerValue).status(200).json({ user: user });
-    return;
-  } else {
-    // DB user does not exist, create and return
-    const { data, error, status } = await supabase.from<User>('users').insert({ id: address }).single();
-
-    if (data) {
-      req.session.user = data;
-      await req.session.save();
-
-      res.setHeader(headerName, headerValue).status(200).json({ user: data });
-    } else if (error) {
-      res.setHeader(headerName, headerValue).status(status).json({ message: error.message });
-    }
+  if (!user) {
+    const { data } = await supabase.from<User>('users').insert({ id: address }).single();
+    user = data;
   }
+
+  if (!user) {
+    res.setHeader(headerName, headerValue).status(500).json({ message: 'Could not find or create user' });
+    return;
+  }
+
+  const token = sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
+
+  req.session.user = user;
+  req.session.dbToken = token;
+  await req.session.save();
+
+  res.setHeader(headerName, headerValue).status(200).json({ user, token });
 };
 
 export default withIronSessionApiRoute(handler, ironOptions);

@@ -48,13 +48,13 @@ export default function AppLayout(props: Props) {
   const { dbDeck, dbNotes } = data || {};
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [deck, setDeck] = useState<DecryptedDeck>();
+  const [deckKey, setDeckKey] = useState('');
   const [processingAccess, setProcessingAccess] = useState(false);
 
   const isOffline = useStore(state => state.isOffline);
-  const deckKey = useStore(state => state.deckKey);
   const darkMode = useStore(state => state.darkMode);
   const shareModalOpen = useStore(state => state.shareModalOpen);
-  const setDeckKey = useStore(state => state.setDeckKey);
+  const setStoreDeckKey = useStore(state => state.setDeckKey);
   const setNotes = useStore(state => state.setNotes);
   const setNoteTree = useStore(state => state.setNoteTree);
   const setUserId = useStore(state => state.setUserId);
@@ -111,6 +111,7 @@ export default function AppLayout(props: Props) {
       try {
         const { encrypted_string, encrypted_symmetric_key, access_control_conditions } = dbDeck.access_params;
         const deckKey = await decryptWithLit(encrypted_string, encrypted_symmetric_key, access_control_conditions);
+        setDeckKey(deckKey);
         return deckKey;
       } catch (error) {
         resetDeck(dbDeck.user_id !== user?.id);
@@ -141,7 +142,6 @@ export default function AppLayout(props: Props) {
     setDeck(decryptedDeck);
     setCollaborativeDeck(decryptedDeck.access_control_conditions.length > 1);
     setAuthorOnlyNotes(decryptedDeck.author_only_notes ?? false);
-    setDeckKey(key);
 
     if (!dbNotes?.length) {
       setIsPageLoaded(true);
@@ -170,6 +170,7 @@ export default function AppLayout(props: Props) {
       return acc;
     }, {});
     setNotes(notesAsObj);
+    setStoreDeckKey(key);
 
     // Set note tree
     if (decryptedDeck.note_tree) {
@@ -202,7 +203,7 @@ export default function AppLayout(props: Props) {
     setNotes,
     setNoteTree,
     setDeckId,
-    setDeckKey,
+    setStoreDeckKey,
     setUserId,
     decryptDeck,
     setAuthorOnlyNotes,
@@ -216,12 +217,12 @@ export default function AppLayout(props: Props) {
     } else if (litError) {
       console.error('Could not connect to Lit network');
       return;
-    } else if (isLoaded && user && litReady && dbDeck && !isPageLoaded) {
+    } else if (isLoaded && user && litReady && dbDeck?.id === deckId && !isPageLoaded) {
       // Initialize data if there is a user and the data has not been initialized yet
       prepareData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router, user, isLoaded, litReady, litError, dbDeck, isPageLoaded]);
+  }, [router, user, isLoaded, litReady, litError, dbDeck, deckId, isPageLoaded]);
 
   const dbNoteTree = useMemo(() => JSON.stringify(dbDeck?.note_tree), [dbDeck?.note_tree]);
 
