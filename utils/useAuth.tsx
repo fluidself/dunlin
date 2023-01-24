@@ -4,7 +4,8 @@ import { useAccount, useConnect, useNetwork, useSignMessage, useDisconnect } fro
 import { SiweMessage } from 'siwe';
 import { box } from 'tweetnacl';
 import { encodeBase64 } from 'tweetnacl-util';
-import { User } from 'types/supabase';
+import { useSWRConfig } from 'swr';
+import type { User } from 'types/supabase';
 
 const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
 
@@ -29,13 +30,15 @@ function useProvideAuth(): AuthContextType {
   const { connectors, connectAsync } = useConnect();
   const { disconnectAsync } = useDisconnect();
   const { signMessageAsync } = useSignMessage();
+  const { mutate } = useSWRConfig();
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [signingIn, setSigningIn] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
 
   const initUser = async () => {
     const res = await fetch('/api/user');
-    const { user } = await res.json();
+    const { user, token } = await res.json();
+    localStorage.setItem('dbToken', token);
 
     setUser(user);
     setIsLoaded(true);
@@ -117,10 +120,10 @@ function useProvideAuth(): AuthContextType {
 
   const signOut = async () => {
     await disconnectAsync();
-    await fetch('/api/signout', {
-      method: 'POST',
-    });
+    await fetch('/api/signout', { method: 'POST' });
+    mutate('deck-with-notes', { optimisticData: undefined });
     localStorage.removeItem('lit-auth-signature');
+    localStorage.removeItem('dbToken');
     setUser(null);
   };
 
