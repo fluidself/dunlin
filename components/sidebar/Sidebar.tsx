@@ -106,7 +106,7 @@ function Sidebar(props: Props) {
               />
               <GraphButton onClick={hideSidebarOnMobile} />
               <SidebarContent
-                className="flex-1 mt-1 overflow-x-hidden overflow-y-auto"
+                className="flex-1 mt-px overflow-x-hidden overflow-y-auto"
                 setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen}
               />
             </div>
@@ -129,7 +129,7 @@ const FindOrCreateModalButton = (props: FindOrCreateModalButtonProps) => {
         placement="right"
         touch={false}
       >
-        <button className="flex items-center w-full h-8 px-6 py-1 text-left" onClick={onClick}>
+        <button className="flex items-center w-full h-8 px-4 py-1 text-left" onClick={onClick}>
           <IconSearch className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={16} />
           <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap text-sm">
             Find or create note
@@ -152,12 +152,12 @@ const GraphButton = (props: GraphButtonProps) => {
   return (
     <SidebarItem isHighlighted={router.pathname.includes(`/app/${deckId}/graph`)} onClick={onClick}>
       <Tooltip
-        content={`Visualization of all of your notes as a network (${modifierKey()}+Shift+G)`}
+        content={`Visualization of your notes as a network (${modifierKey()}+Shift+G)`}
         placement="right"
         touch={false}
       >
         <span>
-          <Link href={`/app/${deckId}/graph`} className="flex items-center h-8 px-6 py-1">
+          <Link href={`/app/${deckId}/graph`} className="flex items-center h-8 px-4 py-1">
             <IconAffiliate className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={16} />
             <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap text-sm">
               Graph view

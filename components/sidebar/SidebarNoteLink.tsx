@@ -1,5 +1,6 @@
 import { ForwardedRef, forwardRef, HTMLAttributes, memo, useCallback, useMemo } from 'react';
 import { IconChevronRight } from '@tabler/icons';
+import classNames from 'classnames';
 import { Deck } from 'types/supabase';
 import supabase from 'lib/supabase';
 import { store, useStore } from 'lib/store';
@@ -31,21 +32,27 @@ const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement
     await supabase.from<Deck>('decks').update({ note_tree: store.getState().noteTree }).eq('id', deckId);
   }, [node, deckId, toggleNoteTreeItemCollapsed]);
 
-  const leftPadding = useMemo(() => node.depth * 14 + (node.hasChildren ? 4 : 26), [node.depth, node.hasChildren]);
+  const leftMargin = useMemo(() => node.depth * 26, [node.depth]);
+  const leftPadding = useMemo(() => (!node.depth ? 7 : 0) + (node.hasChildren ? 3 : 8), [node.depth, node.hasChildren]);
+
+  const itemClassName = classNames(
+    'flex items-center flex-1 py-1 rounded-sm overflow-hidden select-none overflow-ellipsis whitespace-nowrap hover:bg-gray-700 active:bg-gray-600',
+    { 'bg-gray-700': isHighlighted },
+    className,
+  );
 
   if (!note || !note.title) return null;
 
   return (
     <SidebarItem
       ref={forwardedRef}
-      className={`relative flex items-center justify-between overflow-x-hidden group focus:outline-none ${className}`}
-      isHighlighted={isHighlighted}
+      className={`relative flex items-center overflow-x-hidden group focus:outline-none dark:hover:bg-gray-800 dark:active:bg-gray-800 ${className}`}
       style={style}
       {...otherProps}
     >
       <div
         role="button"
-        className="flex items-center flex-1 px-1 py-1 overflow-hidden select-none overflow-ellipsis whitespace-nowrap"
+        className={itemClassName}
         onClick={e => {
           e.preventDefault();
           onNoteLinkClick(note.id, e.shiftKey);
@@ -53,12 +60,12 @@ const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement
             setIsSidebarOpen(false);
           }
         }}
-        style={{ paddingLeft: `${leftPadding}px` }}
+        style={{ marginLeft: `${leftMargin}px`, paddingLeft: `${leftPadding}px` }}
         draggable={false}
       >
         {node.hasChildren ? (
           <button
-            className="p-0.5 mr-0.5 rounded hover:bg-gray-300 active:bg-gray-400 dark:hover:bg-gray-600 dark:active:bg-gray-500"
+            className="p-0.5 rounded hover:bg-gray-300 active:bg-gray-400 dark:hover:bg-gray-600 dark:active:bg-gray-500"
             onClick={e => {
               e.preventDefault();
               e.stopPropagation();
@@ -75,7 +82,7 @@ const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement
         ) : null}
         <span className="overflow-hidden overflow-ellipsis whitespace-nowrap text-sm">{note?.title ?? ''}</span>
       </div>
-      <SidebarNoteLinkDropdown note={note} className="opacity-0.1 group-hover:opacity-100" />
+      <SidebarNoteLinkDropdown note={note} className="opacity-0.1 group-hover:opacity-100 absolute right-0" />
     </SidebarItem>
   );
 };
