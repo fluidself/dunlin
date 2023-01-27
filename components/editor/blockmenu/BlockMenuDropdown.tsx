@@ -8,7 +8,7 @@ import { createNodeId } from 'editor/plugins/withNodeId';
 import Dropdown, { DropdownItem } from 'components/Dropdown';
 import Portal from 'components/Portal';
 import ChangeBlockOptions from './ChangeBlockOptions';
-import VideoUrlModal, { type VideUrlModalState } from './VideoUrlModal';
+import UrlInputModal, { type UrlInputModalState } from './UrlInputModal';
 
 type BlockMenuDropdownProps = {
   element: ReferenceableBlockElement;
@@ -18,7 +18,7 @@ type BlockMenuDropdownProps = {
 export default function BlockMenuDropdown(props: BlockMenuDropdownProps) {
   const { element, className = '' } = props;
   const editor = useSlateStatic();
-  const [videoModalState, setVideoModalState] = useState<VideUrlModalState>({ isOpen: false });
+  const [urlModalState, setUrlModalState] = useState<UrlInputModalState>({ isOpen: false });
 
   const onAddBlock = useCallback(() => {
     // Insert new paragraph after the current block
@@ -98,13 +98,13 @@ export default function BlockMenuDropdown(props: BlockMenuDropdownProps) {
         </DropdownItem>
         <ChangeBlockOptions
           element={element}
-          setVideoModalState={setVideoModalState}
+          setUrlModalState={setUrlModalState}
           className="px-8 border-t dark:border-gray-700"
         />
       </Dropdown>
-      {videoModalState.isOpen ? (
+      {urlModalState.isOpen ? (
         <Portal>
-          <VideoUrlModal state={videoModalState} setState={setVideoModalState} />
+          <UrlInputModal state={urlModalState} setState={setUrlModalState} />
         </Portal>
       ) : null}
     </>

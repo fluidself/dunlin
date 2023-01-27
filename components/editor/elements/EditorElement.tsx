@@ -4,6 +4,7 @@ import ParagraphElement from './ParagraphElement';
 import BlockRefElement from './BlockRefElement';
 import ImageElement from './ImageElement';
 import VideoElement from './VideoElement';
+import EmbedElement from './EmbedElement';
 import FileAttachmentElement from './file-attachment/FileAttachmentElement';
 import ThematicBreakElement from './ThematicBreakElement';
 import ExternalLinkElement from './ExternalLinkElement';
@@ -115,6 +116,12 @@ export default function EditorElement(props: EditorElementProps) {
         <VideoElement className={className} element={element} attributes={attributes}>
           {children}
         </VideoElement>
+      );
+    case ElementType.Embed:
+      return (
+        <EmbedElement className={className} element={element} attributes={attributes}>
+          {children}
+        </EmbedElement>
       );
     case ElementType.FileAttachment:
       return (

@@ -12,10 +12,10 @@ import {
   IconList,
   IconListCheck,
   IconListNumbers,
-  IconPageBreak,
   IconPaperclip,
   IconPhoto,
   IconTable,
+  IconTerminal2,
   IconTypography,
   TablerIcon,
 } from '@tabler/icons';
@@ -27,16 +27,16 @@ import { useStore } from 'lib/store';
 import mimeTypes from 'utils/mime-types';
 import Tooltip from 'components/Tooltip';
 import { DropdownItem } from 'components/Dropdown';
-import type { VideUrlModalState } from './VideoUrlModal';
+import type { UrlInputModalState } from './UrlInputModal';
 
 type ChangeBlockOptionsProps = {
   element: Element;
-  setVideoModalState: Dispatch<SetStateAction<VideUrlModalState>>;
+  setUrlModalState: Dispatch<SetStateAction<UrlInputModalState>>;
   className?: string;
 };
 
 export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
-  const { element, className = '', setVideoModalState } = props;
+  const { element, className = '', setUrlModalState } = props;
 
   return (
     <div className={`divide-y dark:divide-gray-700 ${className}`}>
@@ -45,11 +45,12 @@ export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
         <BlockButton format={ElementType.HeadingOne} element={element} Icon={IconH1} tooltip="Heading 1" />
         <BlockButton format={ElementType.HeadingTwo} element={element} Icon={IconH2} tooltip="Heading 2" />
         <BlockButton format={ElementType.HeadingThree} element={element} Icon={IconH3} tooltip="Heading 3" />
+
         <BlockButton
-          format={ElementType.ThematicBreak}
+          format={ElementType.DetailsDisclosure}
           element={element}
-          Icon={IconPageBreak}
-          tooltip="Thematic break"
+          Icon={IconLayoutSidebarRightCollapse}
+          tooltip="Details disclosure"
         />
       </div>
       <div className="flex items-center justify-center">
@@ -66,12 +67,19 @@ export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
       </div>
       <div className="flex items-center justify-center">
         <FileButton format={ElementType.Image} element={element} Icon={IconPhoto} onlyImages={true} tooltip="Image" />
-        <VideoButton
+        <EmbedButton
           format={ElementType.Video}
           element={element}
           Icon={IconBrandYoutube}
-          setVideoModalState={setVideoModalState}
+          setUrlModalState={setUrlModalState}
           tooltip="Video"
+        />
+        <EmbedButton
+          format={ElementType.Embed}
+          element={element}
+          Icon={IconTerminal2}
+          setUrlModalState={setUrlModalState}
+          tooltip="Embed"
         />
         <FileButton
           format={ElementType.FileAttachment}
@@ -80,12 +88,6 @@ export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
           tooltip="File attachment"
         />
         <BlockButton format={ElementType.Table} element={element} Icon={IconTable} tooltip="Table" />
-        <BlockButton
-          format={ElementType.DetailsDisclosure}
-          element={element}
-          Icon={IconLayoutSidebarRightCollapse}
-          tooltip="Details disclosure"
-        />
       </div>
     </div>
   );
@@ -199,11 +201,12 @@ const FileButton = ({ format, element, Icon, tooltip, className = '', onlyImages
   );
 };
 
-type VideoButtonProps = {
-  setVideoModalState: Dispatch<SetStateAction<VideUrlModalState>>;
+type EmbedButtonProps = {
+  format: ElementType.Embed | ElementType.Video;
+  setUrlModalState: Dispatch<SetStateAction<UrlInputModalState>>;
 } & BlockButtonProps;
 
-const VideoButton = ({ format, element, Icon, tooltip, className = '', setVideoModalState }: VideoButtonProps) => {
+const EmbedButton = ({ format, element, Icon, tooltip, className = '', setUrlModalState }: EmbedButtonProps) => {
   const editor = useSlate();
   const path = useMemo(() => ReactEditor.findPath(editor, element), [editor, element]);
   const isActive = isElementActive(editor, format, path);
@@ -213,7 +216,7 @@ const VideoButton = ({ format, element, Icon, tooltip, className = '', setVideoM
       <span>
         <DropdownItem
           className={`flex items-center px-2 py-2 cursor-pointer rounded hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${className}`}
-          onClick={() => setVideoModalState({ isOpen: true, path })}
+          onClick={() => setUrlModalState({ isOpen: true, type: format, path })}
         >
           <Icon
             size={18}
