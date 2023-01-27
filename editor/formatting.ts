@@ -8,12 +8,10 @@ import type {
   DetailsDisclosure,
   ExternalLink,
   FileAttachment,
-  Image,
   ListElement,
   NoteLink,
   Tag,
   UploadedFile,
-  Video,
 } from 'types/slate';
 import { ElementType, Mark } from 'types/slate';
 import { computeBlockReference } from './backlinks/useBlockReference';
@@ -314,7 +312,12 @@ export const insertTag = (editor: Editor, name: string) => {
   Transforms.insertNodes(editor, tag);
 };
 
-export const insertMedia = (editor: Editor, type: ElementType.Image | ElementType.Video, url: string, path?: Path) => {
+export const insertMedia = (
+  editor: Editor,
+  type: ElementType.Image | ElementType.Video | ElementType.Embed,
+  url: string,
+  path?: Path,
+) => {
   const mediaElement = {
     id: createNodeId(),
     type,
@@ -323,10 +326,10 @@ export const insertMedia = (editor: Editor, type: ElementType.Image | ElementTyp
   };
 
   if (path) {
-    // Set the node at the given path to be an image or video
+    // Set the node at the given path to be an image or video or embed
     Transforms.setNodes(editor, mediaElement, { at: path });
   } else {
-    // Insert a new image or video node
+    // Insert a new image or video or embed node
     Transforms.insertNodes(editor, mediaElement);
   }
 };
