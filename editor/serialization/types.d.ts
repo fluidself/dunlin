@@ -18,4 +18,5 @@ export interface MdastNode {
   checked?: unknown;
   indent?: unknown;
   detailsSummaryText?: string;
+  oembed?: { type: 'rich' | 'video'; html: string; version: string };
 }

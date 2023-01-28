@@ -21,6 +21,7 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+import type { RichTypeData, VideoTypeData } from '@extractus/oembed-extractor';
 import { Element, Text } from 'slate';
 import {
   BlockReference,
@@ -28,6 +29,7 @@ import {
   CodeBlock,
   DetailsDisclosure,
   ElementType,
+  Embed,
   ExternalLink,
   FormattedText,
   Image,
@@ -180,6 +182,13 @@ export default function serialize(
       const imageUrl = `https://img.youtube.com/vi/${videoId}/0.jpg`;
       const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
       return `[![${videoUrl}](${imageUrl})](${videoUrl} "${videoUrl}")\n\n`;
+    }
+    case ElementType.Embed: {
+      const embed = chunk as Embed;
+      const oembedData = embed.oembed ? (embed.oembed as RichTypeData | VideoTypeData) : null;
+      return oembedData
+        ? `${oembedData.html}\n`
+        : `<iframe src="${embed.url}" width="640" height="360" title="${embed.url}"></iframe>\n`;
     }
 
     case ElementType.BulletedList:

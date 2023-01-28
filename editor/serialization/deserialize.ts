@@ -103,6 +103,14 @@ export default function deserialize(node: MdastNode, opts?: OptionType): Descend
         url: node.url ?? '',
         caption: node.alt,
       };
+    case 'embed':
+      return {
+        id: createNodeId(),
+        type: ElementType.Embed,
+        children: [{ text: '' }],
+        url: node.url ?? '',
+        oembed: node.oembed,
+      };
     case 'blockquote':
       return { id: createNodeId(), type: ElementType.Blockquote, children };
     case 'code':

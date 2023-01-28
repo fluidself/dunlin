@@ -4,7 +4,7 @@ import { MdastNode } from './types';
  * This plugin normalizes the MdastNode format to conform to app's slate schema.
  */
 export default function normalize(node: MdastNode): MdastNode {
-  return normalizeDetailsDisclosure(normalizeImages(normalizeCheckListItems(normalizeLists(node))));
+  return normalizeEmbeds(normalizeDetailsDisclosure(normalizeImages(normalizeCheckListItems(normalizeLists(node)))));
 }
 
 /**
@@ -188,6 +188,35 @@ const normalizeDetailsDisclosure = (node: MdastNode): MdastNode => {
       newChildren.push(detailsDisclosureNode);
       partsCounter = 0;
       detailsDisclosureNode = { type: 'detailsDisclosure', detailsSummaryText: '', children: [] };
+    } else {
+      newChildren.push(child);
+    }
+  }
+
+  return { ...node, children: newChildren };
+};
+
+/**
+ * This function converts iframes into Embed nodes
+ */
+const normalizeEmbeds = (node: MdastNode): MdastNode => {
+  if (!node.children) {
+    return node;
+  }
+
+  const newChildren = [];
+
+  for (const child of node.children) {
+    if (child.type === 'html' && child.value?.startsWith('<iframe')) {
+      const srcMatch = /src="([^"]*)"/.exec(child.value);
+      const url = srcMatch ? srcMatch[1] : '';
+      const embedNode: MdastNode = {
+        type: 'embed',
+        url: url,
+        oembed: { type: 'rich', html: child.value, version: '1.0' },
+        children: [],
+      };
+      newChildren.push(embedNode);
     } else {
       newChildren.push(child);
     }
