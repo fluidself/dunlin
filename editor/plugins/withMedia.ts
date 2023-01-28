@@ -3,11 +3,11 @@ import { encodeBase64 } from 'tweetnacl-util';
 import { Editor, Path } from 'slate';
 import { Web3Storage } from 'web3.storage';
 import { toast } from 'react-toastify';
-import { insertFileAttachment, insertMedia } from 'editor/formatting';
-import { ElementType, UploadedFile } from 'types/slate';
+import { insertFileAttachment, insertImage, insertVideo } from 'editor/formatting';
+import type { UploadedFile } from 'types/slate';
 import { isUrl } from 'utils/url';
 import imageExtensions from 'utils/image-extensions';
-import { extractYoutubeEmbedLink } from 'utils/video';
+import { extractYoutubeEmbedLink, isYouTubeUrl } from 'utils/video';
 
 const withMedia = (editor: Editor) => {
   const { insertData } = editor;
@@ -28,10 +28,10 @@ const withMedia = (editor: Editor) => {
         }
       }
     } else if (isImageUrl(text)) {
-      insertMedia(editor, ElementType.Image, text);
+      insertImage(editor, text);
     } else if (isYouTubeUrl(text)) {
-      const embedLink = extractYoutubeEmbedLink(text);
-      if (embedLink) insertMedia(editor, ElementType.Video, embedLink);
+      const youtubeEmbedLink = extractYoutubeEmbedLink(text);
+      if (youtubeEmbedLink) insertVideo(editor, youtubeEmbedLink);
     } else {
       insertData(data);
     }
@@ -44,7 +44,7 @@ export const uploadAndInsertImage = async (editor: Editor, file: File, path?: Pa
   const cid = await uploadFile(file);
 
   if (cid) {
-    insertMedia(editor, ElementType.Image, cid, path);
+    insertImage(editor, cid, path);
   }
 };
 
@@ -111,13 +111,6 @@ const isImageUrl = (url: string) => {
     return imageExtensions.includes(ext);
   }
   return false;
-};
-
-const isYouTubeUrl = (url: string) => {
-  const YOUTUBE_REGEX =
-    /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
-
-  return url?.match(YOUTUBE_REGEX);
 };
 
 export default withMedia;
