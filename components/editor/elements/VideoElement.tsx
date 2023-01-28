@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { RenderElementProps, useFocused, useSelected } from 'slate-react';
-import { Video } from 'types/slate';
+import type { Video } from 'types/slate';
 
 type VideoElementProps = {
   element: Video;
@@ -21,11 +21,12 @@ export default function VideoElement(props: VideoElementProps) {
         <iframe
           src={element.url}
           contentEditable={false}
-          allowFullScreen
-          title="Video player"
+          title={`video player ${element.url}`}
           className={`absolute top-0 left-0 w-full h-full select-none ${
             selected && focused ? 'ring ring-primary-100 dark:ring-primary-900' : ''
           }`}
+          loading="lazy"
+          allowFullScreen
         />
         {children}
       </div>

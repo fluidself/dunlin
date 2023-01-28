@@ -2,6 +2,7 @@ import type { BaseEditor, Descendant } from 'slate';
 import type { ReactEditor } from 'slate-react';
 import type { HistoryEditor } from 'slate-history';
 import type { YjsEditor } from 'slate-yjs';
+import type { OembedData } from '@extractus/oembed-extractor';
 import type { TablesEditor } from 'editor/plugins/withTables';
 
 export type DeckEditor = BaseEditor & ReactEditor & HistoryEditor & YjsEditor & TablesEditor;
@@ -175,6 +176,7 @@ export type Embed = {
   id: string;
   type: ElementType.Embed;
   url: string;
+  oembed?: OembedData;
   children: Descendant[];
 };
 

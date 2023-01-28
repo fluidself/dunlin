@@ -1,4 +1,5 @@
 import { Editor, Element, Transforms, Range, Text, Node, Path } from 'slate';
+import type { OembedData } from '@extractus/oembed-extractor';
 import _isEqual from 'lodash/isEqual';
 import detectIndent from 'detect-indent';
 import { store } from 'lib/store';
@@ -6,12 +7,15 @@ import type {
   BlockReference,
   CodeBlock,
   DetailsDisclosure,
+  Embed,
   ExternalLink,
   FileAttachment,
+  Image,
   ListElement,
   NoteLink,
   Tag,
   UploadedFile,
+  Video,
 } from 'types/slate';
 import { ElementType, Mark } from 'types/slate';
 import { computeBlockReference } from './backlinks/useBlockReference';
@@ -312,25 +316,55 @@ export const insertTag = (editor: Editor, name: string) => {
   Transforms.insertNodes(editor, tag);
 };
 
-export const insertMedia = (
-  editor: Editor,
-  type: ElementType.Image | ElementType.Video | ElementType.Embed,
-  url: string,
-  path?: Path,
-) => {
-  const mediaElement = {
+export const insertImage = (editor: Editor, url: string, path?: Path) => {
+  const image: Image = {
     id: createNodeId(),
-    type,
+    type: ElementType.Image,
     url,
     children: [{ text: '' }],
   };
 
   if (path) {
-    // Set the node at the given path to be an image or video or embed
-    Transforms.setNodes(editor, mediaElement, { at: path });
+    // Set the node at the given path to be an image
+    Transforms.setNodes(editor, image, { at: path });
   } else {
-    // Insert a new image or video or embed node
-    Transforms.insertNodes(editor, mediaElement);
+    // Insert a new image
+    Transforms.insertNodes(editor, image);
+  }
+};
+
+export const insertVideo = (editor: Editor, url: string, path?: Path) => {
+  const video: Video = {
+    id: createNodeId(),
+    type: ElementType.Video,
+    url,
+    children: [{ text: '' }],
+  };
+
+  if (path) {
+    // Set the node at the given path to be a video
+    Transforms.setNodes(editor, video, { at: path });
+  } else {
+    // Insert a new video
+    Transforms.insertNodes(editor, video);
+  }
+};
+
+export const insertEmbed = (editor: Editor, url: string, oembed?: OembedData, path?: Path) => {
+  const embed: Embed = {
+    id: createNodeId(),
+    type: ElementType.Embed,
+    url,
+    oembed,
+    children: [{ text: '' }],
+  };
+
+  if (path) {
+    // Set the node at the given path to be an embed
+    Transforms.setNodes(editor, embed, { at: path });
+  } else {
+    // Insert a new embed node
+    Transforms.insertNodes(editor, embed);
   }
 };
 
