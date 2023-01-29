@@ -35,8 +35,8 @@ const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement
   const leftMargin = useMemo(() => node.depth * 26, [node.depth]);
   const leftPadding = useMemo(() => (!node.depth ? 7 : 0) + (node.hasChildren ? 3 : 8), [node.depth, node.hasChildren]);
 
-  const itemClassName = classNames(
-    'flex items-center flex-1 py-1 rounded-sm overflow-hidden select-none overflow-ellipsis whitespace-nowrap hover:bg-gray-700 active:bg-gray-600',
+  const buttonClassName = classNames(
+    'flex items-center flex-1 h-full rounded-sm cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap hover:bg-gray-700 group-hover:bg-gray-700 group-active/note:bg-gray-600',
     { 'bg-gray-700': isHighlighted },
     className,
   );
@@ -46,43 +46,50 @@ const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement
   return (
     <SidebarItem
       ref={forwardedRef}
-      className={`relative flex items-center overflow-x-hidden group focus:outline-none dark:hover:bg-gray-800 dark:active:bg-gray-800 ${className}`}
+      className="relative flex items-center overflow-hidden group shadow-popover focus:outline-none dark:hover:bg-gray-800 dark:active:bg-gray-800"
       style={style}
       {...otherProps}
     >
       <div
-        role="button"
-        className={itemClassName}
-        onClick={e => {
-          e.preventDefault();
-          onNoteLinkClick(note.id, e.shiftKey);
-          if (isMobile()) {
-            setIsSidebarOpen(false);
-          }
-        }}
-        style={{ marginLeft: `${leftMargin}px`, paddingLeft: `${leftPadding}px` }}
+        className="flex items-center flex-1 h-full overflow-hidden select-none cursor-default group/note"
         draggable={false}
       >
-        {node.hasChildren ? (
-          <button
-            className="p-0.5 rounded hover:bg-gray-300 active:bg-gray-400 dark:hover:bg-gray-600 dark:active:bg-gray-500"
-            onClick={e => {
-              e.preventDefault();
-              e.stopPropagation();
-              onArrowClick?.();
-            }}
-          >
-            <IconChevronRight
-              className={`flex-shrink-0 text-gray-500 dark:text-gray-100 transform transition-transform ${
-                !node.collapsed ? 'rotate-90' : ''
-              }`}
-              size={16}
-            />
-          </button>
-        ) : null}
-        <span className="overflow-hidden overflow-ellipsis whitespace-nowrap text-sm">{note?.title ?? ''}</span>
+        <div
+          role="button"
+          className={buttonClassName}
+          onClick={e => {
+            e.preventDefault();
+            onNoteLinkClick(note.id, e.shiftKey);
+            if (isMobile()) {
+              setIsSidebarOpen(false);
+            }
+          }}
+          style={{ marginLeft: `${leftMargin}px`, paddingLeft: `${leftPadding}px` }}
+        >
+          {node.hasChildren ? (
+            <button
+              className="p-0.5 rounded hover:bg-gray-300 active:bg-gray-400 dark:hover:bg-gray-600 dark:active:bg-gray-500"
+              onClick={e => {
+                e.preventDefault();
+                e.stopPropagation();
+                onArrowClick?.();
+              }}
+            >
+              <IconChevronRight
+                className={`flex-shrink-0 text-gray-500 dark:text-gray-100 transform transition-transform ${
+                  !node.collapsed ? 'rotate-90' : ''
+                }`}
+                size={16}
+              />
+            </button>
+          ) : null}
+          <span className="overflow-hidden overflow-ellipsis whitespace-nowrap text-sm">{note?.title ?? ''}</span>
+        </div>
+        <SidebarNoteLinkDropdown
+          note={note}
+          className="opacity-0.1 group-hover:opacity-100 group focus:outline-none absolute right-0"
+        />
       </div>
-      <SidebarNoteLinkDropdown note={note} className="opacity-0.1 group-hover:opacity-100 absolute right-0" />
     </SidebarItem>
   );
 };

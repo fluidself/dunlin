@@ -99,8 +99,8 @@ export default function AppLayout(props: Props) {
           .match({ deck_id: deckId, user_id: user?.id })
           .single();
       }
-      await fetch('/api/reset-recent-deck', { method: 'POST' });
-      router.push('/');
+      const res = await fetch('/api/reset-recent-deck', { method: 'POST' });
+      if (res.ok) router.push('/');
     },
     [deckId, user?.id, router],
   );
