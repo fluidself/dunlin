@@ -46,7 +46,7 @@ const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement
   return (
     <SidebarItem
       ref={forwardedRef}
-      className="relative flex items-center overflow-hidden group shadow-popover focus:outline-none dark:hover:bg-gray-800 dark:active:bg-gray-800"
+      className="relative flex items-center overflow-hidden h-full group focus:outline-none dark:hover:bg-gray-800 dark:active:bg-gray-800"
       style={style}
       {...otherProps}
     >
