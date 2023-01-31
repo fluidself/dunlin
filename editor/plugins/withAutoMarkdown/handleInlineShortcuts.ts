@@ -13,9 +13,11 @@ import handleNoteLink from './handleNoteLink';
 import handleCustomNoteLink from './handleCustomNoteLink';
 import handleBlockReference from './handleBlockReference';
 import handleTag from './handleTag';
+import handleEmDash from './handleEmDash';
 
 enum CustomInlineShortcuts {
   CustomNoteLink = 'custom-note-link',
+  EmDash = 'em-dash',
 }
 
 const INLINE_SHORTCUTS: Array<{
@@ -38,11 +40,13 @@ const INLINE_SHORTCUTS: Array<{
     match: /(?:^|\s)(\[)(.+)(\]\(\[\[)(.+)(\]\]\))(\s)/,
     type: CustomInlineShortcuts.CustomNoteLink,
   },
+  { match: /^(?!\s*--)[^-]*--[^-]*$/, type: CustomInlineShortcuts.EmDash },
   { match: /(?:^|\s)(\[)(.+)(\]\()(.+)(\))(\s)/, type: ElementType.ExternalLink },
   { match: /(?:^|\s)(\[\[)(.+)(\]\])(\s)/, type: ElementType.NoteLink },
   { match: /(?:^|\s)(#[^\s]+)(\s)/, type: ElementType.Tag },
   {
-    match: /(?:^|\s)(\(\()(([0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}))(\)\))/,
+    match:
+      /(?:^|\s)(\(\()(([0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}))(\)\))/,
     type: ElementType.BlockReference,
   },
 ];
@@ -88,11 +92,15 @@ const handleInlineShortcuts = (editor: Editor, text: string): boolean => {
       handled = handleNoteLink(editor, result, endOfMatchPoint, text.length);
     } else if (type === CustomInlineShortcuts.CustomNoteLink) {
       handled = handleCustomNoteLink(editor, result, endOfMatchPoint, text.length);
+    } else if (type === CustomInlineShortcuts.EmDash) {
+      handled = handleEmDash(editor, endOfMatchPoint);
     } else if (type === ElementType.Tag) {
       handled = handleTag(editor, result, endOfMatchPoint, text.length);
     } else if (type === ElementType.BlockReference) {
       const inTable = Editor.above(editor, { match: n => n.type === ElementType.Table });
-      handled = inTable ? true : handleBlockReference(editor, result, endOfMatchPoint, elementText === wholeMatch, text.length);
+      handled = inTable
+        ? true
+        : handleBlockReference(editor, result, endOfMatchPoint, elementText === wholeMatch, text.length);
     }
 
     if (handled) {
