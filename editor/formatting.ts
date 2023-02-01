@@ -152,7 +152,7 @@ export const handleIndent = (editor: Editor) => {
       children: [],
     });
   } else if (isElementActive(editor, ElementType.CodeLine)) {
-    handleTableIndentation(editor, IndentationType.Indent);
+    handleCodeIndentation(editor, IndentationType.Indent);
   }
 };
 
@@ -161,7 +161,7 @@ export const handleUnindent = (editor: Editor) => {
   if (!selection) return;
 
   if (isElementActive(editor, ElementType.CodeLine)) {
-    handleTableIndentation(editor, IndentationType.Unindent);
+    handleCodeIndentation(editor, IndentationType.Unindent);
   }
 
   const ancestors = Node.ancestors(editor, selection.anchor.path);
@@ -186,7 +186,7 @@ enum IndentationType {
   'Unindent',
 }
 
-const handleTableIndentation = (editor: Editor, type: IndentationType) => {
+const handleCodeIndentation = (editor: Editor, type: IndentationType) => {
   const codeLines = Editor.nodes(editor, {
     match: n => n.type === ElementType.CodeLine,
   });
