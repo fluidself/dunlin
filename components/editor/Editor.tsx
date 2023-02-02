@@ -176,8 +176,12 @@ function Editor(props: Props) {
     [editor, selection],
   );
   const isToolbarVisible = useMemo(
-    () => toolbarCanBeVisible && hasExpandedSelection && !addLinkPopoverState.isVisible,
-    [toolbarCanBeVisible, hasExpandedSelection, addLinkPopoverState.isVisible],
+    () =>
+      toolbarCanBeVisible &&
+      hasExpandedSelection &&
+      !addLinkPopoverState.isVisible &&
+      !isElementActive(editor, ElementType.CodeLine),
+    [toolbarCanBeVisible, hasExpandedSelection, editor, addLinkPopoverState.isVisible],
   );
 
   const hotkeys = useMemo(
