@@ -23,6 +23,7 @@ export enum ElementType {
   Tag = 'tag',
   CodeLine = 'code-line',
   CodeBlock = 'code-block',
+  MermaidDiagram = 'mermaid-diagram',
   ThematicBreak = 'thematic-break',
   Image = 'image',
   Video = 'video',
@@ -135,6 +136,13 @@ export type CodeBlock = {
   children: CodeLine[];
 };
 
+export type MermaidDiagram = {
+  id: string;
+  type: ElementType.MermaidDiagram;
+  definition: string;
+  children: Descendant[];
+};
+
 export type ThematicBreak = {
   id: string;
   type: ElementType.ThematicBreak;
@@ -228,6 +236,7 @@ export type ReferenceableBlockElement =
   | Blockquote
   | CodeLine
   | CodeBlock
+  | MermaidDiagram
   | ThematicBreak
   | Image
   | Video

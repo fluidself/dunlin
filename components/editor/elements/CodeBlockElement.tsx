@@ -1,8 +1,8 @@
-import { ChangeEvent, ReactNode, useCallback } from 'react';
-import { createEditor, Transforms } from 'slate';
+import { ChangeEvent, ReactNode, useCallback, useEffect, useMemo } from 'react';
+import { Editor, createEditor, Node, Transforms, Path } from 'slate';
 import { ReactEditor, RenderElementProps, useSlateStatic, useReadOnly } from 'slate-react';
 import { CODE_BLOCK_LANGUAGES } from 'editor/decorateCodeBlocks';
-import { CodeBlock } from 'types/slate';
+import { CodeBlock, ElementType, MermaidDiagram } from 'types/slate';
 import { useCurrentNote } from 'utils/useCurrentNote';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { encrypt } from 'utils/encryption';
@@ -18,19 +18,22 @@ type Props = {
 
 export default function CodeBlockElement(props: Props) {
   const { attributes, children, element, className } = props;
+  const { lang } = element;
   const editor = useSlateStatic();
   const readOnly = useReadOnly();
   const { id: noteId } = useCurrentNote();
   const { key } = useCurrentDeck();
-
-  const { lang } = element;
+  const path = useMemo(() => ReactEditor.findPath(editor, element), [editor, element]);
+  const isMermaidCodeBlockFocused = useMemo(
+    () => lang === 'mermaid' && editor.selection && Path.isDescendant(editor.selection.anchor.path, path),
+    [lang, path, editor.selection],
+  );
 
   const onSelectChange = useCallback(
     async (event: ChangeEvent<HTMLSelectElement>) => {
       if (readOnly) return;
 
       try {
-        const path = ReactEditor.findPath(editor, element);
         const newProperties: Partial<CodeBlock> = { lang: event.target.value };
         Transforms.setNodes(editor, newProperties, { at: path });
 
@@ -48,8 +51,32 @@ export default function CodeBlockElement(props: Props) {
         console.error(`There was an error updating the language: ${message}`);
       }
     },
-    [editor, element, readOnly, key, noteId],
+    [editor, readOnly, key, noteId, path],
   );
+
+  const convertToMermaid = useCallback(() => {
+    const graphDefinition = Array.from(Editor.nodes(editor, { at: path, match: n => n.type === ElementType.CodeLine }))
+      .map(entry => entry[0])
+      .map(line => Node.string(line))
+      .join('\n');
+    if (!graphDefinition) return;
+
+    const mermaidDiagram: MermaidDiagram = {
+      id: element.id,
+      type: ElementType.MermaidDiagram,
+      definition: graphDefinition,
+      children: [],
+    };
+
+    Transforms.removeNodes(editor, { match: n => n.type === ElementType.CodeBlock, at: path });
+    Transforms.insertNodes(editor, mermaidDiagram, { at: path });
+  }, [editor, path, element.id]);
+
+  useEffect(() => {
+    if (lang === 'mermaid' && !isMermaidCodeBlockFocused) {
+      convertToMermaid();
+    }
+  }, [lang, isMermaidCodeBlockFocused, convertToMermaid]);
 
   return (
     <pre

@@ -1,5 +1,7 @@
+import dynamic from 'next/dynamic';
 import { RenderElementProps } from 'slate-react';
 import { ElementType } from 'types/slate';
+import Spinner from 'components/Spinner';
 import ParagraphElement from './ParagraphElement';
 import BlockRefElement from './BlockRefElement';
 import ImageElement from './ImageElement';
@@ -15,6 +17,14 @@ import DetailsDisclosureElement from './DetailsDisclosureElement';
 import TableElement from './table/TableElement';
 import TableCellElement from './table/TableCellElement';
 import CodeBlockElement from './CodeBlockElement';
+const MermaidElement = dynamic(() => import('./MermaidElement'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-48">
+      <Spinner />
+    </div>
+  ),
+});
 
 export type EditorElementProps = {
   className?: string;
@@ -80,6 +90,12 @@ export default function EditorElement(props: EditorElementProps) {
         <CodeBlockElement className={className} element={element} attributes={attributes}>
           {children}
         </CodeBlockElement>
+      );
+    case ElementType.MermaidDiagram:
+      return (
+        <MermaidElement className={className} element={element} attributes={attributes}>
+          {children}
+        </MermaidElement>
       );
     case ElementType.ThematicBreak:
       return (
