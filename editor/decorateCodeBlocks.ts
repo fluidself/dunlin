@@ -6,6 +6,7 @@ import 'prismjs/components/prism-graphql';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-json';
 import 'prismjs/components/prism-jsx';
+import 'prismjs/components/prism-mermaid';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-solidity';
 import 'prismjs/components/prism-sql';
@@ -34,7 +35,7 @@ export default function decorateCodeBlocks(editor: Editor, [node, path]: NodeEnt
 
     if (typeof token !== 'string') {
       ranges.push({
-        [token.type]: true,
+        [token.type === 'text' ? 'string' : token.type]: true,
         anchor: { path, offset: start },
         focus: { path, offset: end },
       });
@@ -64,6 +65,7 @@ export const CODE_BLOCK_LANGUAGES: Record<string, string> = {
   javascript: 'JavaScript',
   json: 'JSON',
   jsx: 'JSX',
+  mermaid: 'Mermaid',
   python: 'Python',
   solidity: 'Solidity',
   sql: 'SQL',
@@ -72,6 +74,8 @@ export const CODE_BLOCK_LANGUAGES: Record<string, string> = {
 
 export const LANGUAGE_CLASSES = Object.keys(CODE_BLOCK_LANGUAGES).map(lang => `language-${lang}`);
 export const TOKEN_CLASSES = [
+  'annotation',
+  'arrow',
   'assign-left',
   'atom-input',
   'atrule',
@@ -104,8 +108,10 @@ export const TOKEN_CLASSES = [
   'identifier',
   'important',
   'inserted',
+  'inter-arrow-label',
   'italic',
   'keyword',
+  'label',
   'language-regex',
   'literal-property',
   'namespace',
@@ -129,9 +135,11 @@ export const TOKEN_CLASSES = [
   'string',
   'string-interpolation',
   'string-property',
+  'style',
   'symbol',
   'tag',
   'template-string',
+  'text',
   'token',
   'triple-quoted-string',
   'url',
