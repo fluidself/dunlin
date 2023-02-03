@@ -98,7 +98,7 @@ const withCodeBlocks = (editor: Editor) => {
   return editor;
 };
 
-function deserializeCodeLine(line: string): CodeLine {
+export function deserializeCodeLine(line: string): CodeLine {
   return {
     id: createNodeId(),
     type: ElementType.CodeLine,
