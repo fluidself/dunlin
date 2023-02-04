@@ -10,6 +10,33 @@ export const renderGraph = (id: string, definition: string) => {
   }
 };
 
+// Finds Mermaid code blocks in input string and generates Mermaid diagrams from them
+// Returns updated string, generated diagrams, and classnames to allow in rehype-sanitize
+export function replaceMermaidCodeBlocks(input: string) {
+  const mermaidBlocksInString = /^[^\S\n]*```(?:mermaid)(?:\r?\n([\s\S]*?))```[^\S\n]*$/;
+  const mermaidBlocksInStringRegexGlobal = new RegExp(mermaidBlocksInString, 'gm');
+  const svgs: { id: number; html: string }[] = [];
+  const classNames: string[] = [];
+  let output = input;
+  let i = 0;
+
+  mermaid.initialize(mermaidConfig);
+
+  for (const mermaidCodeblockMatch of input.matchAll(mermaidBlocksInStringRegexGlobal)) {
+    const mermaidDefinition = mermaidCodeblockMatch[1];
+    const result = renderGraph(`mermaid-${i}`, mermaidDefinition);
+    // If Mermaid can't parse the definition, just pass it through and let it render as a code block
+    if (!result.includes('Error parsing Mermaid diagram')) {
+      output = output.replace(mermaidCodeblockMatch[0], `<pre class="mermaid-${i}"></pre>`);
+      svgs.push({ id: i, html: result });
+      classNames.push(`mermaid-${i}`);
+    }
+    i++;
+  }
+
+  return { output, svgs, classNames };
+}
+
 export const mermaidConfig = {
   startOnLoad: false,
   theme: 'dark',
