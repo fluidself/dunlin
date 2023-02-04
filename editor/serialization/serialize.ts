@@ -33,6 +33,7 @@ import {
   ExternalLink,
   FormattedText,
   Image,
+  MermaidDiagram,
   NoteLink,
   Tag,
   Video,
@@ -153,6 +154,9 @@ export default function serialize(
     case ElementType.CodeBlock:
       const codeBlock = chunk as CodeBlock;
       return `\`\`\`${codeBlock.lang ?? ''}\n${children}\`\`\`\n`;
+    case ElementType.MermaidDiagram:
+      const mermaidDiagram = chunk as MermaidDiagram;
+      return `\`\`\`mermaid\n${mermaidDiagram.definition}\n\`\`\`\n`;
 
     case ElementType.NoteLink: {
       const noteLink = chunk as NoteLink;
