@@ -40,6 +40,20 @@ export default function PublicationPage(props: Props) {
 
   useEffect(() => {
     const process = async () => {
+      const svgEntries: { id: number; html: string }[] = [];
+      const mermaidClasses: string[] = [];
+      let processedBody = body;
+
+      // If publication body includes Mermaid code blocks, replace them with generated diagrams.
+      // Broken up in a two-step process to not lose the SVG code in other parsing and sanitizing
+      if (body.indexOf('```mermaid') !== -1) {
+        const { replaceMermaidCodeBlocks } = await import('utils/mermaid');
+        const { output, svgs, classNames } = replaceMermaidCodeBlocks(body);
+        svgEntries.push(...svgs);
+        mermaidClasses.push(...classNames);
+        processedBody = output;
+      }
+
       const parsedBody = await unified()
         .use(remarkParse)
         .use(remarkGfm)
@@ -51,15 +65,22 @@ export default function PublicationPage(props: Props) {
           ...defaultSchema,
           attributes: {
             ...defaultSchema.attributes,
-            pre: [...(defaultSchema.attributes?.pre || []), ['className', ...LANGUAGE_CLASSES]],
+            pre: [...(defaultSchema.attributes?.pre || []), ['className', ...LANGUAGE_CLASSES, ...mermaidClasses]],
             code: [...(defaultSchema.attributes?.code || []), ['className', ...LANGUAGE_CLASSES]],
             span: [...(defaultSchema.attributes?.span || []), ['className', ...LANGUAGE_CLASSES, ...TOKEN_CLASSES]],
           },
         })
         .use(rehypeStringify)
-        .processSync(body);
+        .processSync(processedBody);
 
-      setParsedBody(String(parsedBody));
+      // Replace Mermaid placeholders with SVG diagrams
+      let stringBody = String(parsedBody);
+      for (const svgEntry of svgEntries) {
+        const regex = new RegExp(`<pre class="mermaid-${svgEntry.id}"></pre>`, 'gm');
+        stringBody = stringBody.replace(regex, `<figure>${svgEntry.html}</figure>`);
+      }
+
+      setParsedBody(stringBody);
     };
 
     process();
