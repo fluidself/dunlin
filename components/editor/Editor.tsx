@@ -305,14 +305,17 @@ function Editor(props: Props) {
   );
 
   const onKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLDivElement>, editor: SlateEditor) => {
+    (event: KeyboardEvent<HTMLDivElement>) => {
       // Handle keyboard shortcuts
       if (
         isHotkey(['up', 'down', 'tab', 'shift+tab', 'enter'], event.nativeEvent) &&
         isElementActive(editor, ElementType.Table)
       ) {
         onTableKeyDown(event, editor);
-      } else if (isHotkey(['mod+a', 'mod+left'], event.nativeEvent) && isElementActive(editor, ElementType.CodeBlock)) {
+      } else if (
+        isHotkey(['mod+a', 'mod+left', 'mod+shift+left'], event.nativeEvent) &&
+        isElementActive(editor, ElementType.CodeBlock)
+      ) {
         onCodeBlockKeyDown(event, editor);
       } else {
         for (const { hotkey, callback } of hotkeys) {
@@ -323,7 +326,7 @@ function Editor(props: Props) {
         }
       }
     },
-    [hotkeys],
+    [hotkeys, editor],
   );
 
   const onSlateChange = useCallback(
@@ -403,7 +406,7 @@ function Editor(props: Props) {
           return [...codeSyntaxRanges, ...cursorRanges];
         }}
         placeholder="Start typing here…"
-        onKeyDown={event => onKeyDown(event, editor)}
+        onKeyDown={onKeyDown}
         onPointerDown={() => setToolbarCanBeVisible(false)}
         onPointerUp={() =>
           setTimeout(() => {

@@ -118,15 +118,19 @@ export function onKeyDown(event: KeyboardEvent<HTMLDivElement>, editor: Editor) 
     locationToSelect = codeBlockPath;
   }
 
-  if (isHotkey('mod+left', event)) {
+  if (isHotkey(['mod+left', 'mod+shift+left'], event)) {
     const codeLine = Editor.above(editor, { match: n => n.type === ElementType.CodeLine });
     if (!codeLine) return;
     const lineString = Node.string(codeLine[0]);
     const indent = getIndent(lineString);
-    const offset = editor.selection.anchor.offset > indent.length ? indent.length : 0;
+    const anchorOffset = editor.selection.anchor.offset > indent.length ? indent.length : 0;
+    const focusOffset = isHotkey('mod+shift+left', event) ? editor.selection.focus.offset : anchorOffset;
     locationToSelect = {
-      anchor: { ...editor.selection.anchor, offset },
-      focus: { ...editor.selection.focus, offset },
+      anchor: { ...editor.selection.anchor, offset: anchorOffset },
+      focus: {
+        ...editor.selection.focus,
+        offset: focusOffset,
+      },
     };
   }
 
