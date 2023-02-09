@@ -5,6 +5,7 @@ import detectIndent from 'detect-indent';
 import { store } from 'lib/store';
 import type {
   BlockReference,
+  Callout,
   CodeBlock,
   DetailsDisclosure,
   Embed,
@@ -19,9 +20,9 @@ import type {
 } from 'types/slate';
 import { ElementType, Mark } from 'types/slate';
 import { computeBlockReference } from './backlinks/useBlockReference';
-import { isInTable } from './plugins/withTables';
 import { createNodeId } from './plugins/withNodeId';
 import { isTextType } from './checks';
+import { getDefaultEditorValue } from './constants';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isMark = (type: any): type is Mark => {
@@ -62,11 +63,6 @@ export const isElementActive = (editor: Editor, format: ElementType, path?: Path
 export const toggleElement = (editor: Editor, format: ElementType, path?: Path) => {
   const pathRef = path ? Editor.pathRef(editor, path) : null;
   const isActive = isElementActive(editor, format, path);
-  const inTable = Editor.above(editor, { match: n => n.type === ElementType.Table });
-
-  if (inTable) {
-    return;
-  }
 
   // Returns the current path
   const getCurrentLocation = () => pathRef?.current ?? undefined;
@@ -419,8 +415,6 @@ export const insertBlockReference = (editor: Editor, blockId: string, onOwnLine:
 };
 
 export const insertDetailsDisclosure = (editor: Editor, path?: Path) => {
-  if (isInTable(editor)) return;
-
   const details: DetailsDisclosure = {
     id: createNodeId(),
     type: ElementType.DetailsDisclosure,
@@ -449,6 +443,18 @@ export const insertDetailsDisclosure = (editor: Editor, path?: Path) => {
       { at: documentEnd },
     );
   }
+};
+
+export const insertCallout = (editor: Editor, path: Path = editor.selection) => {
+  const callout: Callout = {
+    id: createNodeId(),
+    type: ElementType.Callout,
+    calloutType: 'note',
+    content: getDefaultEditorValue(),
+    children: [],
+  };
+
+  Transforms.insertNodes(editor, callout, { at: path });
 };
 
 export const BRACKET_MAP: Record<string, string> = {

@@ -82,17 +82,17 @@ export default function BlockMenuDropdown(props: BlockMenuDropdownProps) {
       <Dropdown
         buttonChildren={buttonChildren}
         buttonClassName={buttonClassName}
-        itemsClassName="w-[252px] border border-gray-700"
+        itemsClassName="w-56 border border-gray-700"
         placement="left-start"
         offset={[0, 6]}
         tooltipContent={<span className="text-xs">Click to open menu</span>}
         tooltipPlacement="bottom"
       >
-        <DropdownItem onClick={onAddBlock}>
+        <DropdownItem className="!px-3" onClick={onAddBlock}>
           <IconPlus size={18} className="mr-1" />
           <span>Add block below</span>
         </DropdownItem>
-        <DropdownItem onClick={onCopyBlockRef}>
+        <DropdownItem className="!px-3" onClick={onCopyBlockRef}>
           <IconLink size={18} className="mr-1" />
           <span>Copy block reference</span>
         </DropdownItem>

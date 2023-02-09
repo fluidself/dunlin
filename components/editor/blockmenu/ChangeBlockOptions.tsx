@@ -12,6 +12,7 @@ import {
   IconList,
   IconListCheck,
   IconListNumbers,
+  IconMessageDots,
   IconPaperclip,
   IconPhoto,
   IconTable,
@@ -19,9 +20,9 @@ import {
   IconTypography,
   TablerIcon,
 } from '@tabler/icons';
-import { toggleElement, isElementActive, insertDetailsDisclosure } from 'editor/formatting';
+import { toggleElement, isElementActive, insertDetailsDisclosure, insertCallout } from 'editor/formatting';
 import { uploadAndInsertFile, uploadAndInsertImage } from 'editor/plugins/withMedia';
-import { insertTable } from 'editor/plugins/withTables';
+import { insertTable, isInTable } from 'editor/plugins/withTables';
 import { ElementType } from 'types/slate';
 import { useStore } from 'lib/store';
 import mimeTypes from 'utils/mime-types';
@@ -45,13 +46,6 @@ export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
         <BlockButton format={ElementType.HeadingOne} element={element} Icon={IconH1} tooltip="Heading 1" />
         <BlockButton format={ElementType.HeadingTwo} element={element} Icon={IconH2} tooltip="Heading 2" />
         <BlockButton format={ElementType.HeadingThree} element={element} Icon={IconH3} tooltip="Heading 3" />
-
-        <BlockButton
-          format={ElementType.DetailsDisclosure}
-          element={element}
-          Icon={IconLayoutSidebarRightCollapse}
-          tooltip="Details disclosure"
-        />
       </div>
       <div className="flex items-center justify-center">
         <BlockButton format={ElementType.BulletedList} element={element} Icon={IconList} tooltip="Bulleted list" />
@@ -62,8 +56,18 @@ export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
           tooltip="Numbered list"
         />
         <BlockButton format={ElementType.CheckListItem} element={element} Icon={IconListCheck} tooltip="Checklist" />
-        <BlockButton format={ElementType.Blockquote} element={element} Icon={IconBlockquote} tooltip="Blockquote" />
+        <BlockButton
+          format={ElementType.DetailsDisclosure}
+          element={element}
+          Icon={IconLayoutSidebarRightCollapse}
+          tooltip="Details disclosure"
+        />
+      </div>
+      <div className="flex items-center justify-center">
         <BlockButton format={ElementType.CodeLine} element={element} Icon={IconBraces} tooltip="Code block" />
+        <BlockButton format={ElementType.Blockquote} element={element} Icon={IconBlockquote} tooltip="Blockquote" />
+        <BlockButton format={ElementType.Callout} element={element} Icon={IconMessageDots} tooltip="Callout" />
+        <BlockButton format={ElementType.Table} element={element} Icon={IconTable} tooltip="Table" />
       </div>
       <div className="flex items-center justify-center">
         <FileButton format={ElementType.Image} element={element} Icon={IconPhoto} onlyImages={true} tooltip="Image" />
@@ -87,7 +91,6 @@ export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
           Icon={IconPaperclip}
           tooltip="File attachment"
         />
-        <BlockButton format={ElementType.Table} element={element} Icon={IconTable} tooltip="Table" />
       </div>
     </div>
   );
@@ -112,12 +115,17 @@ const BlockButton = ({ format, element, Icon, tooltip, className = '' }: BlockBu
         <DropdownItem
           className={`flex items-center px-2 py-2 cursor-pointer rounded hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${className}`}
           onClick={() => {
+            if (isInTable(editor)) return;
+
             switch (format) {
               case ElementType.DetailsDisclosure:
                 insertDetailsDisclosure(editor, path);
                 break;
               case ElementType.Table:
                 insertTable(editor, path);
+                break;
+              case ElementType.Callout:
+                insertCallout(editor, path);
                 break;
               default:
                 toggleElement(editor, format, path);

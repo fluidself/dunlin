@@ -4,6 +4,7 @@ import type { HistoryEditor } from 'slate-history';
 import type { YjsEditor } from 'slate-yjs';
 import type { OembedData } from '@extractus/oembed-extractor';
 import type { TablesEditor } from 'editor/plugins/withTables';
+import type { CalloutType } from 'components/editor/elements/callout/config';
 
 export type DeckEditor = BaseEditor & ReactEditor & HistoryEditor & YjsEditor & TablesEditor;
 export type SoloDeckEditor = BaseEditor & ReactEditor & HistoryEditor & TablesEditor;
@@ -18,6 +19,7 @@ export enum ElementType {
   NumberedList = 'numbered-list',
   CheckListItem = 'check-list-item',
   Blockquote = 'block-quote',
+  Callout = 'callout',
   ExternalLink = 'link',
   NoteLink = 'note-link',
   Tag = 'tag',
@@ -97,6 +99,15 @@ export type CheckListItem = {
 export type Blockquote = {
   id: string;
   type: ElementType.Blockquote;
+  children: Descendant[];
+};
+
+export type Callout = {
+  id: string;
+  type: ElementType.Callout;
+  calloutType: CalloutType;
+  title?: string;
+  content: Descendant[];
   children: Descendant[];
 };
 
@@ -234,6 +245,7 @@ export type ReferenceableBlockElement =
   | ListItem
   | CheckListItem
   | Blockquote
+  | Callout
   | CodeLine
   | CodeBlock
   | MermaidDiagram
