@@ -14,6 +14,7 @@ import NoteLinkElement from './NoteLinkElement';
 import CheckListItemElement from './CheckListItemElement';
 import TagElement from './TagElement';
 import DetailsDisclosureElement from './DetailsDisclosureElement';
+import CalloutElement from './callout/CalloutElement';
 import TableElement from './table/TableElement';
 import TableCellElement from './table/TableCellElement';
 import CodeBlockElement from './CodeBlockElement';
@@ -82,6 +83,12 @@ export default function EditorElement(props: EditorElementProps) {
         <blockquote className={`pl-4 border-l-4 ${className}`} {...attributes}>
           {children}
         </blockquote>
+      );
+    case ElementType.Callout:
+      return (
+        <CalloutElement className={className} element={element} attributes={attributes}>
+          {children}
+        </CalloutElement>
       );
     case ElementType.CodeLine:
       return <div {...attributes}>{children}</div>;

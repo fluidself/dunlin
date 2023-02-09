@@ -11,6 +11,7 @@ const VOID_ELEMENTS: Array<ElementType> = [
   ElementType.FileAttachment,
   ElementType.BlockReference,
   ElementType.MermaidDiagram,
+  ElementType.Callout,
 ];
 
 const withVoidElements = (editor: Editor) => {
