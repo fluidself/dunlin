@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, KeyboardEvent, useEffect, memo } from 'react';
-import { createEditor, Range, Editor as SlateEditor, Transforms, Descendant, Path } from 'slate';
+import { createEditor, Range, Editor as SlateEditor, Descendant, Path } from 'slate';
 import { withReact, Editable, ReactEditor, Slate } from 'slate-react';
 import { SyncElement, toSharedType, withYjs, withCursor, useCursors } from 'slate-yjs';
 import { WebsocketProvider } from 'y-websocket';
@@ -11,16 +11,7 @@ import _pick from 'lodash/pick';
 import _isEqual from 'lodash/isEqual';
 import { toast } from 'react-toastify';
 import colors from 'tailwindcss/colors';
-import {
-  handleBrackets,
-  handleExitBreak,
-  handleIndent,
-  handleQuotes,
-  handleUnindent,
-  isElementActive,
-  toggleElement,
-  toggleMark,
-} from 'editor/formatting';
+import { isElementActive } from 'editor/formatting';
 import decorateCodeBlocks from 'editor/decorateCodeBlocks';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
@@ -33,10 +24,10 @@ import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
 import withVoidElements from 'editor/plugins/withVoidElements';
 import withTags from 'editor/plugins/withTags';
 import withHtml from 'editor/plugins/withHtml';
-import withTables, { insertTable, onKeyDown as onTableKeyDown } from 'editor/plugins/withTables';
-import { getDefaultEditorValue } from 'editor/constants';
+import withTables, { onKeyDown as onTableKeyDown } from 'editor/plugins/withTables';
+import { getDefaultEditorHotkeys, getDefaultEditorValue } from 'editor/constants';
 import { store, useStore } from 'lib/store';
-import { DeckEditor, ElementType, Mark } from 'types/slate';
+import { DeckEditor, ElementType } from 'types/slate';
 import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';
 import { addEllipsis } from 'utils/string';
@@ -185,122 +176,7 @@ function Editor(props: Props) {
   );
 
   const hotkeys = useMemo(
-    () => [
-      {
-        hotkey: 'mod+b',
-        callback: () => toggleMark(editor, Mark.Bold),
-      },
-      {
-        hotkey: 'mod+i',
-        callback: () => toggleMark(editor, Mark.Italic),
-      },
-      {
-        hotkey: 'mod+u',
-        callback: () => toggleMark(editor, Mark.Underline),
-      },
-      {
-        hotkey: 'mod+e',
-        callback: () => toggleMark(editor, Mark.Code),
-      },
-      {
-        hotkey: 'mod+shift+s',
-        callback: () => toggleMark(editor, Mark.Strikethrough),
-      },
-      {
-        hotkey: 'mod+shift+h',
-        callback: () => toggleMark(editor, Mark.Highlight),
-      },
-      {
-        hotkey: 'mod+shift+1',
-        callback: () => toggleElement(editor, ElementType.HeadingOne),
-      },
-      {
-        hotkey: 'mod+shift+2',
-        callback: () => toggleElement(editor, ElementType.HeadingTwo),
-      },
-      {
-        hotkey: 'mod+shift+3',
-        callback: () => toggleElement(editor, ElementType.HeadingThree),
-      },
-      {
-        hotkey: 'mod+shift+4',
-        callback: () => toggleElement(editor, ElementType.BulletedList),
-      },
-      {
-        hotkey: 'mod+shift+5',
-        callback: () => toggleElement(editor, ElementType.NumberedList),
-      },
-      {
-        hotkey: 'mod+shift+6',
-        callback: () => toggleElement(editor, ElementType.CheckListItem),
-      },
-      {
-        hotkey: 'mod+shift+7',
-        callback: () => toggleElement(editor, ElementType.Blockquote),
-      },
-      {
-        hotkey: 'mod+shift+8',
-        callback: () => toggleElement(editor, ElementType.CodeLine),
-      },
-      {
-        hotkey: 'mod+shift+9',
-        callback: () => toggleElement(editor, ElementType.Paragraph),
-      },
-      {
-        hotkey: 'mod+k',
-        callback: () => {
-          if (editor.selection) {
-            // Save the selection and make the add link popover visible
-            setAddLinkPopoverState({
-              isVisible: true,
-              selection: editor.selection,
-              isLink:
-                isElementActive(editor, ElementType.ExternalLink) || isElementActive(editor, ElementType.NoteLink),
-            });
-          }
-        },
-      },
-      {
-        hotkey: 'mod+shift+k',
-        callback: () => insertTable(editor),
-      },
-      {
-        hotkey: 'tab',
-        callback: () => handleIndent(editor),
-      },
-      {
-        hotkey: 'shift+tab',
-        callback: () => handleUnindent(editor),
-      },
-      {
-        hotkey: 'shift+enter',
-        callback: () => Transforms.insertText(editor, '\n'),
-      },
-      {
-        hotkey: 'mod+enter',
-        callback: () => handleExitBreak(editor),
-      },
-      {
-        hotkey: 'shift+9',
-        callback: () => handleBrackets(editor, '('),
-      },
-      {
-        hotkey: '[',
-        callback: () => handleBrackets(editor, '['),
-      },
-      {
-        hotkey: 'shift+[',
-        callback: () => handleBrackets(editor, '{'),
-      },
-      {
-        hotkey: "'",
-        callback: () => handleQuotes(editor, "'"),
-      },
-      {
-        hotkey: "shift+'",
-        callback: () => handleQuotes(editor, '"'),
-      },
-    ],
+    () => getDefaultEditorHotkeys(editor, setAddLinkPopoverState),
     [editor, setAddLinkPopoverState],
   );
 
@@ -353,8 +229,7 @@ function Editor(props: Props) {
   );
 
   // If highlightedPath is defined, highlight the path
-  // const darkMode = useStore((state) => state.darkMode);
-  const darkMode = true;
+  const darkMode = useStore(state => state.darkMode);
   useEffect(() => {
     if (!highlightedPath) {
       return;
