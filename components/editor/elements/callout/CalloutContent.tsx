@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, KeyboardEvent, useRef, memo } from 'react';
-import { createEditor, Range, Editor as SlateEditor, Descendant } from 'slate';
+import { createEditor, Range, Editor as SlateEditor, Descendant, Transforms } from 'slate';
 import { withReact, Editable, ReactEditor, Slate, useReadOnly } from 'slate-react';
 import { withHistory } from 'slate-history';
 import { isHotkey } from 'is-hotkey';
@@ -86,7 +86,13 @@ function CalloutContent(props: Props) {
   );
 
   const hotkeys = useMemo(
-    () => getDefaultEditorHotkeys(editor, setAddLinkPopoverState),
+    () => [
+      ...getDefaultEditorHotkeys(editor, setAddLinkPopoverState),
+      {
+        hotkey: 'mod+a',
+        callback: () => Transforms.select(editor, []),
+      },
+    ],
     [editor, setAddLinkPopoverState],
   );
 
