@@ -111,8 +111,20 @@ export default function deserialize(node: MdastNode, opts?: OptionType): Descend
         url: node.url ?? '',
         oembed: node.oembed,
       };
+
     case 'blockquote':
       return { id: createNodeId(), type: ElementType.Blockquote, children };
+    case 'callout':
+      const content = node.content?.length ? node.content : [{ type: 'paragraph', children: [{ text: '' }] }];
+      return {
+        id: createNodeId(),
+        type: ElementType.Callout,
+        calloutType: node.calloutType ?? 'note',
+        title: node.title,
+        content: content.map((c: MdastNode) => deserialize({ ...c }), opts),
+        children,
+      };
+
     case 'code':
       const codeLines: CodeLine[] =
         node.value?.split('\n').map(line => ({
@@ -120,13 +132,13 @@ export default function deserialize(node: MdastNode, opts?: OptionType): Descend
           type: ElementType.CodeLine,
           children: [{ text: line }],
         })) || [];
-
       return {
         id: createNodeId(),
         type: ElementType.CodeBlock,
         lang: node.lang ?? '',
         children: codeLines,
       };
+
     case 'detailsDisclosure':
       return {
         id: createNodeId(),
@@ -134,6 +146,7 @@ export default function deserialize(node: MdastNode, opts?: OptionType): Descend
         summaryText: node.detailsSummaryText ?? '',
         children,
       };
+
     case 'table':
       const rowNodes: TableRow[] = [];
 

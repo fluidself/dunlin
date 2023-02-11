@@ -1,10 +1,13 @@
+import { calloutTypeFromKeyword, calloutTypes, escapeRegExp } from 'lib/remark-callouts';
 import { MdastNode } from './types';
 
 /**
  * This plugin normalizes the MdastNode format to conform to app's slate schema.
  */
 export default function normalize(node: MdastNode): MdastNode {
-  return normalizeEmbeds(normalizeDetailsDisclosure(normalizeImages(normalizeCheckListItems(normalizeLists(node)))));
+  return normalizeCallouts(
+    normalizeEmbeds(normalizeDetailsDisclosure(normalizeImages(normalizeCheckListItems(normalizeLists(node))))),
+  );
 }
 
 /**
@@ -178,8 +181,8 @@ const normalizeDetailsDisclosure = (node: MdastNode): MdastNode => {
   for (const child of node.children) {
     if (child.type === 'html' && child.value?.startsWith('<details><summary>')) {
       partsCounter++;
-      // @ts-ignore
-      detailsDisclosureNode.detailsSummaryText = child.value?.match('<summary>(.*)</summary>')[1];
+      const summaryMatch = child.value?.match('<summary>(.*)</summary>');
+      detailsDisclosureNode.detailsSummaryText = summaryMatch ? summaryMatch[1] : '';
       detailsDisclosureNode.position = child.position;
     } else if (partsCounter === 1) {
       partsCounter++;
@@ -223,4 +226,56 @@ const normalizeEmbeds = (node: MdastNode): MdastNode => {
   }
 
   return { ...node, children: newChildren };
+};
+
+/**
+ * This function converts blockquote-based callouts into Callout nodes
+ */
+const normalizeCallouts = (node: MdastNode): MdastNode => {
+  if (!node.children) {
+    return node;
+  }
+
+  const newChildren = [];
+
+  for (const child of node.children) {
+    const callout = findCallout(child);
+
+    if (callout) {
+      newChildren.push(callout);
+    } else {
+      newChildren.push(child);
+    }
+  }
+
+  return { ...node, children: newChildren };
+};
+
+const findCallout = (node: MdastNode) => {
+  if (node.type !== 'blockquote' || !node.children || node.children[0].type !== 'paragraph') return;
+
+  const [paragraph, ...rest] = node.children;
+  if (!paragraph.children?.length || paragraph.children[0].type !== 'text') return;
+
+  const [t] = paragraph.children;
+  const regex = new RegExp(`^\\[!(?<keyword>(.*?))\\][\t\f ]?(?<title>.*?)$`, 'gi');
+  const m = regex.exec(t.value ?? '');
+  if (!m) return;
+
+  const [key, title] = [m.groups?.keyword, m.groups?.title];
+  if (!key) return;
+
+  const keyword = key.toLowerCase();
+  const defaultKeywords: string = Object.keys(calloutTypes).map(escapeRegExp).join('|');
+  const isOneOfKeywords: boolean = new RegExp(defaultKeywords).test(keyword);
+  const calloutType = isOneOfKeywords ? calloutTypeFromKeyword(keyword, calloutTypes) : 'note';
+  const calloutNode: MdastNode = {
+    type: 'callout',
+    calloutType: calloutType,
+    title: title,
+    content: [...rest],
+    children: [],
+  };
+
+  return calloutNode;
 };
