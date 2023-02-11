@@ -14,6 +14,7 @@ import ServiceWorker from 'components/ServiceWorker';
 import 'styles/globals.css';
 import 'styles/nprogress.css';
 import 'styles/prism-tomorrow.css';
+import 'styles/remark-callouts.css';
 import 'react-toastify/dist/ReactToastify.css';
 import 'tippy.js/dist/tippy.css';
 
