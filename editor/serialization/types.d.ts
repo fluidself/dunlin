@@ -1,3 +1,5 @@
+import type { CalloutType } from 'components/editor/elements/callout/config';
+
 export interface MdastNode {
   type?: string;
   ordered?: boolean;
@@ -18,5 +20,8 @@ export interface MdastNode {
   checked?: unknown;
   indent?: unknown;
   detailsSummaryText?: string;
+  calloutType?: CalloutType;
+  title?: string;
+  content?: MdastNode[];
   oembed?: { type: 'rich' | 'video'; html: string; version: string };
 }

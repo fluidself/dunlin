@@ -25,6 +25,7 @@ import type { RichTypeData, VideoTypeData } from '@extractus/oembed-extractor';
 import { Element, Text } from 'slate';
 import {
   BlockReference,
+  Callout,
   CheckListItem,
   CodeBlock,
   DetailsDisclosure,
@@ -148,6 +149,16 @@ export default function serialize(
       // as contiued blockquotes, so adding two new lines ensures that doesn't
       // happen
       return `> ${children}\n\n`;
+
+    case ElementType.Callout:
+      const callout = chunk as Callout;
+      const formattedContent = callout.content
+        .map(n => serialize(n, opts))
+        .join('')
+        .split('\n')
+        .map(line => `> ${line}`)
+        .join('\n');
+      return `> [!${callout.calloutType}] ${callout.title ?? ''}\n${formattedContent}\n\n`;
 
     case ElementType.CodeLine:
       return `${children}\n`;
