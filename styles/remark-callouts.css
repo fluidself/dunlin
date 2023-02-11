@@ -1,0 +1,36 @@
+.callout {
+  background: #151515;
+  font-style: normal;
+  border-radius: 2px;
+  padding: 0 !important;
+}
+
+.callout-title {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  gap: 10px;
+}
+
+.callout-title > strong {
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.callout-title p {
+  margin: 0;
+}
+
+.callout-content {
+  padding: 10px 20px;
+}
+
+.callout-content > p {
+  font-weight: normal;
+  margin: 5px 0;
+}
+
+.callout p:before,
+.callout p:after {
+  display: none;
+}
