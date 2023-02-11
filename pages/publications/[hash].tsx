@@ -13,6 +13,7 @@ import rehypeRaw from 'rehype-raw';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
 import rehypePrism from 'rehype-prism';
+import remarkCallouts, { calloutTypes, decorateCallouts } from 'lib/remark-callouts';
 import { LANGUAGE_CLASSES, TOKEN_CLASSES } from 'editor/decorateCodeBlocks';
 import { addEllipsis } from 'utils/string';
 import { getReadableDatetime } from 'utils/date';
@@ -56,6 +57,7 @@ export default function PublicationPage(props: Props) {
 
       const parsedBody = await unified()
         .use(remarkParse)
+        .use(remarkCallouts)
         .use(remarkGfm)
         .use(wikiLinkPlugin, { aliasDivider: '|' })
         .use(remarkRehype, { allowDangerousHtml: true })
@@ -67,17 +69,32 @@ export default function PublicationPage(props: Props) {
             ...defaultSchema.attributes,
             pre: [...(defaultSchema.attributes?.pre || []), ['className', ...LANGUAGE_CLASSES, ...mermaidClasses]],
             code: [...(defaultSchema.attributes?.code || []), ['className', ...LANGUAGE_CLASSES]],
-            span: [...(defaultSchema.attributes?.span || []), ['className', ...LANGUAGE_CLASSES, ...TOKEN_CLASSES]],
+            span: [
+              ...(defaultSchema.attributes?.span || []),
+              ['className', 'callout-icon', ...LANGUAGE_CLASSES, ...TOKEN_CLASSES],
+            ],
+            blockquote: [
+              ...(defaultSchema.attributes?.blockquote || []),
+              ['className', 'callout', ...Object.keys(calloutTypes)],
+            ],
+            div: [
+              ...(defaultSchema.attributes?.div || []),
+              ['className', 'callout-title', 'callout-content', 'nested'],
+            ],
           },
         })
         .use(rehypeStringify)
         .processSync(processedBody);
 
-      // Replace Mermaid placeholders with SVG diagrams
       let stringBody = String(parsedBody);
+      // Replace Mermaid placeholders with SVG diagrams
       for (const svgEntry of svgEntries) {
         const regex = new RegExp(`<pre class="mermaid-${svgEntry.id}"></pre>`, 'gm');
         stringBody = stringBody.replace(regex, `<figure>${svgEntry.html}</figure>`);
+      }
+      // Style callout elements generated with remark-callouts plugin
+      if (stringBody.indexOf('<blockquote class="callout') !== -1) {
+        stringBody = decorateCallouts(stringBody);
       }
 
       setParsedBody(stringBody);
