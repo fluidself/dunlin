@@ -8,7 +8,7 @@ import { encryptNote } from 'utils/encryption';
 
 export type NoteUpsert = PickPartial<DecryptedNote, 'id' | 'created_at' | 'updated_at'>;
 
-export default async function upsertNote(noteUpsert: NoteUpsert, key: string) {
+export default async function upsertNote(noteUpsert: NoteUpsert) {
   const note = {
     ...noteUpsert,
     id: noteUpsert.id ?? uuidv4(),
@@ -18,6 +18,7 @@ export default async function upsertNote(noteUpsert: NoteUpsert, key: string) {
 
   store.getState().upsertNote(note);
 
+  const key = store.getState().deckKey;
   const encryptedNote = encryptNote(note, key);
   await supabase.from<Note>('notes').upsert(encryptedNote).single();
   await supabase.from<Deck>('decks').update({ note_tree: store.getState().noteTree }).eq('id', note.deck_id);

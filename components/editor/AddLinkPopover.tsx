@@ -37,7 +37,7 @@ type Props = {
 
 export default function AddLinkPopover(props: Props) {
   const { addLinkPopoverState, setAddLinkPopoverState } = props;
-  const { id: deckId, key } = useCurrentDeck();
+  const { id: deckId } = useCurrentDeck();
   const { user } = useAuth();
   const authorOnlyNotes = useStore(state => state.authorOnlyNotes);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -135,7 +135,7 @@ export default function AddLinkPopover(props: Props) {
           content: getDefaultEditorValue(),
         };
         insertNoteLink(editor, noteId, linkText);
-        upsertNote(newNote, key);
+        upsertNote(newNote);
         Transforms.move(editor, { distance: 1, unit: 'offset' }); // Focus after the note link
       } else if (option.type === OptionType.REMOVE_LINK) {
         // Remove the link
@@ -144,7 +144,7 @@ export default function AddLinkPopover(props: Props) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [editor, deckId, user, hidePopover, linkText, key, authorOnlyNotes],
+    [editor, deckId, user, hidePopover, linkText, authorOnlyNotes],
   );
 
   const onKeyDown = useCallback(

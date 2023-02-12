@@ -124,12 +124,11 @@ export const getOrCreateNoteId = (noteTitle: string): string => {
     noteId = matchingNote.id;
   } else {
     const deckId = store.getState().deckId;
-    const deckKey = store.getState().deckKey;
     const userId = store.getState().userId;
     const authorOnlyNotes = store.getState().authorOnlyNotes;
     noteId = uuidv4();
 
-    if (deckId && deckKey) {
+    if (deckId) {
       const newNote = {
         id: noteId,
         deck_id: deckId,
@@ -138,7 +137,7 @@ export const getOrCreateNoteId = (noteTitle: string): string => {
         title: noteTitle,
         content: getDefaultEditorValue(),
       };
-      upsertNote(newNote, deckKey);
+      upsertNote(newNote);
     }
   }
 

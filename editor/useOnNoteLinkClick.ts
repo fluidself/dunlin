@@ -13,7 +13,7 @@ export default function useOnNoteLinkClick(currentNoteId: string, linkText?: str
   const {
     query: { deckId, stack: stackQuery },
   } = router;
-  const { id: currentDeckId, key } = useCurrentDeck();
+  const { id: currentDeckId } = useCurrentDeck();
   const { user } = useAuth();
   const notes = useStore(state => state.notes);
   const openNoteIds = useStore(state => state.openNoteIds);
@@ -31,7 +31,7 @@ export default function useOnNoteLinkClick(currentNoteId: string, linkText?: str
           title: linkText,
           content: getDefaultEditorValue(),
         };
-        await upsertNote(note, key);
+        await upsertNote(note);
       }
 
       // If stackNote is false, open the note in its own page

@@ -33,7 +33,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
   const { onOptionClick: onOptionClickCallback, className = '' } = props;
 
   const { user } = useAuth();
-  const { id: deckId, key } = useCurrentDeck();
+  const { id: deckId } = useCurrentDeck();
   const authorOnlyNotes = useStore(state => state.authorOnlyNotes);
   const lastOpenNoteId = useStore(state => state.openNoteIds[state.openNoteIds.length - 1]);
   const { onClick: onNoteLinkClick } = useOnNoteLinkClick(lastOpenNoteId);
@@ -83,7 +83,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
           title: inputText,
           content: getDefaultEditorValue(),
         };
-        const note = await upsertNote(newNote, key);
+        const note = await upsertNote(newNote);
         if (!note) {
           toast.error(`There was an error creating the note ${inputText}.`);
           return;
@@ -96,7 +96,7 @@ function FindOrCreateInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [deckId, authorOnlyNotes, key, user, inputText, onOptionClickCallback, onNoteLinkClick],
+    [deckId, authorOnlyNotes, user, inputText, onOptionClickCallback, onNoteLinkClick],
   );
 
   const onKeyDown = useCallback(
