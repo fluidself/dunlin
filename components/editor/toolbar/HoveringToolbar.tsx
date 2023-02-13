@@ -1,4 +1,13 @@
-import { IconBold, IconItalic, IconUnderline, IconStrikethrough, IconCode, IconHighlight } from '@tabler/icons';
+import {
+  IconBold,
+  IconCode,
+  IconHighlight,
+  IconItalic,
+  IconStrikethrough,
+  IconSubscript,
+  IconSuperscript,
+  IconUnderline,
+} from '@tabler/icons';
 import { memo } from 'react';
 import { Mark } from 'types/slate';
 import { isMobile, modifierKey } from 'utils/device';
@@ -38,6 +47,20 @@ function HoveringToolbar(props: Props) {
         Icon={IconHighlight}
         tooltip={`Highlight (${key}+Shift+H)`}
         aria-label="Highlight"
+      />
+      <FormatButton
+        format={Mark.Superscript}
+        clear={Mark.Subscript}
+        Icon={IconSuperscript}
+        tooltip={`Superscript (${key}+Shift+,)`}
+        aria-label="Superscript"
+      />
+      <FormatButton
+        format={Mark.Subscript}
+        clear={Mark.Superscript}
+        Icon={IconSubscript}
+        tooltip={`Subscript (${key}+Shift+.)`}
+        aria-label="Subscript"
       />
     </EditorPopover>
   );

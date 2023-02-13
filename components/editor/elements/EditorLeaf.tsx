@@ -15,7 +15,9 @@ const EditorLeaf = ({ attributes, children, leaf }: EditorLeafProps) => {
 
   if (leaf.code) {
     children = (
-      <code className="p-0.25 bg-gray-100 border border-gray-200 rounded dark:bg-gray-800 dark:border-gray-700">{children}</code>
+      <code className="p-0.25 bg-gray-100 border border-gray-200 rounded dark:bg-gray-800 dark:border-gray-700">
+        {children}
+      </code>
     );
   }
 
@@ -33,6 +35,14 @@ const EditorLeaf = ({ attributes, children, leaf }: EditorLeafProps) => {
 
   if (leaf.highlight) {
     children = <mark className="bg-yellow-100 dark:bg-yellow-900 dark:text-white">{children}</mark>;
+  }
+
+  if (leaf.superscript) {
+    children = <sup className="align-super">{children}</sup>;
+  }
+
+  if (leaf.subscript) {
+    children = <sub className="align-sub">{children}</sub>;
   }
 
   const nonTextAttributes = Object.keys(rest).filter(attr => attr !== 'text');
