@@ -211,6 +211,18 @@ export default function deserialize(node: MdastNode, opts?: OptionType): Descend
         text: node.value ?? '',
         ...persistLeafFormats(children),
       };
+    case 'superscript':
+      return {
+        [Mark.Superscript]: true,
+        ...forceLeafNode(children),
+        ...persistLeafFormats(children),
+      };
+    case 'subscript':
+      return {
+        [Mark.Subscript]: true,
+        ...forceLeafNode(children),
+        ...persistLeafFormats(children),
+      };
     case 'thematicBreak':
       return {
         id: createNodeId(),

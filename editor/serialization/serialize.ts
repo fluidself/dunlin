@@ -133,6 +133,14 @@ export default function serialize(
       if (chunk.highlight) {
         children = retainWhitespaceAndFormat(children, '<mark>');
       }
+
+      if (chunk.superscript) {
+        children = retainWhitespaceAndFormat(children, '<sup>');
+      }
+
+      if (chunk.subscript) {
+        children = retainWhitespaceAndFormat(children, '<sub>');
+      }
     }
   }
 

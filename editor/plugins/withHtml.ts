@@ -42,6 +42,8 @@ const TEXT_TAGS: Record<string, (el: HTMLElement) => Partial<Record<Mark, boolea
   STRONG: () => ({ [Mark.Bold]: true }),
   U: () => ({ [Mark.Underline]: true }),
   MARK: () => ({ [Mark.Highlight]: true }),
+  SUP: () => ({ [Mark.Superscript]: true }),
+  SUB: () => ({ [Mark.Subscript]: true }),
 };
 
 export const deserialize = (el: HTMLElement): Node[] => {
