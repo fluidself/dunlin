@@ -9,8 +9,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { store, useStore } from 'lib/store';
 import { NoteUpsert } from 'lib/api/upsertNote';
 import supabase from 'lib/supabase';
-import { getDefaultEditorValue } from 'editor/constants';
+import remarkSupersub from 'lib/remark-supersub';
 import remarkToSlate from 'editor/serialization/remarkToSlate';
+import { getDefaultEditorValue } from 'editor/constants';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { encryptNote } from 'utils/encryption';
@@ -65,6 +66,7 @@ export default function useImport() {
 
         const { result } = unified()
           .use(remarkParse)
+          .use(remarkSupersub)
           .use(remarkGfm)
           .use(wikiLinkPlugin, { aliasDivider: '|' })
           .use(remarkToSlate)
@@ -146,7 +148,8 @@ const getNoteId = (
   let noteId;
 
   const existingNoteId =
-    noteTitleToIdCache[noteTitle.toLowerCase()] ?? notes.find(note => caseInsensitiveStringEqual(note.title, noteTitle))?.id;
+    noteTitleToIdCache[noteTitle.toLowerCase()] ??
+    notes.find(note => caseInsensitiveStringEqual(note.title, noteTitle))?.id;
 
   if (existingNoteId) {
     noteId = existingNoteId;
@@ -170,7 +173,9 @@ const setNoteLinkIds = (
   if (Element.isElement(node)) {
     return {
       ...node,
-      ...(node.type === ElementType.NoteLink ? { noteId: getNoteId(node, notes, noteTitleToIdCache, upsertData, deckId) } : {}),
+      ...(node.type === ElementType.NoteLink
+        ? { noteId: getNoteId(node, notes, noteTitleToIdCache, upsertData, deckId) }
+        : {}),
       children: node.children.map(child => setNoteLinkIds(child, notes, noteTitleToIdCache, upsertData, deckId)),
     };
   } else {
