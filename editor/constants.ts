@@ -48,6 +48,14 @@ export const getDefaultEditorHotkeys = (
     callback: () => toggleMark(editor, Mark.Highlight),
   },
   {
+    hotkey: 'mod+shift+,',
+    callback: () => toggleMark(editor, Mark.Superscript, Mark.Subscript),
+  },
+  {
+    hotkey: 'mod+shift+.',
+    callback: () => toggleMark(editor, Mark.Subscript, Mark.Superscript),
+  },
+  {
     hotkey: 'mod+shift+1',
     callback: () => toggleElement(editor, ElementType.HeadingOne),
   },

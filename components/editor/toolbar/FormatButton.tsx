@@ -7,20 +7,21 @@ import ToolbarButton from './ToolbarButton';
 
 interface FormatButtonProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'onClick'> {
   format: Mark;
+  clear?: Mark;
   Icon: TablerIcon;
   tooltip?: string;
   className?: string;
 }
 
 const FormatButton = (props: FormatButtonProps) => {
-  const { format, Icon, tooltip, className, ...otherProps } = props;
+  const { format, clear, Icon, tooltip, className, ...otherProps } = props;
   const editor = useSlate();
   const isActive = isMarkActive(editor, format);
 
   return (
     <ToolbarButton
       icon={Icon}
-      onClick={() => toggleMark(editor, format)}
+      onClick={() => toggleMark(editor, format, clear)}
       isActive={isActive}
       className={className}
       tooltip={tooltip}

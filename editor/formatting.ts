@@ -41,14 +41,21 @@ export const isMarkActive = (editor: Editor, format: Mark) => {
   return !!match;
 };
 
-export const toggleMark = (editor: Editor, format: Mark) => {
-  const isActive = isMarkActive(editor, format);
+export const toggleMark = (editor: Editor, format: Mark, clear?: Mark) => {
+  Editor.withoutNormalizing(editor, () => {
+    const isActive = isMarkActive(editor, format);
 
-  if (isActive) {
-    Editor.removeMark(editor, format);
-  } else {
+    if (isActive) {
+      Editor.removeMark(editor, format);
+      return;
+    }
+
+    if (clear) {
+      Editor.removeMark(editor, clear);
+    }
+
     Editor.addMark(editor, format, true);
-  }
+  });
 };
 
 export const isElementActive = (editor: Editor, format: ElementType, path?: Path) => {

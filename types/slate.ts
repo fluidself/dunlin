@@ -45,6 +45,8 @@ export enum Mark {
   Underline = 'underline',
   Strikethrough = 'strikethrough',
   Highlight = 'highlight',
+  Superscript = 'superscript',
+  Subscript = 'subscript',
 }
 
 export type ParagraphElement = {
