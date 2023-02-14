@@ -1,7 +1,7 @@
 import LitJsSdk from 'lit-js-sdk';
 import { ReactNode, useState } from 'react';
 import { RenderElementProps, useFocused, useReadOnly, useSelected } from 'slate-react';
-import { IconDownload, IconPencil } from '@tabler/icons';
+import { IconCode, IconDownload } from '@tabler/icons';
 import { decodeBase64 } from 'tweetnacl-util';
 import { toast } from 'react-toastify';
 import { saveAs } from 'file-saver';
@@ -55,7 +55,7 @@ export default function FileAttachmentElement(props: FileAttachmentElementProps)
   return (
     <div className={className} {...attributes}>
       <div
-        className={`border ${
+        className={`group border ${
           selected && focused && !isMenuOpen
             ? 'ring ring-primary-100 dark:ring-primary-900 border-transparent'
             : 'border-gray-600'
@@ -65,13 +65,13 @@ export default function FileAttachmentElement(props: FileAttachmentElementProps)
         {!readOnly ? (
           <Tooltip content="Attachment settings" placement="top">
             <button
-              className={`float-right p-1 rounded-sm hover:bg-gray-600 active:bg-gray-500 focus:outline-none ${
+              className={`opacity-0.1 group-hover:opacity-100 float-right p-1 rounded hover:bg-gray-600 active:bg-gray-500 focus:outline-none ${
                 isOffline ? 'text-gray-500 pointer-events-none' : ''
               }`}
               disabled={isOffline}
               onClick={() => setMenuOpen(!isMenuOpen)}
             >
-              <IconPencil size={20} />
+              <IconCode size={18} />
             </button>
           </Tooltip>
         ) : null}
