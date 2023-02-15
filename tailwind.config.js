@@ -101,6 +101,10 @@ module.exports = {
             'input[type="checkbox"]': {
               color: colors.pink[500],
             },
+            'details > p': {
+              marginTop: '10px',
+              marginLeft: '22px',
+            },
             pre: {
               color: colors.neutral[100],
               backgroundColor: colors.neutral[800],
