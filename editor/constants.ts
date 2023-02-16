@@ -8,6 +8,7 @@ import {
   handleIndent,
   handleQuotes,
   handleUnindent,
+  insertFootnote,
   isElementActive,
   toggleElement,
   toggleMark,
@@ -103,6 +104,10 @@ export const getDefaultEditorHotkeys = (
         });
       }
     },
+  },
+  {
+    hotkey: 'mod+opt+f',
+    callback: () => insertFootnote(editor),
   },
   {
     hotkey: 'mod+shift+k',

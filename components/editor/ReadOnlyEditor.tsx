@@ -3,7 +3,7 @@ import { createEditor, Descendant, Editor } from 'slate';
 import { Editable, Slate, withReact } from 'slate-react';
 import withVoidElements from 'editor/plugins/withVoidElements';
 import withLinks from 'editor/plugins/withLinks';
-import withTags from 'editor/plugins/withTags';
+import withAnnotations from 'editor/plugins/withAnnotations';
 import { EditorElementProps } from './elements/EditorElement';
 import { EditorLeafProps } from './elements/EditorLeaf';
 
@@ -18,9 +18,7 @@ function ReadOnlyEditor(props: Props) {
 
   const editorRef = useRef<Editor>();
   if (!editorRef.current) {
-    editorRef.current = withVoidElements(
-      withTags(withLinks(withReact(createEditor())))
-    );
+    editorRef.current = withVoidElements(withAnnotations(withLinks(withReact(createEditor()))));
   }
   const editor = editorRef.current;
 
@@ -33,12 +31,7 @@ function ReadOnlyEditor(props: Props) {
       }}
     >
       <div contentEditable={false}>
-        <Editable
-          className="pointer-events-none"
-          renderElement={renderElement}
-          renderLeaf={renderLeaf}
-          readOnly
-        />
+        <Editable className="pointer-events-none" renderElement={renderElement} renderLeaf={renderLeaf} readOnly />
       </div>
     </Slate>
   );

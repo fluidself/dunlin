@@ -1,10 +1,9 @@
-import { useCallback, useMemo, useState, KeyboardEvent, useRef, memo } from 'react';
-import { createEditor, Range, Editor as SlateEditor, Descendant, Transforms } from 'slate';
+import { useCallback, useMemo, useState, KeyboardEvent, memo, useEffect } from 'react';
+import { createEditor, Range, Editor as SlateEditor, Descendant, Transforms, Node } from 'slate';
 import { withReact, Editable, ReactEditor, Slate, useReadOnly } from 'slate-react';
 import { withHistory } from 'slate-history';
 import { isHotkey } from 'is-hotkey';
 import { ElementType } from 'types/slate';
-import useIsMounted from 'utils/useIsMounted';
 import { isElementActive } from 'editor/formatting';
 import decorateCodeBlocks from 'editor/decorateCodeBlocks';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
@@ -17,8 +16,10 @@ import withVoidElements from 'editor/plugins/withVoidElements';
 import withCodeBlocks, { onKeyDown as onCodeBlockKeyDown } from 'editor/plugins/withCodeBlocks';
 import withAnnotations from 'editor/plugins/withAnnotations';
 import withHtml from 'editor/plugins/withHtml';
-import withTables, { onKeyDown as onTableKeyDown } from 'editor/plugins/withTables';
 import { getDefaultEditorHotkeys } from 'editor/constants';
+import useIsMounted from 'utils/useIsMounted';
+import useOnClickOutside from 'utils/useOnClickOutside';
+import useHotkeys from 'utils/useHotkeys';
 import type { AddLinkPopoverState } from 'components/editor/Editor';
 import HoveringToolbar from 'components/editor/toolbar/HoveringToolbar';
 import AddLinkPopover from 'components/editor/AddLinkPopover';
@@ -33,32 +34,54 @@ type Props = {
   value: Descendant[];
   onChange: (value: Descendant[]) => void;
   className?: string;
+  onClose: () => void;
 };
 
-function CalloutContent(props: Props) {
-  const { value, className = '', onChange } = props;
+function FootnoteDefinition(props: Props) {
+  const { value, className = '', onChange, onClose } = props;
   const isMounted = useIsMounted();
   const readOnly = useReadOnly();
+  const [defElement, setDefElement] = useState<HTMLDivElement | null>(null);
+  useOnClickOutside(defElement, onClose);
 
-  const editorRef = useRef<SlateEditor>();
-  if (!editorRef.current) {
-    editorRef.current = withNormalization(
-      withCustomDeleteBackward(
-        withAutoMarkdown(
-          withCodeBlocks(
-            withHtml(
-              withBlockBreakout(
-                withVoidElements(
-                  withMedia(withAnnotations(withLinks(withTables(withHistory(withReact(createEditor())))))),
+  const closeHotkey = useMemo(
+    () => [
+      {
+        hotkey: 'esc',
+        callback: () => onClose(),
+      },
+    ],
+    [onClose],
+  );
+  useHotkeys(closeHotkey);
+
+  const editor = useMemo(
+    () =>
+      withNormalization(
+        withCustomDeleteBackward(
+          withAutoMarkdown(
+            withCodeBlocks(
+              withHtml(
+                withBlockBreakout(
+                  withVoidElements(withMedia(withAnnotations(withLinks(withHistory(withReact(createEditor())))))),
                 ),
               ),
             ),
           ),
         ),
       ),
-    );
-  }
-  const editor = editorRef.current;
+    [],
+  );
+
+  useEffect(() => {
+    if (value.length === 1 && !Node.string(value[0])) {
+      Transforms.select(editor, {
+        anchor: SlateEditor.start(editor, []),
+        focus: SlateEditor.end(editor, []),
+      });
+      ReactEditor.focus(editor);
+    }
+  }, [editor, value]);
 
   const renderElement = useMemo(() => withVerticalSpacing(EditorElement), []);
 
@@ -94,19 +117,18 @@ function CalloutContent(props: Props) {
         hotkey: 'mod+a',
         callback: () => Transforms.select(editor, []),
       },
+      {
+        hotkey: 'esc',
+        callback: () => onClose(),
+      },
     ],
-    [editor, setAddLinkPopoverState],
+    [editor, setAddLinkPopoverState, onClose],
   );
 
   const onKeyDown = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {
       // Handle keyboard shortcuts
       if (
-        isHotkey(['up', 'down', 'tab', 'shift+tab', 'enter'], event.nativeEvent) &&
-        isElementActive(editor, ElementType.Table)
-      ) {
-        onTableKeyDown(event, editor);
-      } else if (
         isHotkey(['mod+a', 'mod+left', 'mod+shift+left'], event.nativeEvent) &&
         isElementActive(editor, ElementType.CodeBlock)
       ) {
@@ -154,30 +176,33 @@ function CalloutContent(props: Props) {
   }
 
   return (
-    <Slate editor={editor} value={value} onChange={onSlateChange}>
-      {isToolbarVisible ? <HoveringToolbar setAddLinkPopoverState={setAddLinkPopoverState} /> : null}
-      {addLinkPopoverState.isVisible ? (
-        <AddLinkPopover addLinkPopoverState={addLinkPopoverState} setAddLinkPopoverState={setAddLinkPopoverState} />
-      ) : null}
-      <LinkAutocompletePopover />
-      <BlockAutocompletePopover />
-      <TagAutocompletePopover />
-      <Editable
-        className={`overflow-hidden focus-visible:outline-none ${className}`}
-        renderElement={renderElement}
-        renderLeaf={EditorLeaf}
-        decorate={entry => decorateCodeBlocks(editor, entry)}
-        onKeyDown={onKeyDown}
-        onPointerDown={() => setToolbarCanBeVisible(false)}
-        onPointerUp={() =>
-          setTimeout(() => {
-            if (isMounted()) setToolbarCanBeVisible(true);
-          }, 100)
-        }
-        spellCheck
-      />
-    </Slate>
+    <div ref={setDefElement}>
+      <Slate editor={editor} value={value} onChange={onSlateChange}>
+        {isToolbarVisible ? <HoveringToolbar setAddLinkPopoverState={setAddLinkPopoverState} /> : null}
+        {addLinkPopoverState.isVisible ? (
+          <AddLinkPopover addLinkPopoverState={addLinkPopoverState} setAddLinkPopoverState={setAddLinkPopoverState} />
+        ) : null}
+        <LinkAutocompletePopover />
+        <BlockAutocompletePopover />
+        <TagAutocompletePopover />
+        <Editable
+          className={`overflow-hidden focus-visible:outline-none ${className}`}
+          renderElement={renderElement}
+          renderLeaf={EditorLeaf}
+          placeholder="Enter footnote definition…"
+          decorate={entry => decorateCodeBlocks(editor, entry)}
+          onKeyDown={onKeyDown}
+          onPointerDown={() => setToolbarCanBeVisible(false)}
+          onPointerUp={() =>
+            setTimeout(() => {
+              if (isMounted()) setToolbarCanBeVisible(true);
+            }, 100)
+          }
+          spellCheck
+        />
+      </Slate>
+    </div>
   );
 }
 
-export default memo(CalloutContent);
+export default memo(FootnoteDefinition);

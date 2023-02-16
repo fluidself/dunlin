@@ -22,7 +22,7 @@ import withLinks from 'editor/plugins/withLinks';
 import withNormalization from 'editor/plugins/withNormalization';
 import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
 import withVoidElements from 'editor/plugins/withVoidElements';
-import withTags from 'editor/plugins/withTags';
+import withAnnotations from 'editor/plugins/withAnnotations';
 import withHtml from 'editor/plugins/withHtml';
 import withTables, { onKeyDown as onTableKeyDown } from 'editor/plugins/withTables';
 import { getDefaultEditorHotkeys, getDefaultEditorValue } from 'editor/constants';
@@ -103,7 +103,7 @@ function Editor(props: Props) {
                     withVoidElements(
                       withBlockReferences(
                         withMedia(
-                          withTags(withLinks(withTables(withHistory(withReact(createEditor() as DeckEditor))))),
+                          withAnnotations(withLinks(withTables(withHistory(withReact(createEditor() as DeckEditor))))),
                         ),
                       ),
                     ),

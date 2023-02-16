@@ -22,6 +22,7 @@ export enum ElementType {
   Callout = 'callout',
   ExternalLink = 'link',
   NoteLink = 'note-link',
+  Footnote = 'footnote',
   Tag = 'tag',
   CodeLine = 'code-line',
   CodeBlock = 'code-block',
@@ -126,6 +127,13 @@ export type NoteLink = {
   noteId: string;
   noteTitle: string;
   customText?: string;
+  children: Descendant[];
+};
+
+export type Footnote = {
+  id: string;
+  type: ElementType.Footnote;
+  definition: Descendant[];
   children: Descendant[];
 };
 
@@ -260,7 +268,7 @@ export type ReferenceableBlockElement =
   | DetailsDisclosure
   | Table;
 
-export type InlineElement = ExternalLink | NoteLink | Tag | TableRow | TableCell;
+export type InlineElement = ExternalLink | NoteLink | Tag | Footnote | TableRow | TableCell;
 
 export type ListElement = BulletedList | NumberedList;
 

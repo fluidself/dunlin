@@ -4,7 +4,7 @@ import { createEditor, Descendant, Editor, Element, Node, Path } from 'slate';
 import { Notes, store } from 'lib/store';
 import withLinks from 'editor/plugins/withLinks';
 import withVoidElements from 'editor/plugins/withVoidElements';
-import withTags from 'editor/plugins/withTags';
+import withAnnotations from 'editor/plugins/withAnnotations';
 
 export type NoteBlock = {
   id?: string;
@@ -20,15 +20,13 @@ type NoteSearchOptions = {
   numOfResults?: number;
 };
 
-export default function useBlockSearch({
-  numOfResults = -1,
-}: NoteSearchOptions = {}) {
+export default function useBlockSearch({ numOfResults = -1 }: NoteSearchOptions = {}) {
   const search = useCallback(
     (searchText: string) => {
       const fuse = initFuse(store.getState().notes);
       return fuse.search(searchText, { limit: numOfResults });
     },
-    [numOfResults]
+    [numOfResults],
   );
   return search;
 }
@@ -47,26 +45,19 @@ const initFuse = (notes: Notes) => {
 // Returns the data that should be passed in when instantiating the Fuse client.
 const getFuseData = (notes: Notes): FuseDatum[] => {
   return Object.values(notes).reduce<FuseDatum[]>(
-    (acc, currNote) => [
-      ...acc,
-      ...flattenContent(currNote.content, currNote.id, currNote.title),
-    ],
-    []
+    (acc, currNote) => [...acc, ...flattenContent(currNote.content, currNote.id, currNote.title)],
+    [],
   );
 };
 
 // Flatten the content into individual lines
-const flattenContent = (
-  content: Descendant[],
-  noteId: string,
-  noteTitle: string
-): NoteBlock[] => {
-  const editor = withVoidElements(withTags(withLinks(createEditor())));
+const flattenContent = (content: Descendant[], noteId: string, noteTitle: string): NoteBlock[] => {
+  const editor = withVoidElements(withAnnotations(withLinks(createEditor())));
   editor.children = content;
 
   const blocks = Editor.nodes<Element>(editor, {
     at: [],
-    match: (n) => !Editor.isEditor(n) && Editor.isBlock(editor, n),
+    match: n => !Editor.isEditor(n) && Editor.isBlock(editor, n),
     mode: 'lowest',
   });
 
