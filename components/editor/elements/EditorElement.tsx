@@ -11,6 +11,7 @@ import FileAttachmentElement from './file-attachment/FileAttachmentElement';
 import ThematicBreakElement from './ThematicBreakElement';
 import ExternalLinkElement from './ExternalLinkElement';
 import NoteLinkElement from './NoteLinkElement';
+import FootnoteElement from './footnote/FootnoteElement';
 import CheckListItemElement from './CheckListItemElement';
 import TagElement from './TagElement';
 import DetailsDisclosureElement from './DetailsDisclosureElement';
@@ -121,6 +122,12 @@ export default function EditorElement(props: EditorElementProps) {
         <NoteLinkElement className={className} element={element} attributes={attributes}>
           {children}
         </NoteLinkElement>
+      );
+    case ElementType.Footnote:
+      return (
+        <FootnoteElement className={className} element={element} attributes={attributes}>
+          {children}
+        </FootnoteElement>
       );
     case ElementType.Tag:
       return (

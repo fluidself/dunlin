@@ -15,7 +15,7 @@ import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
 import withVoidElements from 'editor/plugins/withVoidElements';
 import withBlockReferences from 'editor/plugins/withBlockReferences';
 import withCodeBlocks, { onKeyDown as onCodeBlockKeyDown } from 'editor/plugins/withCodeBlocks';
-import withTags from 'editor/plugins/withTags';
+import withAnnotations from 'editor/plugins/withAnnotations';
 import withHtml from 'editor/plugins/withHtml';
 import withTables, { onKeyDown as onTableKeyDown } from 'editor/plugins/withTables';
 import { getDefaultEditorHotkeys, getDefaultEditorValue } from 'editor/constants';
@@ -65,7 +65,7 @@ function SoloEditor(props: Props) {
               withBlockBreakout(
                 withVoidElements(
                   withBlockReferences(
-                    withMedia(withTags(withLinks(withTables(withHistory(withReact(createEditor())))))),
+                    withMedia(withAnnotations(withLinks(withTables(withHistory(withReact(createEditor())))))),
                   ),
                 ),
               ),

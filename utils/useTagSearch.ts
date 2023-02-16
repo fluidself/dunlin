@@ -4,7 +4,7 @@ import { createEditor, Descendant, Editor, Element } from 'slate';
 import { Notes, store } from 'lib/store';
 import withLinks from 'editor/plugins/withLinks';
 import withVoidElements from 'editor/plugins/withVoidElements';
-import withTags from 'editor/plugins/withTags';
+import withAnnotations from 'editor/plugins/withAnnotations';
 import { ElementType, Tag } from 'types/slate';
 
 type FuseDatum = string;
@@ -46,7 +46,7 @@ const getFuseData = (notes: Notes): FuseDatum[] => {
 
 // Flatten the content into individual lines
 const flattenContent = (content: Descendant[]): string[] => {
-  const editor = withVoidElements(withTags(withLinks(createEditor())));
+  const editor = withVoidElements(withAnnotations(withLinks(createEditor())));
   editor.children = content;
 
   const tags = Editor.nodes<Tag>(editor, {

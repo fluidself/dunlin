@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 import decorateCodeBlocks from 'editor/decorateCodeBlocks';
 import withVoidElements from 'editor/plugins/withVoidElements';
 import withLinks from 'editor/plugins/withLinks';
-import withTags from 'editor/plugins/withTags';
+import withAnnotations from 'editor/plugins/withAnnotations';
 import withNormalization from 'editor/plugins/withNormalization';
 import withCodeBlocks from 'editor/plugins/withCodeBlocks';
 import { getDefaultEditorValue } from 'editor/constants';
@@ -70,7 +70,7 @@ function ReadOnlyNoteEditor(props: Props) {
     const editor = withCursor(
       withYjs(
         withNormalization(
-          withCodeBlocks(withVoidElements(withTags(withLinks(withReact(createEditor() as DeckEditor))))),
+          withCodeBlocks(withVoidElements(withAnnotations(withLinks(withReact(createEditor() as DeckEditor))))),
         ),
         sharedType,
       ),

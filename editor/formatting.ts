@@ -11,6 +11,7 @@ import type {
   Embed,
   ExternalLink,
   FileAttachment,
+  Footnote,
   Image,
   ListElement,
   NoteLink,
@@ -307,6 +308,16 @@ export const insertNoteLink = (editor: Editor, noteId: string, noteTitle: string
     children: isCollapsed ? [{ text: noteTitle }] : [],
   };
   wrapLink(editor, link);
+};
+
+export const insertFootnote = (editor: Editor) => {
+  const footnote: Footnote = {
+    id: createNodeId(),
+    type: ElementType.Footnote,
+    definition: getDefaultEditorValue(),
+    children: [{ text: '' }],
+  };
+  Transforms.insertNodes(editor, footnote);
 };
 
 export const insertTag = (editor: Editor, name: string) => {
