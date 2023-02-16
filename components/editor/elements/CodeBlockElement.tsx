@@ -80,7 +80,7 @@ export default function CodeBlockElement(props: Props) {
 
   return (
     <pre
-      className={`block p-2 border rounded dark:bg-gray-800 dark:border-gray-700 whitespace-pre-wrap overflow-x-auto ${className}`}
+      className={`block relative p-2 border rounded dark:bg-gray-800 dark:border-gray-700 whitespace-pre-wrap overflow-x-auto ${className}`}
       {...attributes}
     >
       {!readOnly && (
@@ -88,7 +88,7 @@ export default function CodeBlockElement(props: Props) {
           value={lang ?? ''}
           onChange={onSelectChange}
           contentEditable={false}
-          className="bg-transparent absolute top-0.5 right-[-4px] p-0.5 pr-7 border-none focus:ring-0 focus:shadow-none ring-offset-0 text-right cursor-pointer text-[13px]"
+          className="bg-transparent absolute top-0 right-0 p-0.5 pr-7 border-none focus:ring-0 focus:shadow-none ring-offset-0 text-right cursor-pointer text-[13px]"
         >
           <option value="">Plaintext</option>
           {Object.entries(CODE_BLOCK_LANGUAGES).map(([key, val]) => (
