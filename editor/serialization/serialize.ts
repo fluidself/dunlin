@@ -191,6 +191,9 @@ export default function serialize(
     }
     case ElementType.ExternalLink:
       return `[${children}](${(chunk as ExternalLink).url})`;
+    case ElementType.Footnote:
+      // Placeholder to be handled in subsequent serialization
+      return `[^footnoteReferencePlaceholder]`;
     case ElementType.Tag:
       return `#${(chunk as Tag).name}`;
 

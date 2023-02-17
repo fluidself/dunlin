@@ -95,6 +95,15 @@ export default function deserialize(node: MdastNode, opts?: OptionType): Descend
       };
     }
 
+    case 'footnote':
+      const definition = node.definition?.length ? node.definition : [{ type: 'paragraph', children: [{ text: '' }] }];
+      return {
+        id: createNodeId(),
+        type: ElementType.Footnote,
+        children: [{ text: '' }],
+        definition: definition.map((c: MdastNode) => deserialize({ ...c }), opts),
+      };
+
     case 'image':
       return {
         id: createNodeId(),

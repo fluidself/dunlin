@@ -6,7 +6,9 @@ import { MdastNode } from './types';
  */
 export default function normalize(node: MdastNode): MdastNode {
   return normalizeCallouts(
-    normalizeEmbeds(normalizeDetailsDisclosure(normalizeImages(normalizeCheckListItems(normalizeLists(node))))),
+    normalizeEmbeds(
+      normalizeDetailsDisclosure(normalizeImages(normalizeFootnotes(normalizeCheckListItems(normalizeLists(node))))),
+    ),
   );
 }
 
@@ -278,4 +280,67 @@ const findCallout = (node: MdastNode) => {
   };
 
   return calloutNode;
+};
+
+/**
+ * This function combines footnoteReference and footnoteDefinition nodes into custom Footnote element
+ */
+const normalizeFootnotes = (node: MdastNode): MdastNode => {
+  if (!node.children) {
+    return node;
+  }
+
+  const newChildren = [];
+  const footnoteDefinitions: { id?: string; definition: MdastNode[] }[] = [];
+
+  for (const child of node.children) {
+    if (child.type === 'footnoteDefinition') {
+      footnoteDefinitions.push({ id: child.identifier ?? child.label, definition: child.children ?? [] });
+      continue;
+    }
+
+    if (child.children && child.children.some(c => c.type === 'footnoteReference')) {
+      const newNestedChildren = [];
+
+      for (const nestedChild of child.children) {
+        if (nestedChild.type === 'footnoteReference') {
+          newNestedChildren.push({
+            type: 'footnote',
+            identifier: nestedChild.identifier ?? nestedChild.label,
+            position: nestedChild.position,
+            children: [],
+          });
+        } else {
+          newNestedChildren.push(nestedChild);
+        }
+      }
+      newChildren.push({ ...child, children: newNestedChildren });
+    } else {
+      newChildren.push(child);
+    }
+  }
+
+  const hasFootnotes = newChildren.some(n => n.children && n.children.some(c => c.type === 'footnote'));
+  if (!hasFootnotes) {
+    return { ...node, children: newChildren };
+  }
+
+  return {
+    ...node,
+    children: newChildren.map(n =>
+      !n.children
+        ? n
+        : {
+            ...n,
+            children: n.children.map(c => {
+              if (c.type === 'footnote') {
+                const footnoteDef = footnoteDefinitions.find(fnDef => fnDef.id === c.identifier)?.definition;
+                return footnoteDef ? { ...c, definition: footnoteDef } : c;
+              } else {
+                return c;
+              }
+            }),
+          },
+    ),
+  };
 };
