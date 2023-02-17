@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { Menu } from '@headlessui/react';
 import Select from 'react-select';
+import { createEditor, Element, Editor, Descendant } from 'slate';
 import {
   IconDots,
   IconDownload,
@@ -17,17 +18,18 @@ import JSZip from 'jszip';
 import useSWR from 'swr';
 import isHotkey from 'is-hotkey';
 import { useRouter } from 'next/router';
-import Portal from 'components/Portal';
-import { useCurrentNote } from 'utils/useCurrentNote';
-import { store, useStore } from 'lib/store';
 import serialize, { SerializeOptions } from 'editor/serialization/serialize';
+import { ElementType, Footnote } from 'types/slate';
 import { DecryptedNote } from 'types/decrypted';
 import useImport from 'utils/useImport';
 import { queryParamToArray } from 'utils/url';
 import { addEllipsis } from 'utils/string';
 import { useAuth } from 'utils/useAuth';
+import { useCurrentNote } from 'utils/useCurrentNote';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import selectDecks from 'lib/api/selectDecks';
+import { store, useStore } from 'lib/store';
+import Portal from 'components/Portal';
 import Tooltip from 'components/Tooltip';
 import OpenSidebarButton from 'components/sidebar/OpenSidebarButton';
 import { DropdownItem } from 'components/Dropdown';
@@ -298,13 +300,50 @@ export default function NoteHeader() {
   );
 }
 
-export const getSerializedNote = (note: DecryptedNote, opts: SerializeOptions) =>
-  note.content.map(n => serialize(n, opts)).join('');
-
 const getNoteAsBlob = (note: DecryptedNote) => {
   const serializedContent = getSerializedNote(note, { forPublication: false, publishLinkedNotes: false });
   const blob = new Blob([serializedContent], {
     type: 'text/markdown;charset=utf-8',
   });
   return blob;
+};
+
+export const getSerializedNote = (note: DecryptedNote, opts: SerializeOptions) => {
+  const serializedContent = note.content.map(n => serialize(n, opts)).join('');
+  const hasFootnotes = note.content.some(
+    n => Element.isElement(n) && n.children.some(c => Element.isElement(c) && c.type === ElementType.Footnote),
+  );
+
+  if (hasFootnotes) {
+    return handleFootnotes(note.content, serializedContent, opts);
+  }
+
+  return serializedContent;
+};
+
+// Replace footnote marker placeholders and add footnotes to bottom of content
+const handleFootnotes = (content: Descendant[], stringWithPlaceholders: string, opts: SerializeOptions) => {
+  const editor = createEditor();
+  editor.children = content;
+  const footnotes = Editor.nodes<Footnote>(editor, {
+    at: [],
+    match: n => Element.isElement(n) && n.type === ElementType.Footnote,
+  });
+  let output = stringWithPlaceholders + '\n';
+  let footnoteId = 1;
+
+  for (const [footnote] of footnotes) {
+    const serializedDefinition = footnote.definition
+      .map(n => serialize(n, opts))
+      .join('')
+      .split('\n')
+      .map((line, idx) => (idx === 0 ? line : `    ${line}`)) // if definition spans multiple lines, add 4 spaces
+      .join('\n');
+    output =
+      output.replace('[^footnoteReferencePlaceholder]', `[^${footnoteId}]`) +
+      `[^${footnoteId}]: ${serializedDefinition}\n`;
+    footnoteId++;
+  }
+
+  return output;
 };

@@ -14,12 +14,14 @@ export interface MdastNode {
     alias?: string;
   };
   parentType?: string; // custom attribute specifying the parent type
-  // mdast metadata
   position?: unknown;
   spread?: unknown;
   checked?: unknown;
   indent?: unknown;
   detailsSummaryText?: string;
+  identifier?: string;
+  label?: string;
+  definition?: MdastNode[];
   calloutType?: CalloutType;
   title?: string;
   content?: MdastNode[];
