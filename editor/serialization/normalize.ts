@@ -256,12 +256,12 @@ const normalizeCallouts = (node: MdastNode): MdastNode => {
 const findCallout = (node: MdastNode) => {
   if (node.type !== 'blockquote' || !node.children || node.children[0].type !== 'paragraph') return;
 
-  const [paragraph, ...rest] = node.children;
+  const [paragraph, ...otherBlockquoteChildren] = node.children;
   if (!paragraph.children?.length || paragraph.children[0].type !== 'text') return;
 
-  const [t] = paragraph.children;
+  const [t, ...otherParagraphChildren] = paragraph.children;
   const regex = new RegExp(`^\\[!(?<keyword>(.*?))\\][\t\f ]?(?<title>.*?)$`, 'gi');
-  const m = regex.exec(t.value ?? '');
+  const m = regex.exec(t.value?.replace('\n', '') ?? '');
   if (!m) return;
 
   const [key, title] = [m.groups?.keyword, m.groups?.title];
@@ -275,7 +275,7 @@ const findCallout = (node: MdastNode) => {
     type: 'callout',
     calloutType: calloutType,
     title: title,
-    content: [...rest],
+    content: [...otherParagraphChildren, ...otherBlockquoteChildren],
     children: [],
   };
 

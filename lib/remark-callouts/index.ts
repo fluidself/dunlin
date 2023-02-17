@@ -66,7 +66,7 @@ export const callouts: Plugin = function (providedConfig?: Partial<Config>) {
       const [t, ...rest] = paragraph.children;
 
       const regex = new RegExp(`^\\[!(?<keyword>(.*?))\\][\t\f ]?(?<title>.*?)$`, 'gi');
-      const m = regex.exec(t.value);
+      const m = regex.exec(t.value.replace('\n', ''));
 
       // if no callout syntax, forget about it.
       if (!m) return;
