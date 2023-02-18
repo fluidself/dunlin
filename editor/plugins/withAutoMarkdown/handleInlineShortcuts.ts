@@ -38,6 +38,8 @@ const INLINE_SHORTCUTS: Array<{
   { match: /(?:^|\s)(_)([^_]+)(_)/, type: Mark.Italic },
   { match: /(?:^|\s)(`)([^`]+)(`)/, type: Mark.Code },
   { match: /(?:^|\s)(~~)([^~]+)(~~)/, type: Mark.Strikethrough },
+  { match: /(<sup>)([^<]+)(<\/sup>)/, type: Mark.Superscript },
+  { match: /(<sub>)([^<]+)(<\/sub>)/, type: Mark.Subscript },
   {
     match: /(?:^|\s)(\[)(.+)(\]\(\[\[)(.+)(\]\]\))(\s)/,
     type: CustomInlineShortcuts.CustomNoteLink,
