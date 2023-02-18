@@ -176,6 +176,14 @@ const setNoteLinkIds = (
       ...(node.type === ElementType.NoteLink
         ? { noteId: getNoteId(node, notes, noteTitleToIdCache, upsertData, deckId) }
         : {}),
+      ...(node.type === ElementType.Callout
+        ? { content: node.content.map(c => setNoteLinkIds(c, notes, noteTitleToIdCache, upsertData, deckId)) }
+        : {}),
+      ...(node.type === ElementType.Footnote
+        ? {
+            definition: node.definition.map(c => setNoteLinkIds(c, notes, noteTitleToIdCache, upsertData, deckId)),
+          }
+        : {}),
       children: node.children.map(child => setNoteLinkIds(child, notes, noteTitleToIdCache, upsertData, deckId)),
     };
   } else {
