@@ -12,6 +12,7 @@ import handleExternalLink from './handleExternalLink';
 import handleNoteLink from './handleNoteLink';
 import handleCustomNoteLink from './handleCustomNoteLink';
 import handleBlockReference from './handleBlockReference';
+import handleFootnote from './handleFootnote';
 import handleTag from './handleTag';
 import handleEmDash from './handleEmDash';
 
@@ -27,6 +28,7 @@ const INLINE_SHORTCUTS: Array<{
     | CustomInlineShortcuts
     | ElementType.ExternalLink
     | ElementType.NoteLink
+    | ElementType.Footnote
     | ElementType.Tag
     | ElementType.BlockReference;
 }> = [
@@ -40,9 +42,10 @@ const INLINE_SHORTCUTS: Array<{
     match: /(?:^|\s)(\[)(.+)(\]\(\[\[)(.+)(\]\]\))(\s)/,
     type: CustomInlineShortcuts.CustomNoteLink,
   },
-  { match: /^(?!\s*--)[^-]*--[^-]*$/, type: CustomInlineShortcuts.EmDash },
+  { match: /^.+(--)/, type: CustomInlineShortcuts.EmDash },
   { match: /(?:^|\s)(\[)(.+)(\]\()(.+)(\))(\s)/, type: ElementType.ExternalLink },
   { match: /(?:^|\s)(\[\[)(.+)(\]\])(\s)/, type: ElementType.NoteLink },
+  { match: /(\[)(\^.*)(\])(\s)/, type: ElementType.Footnote },
   { match: /(?:^|\s)(#[^\s]+)(\s)/, type: ElementType.Tag },
   {
     match:
@@ -92,6 +95,8 @@ const handleInlineShortcuts = (editor: Editor, text: string): boolean => {
       handled = handleNoteLink(editor, result, endOfMatchPoint, text.length);
     } else if (type === CustomInlineShortcuts.CustomNoteLink) {
       handled = handleCustomNoteLink(editor, result, endOfMatchPoint, text.length);
+    } else if (type === ElementType.Footnote) {
+      handled = handleFootnote(editor, result, endOfMatchPoint, text.length);
     } else if (type === CustomInlineShortcuts.EmDash) {
       handled = handleEmDash(editor, endOfMatchPoint);
     } else if (type === ElementType.Tag) {
