@@ -85,8 +85,8 @@ export default function PublicationPage(props: Props) {
         })
         .use(rehypeStringify)
         .processSync(processedBody);
-
-      let stringBody = String(parsedBody);
+      // Fix any double user-content prefixes introduced by rehype-sanitize
+      let stringBody = String(parsedBody).replaceAll('user-content-user-content', 'user-content');
       // Replace Mermaid placeholders with SVG diagrams
       for (const svgEntry of svgEntries) {
         const regex = new RegExp(`<pre class="mermaid-${svgEntry.id}"></pre>`, 'gm');
