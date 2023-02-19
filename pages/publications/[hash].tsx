@@ -103,6 +103,33 @@ export default function PublicationPage(props: Props) {
     process();
   }, [cid, address, timestamp, title, body]);
 
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+
+    const highlightAnchorTarget = (event: MouseEvent) => {
+      if (event.target && event.target instanceof HTMLAnchorElement) {
+        const hash = new URL(event.target.href).hash.slice(1);
+        const target = document.getElementById(hash);
+        if (!target) return;
+
+        const originalBgColor = target.style.backgroundColor;
+        target.style.backgroundColor = '#828324';
+        target.scrollIntoView();
+
+        timeout = setTimeout(() => {
+          target.style.backgroundColor = originalBgColor;
+        }, 3000);
+      }
+    };
+
+    document.addEventListener('click', highlightAnchorTarget);
+
+    return () => {
+      document.removeEventListener('click', highlightAnchorTarget);
+      clearTimeout(timeout);
+    };
+  }, []);
+
   if (!parsedBody) {
     return <PageLoading />;
   }
