@@ -37,7 +37,9 @@ export default function SidebarSearch(props: Props) {
                 noteId={result.item.id}
                 text={match.value ?? ''}
                 searchQuery={searchQuery}
-                block={result.item.blocks && match.refIndex !== undefined ? result.item.blocks[match.refIndex] : undefined}
+                block={
+                  result.item.blocks && match.refIndex !== undefined ? result.item.blocks[match.refIndex] : undefined
+                }
               />
             ),
             showArrow: false,
@@ -103,7 +105,7 @@ const SidebarSearchLeaf = memo(function SidebarSearchLeaf(props: SidebarSearchLe
     >
       <Highlighter
         className="block px-1 py-2 text-xs text-gray-600 break-words dark:text-gray-300"
-        highlightClassName="bg-yellow-200 text-gray-600 dark:bg-yellow-800 dark:text-gray-300"
+        highlightClassName="bg-yellow-200 text-gray-600 dark:bg-[#828324] dark:text-gray-100"
         searchWords={searchQuery.split(' ')}
         autoEscape={true}
         textToHighlight={text}
