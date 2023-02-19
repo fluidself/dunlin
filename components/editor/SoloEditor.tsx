@@ -172,7 +172,7 @@ function SoloEditor(props: Props) {
         domNode.style.backgroundColor = originalBgColor;
       };
 
-      domNode.style.backgroundColor = darkMode ? colors.yellow[800] : colors.yellow[200];
+      domNode.style.backgroundColor = darkMode ? '#828324' : colors.yellow[200];
       domNode.addEventListener('click', removeHighlight, { once: true });
 
       return () => {
