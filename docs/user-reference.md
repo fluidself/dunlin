@@ -12,22 +12,26 @@
 | `Ctrl` + `Shift` + `f` | `⌘` + `Shift` + `f` | Switch to search sidebar tab             |
 | `Ctrl` + `Shift` + `g` | `⌘` + `Shift` + `g` | Go to graph view                         |
 
-### Text Formatting
+### Formatting
 
-| Windows / Linux        | macOS               | Action        |
-| :--------------------- | :------------------ | :------------ |
-| `Ctrl` + `b`           | `⌘` + `b`           | Bold          |
-| `Ctrl` + `i`           | `⌘` + `i`           | Italic        |
-| `Ctrl` + `u`           | `⌘` + `u`           | Underline     |
-| `Ctrl` + `e`           | `⌘` + `e`           | Code          |
-| `Ctrl` + `Shift` + `h` | `⌘` + `Shift` + `h` | Highlight     |
-| `Ctrl` + `Shift` + `s` | `⌘` + `Shift` + `s` | Strikethrough |
+| Windows / Linux        | macOS               | Action          |
+| :--------------------- | :------------------ | :-------------- |
+| `Ctrl` + `b`           | `⌘` + `b`           | Bold            |
+| `Ctrl` + `i`           | `⌘` + `i`           | Italic          |
+| `Ctrl` + `u`           | `⌘` + `u`           | Underline       |
+| `Ctrl` + `e`           | `⌘` + `e`           | Code            |
+| `Ctrl` + `Shift` + `h` | `⌘` + `Shift` + `h` | Highlight       |
+| `Ctrl` + `Shift` + `s` | `⌘` + `Shift` + `s` | Strikethrough   |
+| `Ctrl` + `Shift` + `,` | `⌘` + `Shift` + `,` | Superscript     |
+| `Ctrl` + `Shift` + `.` | `⌘` + `Shift` + `.` | Subscript       |
+| `Ctrl` + `Alt` + `f`   | `⌘` + `⌥` + `f`     | Insert footnote |
 
 ## Markdown Shortcuts
 
 - Type `**` on either side of your text to bold.
-- Type `*` on either side of your text to italicize.
+- Type `*` or `_` on either side of your text to italicize.
 - Type `` ` `` on either side of your text to create inline code.
+- Type `==` on either side of your text to highlight.
 - Type `~~` on either side of your text to strikethrough.
 - Type `[[Linked Note]]` to insert a link to the note "Linked Note". This will create a new note with that title if it does not already exist.
 - Type `[title](https://external.com)` to insert an external link.
