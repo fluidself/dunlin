@@ -25,6 +25,10 @@ export const getDefaultEditorHotkeys = (
   setAddLinkPopoverState: (value: SetStateAction<AddLinkPopoverState>) => void,
 ) => [
   {
+    hotkey: 'esc',
+    callback: () => Transforms.collapse(editor, { edge: 'start' }),
+  },
+  {
     hotkey: 'mod+b',
     callback: () => toggleMark(editor, Mark.Bold),
   },
