@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { useMemo, useState, useEffect } from 'react';
-import { createEditor, Editor, Element, Node } from 'slate';
+import { createEditor, Descendant, Editor, Element, Node } from 'slate';
 import { IconSend, IconConfetti, IconX } from '@tabler/icons';
 import * as Name from 'w3name';
 import { toast } from 'react-toastify';
-import { ElementType, FileAttachment, NoteLink } from 'types/slate';
-import { DecryptedNote } from 'types/decrypted';
+import { Callout, ElementType, Footnote, NoteLink } from 'types/slate';
+import type { DecryptedNote } from 'types/decrypted';
 import useHotkeys from 'utils/useHotkeys';
 import copyToClipboard from 'utils/copyToClipboard';
 import useIpfs from 'utils/useIpfs';
@@ -53,23 +53,11 @@ export default function PublishNoteModal(props: Props) {
   useHotkeys(hotkeys);
 
   useEffect(() => {
-    const editor = createEditor();
-    editor.children = note.content;
-    const noteLinks = Array.from(
-      Editor.nodes<NoteLink>(editor, {
-        at: [],
-        match: n => Element.isElement(n) && n.type === ElementType.NoteLink && !!Node.string(n),
-      }),
-    ).map(element => element[0]);
-    const fileAttachments = Array.from(
-      Editor.nodes<FileAttachment>(editor, {
-        at: [],
-        match: n => Element.isElement(n) && n.type === ElementType.FileAttachment,
-      }),
-    );
+    const hasFileAttachments = note.content.some(n => Element.isElement(n) && n.type === ElementType.FileAttachment);
+    const noteLinks = computeNoteLinks(note.content);
 
+    setHasFileAttachments(hasFileAttachments);
     setNoteLinks(noteLinks);
-    setHasFileAttachments(fileAttachments.length > 0);
   }, [note.content]);
 
   const getNotesToPublish = (
@@ -312,3 +300,28 @@ export default function PublishNoteModal(props: Props) {
     </div>
   );
 }
+
+const computeNoteLinks = (content: Descendant[]) => {
+  const contentEditor = createEditor();
+  contentEditor.children = content;
+  const footnoteAndCalloutContent = Array.from(
+    Editor.nodes<Footnote | Callout>(contentEditor, {
+      at: [],
+      match: n => Element.isElement(n) && (n.type === ElementType.Footnote || n.type === ElementType.Callout),
+    }),
+  )
+    .map(nodeEntry => nodeEntry[0])
+    .map(node => (node.type === ElementType.Callout ? node.content : node.definition))
+    .flat();
+  const combinedContent = [...content, ...footnoteAndCalloutContent];
+  const combinedContentEditor = createEditor();
+  combinedContentEditor.children = combinedContent;
+  const noteLinks = Array.from(
+    Editor.nodes<NoteLink>(combinedContentEditor, {
+      at: [],
+      match: n => Element.isElement(n) && n.type === ElementType.NoteLink && !!Node.string(n),
+    }),
+  ).map(element => element[0]);
+
+  return noteLinks;
+};
