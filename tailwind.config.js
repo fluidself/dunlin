@@ -105,6 +105,10 @@ module.exports = {
               marginTop: '10px',
               marginLeft: '22px',
             },
+            mark: {
+              color: colors.neutral[100],
+              backgroundColor: '#828324',
+            },
             pre: {
               color: colors.neutral[100],
               backgroundColor: colors.neutral[800],
