@@ -95,7 +95,6 @@
     "@types/react-dom": "^18.0.10",
     "@types/react-highlight-words": "^0.16.4",
     "@types/react-virtualized-auto-sizer": "^1.0.1",
-    "@types/tailwindcss": "^3.0.9",
     "@types/uuid": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^5.53.0",
     "@typescript-eslint/parser": "^5.53.0",
