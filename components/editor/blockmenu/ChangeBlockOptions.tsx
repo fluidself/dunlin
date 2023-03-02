@@ -26,18 +26,18 @@ import { insertTable, isInTable } from 'editor/plugins/withTables';
 import { ElementType } from 'types/slate';
 import { useStore } from 'lib/store';
 import mimeTypes from 'utils/mime-types';
+import type { EmbedUrlInputState } from 'components/EmbedUrlInput';
 import Tooltip from 'components/Tooltip';
 import { DropdownItem } from 'components/Dropdown';
-import type { UrlInputModalState } from './UrlInputModal';
 
 type ChangeBlockOptionsProps = {
   element: Element;
-  setUrlModalState: Dispatch<SetStateAction<UrlInputModalState>>;
+  setEmbedUrlInputState: Dispatch<SetStateAction<EmbedUrlInputState>>;
   className?: string;
 };
 
 export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
-  const { element, className = '', setUrlModalState } = props;
+  const { element, className = '', setEmbedUrlInputState } = props;
 
   return (
     <div className={`divide-y dark:divide-gray-700 ${className}`}>
@@ -75,14 +75,14 @@ export default function ChangeBlockOptions(props: ChangeBlockOptionsProps) {
           format={ElementType.Video}
           element={element}
           Icon={IconBrandYoutube}
-          setUrlModalState={setUrlModalState}
+          setEmbedUrlInputState={setEmbedUrlInputState}
           tooltip="Video"
         />
         <EmbedButton
           format={ElementType.Embed}
           element={element}
           Icon={IconTerminal2}
-          setUrlModalState={setUrlModalState}
+          setEmbedUrlInputState={setEmbedUrlInputState}
           tooltip="Embed"
         />
         <FileButton
@@ -211,10 +211,10 @@ const FileButton = ({ format, element, Icon, tooltip, className = '', onlyImages
 
 type EmbedButtonProps = {
   format: ElementType.Embed | ElementType.Video;
-  setUrlModalState: Dispatch<SetStateAction<UrlInputModalState>>;
+  setEmbedUrlInputState: Dispatch<SetStateAction<EmbedUrlInputState>>;
 } & BlockButtonProps;
 
-const EmbedButton = ({ format, element, Icon, tooltip, className = '', setUrlModalState }: EmbedButtonProps) => {
+const EmbedButton = ({ format, element, Icon, tooltip, className = '', setEmbedUrlInputState }: EmbedButtonProps) => {
   const editor = useSlate();
   const path = useMemo(() => ReactEditor.findPath(editor, element), [editor, element]);
   const isActive = isElementActive(editor, format, path);
@@ -224,7 +224,7 @@ const EmbedButton = ({ format, element, Icon, tooltip, className = '', setUrlMod
       <span>
         <DropdownItem
           className={`flex items-center px-2 py-2 cursor-pointer rounded hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${className}`}
-          onClick={() => setUrlModalState({ isOpen: true, type: format, path })}
+          onClick={() => setEmbedUrlInputState({ isOpen: true, type: format, path })}
         >
           <Icon
             size={18}
