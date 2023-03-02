@@ -16,6 +16,7 @@ import type {
   ListElement,
   NoteLink,
   Tag,
+  ThematicBreak,
   UploadedFile,
   Video,
 } from 'types/slate';
@@ -473,6 +474,16 @@ export const insertCallout = (editor: Editor, path: Path = editor.selection) => 
   };
 
   Transforms.insertNodes(editor, callout, { at: path });
+};
+
+export const insertThematicBreak = (editor: Editor, path: Path = editor.selection) => {
+  const thematicBreak: ThematicBreak = {
+    id: createNodeId(),
+    type: ElementType.ThematicBreak,
+    children: [{ text: '' }],
+  };
+
+  Transforms.insertNodes(editor, thematicBreak, { at: path });
 };
 
 export const BRACKET_MAP: Record<string, string> = {
