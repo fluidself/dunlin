@@ -7,8 +7,9 @@ import { isReferenceableBlockElement } from 'editor/checks';
 import { createNodeId } from 'editor/plugins/withNodeId';
 import Dropdown, { DropdownItem } from 'components/Dropdown';
 import Portal from 'components/Portal';
+import type { EmbedUrlInputState } from 'components/EmbedUrlInput';
 import ChangeBlockOptions from './ChangeBlockOptions';
-import UrlInputModal, { type UrlInputModalState } from './UrlInputModal';
+import UrlInputModal from './UrlInputModal';
 
 type BlockMenuDropdownProps = {
   element: ReferenceableBlockElement;
@@ -18,7 +19,7 @@ type BlockMenuDropdownProps = {
 export default function BlockMenuDropdown(props: BlockMenuDropdownProps) {
   const { element, className = '' } = props;
   const editor = useSlateStatic();
-  const [urlModalState, setUrlModalState] = useState<UrlInputModalState>({ isOpen: false });
+  const [embedUrlInputState, setEmbedUrlInputState] = useState<EmbedUrlInputState>({ isOpen: false });
 
   const onAddBlock = useCallback(() => {
     // Insert new paragraph after the current block
@@ -98,13 +99,13 @@ export default function BlockMenuDropdown(props: BlockMenuDropdownProps) {
         </DropdownItem>
         <ChangeBlockOptions
           element={element}
-          setUrlModalState={setUrlModalState}
+          setEmbedUrlInputState={setEmbedUrlInputState}
           className="px-8 border-t dark:border-gray-700"
         />
       </Dropdown>
-      {urlModalState.isOpen ? (
+      {embedUrlInputState.isOpen ? (
         <Portal>
-          <UrlInputModal state={urlModalState} setState={setUrlModalState} />
+          <UrlInputModal state={embedUrlInputState} setState={setEmbedUrlInputState} />
         </Portal>
       ) : null}
     </>
