@@ -20,6 +20,7 @@ import withHtml from 'editor/plugins/withHtml';
 import withTables, { onKeyDown as onTableKeyDown } from 'editor/plugins/withTables';
 import { getDefaultEditorHotkeys } from 'editor/constants';
 import type { AddLinkPopoverState } from 'components/editor/Editor';
+import CommandMenu, { type CommandMenuState } from 'components/CommandMenu';
 import HoveringToolbar from 'components/editor/toolbar/HoveringToolbar';
 import AddLinkPopover from 'components/editor/AddLinkPopover';
 import EditorElement from 'components/editor/elements/EditorElement';
@@ -62,6 +63,10 @@ function CalloutContent(props: Props) {
 
   const renderElement = useMemo(() => withVerticalSpacing(EditorElement), []);
 
+  const [commandMenuState, setCommandMenuState] = useState<CommandMenuState>({
+    isVisible: false,
+    editor: undefined,
+  });
   const [addLinkPopoverState, setAddLinkPopoverState] = useState<AddLinkPopoverState>({
     isVisible: false,
     selection: undefined,
@@ -83,19 +88,20 @@ function CalloutContent(props: Props) {
       toolbarCanBeVisible &&
       hasExpandedSelection &&
       !addLinkPopoverState.isVisible &&
+      !commandMenuState.isVisible &&
       !isElementActive(editor, ElementType.CodeLine),
-    [toolbarCanBeVisible, hasExpandedSelection, editor, addLinkPopoverState.isVisible],
+    [toolbarCanBeVisible, hasExpandedSelection, editor, addLinkPopoverState.isVisible, commandMenuState.isVisible],
   );
 
   const hotkeys = useMemo(
     () => [
-      ...getDefaultEditorHotkeys(editor, setAddLinkPopoverState),
+      ...getDefaultEditorHotkeys(editor, setAddLinkPopoverState, setCommandMenuState),
       {
         hotkey: 'mod+a',
         callback: () => Transforms.select(editor, []),
       },
     ],
-    [editor, setAddLinkPopoverState],
+    [editor, setCommandMenuState, setAddLinkPopoverState],
   );
 
   const onKeyDown = useCallback(
@@ -115,6 +121,7 @@ function CalloutContent(props: Props) {
         for (const { hotkey, callback } of hotkeys) {
           if (isHotkey(hotkey, event.nativeEvent)) {
             event.preventDefault();
+            event.stopPropagation();
             callback();
           }
         }
@@ -155,6 +162,9 @@ function CalloutContent(props: Props) {
 
   return (
     <Slate editor={editor} value={value} onChange={onSlateChange}>
+      {commandMenuState.isVisible ? (
+        <CommandMenu commandMenuState={commandMenuState} setCommandMenuState={setCommandMenuState} />
+      ) : null}
       {isToolbarVisible ? <HoveringToolbar setAddLinkPopoverState={setAddLinkPopoverState} /> : null}
       {addLinkPopoverState.isVisible ? (
         <AddLinkPopover addLinkPopoverState={addLinkPopoverState} setAddLinkPopoverState={setAddLinkPopoverState} />

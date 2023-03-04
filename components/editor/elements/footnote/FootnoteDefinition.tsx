@@ -137,6 +137,7 @@ function FootnoteDefinition(props: Props) {
         for (const { hotkey, callback } of hotkeys) {
           if (isHotkey(hotkey, event.nativeEvent)) {
             event.preventDefault();
+            event.stopPropagation();
             callback();
           }
         }
