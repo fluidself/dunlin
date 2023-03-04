@@ -31,6 +31,7 @@ import { DeckEditor, ElementType } from 'types/slate';
 import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';
 import { addEllipsis } from 'utils/string';
+import CommandMenu, { type CommandMenuState } from 'components/CommandMenu';
 import HoveringToolbar from './toolbar/HoveringToolbar';
 import AddLinkPopover from './AddLinkPopover';
 import EditorElement from './elements/EditorElement';
@@ -150,6 +151,10 @@ function Editor(props: Props) {
     return ElementWithSideMenu;
   }, []);
 
+  const [commandMenuState, setCommandMenuState] = useState<CommandMenuState>({
+    isVisible: false,
+    editor: undefined,
+  });
   const [addLinkPopoverState, setAddLinkPopoverState] = useState<AddLinkPopoverState>({
     isVisible: false,
     selection: undefined,
@@ -171,13 +176,14 @@ function Editor(props: Props) {
       toolbarCanBeVisible &&
       hasExpandedSelection &&
       !addLinkPopoverState.isVisible &&
+      !commandMenuState.isVisible &&
       !isElementActive(editor, ElementType.CodeLine),
-    [toolbarCanBeVisible, hasExpandedSelection, editor, addLinkPopoverState.isVisible],
+    [toolbarCanBeVisible, hasExpandedSelection, editor, addLinkPopoverState.isVisible, commandMenuState.isVisible],
   );
 
   const hotkeys = useMemo(
-    () => getDefaultEditorHotkeys(editor, setAddLinkPopoverState),
-    [editor, setAddLinkPopoverState],
+    () => getDefaultEditorHotkeys(editor, setAddLinkPopoverState, setCommandMenuState),
+    [editor, setCommandMenuState, setAddLinkPopoverState],
   );
 
   const onKeyDown = useCallback(
@@ -197,6 +203,7 @@ function Editor(props: Props) {
         for (const { hotkey, callback } of hotkeys) {
           if (isHotkey(hotkey, event.nativeEvent)) {
             event.preventDefault();
+            event.stopPropagation();
             callback();
           }
         }
@@ -264,6 +271,9 @@ function Editor(props: Props) {
 
   return (
     <Slate editor={editor} value={value} onChange={onSlateChange}>
+      {commandMenuState.isVisible ? (
+        <CommandMenu commandMenuState={commandMenuState} setCommandMenuState={setCommandMenuState} />
+      ) : null}
       {isToolbarVisible ? <HoveringToolbar setAddLinkPopoverState={setAddLinkPopoverState} /> : null}
       {addLinkPopoverState.isVisible ? (
         <AddLinkPopover addLinkPopoverState={addLinkPopoverState} setAddLinkPopoverState={setAddLinkPopoverState} />
