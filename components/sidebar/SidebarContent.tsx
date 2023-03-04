@@ -3,17 +3,18 @@ import { IconFile, IconSearch } from '@tabler/icons';
 import Tooltip from 'components/Tooltip';
 import { SidebarTab as SidebarTabType, useStore } from 'lib/store';
 import { modifierKey } from 'utils/device';
+import type { CommandMenuState } from 'components/CommandMenu';
 import SidebarNotes from './SidebarNotes';
 import SidebarSearch from './SidebarSearch';
 import SidebarTab from './SidebarTab';
 
 type Props = {
   className?: string;
-  setIsFindOrCreateModalOpen: Dispatch<SetStateAction<boolean>>;
+  setCommandMenuState: Dispatch<SetStateAction<CommandMenuState>>;
 };
 
 export default function SidebarContent(props: Props) {
-  const { className, setIsFindOrCreateModalOpen } = props;
+  const { className, setCommandMenuState } = props;
   const activeTab = useStore(state => state.sidebarTab);
   const setActiveTab = useStore(state => state.setSidebarTab);
 
@@ -21,9 +22,7 @@ export default function SidebarContent(props: Props) {
     <div className={`flex flex-col ${className}`}>
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
       <div className="flex flex-col flex-1 overflow-x-hidden mt-px">
-        {activeTab === SidebarTabType.Notes ? (
-          <SidebarNotes setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen} />
-        ) : null}
+        {activeTab === SidebarTabType.Notes ? <SidebarNotes setCommandMenuState={setCommandMenuState} /> : null}
         {activeTab === SidebarTabType.Search ? <SidebarSearch /> : null}
       </div>
     </div>

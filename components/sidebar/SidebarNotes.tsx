@@ -3,17 +3,18 @@ import { Notes, NoteTreeItem, useStore } from 'lib/store';
 import { Sort } from 'lib/createUserSettingsSlice';
 import { caseInsensitiveStringCompare } from 'utils/string';
 import { dateCompare } from 'utils/date';
+import type { CommandMenuState } from 'components/CommandMenu';
 import ErrorBoundary from '../ErrorBoundary';
 import SidebarNotesFooter from './SidebarNotesFooter';
 import SidebarNotesTree from './SidebarNotesTree';
 
 type SidebarNotesProps = {
   className?: string;
-  setIsFindOrCreateModalOpen: Dispatch<SetStateAction<boolean>>;
+  setCommandMenuState: Dispatch<SetStateAction<CommandMenuState>>;
 };
 
 function SidebarNotes(props: SidebarNotesProps) {
-  const { className, setIsFindOrCreateModalOpen } = props;
+  const { className, setCommandMenuState } = props;
 
   const notes = useStore(state => state.notes);
   const noteTree = useStore(state => state.noteTree);
@@ -30,7 +31,7 @@ function SidebarNotes(props: SidebarNotesProps) {
         ) : (
           <p className="flex-1 px-6 my-2 text-center text-gray-500">No notes yet</p>
         )}
-        <SidebarNotesFooter noteSort={noteSort} numOfNotes={numOfNotes} setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen} />
+        <SidebarNotesFooter noteSort={noteSort} numOfNotes={numOfNotes} setCommandMenuState={setCommandMenuState} />
       </div>
     </ErrorBoundary>
   );

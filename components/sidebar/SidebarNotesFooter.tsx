@@ -2,19 +2,20 @@ import { Dispatch, SetStateAction, useCallback, memo } from 'react';
 import { IconPlus, IconDownload } from '@tabler/icons';
 import { useStore } from 'lib/store';
 import useImport from 'utils/useImport';
-import { Sort } from 'lib/createUserSettingsSlice';
-import Tooltip from 'components/Tooltip';
 import { isMobile, modifierKey } from 'utils/device';
+import { Sort } from 'lib/createUserSettingsSlice';
+import type { CommandMenuState } from 'components/CommandMenu';
+import Tooltip from 'components/Tooltip';
 import SidebarNotesSortDropdown from './SidebarNotesSortDropdown';
 
 type Props = {
   noteSort: Sort;
   numOfNotes: number;
-  setIsFindOrCreateModalOpen: Dispatch<SetStateAction<boolean>>;
+  setCommandMenuState: Dispatch<SetStateAction<CommandMenuState>>;
 };
 
 function SidebarNotesFooter(props: Props) {
-  const { noteSort, numOfNotes, setIsFindOrCreateModalOpen } = props;
+  const { noteSort, numOfNotes, setCommandMenuState } = props;
   const onImport = useImport();
   const isOffline = useStore(state => state.isOffline);
   const setNoteSort = useStore(state => state.setNoteSort);
@@ -23,8 +24,8 @@ function SidebarNotesFooter(props: Props) {
     if (isMobile()) {
       setIsSidebarOpen(false);
     }
-    setIsFindOrCreateModalOpen(isOpen => !isOpen);
-  }, [setIsSidebarOpen, setIsFindOrCreateModalOpen]);
+    setCommandMenuState(state => ({ ...state, isVisible: !state.isVisible }));
+  }, [setIsSidebarOpen, setCommandMenuState]);
 
   return (
     <div className="flex items-center justify-between border-t dark:border-gray-700">

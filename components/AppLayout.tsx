@@ -21,10 +21,10 @@ import useLitProtocol from 'utils/useLitProtocol';
 import { useAuth } from 'utils/useAuth';
 import { configureDeckAccess } from 'utils/accessControl';
 import CreateJoinRenameDeckModal, { CreateJoinRenameDeckType } from './CreateJoinRenameDeckModal';
+import CommandMenu, { type CommandMenuState } from './CommandMenu';
 import ShareModal from './share-modal/ShareModal';
 import SettingsModal from './settings/SettingsModal';
 import Sidebar from './sidebar/Sidebar';
-import FindOrCreateModal from './FindOrCreateModal';
 import PageLoading from './PageLoading';
 import ErrorPage from './ErrorPage';
 import OfflineBanner from './OfflineBanner';
@@ -238,7 +238,7 @@ export default function AppLayout(props: Props) {
     }
   }, [dataFetchError, resetDeck]);
 
-  const [isFindOrCreateModalOpen, setIsFindOrCreateModalOpen] = useState(false);
+  const [commandMenuState, setCommandMenuState] = useState<CommandMenuState>({ isVisible: false });
   const [createJoinRenameModal, setCreateJoinRenameModal] = useState<{
     open: boolean;
     type: CreateJoinRenameDeckType;
@@ -254,7 +254,7 @@ export default function AppLayout(props: Props) {
     () => [
       {
         hotkey: 'mod+p',
-        callback: () => setIsFindOrCreateModalOpen(isOpen => !isOpen),
+        callback: () => setCommandMenuState({ isVisible: true }),
       },
       {
         hotkey: 'mod+s',
@@ -285,7 +285,7 @@ export default function AppLayout(props: Props) {
         callback: () => setIsSidebarOpen(isOpen => !isOpen),
       },
     ],
-    [setIsFindOrCreateModalOpen, setSidebarTab, setIsSidebarOpen, router, deckId],
+    [setCommandMenuState, setSidebarTab, setIsSidebarOpen, router, deckId],
   );
   useHotkeys(hotkeys);
 
@@ -322,7 +322,7 @@ export default function AppLayout(props: Props) {
         <div id="app-container" className={appContainerClassName}>
           <div className="flex w-full h-full dark:bg-gray-900">
             <Sidebar
-              setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen}
+              setCommandMenuState={setCommandMenuState}
               setIsSettingsOpen={setIsSettingsOpen}
               setCreateJoinRenameModal={setCreateJoinRenameModal}
             />
@@ -334,7 +334,9 @@ export default function AppLayout(props: Props) {
             {isSettingsOpen ? (
               <SettingsModal setIsOpen={setIsSettingsOpen} setCreateJoinRenameModal={setCreateJoinRenameModal} />
             ) : null}
-            {isFindOrCreateModalOpen ? <FindOrCreateModal setIsOpen={setIsFindOrCreateModalOpen} /> : null}
+            {commandMenuState.isVisible ? (
+              <CommandMenu commandMenuState={commandMenuState} setCommandMenuState={setCommandMenuState} />
+            ) : null}
             {createJoinRenameModal.open && (
               <CreateJoinRenameDeckModal
                 type={createJoinRenameModal.type}
