@@ -9,20 +9,21 @@ import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useStore } from 'lib/store';
 import { SPRING_CONFIG } from 'constants/spring';
 import { CreateJoinRenameDeckType } from 'components/CreateJoinRenameDeckModal';
+import type { CommandMenuState } from 'components/CommandMenu';
 import Tooltip from 'components/Tooltip';
 import SidebarItem from './SidebarItem';
 import SidebarContent from './SidebarContent';
 import SidebarHeader from './SidebarHeader';
 
 type Props = {
-  setIsFindOrCreateModalOpen: Dispatch<SetStateAction<boolean>>;
+  setCommandMenuState: Dispatch<SetStateAction<CommandMenuState>>;
   setIsSettingsOpen: Dispatch<SetStateAction<boolean>>;
   setCreateJoinRenameModal: (modalStatus: { open: boolean; type: CreateJoinRenameDeckType }) => void;
   className?: string;
 };
 
 function Sidebar(props: Props) {
-  const { setIsFindOrCreateModalOpen, setIsSettingsOpen, setCreateJoinRenameModal, className = '' } = props;
+  const { setCommandMenuState, setIsSettingsOpen, setCreateJoinRenameModal, className = '' } = props;
 
   const isSidebarOpen = useStore(state => state.isSidebarOpen);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
@@ -98,16 +99,16 @@ function Sidebar(props: Props) {
                 setIsSettingsOpen={setIsSettingsOpen}
                 setCreateJoinRenameModal={setCreateJoinRenameModal}
               />
-              <FindOrCreateModalButton
+              <CommandMenuButton
                 onClick={() => {
                   hideSidebarOnMobile();
-                  setIsFindOrCreateModalOpen(isOpen => !isOpen);
+                  setCommandMenuState(state => ({ ...state, isVisible: !state.isVisible }));
                 }}
               />
               <GraphButton onClick={hideSidebarOnMobile} />
               <SidebarContent
                 className="flex-1 mt-px overflow-x-hidden overflow-y-auto"
-                setIsFindOrCreateModalOpen={setIsFindOrCreateModalOpen}
+                setCommandMenuState={setCommandMenuState}
               />
             </div>
           </animated.div>
@@ -116,11 +117,11 @@ function Sidebar(props: Props) {
   );
 }
 
-type FindOrCreateModalButtonProps = {
+type CommandMenuButtonProps = {
   onClick: () => void;
 };
 
-const FindOrCreateModalButton = (props: FindOrCreateModalButtonProps) => {
+const CommandMenuButton = (props: CommandMenuButtonProps) => {
   const { onClick } = props;
   return (
     <SidebarItem>
