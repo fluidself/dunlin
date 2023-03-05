@@ -99,8 +99,8 @@ export default function AppLayout(props: Props) {
           .match({ deck_id: deckId, user_id: user?.id })
           .single();
       }
-      const res = await fetch('/api/reset-recent-deck', { method: 'POST' });
-      if (res.ok) router.push('/');
+      await fetch('/api/reset-recent-deck', { method: 'POST' });
+      router.push('/');
     },
     [deckId, user?.id, router],
   );
@@ -113,7 +113,7 @@ export default function AppLayout(props: Props) {
         setDeckKey(deckKey);
         return deckKey;
       } catch (error) {
-        await resetDeck(dbDeck.user_id !== user?.id);
+        return resetDeck(dbDeck.user_id !== user?.id);
       }
     },
     [user?.id, resetDeck],

@@ -98,7 +98,7 @@ export default function CreateOrAccessWorkspace(props: Props) {
   const verifyAccess = async (requestedWorkspace: string) => {
     if (!user) return;
 
-    const success = await verifyDeckAccess(requestedWorkspace, user);
+    const success = await verifyDeckAccess(requestedWorkspace, user, localStorage.getItem('dbToken') ?? '');
 
     if (success) {
       toast.success('Access to workspace is granted');

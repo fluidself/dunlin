@@ -2,7 +2,7 @@ import { withIronSessionSsr } from 'iron-session/next';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { ironOptions } from 'constants/iron-session';
 import { useAuth } from 'utils/useAuth';
@@ -23,23 +23,22 @@ export default function JoinDeck({ deckId }: Props) {
   const { isReady, isError } = useLitProtocol();
   const router = useRouter();
 
-  const verifyAccess = useCallback(async () => {
-    if (!user) return;
-    const success = await verifyDeckAccess(deckId, user);
-
-    if (success) {
-      toast.success('Access to workspace is granted');
-      router.push(`/app/${deckId}`);
-    } else {
-      router.push(`/`);
-    }
-  }, [deckId, router, user]);
-
   useEffect(() => {
+    const verifyAccess = async () => {
+      if (!user) return;
+      const success = await verifyDeckAccess(deckId, user, localStorage.getItem('dbToken') ?? '');
+      if (success) {
+        toast.success('Access to workspace is granted');
+        router.push(`/app/${deckId}`);
+      } else {
+        router.push(`/`);
+      }
+    };
+
     if (user && isReady) {
       verifyAccess();
     }
-  }, [isReady, user, verifyAccess]);
+  }, [user, deckId, router, isReady]);
 
   if (isError) {
     return <ErrorPage />;

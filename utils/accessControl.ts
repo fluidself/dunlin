@@ -4,8 +4,11 @@ import { User, Deck, Contributor } from 'types/supabase';
 import { AccessControlCondition, BooleanCondition } from 'types/lit';
 import { decryptWithLit, encryptWithLit } from 'utils/encryption';
 
-export async function verifyDeckAccess(deckId: string, user: User) {
+export async function verifyDeckAccess(deckId: string, user: User, accessToken?: string) {
   const UUID_REGEX = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
+  if (accessToken) {
+    supabase.auth.setAuth(accessToken);
+  }
 
   try {
     if (!deckId.match(UUID_REGEX)) throw new Error('Unable to verify access');

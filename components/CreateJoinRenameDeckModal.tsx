@@ -149,7 +149,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
     if (!inputText || !user) return;
     setProcessing(true);
 
-    const success = await verifyDeckAccess(inputText, user);
+    const success = await verifyDeckAccess(inputText, user, localStorage.getItem('dbToken') ?? '');
 
     if (success) {
       toast.success('Access to workspace is granted');
