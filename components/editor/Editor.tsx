@@ -55,11 +55,6 @@ type Props = {
   highlightedPath?: Path;
 };
 
-const WEBSOCKET_ENDPOINT =
-  process.env.NODE_ENV === 'development'
-    ? 'ws://localhost:1234'
-    : (process.env.NEXT_PUBLIC_Y_WEBSOCKET_ENDPOINT as string);
-
 function Editor(props: Props) {
   const { noteId, onChange, className = '', highlightedPath } = props;
   const isMounted = useIsMounted();
@@ -85,7 +80,7 @@ function Editor(props: Props) {
   const [sharedType, provider] = useMemo(() => {
     const doc = new Y.Doc();
     const sharedType = doc.getArray<SyncElement>('content');
-    const provider = new WebsocketProvider(WEBSOCKET_ENDPOINT, noteId, doc, {
+    const provider = new WebsocketProvider(process.env.WEBSOCKET_ENDPOINT as string, noteId, doc, {
       connect: false,
     });
 

@@ -26,11 +26,6 @@ type Props = {
   className: string;
 };
 
-const WEBSOCKET_ENDPOINT =
-  process.env.NODE_ENV === 'development'
-    ? 'ws://localhost:1234'
-    : (process.env.NEXT_PUBLIC_Y_WEBSOCKET_ENDPOINT as string);
-
 function ReadOnlyNoteEditor(props: Props) {
   const { noteId, className } = props;
   const { user } = useAuth();
@@ -59,7 +54,7 @@ function ReadOnlyNoteEditor(props: Props) {
   const [sharedType, provider] = useMemo(() => {
     const doc = new Y.Doc();
     const sharedType = doc.getArray<SyncElement>('content');
-    const provider = new WebsocketProvider(WEBSOCKET_ENDPOINT, noteId, doc, {
+    const provider = new WebsocketProvider(process.env.WEBSOCKET_ENDPOINT as string, noteId, doc, {
       connect: false,
     });
 

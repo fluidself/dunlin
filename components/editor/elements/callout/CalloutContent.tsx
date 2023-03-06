@@ -1,10 +1,21 @@
-import { useCallback, useMemo, useState, KeyboardEvent, useRef, memo } from 'react';
+import { useCallback, useMemo, useState, KeyboardEvent, memo, useEffect } from 'react';
 import { createEditor, Range, Editor as SlateEditor, Descendant, Transforms } from 'slate';
 import { withReact, Editable, ReactEditor, Slate, useReadOnly } from 'slate-react';
+import { SyncElement, toSharedType, withYjs, withCursor, useCursors } from 'slate-yjs';
+import { WebsocketProvider } from 'y-websocket';
+import * as Y from 'yjs';
 import { withHistory } from 'slate-history';
 import { isHotkey } from 'is-hotkey';
+import randomColor from 'randomcolor';
+import _pick from 'lodash/pick';
+import _isEqual from 'lodash/isEqual';
+import { toast } from 'react-toastify';
 import { ElementType } from 'types/slate';
 import useIsMounted from 'utils/useIsMounted';
+import { useAuth } from 'utils/useAuth';
+import { useCurrentNote } from 'utils/useCurrentNote';
+import { addEllipsis } from 'utils/string';
+import { useStore } from 'lib/store';
 import { isElementActive } from 'editor/formatting';
 import decorateCodeBlocks from 'editor/decorateCodeBlocks';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
@@ -31,35 +42,89 @@ import BlockAutocompletePopover from 'components/editor/BlockAutocompletePopover
 import TagAutocompletePopover from 'components/editor/TagAutocompletePopover';
 
 type Props = {
+  elementId: string;
   value: Descendant[];
   onChange: (value: Descendant[]) => void;
   className?: string;
 };
 
 function CalloutContent(props: Props) {
-  const { value, className = '', onChange } = props;
+  const { elementId, value, className = '', onChange } = props;
   const isMounted = useIsMounted();
   const readOnly = useReadOnly();
+  const { user } = useAuth();
+  const { id: noteId } = useCurrentNote();
+  const note = useStore(state => state.notes[noteId]);
 
-  const editorRef = useRef<SlateEditor>();
-  if (!editorRef.current) {
-    editorRef.current = withNormalization(
-      withCustomDeleteBackward(
-        withAutoMarkdown(
-          withCodeBlocks(
-            withHtml(
-              withBlockBreakout(
-                withVoidElements(
-                  withMedia(withAnnotations(withLinks(withTables(withHistory(withReact(createEditor())))))),
+  const color = useMemo(
+    () =>
+      randomColor({
+        luminosity: 'dark',
+        format: 'rgba',
+        alpha: 1,
+      }),
+    [],
+  );
+
+  const [sharedType, provider] = useMemo(() => {
+    const doc = new Y.Doc();
+    const sharedType = doc.getArray<SyncElement>('content');
+    const provider = new WebsocketProvider(process.env.WEBSOCKET_ENDPOINT as string, elementId, doc, {
+      connect: false,
+    });
+
+    return [sharedType, provider];
+  }, [elementId]);
+
+  const editor = useMemo(() => {
+    const editor = withCursor(
+      withYjs(
+        withNormalization(
+          withCustomDeleteBackward(
+            withAutoMarkdown(
+              withCodeBlocks(
+                withHtml(
+                  withBlockBreakout(
+                    withVoidElements(
+                      withMedia(withAnnotations(withLinks(withTables(withHistory(withReact(createEditor())))))),
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
         ),
+        sharedType,
       ),
+      provider.awareness,
     );
-  }
-  const editor = editorRef.current;
+
+    return editor;
+  }, [sharedType, provider]);
+
+  const { decorate } = useCursors(editor);
+
+  useEffect(() => {
+    provider.on('sync', (isSynced: boolean) => {
+      if (isSynced && sharedType.length === 0) {
+        toSharedType(sharedType, value);
+      }
+    });
+
+    provider.awareness.setLocalState({
+      alphaColor: color.slice(0, -2) + '0.2)',
+      color,
+      name: user ? addEllipsis(user.id) : 'Anonymous',
+    });
+
+    provider.connect();
+
+    return () => {
+      provider.awareness.destroy();
+      provider.disconnect();
+    };
+    // eslint-disable-next-line
+  }, [provider]);
 
   const renderElement = useMemo(() => withVerticalSpacing(EditorElement), []);
 
@@ -132,12 +197,22 @@ function CalloutContent(props: Props) {
 
   const onSlateChange = useCallback(
     (newValue: Descendant[]) => {
-      setSelection(editor.selection);
-      if (newValue !== value) {
-        onChange(newValue);
+      if (!note) {
+        toast.warn('Someone deleted this note. Please copy your content into a new note if you want to keep it.', {
+          toastId: noteId,
+        });
+        return;
+      }
+      if (newValue?.length && value?.length) {
+        setSelection(editor.selection);
+        const valueNormalized = value.map(v => _pick(v, ['type', 'children']));
+        const newValueNormalized = newValue.map(v => _pick(v, ['type', 'children']));
+        if (!_isEqual(valueNormalized, newValueNormalized)) {
+          onChange(newValue);
+        }
       }
     },
-    [editor.selection, value, onChange],
+    [editor.selection, onChange, value, noteId, note],
   );
 
   if (readOnly) {
@@ -153,7 +228,11 @@ function CalloutContent(props: Props) {
           className={`overflow-hidden focus-visible:outline-none ${className}`}
           renderElement={renderElement}
           renderLeaf={EditorLeaf}
-          decorate={entry => decorateCodeBlocks(editor, entry)}
+          decorate={entry => {
+            const codeSyntaxRanges = decorateCodeBlocks(editor, entry);
+            const cursorRanges = decorate(entry);
+            return [...codeSyntaxRanges, ...cursorRanges];
+          }}
           readOnly
         />
       </Slate>
@@ -176,7 +255,11 @@ function CalloutContent(props: Props) {
         className={`overflow-hidden focus-visible:outline-none ${className}`}
         renderElement={renderElement}
         renderLeaf={EditorLeaf}
-        decorate={entry => decorateCodeBlocks(editor, entry)}
+        decorate={entry => {
+          const codeSyntaxRanges = decorateCodeBlocks(editor, entry);
+          const cursorRanges = decorate(entry);
+          return [...codeSyntaxRanges, ...cursorRanges];
+        }}
         onKeyDown={onKeyDown}
         onPointerDown={() => setToolbarCanBeVisible(false)}
         onPointerUp={() =>

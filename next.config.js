@@ -30,5 +30,7 @@ module.exports = withPWA({
   },
   env: {
     BASE_URL: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://dunlin.xyz',
+    WEBSOCKET_ENDPOINT:
+      process.env.NODE_ENV === 'development' ? 'ws://localhost:1234' : process.env.NEXT_PUBLIC_Y_WEBSOCKET_ENDPOINT,
   },
 });

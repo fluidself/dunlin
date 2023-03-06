@@ -143,7 +143,7 @@ export default function CalloutElement(props: CalloutElementProps) {
             </button>
           </Tooltip>
         ) : null}
-        <CalloutContent value={content} onChange={onContentChange} />
+        <CalloutContent elementId={element.id} value={content} onChange={onContentChange} />
         {isMenuOpen ? (
           <CalloutMenu selectedType={element.calloutType} onClose={() => setMenuOpen(false)} onUpdate={onTypeChange} />
         ) : null}
