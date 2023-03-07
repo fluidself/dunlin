@@ -1,7 +1,7 @@
-import { Editor, Range, Point } from 'slate';
+import { Editor, Range, Point, Text } from 'slate';
 import { v4 as uuidv4 } from 'uuid';
 import { ElementType, Mark } from 'types/slate';
-import { isMark } from 'editor/formatting';
+import { isMark, isMarkActive } from 'editor/formatting';
 import { store } from 'lib/store';
 import upsertNote from 'lib/api/upsertNote';
 import { caseInsensitiveStringEqual } from 'utils/string';
@@ -101,7 +101,7 @@ const handleInlineShortcuts = (editor: Editor, text: string): boolean => {
     } else if (type === ElementType.Footnote) {
       handled = handleFootnote(editor, result, endOfMatchPoint, text.length);
     } else if (type === CustomInlineShortcuts.EmDash) {
-      handled = handleEmDash(editor, endOfMatchPoint);
+      handled = isMarkActive(editor, Mark.Code) ? false : handleEmDash(editor, endOfMatchPoint);
     } else if (type === ElementType.Tag) {
       handled = handleTag(editor, result, endOfMatchPoint, text.length);
     } else if (type === ElementType.BlockReference) {
