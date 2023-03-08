@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { Menu } from '@headlessui/react';
 import Select from 'react-select';
-import { createEditor, Element, Editor, Descendant } from 'slate';
+import { createEditor, Element, Editor } from 'slate';
 import {
   IconDots,
   IconDownload,
@@ -310,29 +310,28 @@ const getNoteAsBlob = (note: DecryptedNote) => {
 
 export const getSerializedNote = (note: DecryptedNote, opts: SerializeOptions) => {
   const serializedContent = note.content.map(n => serialize(n, opts)).join('');
-  const hasFootnotes = note.content.some(
-    n => Element.isElement(n) && n.children.some(c => Element.isElement(c) && c.type === ElementType.Footnote),
-  );
+  const editor = createEditor();
+  editor.children = note.content;
+  const footnotes = Array.from(
+    Editor.nodes<Footnote>(editor, {
+      at: [],
+      match: n => Element.isElement(n) && n.type === ElementType.Footnote,
+    }),
+  ).map(nodeEntry => nodeEntry[0]);
 
-  if (hasFootnotes) {
-    return handleFootnotes(note.content, serializedContent, opts);
+  if (footnotes.length) {
+    return handleFootnotes(footnotes, serializedContent, opts);
   }
 
   return serializedContent;
 };
 
 // Replace footnote marker placeholders and add footnotes to bottom of content
-const handleFootnotes = (content: Descendant[], stringWithPlaceholders: string, opts: SerializeOptions) => {
-  const editor = createEditor();
-  editor.children = content;
-  const footnotes = Editor.nodes<Footnote>(editor, {
-    at: [],
-    match: n => Element.isElement(n) && n.type === ElementType.Footnote,
-  });
+const handleFootnotes = (footnotes: Footnote[], stringWithPlaceholders: string, opts: SerializeOptions) => {
   let output = stringWithPlaceholders + '\n';
   let footnoteId = 1;
 
-  for (const [footnote] of footnotes) {
+  for (const footnote of footnotes) {
     const serializedDefinition = footnote.definition
       .map(n => serialize(n, opts))
       .join('')
