@@ -4,13 +4,13 @@
 
 ### Navigation
 
-| Windows / Linux        | macOS               | Action                                   |
-| :--------------------- | :------------------ | :--------------------------------------- |
-| `Ctrl` + `p`           | `⌘` + `p`           | Create new note or jump to existing note |
-| `Ctrl` + `\`           | `⌘` + `\`           | Open or close sidebar                    |
-| `Ctrl` + `Shift` + `e` | `⌘` + `Shift` + `e` | Switch to notes sidebar tab              |
-| `Ctrl` + `Shift` + `f` | `⌘` + `Shift` + `f` | Switch to search sidebar tab             |
-| `Ctrl` + `Shift` + `g` | `⌘` + `Shift` + `g` | Go to graph view                         |
+| Windows / Linux        | macOS               | Action                                                              |
+| :--------------------- | :------------------ | :------------------------------------------------------------------ |
+| `Ctrl` + `p`           | `⌘` + `p`           | Open command menu to create or find a note or use an editor element |
+| `Ctrl` + `\`           | `⌘` + `\`           | Open or close sidebar                                               |
+| `Ctrl` + `Shift` + `e` | `⌘` + `Shift` + `e` | Switch to notes sidebar tab                                         |
+| `Ctrl` + `Shift` + `f` | `⌘` + `Shift` + `f` | Switch to search sidebar tab                                        |
+| `Ctrl` + `Shift` + `g` | `⌘` + `Shift` + `g` | Go to graph view                                                    |
 
 ### Formatting
 
@@ -46,4 +46,4 @@
 - Type `[]` followed by a `space` to create a checklist item.
 - Type `>` followed by a `space` to create a blockquote.
 - Type ` ``` ` to create a code block.
-- Type `---` or `***` to create a horizontal rule.
+- Type `---` or `***` to create a thematic break.
