@@ -22,6 +22,7 @@ import { getDefaultEditorHotkeys, getDefaultEditorValue } from 'editor/constants
 import { store, useStore } from 'lib/store';
 import { ElementType } from 'types/slate';
 import useIsMounted from 'utils/useIsMounted';
+import Portal from 'components/Portal';
 import CommandMenu, { type CommandMenuState } from 'components/CommandMenu';
 import HoveringToolbar from './toolbar/HoveringToolbar';
 import AddLinkPopover from './AddLinkPopover';
@@ -192,33 +193,37 @@ function SoloEditor(props: Props) {
   }, [editor, highlightedPath, darkMode]);
 
   return (
-    <Slate editor={editor} value={value} onChange={onSlateChange}>
+    <>
+      <Slate editor={editor} value={value} onChange={onSlateChange}>
+        {isToolbarVisible ? <HoveringToolbar setAddLinkPopoverState={setAddLinkPopoverState} /> : null}
+        {addLinkPopoverState.isVisible ? (
+          <AddLinkPopover addLinkPopoverState={addLinkPopoverState} setAddLinkPopoverState={setAddLinkPopoverState} />
+        ) : null}
+        <LinkAutocompletePopover />
+        <BlockAutocompletePopover />
+        <TagAutocompletePopover />
+        <Editable
+          className={`overflow-hidden placeholder-gray-300 focus-visible:outline-none ${className}`}
+          renderElement={renderElement}
+          renderLeaf={EditorLeaf}
+          decorate={entry => decorateCodeBlocks(editor, entry)}
+          placeholder="Start typing here…"
+          onKeyDown={onKeyDown}
+          onPointerDown={() => setToolbarCanBeVisible(false)}
+          onPointerUp={() =>
+            setTimeout(() => {
+              if (isMounted()) setToolbarCanBeVisible(true);
+            }, 100)
+          }
+          spellCheck
+        />
+      </Slate>
       {commandMenuState.isVisible ? (
-        <CommandMenu commandMenuState={commandMenuState} setCommandMenuState={setCommandMenuState} />
+        <Portal>
+          <CommandMenu commandMenuState={commandMenuState} setCommandMenuState={setCommandMenuState} />
+        </Portal>
       ) : null}
-      {isToolbarVisible ? <HoveringToolbar setAddLinkPopoverState={setAddLinkPopoverState} /> : null}
-      {addLinkPopoverState.isVisible ? (
-        <AddLinkPopover addLinkPopoverState={addLinkPopoverState} setAddLinkPopoverState={setAddLinkPopoverState} />
-      ) : null}
-      <LinkAutocompletePopover />
-      <BlockAutocompletePopover />
-      <TagAutocompletePopover />
-      <Editable
-        className={`overflow-hidden placeholder-gray-300 focus-visible:outline-none ${className}`}
-        renderElement={renderElement}
-        renderLeaf={EditorLeaf}
-        decorate={entry => decorateCodeBlocks(editor, entry)}
-        placeholder="Start typing here…"
-        onKeyDown={onKeyDown}
-        onPointerDown={() => setToolbarCanBeVisible(false)}
-        onPointerUp={() =>
-          setTimeout(() => {
-            if (isMounted()) setToolbarCanBeVisible(true);
-          }, 100)
-        }
-        spellCheck
-      />
-    </Slate>
+    </>
   );
 }
 

@@ -31,6 +31,7 @@ import withHtml from 'editor/plugins/withHtml';
 import withTables, { onKeyDown as onTableKeyDown } from 'editor/plugins/withTables';
 import { getDefaultEditorHotkeys } from 'editor/constants';
 import type { AddLinkPopoverState } from 'components/editor/Editor';
+import Portal from 'components/Portal';
 import CommandMenu, { type CommandMenuState } from 'components/CommandMenu';
 import HoveringToolbar from 'components/editor/toolbar/HoveringToolbar';
 import AddLinkPopover from 'components/editor/AddLinkPopover';
@@ -240,36 +241,40 @@ function CalloutContent(props: Props) {
   }
 
   return (
-    <Slate editor={editor} value={value} onChange={onSlateChange}>
+    <>
+      <Slate editor={editor} value={value} onChange={onSlateChange}>
+        {isToolbarVisible ? <HoveringToolbar setAddLinkPopoverState={setAddLinkPopoverState} /> : null}
+        {addLinkPopoverState.isVisible ? (
+          <AddLinkPopover addLinkPopoverState={addLinkPopoverState} setAddLinkPopoverState={setAddLinkPopoverState} />
+        ) : null}
+        <LinkAutocompletePopover />
+        <BlockAutocompletePopover />
+        <TagAutocompletePopover />
+        <Editable
+          className={`overflow-hidden focus-visible:outline-none ${className}`}
+          renderElement={renderElement}
+          renderLeaf={EditorLeaf}
+          decorate={entry => {
+            const codeSyntaxRanges = decorateCodeBlocks(editor, entry);
+            const cursorRanges = decorate(entry);
+            return [...codeSyntaxRanges, ...cursorRanges];
+          }}
+          onKeyDown={onKeyDown}
+          onPointerDown={() => setToolbarCanBeVisible(false)}
+          onPointerUp={() =>
+            setTimeout(() => {
+              if (isMounted()) setToolbarCanBeVisible(true);
+            }, 100)
+          }
+          spellCheck
+        />
+      </Slate>
       {commandMenuState.isVisible ? (
-        <CommandMenu commandMenuState={commandMenuState} setCommandMenuState={setCommandMenuState} />
+        <Portal>
+          <CommandMenu commandMenuState={commandMenuState} setCommandMenuState={setCommandMenuState} />
+        </Portal>
       ) : null}
-      {isToolbarVisible ? <HoveringToolbar setAddLinkPopoverState={setAddLinkPopoverState} /> : null}
-      {addLinkPopoverState.isVisible ? (
-        <AddLinkPopover addLinkPopoverState={addLinkPopoverState} setAddLinkPopoverState={setAddLinkPopoverState} />
-      ) : null}
-      <LinkAutocompletePopover />
-      <BlockAutocompletePopover />
-      <TagAutocompletePopover />
-      <Editable
-        className={`overflow-hidden focus-visible:outline-none ${className}`}
-        renderElement={renderElement}
-        renderLeaf={EditorLeaf}
-        decorate={entry => {
-          const codeSyntaxRanges = decorateCodeBlocks(editor, entry);
-          const cursorRanges = decorate(entry);
-          return [...codeSyntaxRanges, ...cursorRanges];
-        }}
-        onKeyDown={onKeyDown}
-        onPointerDown={() => setToolbarCanBeVisible(false)}
-        onPointerUp={() =>
-          setTimeout(() => {
-            if (isMounted()) setToolbarCanBeVisible(true);
-          }, 100)
-        }
-        spellCheck
-      />
-    </Slate>
+    </>
   );
 }
 
