@@ -124,6 +124,12 @@ export default function CreateOrAccessWorkspace(props: Props) {
           event.target.value !== '' && setInvalid(false);
           setInputValue(event.target.value);
         }}
+        onKeyDown={e => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSubmit();
+          }
+        }}
       />
       <div className="flex flex-row gap-4 items-center justify-between w-full">
         <Button className="flex-grow" primary disabled={processing} onClick={handleSubmit}>

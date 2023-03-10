@@ -218,6 +218,12 @@ export default function CreateJoinRenameDeckModal(props: Props) {
               placeholder={placeholders[type]}
               value={inputText}
               onChange={e => setInputText(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  onClickHandlers[type]();
+                }
+              }}
               autoFocus
               autoComplete="off"
               maxLength={20}
@@ -232,6 +238,12 @@ export default function CreateJoinRenameDeckModal(props: Props) {
             placeholder={placeholders[type]}
             value={inputText}
             onChange={e => setInputText(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                onClickHandlers[type]();
+              }
+            }}
             autoFocus
             autoComplete="off"
             maxLength={type === 'create' ? 20 : 40}
