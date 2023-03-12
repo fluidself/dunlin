@@ -4,7 +4,7 @@ import { useStore } from 'lib/store';
 import useImport from 'utils/useImport';
 import { isMobile, modifierKey } from 'utils/device';
 import { Sort } from 'lib/createUserSettingsSlice';
-import type { CommandMenuState } from 'components/CommandMenu';
+import type { CommandMenuState } from 'components/command-menu/CommandMenu';
 import Tooltip from 'components/Tooltip';
 import SidebarNotesSortDropdown from './SidebarNotesSortDropdown';
 

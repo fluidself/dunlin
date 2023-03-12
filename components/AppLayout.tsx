@@ -21,7 +21,7 @@ import useLitProtocol from 'utils/useLitProtocol';
 import { useAuth } from 'utils/useAuth';
 import { configureDeckAccess } from 'utils/accessControl';
 import CreateJoinRenameDeckModal, { CreateJoinRenameDeckType } from './CreateJoinRenameDeckModal';
-import CommandMenu, { type CommandMenuState } from './CommandMenu';
+import CommandMenu, { type CommandMenuState } from './command-menu/CommandMenu';
 import ShareModal from './share-modal/ShareModal';
 import SettingsModal from './settings/SettingsModal';
 import Sidebar from './sidebar/Sidebar';

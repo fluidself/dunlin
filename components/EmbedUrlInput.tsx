@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { Path } from 'slate';
-import { useSlate } from 'slate-react';
+import { Editor, Path } from 'slate';
 import isHotkey from 'is-hotkey';
 import { IconBrandYoutube, IconTerminal2, IconX } from '@tabler/icons';
 import type { OembedData } from '@extractus/oembed-extractor';
@@ -14,6 +13,8 @@ export type EmbedUrlInputState = {
   isOpen: boolean;
   type?: ElementType.Embed | ElementType.Video;
   path?: Path;
+  editor?: Editor;
+  onCloseCallback?: () => void;
   onSubmitCallback?: () => void;
 };
 
@@ -24,7 +25,7 @@ type Props = {
 
 export default function EmbedUrlInput(props: Props) {
   const { state, setState } = props;
-  const editor = useSlate();
+  const { onCloseCallback } = state;
   const [inputText, setInputText] = useState('');
   const [error, setError] = useState('');
 
@@ -33,6 +34,7 @@ export default function EmbedUrlInput(props: Props) {
       if (isHotkey(['esc'], event)) {
         event.stopPropagation();
         event.preventDefault();
+        onCloseCallback?.();
         setState({ isOpen: false });
       }
     };
@@ -40,10 +42,10 @@ export default function EmbedUrlInput(props: Props) {
     const element = document.getElementById('url-input-modal');
     element?.addEventListener('keydown', handleClose);
     return () => element?.removeEventListener('keydown', handleClose);
-  }, [setState]);
+  }, [onCloseCallback, setState]);
 
   const handleSubmit = async () => {
-    if (!inputText || !state.path || !state.type) return;
+    if (!inputText || !state.path || !state.type || !state.editor) return;
     if (!isUrl(inputText)) {
       setError('Please enter a valid URL');
       return;
@@ -73,9 +75,9 @@ export default function EmbedUrlInput(props: Props) {
 
   const insertAndClose = (type: ElementType.Video | ElementType.Embed, url: string, oembed?: OembedData) => {
     if (type === ElementType.Video) {
-      insertVideo(editor, url, state.path);
+      insertVideo(state.editor, url, state.path);
     } else {
-      insertEmbed(editor, url, oembed, state.path);
+      insertEmbed(state.editor, url, oembed, state.path);
     }
 
     state.onSubmitCallback?.();

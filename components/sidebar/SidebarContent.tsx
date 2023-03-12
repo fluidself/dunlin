@@ -3,7 +3,7 @@ import { IconFile, IconSearch } from '@tabler/icons';
 import Tooltip from 'components/Tooltip';
 import { SidebarTab as SidebarTabType, useStore } from 'lib/store';
 import { modifierKey } from 'utils/device';
-import type { CommandMenuState } from 'components/CommandMenu';
+import type { CommandMenuState } from 'components/command-menu/CommandMenu';
 import SidebarNotes from './SidebarNotes';
 import SidebarSearch from './SidebarSearch';
 import SidebarTab from './SidebarTab';

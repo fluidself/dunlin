@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import Fuse from 'fuse.js';
 import { Notes, store } from 'lib/store';
-import { allElementOptions, OptionType } from 'components/CommandMenu';
+import { allElementOptions, OptionType } from 'components/command-menu/CommandMenuSearch';
 
 type FuseDatum = {
   id: string;

@@ -3,7 +3,7 @@ import { Notes, NoteTreeItem, useStore } from 'lib/store';
 import { Sort } from 'lib/createUserSettingsSlice';
 import { caseInsensitiveStringCompare } from 'utils/string';
 import { dateCompare } from 'utils/date';
-import type { CommandMenuState } from 'components/CommandMenu';
+import type { CommandMenuState } from 'components/command-menu/CommandMenu';
 import ErrorBoundary from '../ErrorBoundary';
 import SidebarNotesFooter from './SidebarNotesFooter';
 import SidebarNotesTree from './SidebarNotesTree';

@@ -1,7 +1,6 @@
 import type { KeyboardEvent } from 'react';
 import { useCallback, useMemo, useState } from 'react';
-import { Editor, Path, Transforms } from 'slate';
-import { ReactEditor } from 'slate-react';
+import { Editor, Path } from 'slate';
 import {
   IconAsterisk,
   IconBlockquote,
@@ -45,12 +44,8 @@ import {
 } from 'editor/formatting';
 import { uploadAndInsertFile, uploadAndInsertImage } from 'editor/plugins/withMedia';
 import { insertTable, isInTable } from 'editor/plugins/withTables';
-import EmbedUrlInput, { type EmbedUrlInputState } from './EmbedUrlInput';
-
-export type CommandMenuState = {
-  isVisible: boolean;
-  editor?: Editor;
-};
+import { type EmbedUrlInputState } from 'components/EmbedUrlInput';
+import { CommandMenuMode } from './CommandMenu';
 
 export enum OptionType {
   NEW_NOTE,
@@ -67,13 +62,14 @@ export type Option = {
 };
 
 type Props = {
-  commandMenuState: CommandMenuState;
-  setCommandMenuState: (state: CommandMenuState) => void;
+  editor?: Editor;
+  hideCommandMenu: (restoreEditorSelection?: boolean) => void;
+  setEmbedUrlState: (state: EmbedUrlInputState) => void;
+  setSelectedMode: (mode: CommandMenuMode) => void;
 };
 
-export default function CommandMenu(props: Props) {
-  const { commandMenuState, setCommandMenuState } = props;
-  const { editor } = commandMenuState;
+export default function CommandMenuSearch(props: Props) {
+  const { editor, hideCommandMenu, setEmbedUrlState, setSelectedMode } = props;
   const { user } = useAuth();
   const { id: deckId } = useCurrentDeck();
   const authorOnlyNotes = useStore(state => state.authorOnlyNotes);
@@ -82,7 +78,6 @@ export default function CommandMenu(props: Props) {
 
   const [inputText, setInputText] = useState('');
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0);
-  const [embedUrlState, setEmbedUrlState] = useState<EmbedUrlInputState>({ isOpen: false });
 
   const search = useCommandMenuSearch({ numOfResults: 10, withEditorElements: typeof editor !== 'undefined' });
   const searchResults = useMemo(() => search(inputText), [search, inputText]);
@@ -118,17 +113,6 @@ export default function CommandMenu(props: Props) {
 
     return result.length ? result.sort((a, b) => a.type - b.type) : editor && !inTable ? [...allElementOptions] : [];
   }, [searchResults, inputText, editor, inTable]);
-
-  const hideCommandMenu = useCallback(
-    (restoreEditorSelection = true) => {
-      if (restoreEditorSelection && editor && editor.selection) {
-        Transforms.select(editor, editor.selection);
-        ReactEditor.focus(editor);
-      }
-      setCommandMenuState({ isVisible: false });
-    },
-    [editor, setCommandMenuState],
-  );
 
   const handleFile = useCallback(
     (onlyImages: boolean, path: Path) => {
@@ -215,7 +199,14 @@ export default function CommandMenu(props: Props) {
             break;
           case ElementType.Embed:
           case ElementType.Video:
-            setEmbedUrlState({ isOpen: true, type: option.format, path, onSubmitCallback: hideCommandMenu });
+            setEmbedUrlState({
+              isOpen: true,
+              type: option.format,
+              path,
+              onCloseCallback: () => setSelectedMode(CommandMenuMode.SEARCH),
+              onSubmitCallback: hideCommandMenu,
+            });
+            setSelectedMode(CommandMenuMode.EMBED_INPUT);
             break;
           case ElementType.Table:
             insertTable(editor, path);
@@ -230,7 +221,18 @@ export default function CommandMenu(props: Props) {
         throw new Error(`Option type ${option.type} is not supported`);
       }
     },
-    [deckId, authorOnlyNotes, user, inputText, editor, onNoteLinkClick, handleFile, hideCommandMenu],
+    [
+      deckId,
+      authorOnlyNotes,
+      user,
+      inputText,
+      editor,
+      onNoteLinkClick,
+      handleFile,
+      hideCommandMenu,
+      setEmbedUrlState,
+      setSelectedMode,
+    ],
   );
 
   const onKeyDown = useCallback(
@@ -258,78 +260,66 @@ export default function CommandMenu(props: Props) {
   const elementOptions = options.filter(opt => opt.type === OptionType.ELEMENT);
 
   return (
-    <div className="fixed inset-0 z-20 overflow-y-auto">
-      <div
-        className="fixed inset-0 bg-black opacity-30"
-        onClick={() => setCommandMenuState({ ...commandMenuState, isVisible: false })}
-      />
-      <div className="flex justify-center px-6 max-h-screen-80 my-screen-10">
-        {embedUrlState.isOpen ? (
-          <EmbedUrlInput state={embedUrlState} setState={setEmbedUrlState} />
-        ) : (
-          <div className="flex flex-col z-30 w-full max-w-screen-sm bg-white rounded shadow-popover dark:bg-gray-800">
-            <div className="flex items-center flex-shrink-0 w-full">
-              <IconSearch className="ml-4 text-gray-500" size={20} />
-              <input
-                type="text"
-                className="w-full py-4 px-2 text-xl border-none rounded-tl rounded-tr focus:ring-0 dark:bg-gray-800 dark:text-gray-200"
-                placeholder={editor && !inTable ? 'Find or create a note or use an element' : 'Find or create a note'}
-                value={inputText}
-                onChange={e => setInputText(e.target.value)}
-                onKeyDown={onKeyDown}
-                onKeyPress={event => {
-                  if (event.key === 'Enter') {
-                    event.preventDefault();
-                    onOptionClick(options[selectedOptionIndex], event.shiftKey);
-                  }
-                }}
-                autoFocus
-              />
-            </div>
-            {options.length > 0 ? (
-              <>
-                <div className="flex-1 w-full overflow-y-auto bg-white border-t rounded-bl rounded-br dark:bg-gray-800 dark:border-gray-700">
-                  {noteOptions.length > 0 ? <div className="px-4 py-2 select-none text-gray-300">Notes</div> : null}
-                  {noteOptions.map(option => {
-                    const index = options.findIndex(o => o.id === option.id);
-                    return (
-                      <OptionItem
-                        key={option.id}
-                        option={option}
-                        isSelected={index === selectedOptionIndex}
-                        onClick={(option, stackNote) => onOptionClick(option, stackNote)}
-                      />
-                    );
-                  })}
-                  {elementOptions.length > 0 ? (
-                    <div className="px-4 py-2 select-none text-gray-300">Editor elements</div>
-                  ) : null}
-                  {elementOptions.map(option => {
-                    const index = options.findIndex(o => o.id === option.id);
-                    return (
-                      <OptionItem
-                        key={option.id}
-                        option={option}
-                        isSelected={index === selectedOptionIndex}
-                        onClick={(option, stackNote) => onOptionClick(option, stackNote)}
-                      />
-                    );
-                  })}
-                </div>
-                <div className="flex items-center justify-center text-sm select-none text-gray-300 space-x-6 py-1">
-                  <div>
-                    <span className="text-lg leading-none tracking-tighter">↑↓</span> to navigate
-                  </div>
-                  <div>
-                    <span className="text-lg leading-none">↵</span> to select
-                  </div>
-                  <div>esc to dismiss</div>
-                </div>
-              </>
-            ) : null}
-          </div>
-        )}
+    <div className="flex flex-col z-30 w-full max-w-screen-sm bg-white rounded shadow-popover dark:bg-gray-800">
+      <div className="flex items-center flex-shrink-0 w-full">
+        <IconSearch className="ml-4 text-gray-500" size={20} />
+        <input
+          type="text"
+          className="w-full py-4 px-2 text-xl border-none rounded-tl rounded-tr focus:ring-0 dark:bg-gray-800 dark:text-gray-200"
+          placeholder={editor && !inTable ? 'Find or create a note or use an element' : 'Find or create a note'}
+          value={inputText}
+          onChange={e => setInputText(e.target.value)}
+          onKeyDown={onKeyDown}
+          onKeyPress={event => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              onOptionClick(options[selectedOptionIndex], event.shiftKey);
+            }
+          }}
+          autoFocus
+        />
       </div>
+      {options.length > 0 ? (
+        <>
+          <div className="flex-1 w-full overflow-y-auto bg-white border-t rounded-bl rounded-br dark:bg-gray-800 dark:border-gray-700">
+            {noteOptions.length > 0 ? <div className="px-4 py-2 select-none text-gray-300">Notes</div> : null}
+            {noteOptions.map(option => {
+              const index = options.findIndex(o => o.id === option.id);
+              return (
+                <OptionItem
+                  key={option.id}
+                  option={option}
+                  isSelected={index === selectedOptionIndex}
+                  onClick={(option, stackNote) => onOptionClick(option, stackNote)}
+                />
+              );
+            })}
+            {elementOptions.length > 0 ? (
+              <div className="px-4 py-2 select-none text-gray-300">Editor elements</div>
+            ) : null}
+            {elementOptions.map(option => {
+              const index = options.findIndex(o => o.id === option.id);
+              return (
+                <OptionItem
+                  key={option.id}
+                  option={option}
+                  isSelected={index === selectedOptionIndex}
+                  onClick={(option, stackNote) => onOptionClick(option, stackNote)}
+                />
+              );
+            })}
+          </div>
+          <div className="flex items-center justify-center text-sm select-none text-gray-300 space-x-6 py-1">
+            <div>
+              <span className="text-lg leading-none tracking-tighter">↑↓</span> to navigate
+            </div>
+            <div>
+              <span className="text-lg leading-none">↵</span> to select
+            </div>
+            <div>esc to dismiss</div>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }

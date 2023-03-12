@@ -23,7 +23,7 @@ import { store, useStore } from 'lib/store';
 import { ElementType } from 'types/slate';
 import useIsMounted from 'utils/useIsMounted';
 import Portal from 'components/Portal';
-import CommandMenu, { type CommandMenuState } from 'components/CommandMenu';
+import CommandMenu, { type CommandMenuState } from 'components/command-menu/CommandMenu';
 import HoveringToolbar from './toolbar/HoveringToolbar';
 import AddLinkPopover from './AddLinkPopover';
 import EditorElement from './elements/EditorElement';

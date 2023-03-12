@@ -2,7 +2,7 @@ import { SetStateAction } from 'react';
 import { Descendant, Editor, Transforms } from 'slate';
 import { ElementType, Mark } from 'types/slate';
 import type { AddLinkPopoverState } from 'components/editor/Editor';
-import type { CommandMenuState } from 'components/CommandMenu';
+import type { CommandMenuState } from 'components/command-menu/CommandMenu';
 import {
   handleBrackets,
   handleExitBreak,

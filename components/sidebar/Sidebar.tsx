@@ -9,7 +9,7 @@ import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useStore } from 'lib/store';
 import { SPRING_CONFIG } from 'constants/spring';
 import { CreateJoinRenameDeckType } from 'components/CreateJoinRenameDeckModal';
-import type { CommandMenuState } from 'components/CommandMenu';
+import type { CommandMenuState } from 'components/command-menu/CommandMenu';
 import Tooltip from 'components/Tooltip';
 import SidebarItem from './SidebarItem';
 import SidebarContent from './SidebarContent';

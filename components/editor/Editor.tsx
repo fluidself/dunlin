@@ -32,7 +32,7 @@ import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';
 import { addEllipsis } from 'utils/string';
 import Portal from 'components/Portal';
-import CommandMenu, { type CommandMenuState } from 'components/CommandMenu';
+import CommandMenu, { type CommandMenuState } from 'components/command-menu/CommandMenu';
 import HoveringToolbar from './toolbar/HoveringToolbar';
 import AddLinkPopover from './AddLinkPopover';
 import EditorElement from './elements/EditorElement';

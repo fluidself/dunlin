@@ -32,7 +32,7 @@ import withTables, { onKeyDown as onTableKeyDown } from 'editor/plugins/withTabl
 import { getDefaultEditorHotkeys } from 'editor/constants';
 import type { AddLinkPopoverState } from 'components/editor/Editor';
 import Portal from 'components/Portal';
-import CommandMenu, { type CommandMenuState } from 'components/CommandMenu';
+import CommandMenu, { type CommandMenuState } from 'components/command-menu/CommandMenu';
 import HoveringToolbar from 'components/editor/toolbar/HoveringToolbar';
 import AddLinkPopover from 'components/editor/AddLinkPopover';
 import EditorElement from 'components/editor/elements/EditorElement';
