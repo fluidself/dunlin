@@ -27,6 +27,7 @@
     "d3-zoom": "^3.0.0",
     "detect-indent": "^7.0.1",
     "ethers": "^5.7.2",
+    "eventsource-parser": "^0.1.0",
     "file-saver": "^2.0.5",
     "fuse.js": "^6.5.3",
     "immer": "^9.0.16",
