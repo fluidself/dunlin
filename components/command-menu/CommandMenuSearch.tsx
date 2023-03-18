@@ -203,6 +203,7 @@ export default function CommandMenuSearch(props: Props) {
               isOpen: true,
               type: option.format,
               path,
+              editor,
               onCloseCallback: () => setSelectedMode(CommandMenuMode.SEARCH),
               onSubmitCallback: hideCommandMenu,
             });
