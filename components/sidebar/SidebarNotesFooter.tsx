@@ -1,30 +1,29 @@
-import { Dispatch, SetStateAction, useCallback, memo } from 'react';
+import { useCallback, memo } from 'react';
 import { IconPlus, IconDownload } from '@tabler/icons';
 import { useStore } from 'lib/store';
 import useImport from 'utils/useImport';
 import { isMobile, modifierKey } from 'utils/device';
 import { Sort } from 'lib/createUserSettingsSlice';
-import type { CommandMenuState } from 'components/command-menu/CommandMenu';
 import Tooltip from 'components/Tooltip';
 import SidebarNotesSortDropdown from './SidebarNotesSortDropdown';
 
 type Props = {
   noteSort: Sort;
   numOfNotes: number;
-  setCommandMenuState: Dispatch<SetStateAction<CommandMenuState>>;
 };
 
 function SidebarNotesFooter(props: Props) {
-  const { noteSort, numOfNotes, setCommandMenuState } = props;
+  const { noteSort, numOfNotes } = props;
   const onImport = useImport();
   const isOffline = useStore(state => state.isOffline);
   const setNoteSort = useStore(state => state.setNoteSort);
+  const setCommandMenuState = useStore(state => state.setCommandMenuState);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
   const onCreateNoteClick = useCallback(() => {
     if (isMobile()) {
       setIsSidebarOpen(false);
     }
-    setCommandMenuState(state => ({ ...state, isVisible: !state.isVisible }));
+    setCommandMenuState({ isVisible: true });
   }, [setIsSidebarOpen, setCommandMenuState]);
 
   return (

@@ -2,12 +2,15 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import { Transforms } from 'slate';
+import { ReactEditor } from 'slate-react';
 import classNames from 'classnames';
 import { toast } from 'react-toastify';
 import colors from 'tailwindcss/colors';
 import { useAccount } from 'wagmi';
 import useSWR from 'swr';
 import { useStore, store, NoteTreeItem, getNoteTreeItem, Notes, SidebarTab } from 'lib/store';
+import activeEditorsStore from 'lib/activeEditorsStore';
 import supabase from 'lib/supabase';
 import selectDeckWithNotes from 'lib/api/selectDeckWithNotes';
 import { Deck, Contributor } from 'types/supabase';
@@ -20,8 +23,8 @@ import useIsOffline from 'utils/useIsOffline';
 import useLitProtocol from 'utils/useLitProtocol';
 import { useAuth } from 'utils/useAuth';
 import { configureDeckAccess } from 'utils/accessControl';
+import CommandMenu from './command-menu/CommandMenu';
 import CreateJoinRenameDeckModal, { CreateJoinRenameDeckType } from './CreateJoinRenameDeckModal';
-import CommandMenu, { type CommandMenuState } from './command-menu/CommandMenu';
 import ShareModal from './share-modal/ShareModal';
 import SettingsModal from './settings/SettingsModal';
 import Sidebar from './sidebar/Sidebar';
@@ -54,6 +57,7 @@ export default function AppLayout(props: Props) {
   const isOffline = useStore(state => state.isOffline);
   const darkMode = useStore(state => state.darkMode);
   const shareModalOpen = useStore(state => state.shareModalOpen);
+  const commandMenuState = useStore(state => state.commandMenuState);
   const setStoreDeckKey = useStore(state => state.setDeckKey);
   const setNotes = useStore(state => state.setNotes);
   const setNoteTree = useStore(state => state.setNoteTree);
@@ -64,6 +68,7 @@ export default function AppLayout(props: Props) {
   const setShareModalOpen = useStore(state => state.setShareModalOpen);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
   const setSidebarTab = useStore(state => state.setSidebarTab);
+  const setCommandMenuState = useStore(state => state.setCommandMenuState);
 
   useEffect(() => {
     const onDisconnect = () => signOut();
@@ -238,7 +243,6 @@ export default function AppLayout(props: Props) {
     }
   }, [dataFetchError, resetDeck]);
 
-  const [commandMenuState, setCommandMenuState] = useState<CommandMenuState>({ isVisible: false });
   const [createJoinRenameModal, setCreateJoinRenameModal] = useState<{
     open: boolean;
     type: CreateJoinRenameDeckType;
@@ -254,7 +258,18 @@ export default function AppLayout(props: Props) {
     () => [
       {
         hotkey: 'mod+p',
-        callback: () => setCommandMenuState({ isVisible: true }),
+        callback: () => {
+          if (commandMenuState.isVisible) {
+            const editor = activeEditorsStore.getActiveEditor(commandMenuState.activeEditor ?? '');
+            if (editor && editor.selection) {
+              Transforms.select(editor, editor.selection);
+              ReactEditor.focus(editor);
+            }
+            setCommandMenuState({ isVisible: false, activeEditor: undefined });
+          } else if (!commandMenuState.isVisible) {
+            setCommandMenuState({ isVisible: true, activeEditor: undefined });
+          }
+        },
       },
       {
         hotkey: 'mod+s',
@@ -285,7 +300,7 @@ export default function AppLayout(props: Props) {
         callback: () => setIsSidebarOpen(isOpen => !isOpen),
       },
     ],
-    [setCommandMenuState, setSidebarTab, setIsSidebarOpen, router, deckId],
+    [setSidebarTab, setCommandMenuState, setIsSidebarOpen, router, deckId, commandMenuState],
   );
   useHotkeys(hotkeys);
 
@@ -321,11 +336,7 @@ export default function AppLayout(props: Props) {
       <ProvideCurrentDeck deck={deck}>
         <div id="app-container" className={appContainerClassName}>
           <div className="flex w-full h-full dark:bg-gray-900">
-            <Sidebar
-              setCommandMenuState={setCommandMenuState}
-              setIsSettingsOpen={setIsSettingsOpen}
-              setCreateJoinRenameModal={setCreateJoinRenameModal}
-            />
+            <Sidebar setIsSettingsOpen={setIsSettingsOpen} setCreateJoinRenameModal={setCreateJoinRenameModal} />
             <div className="relative flex flex-col flex-1 overflow-y-hidden">
               <OfflineBanner />
               <UpdateBanner />
@@ -334,9 +345,7 @@ export default function AppLayout(props: Props) {
             {isSettingsOpen ? (
               <SettingsModal setIsOpen={setIsSettingsOpen} setCreateJoinRenameModal={setCreateJoinRenameModal} />
             ) : null}
-            {commandMenuState.isVisible ? (
-              <CommandMenu commandMenuState={commandMenuState} setCommandMenuState={setCommandMenuState} />
-            ) : null}
+            {commandMenuState.isVisible ? <CommandMenu /> : null}
             {createJoinRenameModal.open && (
               <CreateJoinRenameDeckModal
                 type={createJoinRenameModal.type}

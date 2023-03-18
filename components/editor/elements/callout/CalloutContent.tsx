@@ -16,6 +16,7 @@ import { useAuth } from 'utils/useAuth';
 import { useCurrentNote } from 'utils/useCurrentNote';
 import { addEllipsis } from 'utils/string';
 import { useStore } from 'lib/store';
+import activeEditorsStore from 'lib/activeEditorsStore';
 import { isElementActive } from 'editor/formatting';
 import decorateCodeBlocks from 'editor/decorateCodeBlocks';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
@@ -31,8 +32,6 @@ import withHtml from 'editor/plugins/withHtml';
 import withTables, { onKeyDown as onTableKeyDown } from 'editor/plugins/withTables';
 import { getDefaultEditorHotkeys } from 'editor/constants';
 import type { AddLinkPopoverState } from 'components/editor/Editor';
-import Portal from 'components/Portal';
-import CommandMenu, { type CommandMenuState } from 'components/command-menu/CommandMenu';
 import HoveringToolbar from 'components/editor/toolbar/HoveringToolbar';
 import AddLinkPopover from 'components/editor/AddLinkPopover';
 import EditorElement from 'components/editor/elements/EditorElement';
@@ -55,6 +54,7 @@ function CalloutContent(props: Props) {
   const readOnly = useReadOnly();
   const { user } = useAuth();
   const { id: noteId } = useCurrentNote();
+  const commandMenuState = useStore(state => state.commandMenuState);
   const note = useStore(state => state.notes[noteId]);
 
   const color = useMemo(
@@ -103,6 +103,11 @@ function CalloutContent(props: Props) {
     return editor;
   }, [sharedType, provider]);
 
+  useEffect(() => {
+    activeEditorsStore.addActiveEditor(elementId, editor);
+    return () => activeEditorsStore.removeActiveEditor(elementId);
+  }, [elementId, editor]);
+
   const { decorate } = useCursors(editor);
 
   useEffect(() => {
@@ -129,10 +134,6 @@ function CalloutContent(props: Props) {
 
   const renderElement = useMemo(() => withVerticalSpacing(EditorElement), []);
 
-  const [commandMenuState, setCommandMenuState] = useState<CommandMenuState>({
-    isVisible: false,
-    editor: undefined,
-  });
   const [addLinkPopoverState, setAddLinkPopoverState] = useState<AddLinkPopoverState>({
     isVisible: false,
     selection: undefined,
@@ -161,13 +162,13 @@ function CalloutContent(props: Props) {
 
   const hotkeys = useMemo(
     () => [
-      ...getDefaultEditorHotkeys(editor, setAddLinkPopoverState, setCommandMenuState),
+      ...getDefaultEditorHotkeys(editor, setAddLinkPopoverState, elementId),
       {
         hotkey: 'mod+a',
         callback: () => Transforms.select(editor, []),
       },
     ],
-    [editor, setCommandMenuState, setAddLinkPopoverState],
+    [editor, elementId, setAddLinkPopoverState],
   );
 
   const onKeyDown = useCallback(
@@ -269,11 +270,6 @@ function CalloutContent(props: Props) {
           spellCheck
         />
       </Slate>
-      {commandMenuState.isVisible ? (
-        <Portal>
-          <CommandMenu commandMenuState={commandMenuState} setCommandMenuState={setCommandMenuState} />
-        </Portal>
-      ) : null}
     </>
   );
 }

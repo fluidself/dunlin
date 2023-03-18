@@ -27,12 +27,11 @@ import withHtml from 'editor/plugins/withHtml';
 import withTables, { onKeyDown as onTableKeyDown } from 'editor/plugins/withTables';
 import { getDefaultEditorHotkeys, getDefaultEditorValue } from 'editor/constants';
 import { store, useStore } from 'lib/store';
+import activeEditorsStore from 'lib/activeEditorsStore';
 import { DeckEditor, ElementType } from 'types/slate';
 import useIsMounted from 'utils/useIsMounted';
 import { useAuth } from 'utils/useAuth';
 import { addEllipsis } from 'utils/string';
-import Portal from 'components/Portal';
-import CommandMenu, { type CommandMenuState } from 'components/command-menu/CommandMenu';
 import HoveringToolbar from './toolbar/HoveringToolbar';
 import AddLinkPopover from './AddLinkPopover';
 import EditorElement from './elements/EditorElement';
@@ -60,6 +59,7 @@ function Editor(props: Props) {
   const { noteId, onChange, className = '', highlightedPath } = props;
   const isMounted = useIsMounted();
   const { user } = useAuth();
+  const commandMenuState = useStore(state => state.commandMenuState);
 
   const note = useStore(state => state.notes[noteId]);
   const value = note?.content ?? getDefaultEditorValue();
@@ -118,6 +118,11 @@ function Editor(props: Props) {
     return editor;
   }, [sharedType, provider]);
 
+  useEffect(() => {
+    activeEditorsStore.addActiveEditor(noteId, editor);
+    return () => activeEditorsStore.removeActiveEditor(noteId);
+  }, [noteId, editor]);
+
   const { decorate } = useCursors(editor);
 
   useEffect(() => {
@@ -147,10 +152,6 @@ function Editor(props: Props) {
     return ElementWithSideMenu;
   }, []);
 
-  const [commandMenuState, setCommandMenuState] = useState<CommandMenuState>({
-    isVisible: false,
-    editor: undefined,
-  });
   const [addLinkPopoverState, setAddLinkPopoverState] = useState<AddLinkPopoverState>({
     isVisible: false,
     selection: undefined,
@@ -178,8 +179,8 @@ function Editor(props: Props) {
   );
 
   const hotkeys = useMemo(
-    () => getDefaultEditorHotkeys(editor, setAddLinkPopoverState, setCommandMenuState),
-    [editor, setCommandMenuState, setAddLinkPopoverState],
+    () => getDefaultEditorHotkeys(editor, setAddLinkPopoverState, noteId),
+    [editor, noteId, setAddLinkPopoverState],
   );
 
   const onKeyDown = useCallback(
@@ -295,11 +296,6 @@ function Editor(props: Props) {
           spellCheck
         />
       </Slate>
-      {commandMenuState.isVisible ? (
-        <Portal>
-          <CommandMenu commandMenuState={commandMenuState} setCommandMenuState={setCommandMenuState} />
-        </Portal>
-      ) : null}
     </>
   );
 }

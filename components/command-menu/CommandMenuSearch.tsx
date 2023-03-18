@@ -247,13 +247,9 @@ export default function CommandMenuSearch(props: Props) {
         setSelectedOptionIndex(index => {
           return index >= options.length - 1 ? 0 : index + 1;
         });
-      } else if (event.key === 'Escape' || (event.key === 'p' && event.metaKey)) {
-        event.preventDefault();
-        event.stopPropagation();
-        hideCommandMenu();
       }
     },
-    [options.length, hideCommandMenu],
+    [options.length],
   );
 
   const noteOptions = options.filter(opt => opt.type !== OptionType.ELEMENT);
