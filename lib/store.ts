@@ -43,6 +43,11 @@ export enum SidebarTab {
   Search,
 }
 
+type CommandMenuState = {
+  isVisible: boolean;
+  activeEditor?: string;
+};
+
 type NoteUpdate = PickPartial<
   DecryptedNote,
   'deck_id' | 'user_id' | 'content' | 'title' | 'author_only' | 'created_at' | 'updated_at'
@@ -80,6 +85,8 @@ export type Store = {
   setIsOffline: Setter<boolean>;
   shareModalOpen: boolean;
   setShareModalOpen: Setter<boolean>;
+  commandMenuState: CommandMenuState;
+  setCommandMenuState: Setter<CommandMenuState>;
 } & UserSettings;
 
 type FunctionPropertyNames<T> = {
@@ -232,6 +239,8 @@ export const store = createVanilla<Store>()(
       setIsOffline: setter(set, 'isOffline'),
       shareModalOpen: false,
       setShareModalOpen: setter(set, 'shareModalOpen'),
+      commandMenuState: { isVisible: false, editor: undefined },
+      setCommandMenuState: setter(set, 'commandMenuState'),
       ...createUserSettingsSlice(set),
     })),
     {

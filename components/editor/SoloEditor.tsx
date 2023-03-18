@@ -20,10 +20,9 @@ import withHtml from 'editor/plugins/withHtml';
 import withTables, { onKeyDown as onTableKeyDown } from 'editor/plugins/withTables';
 import { getDefaultEditorHotkeys, getDefaultEditorValue } from 'editor/constants';
 import { store, useStore } from 'lib/store';
+import activeEditorsStore from 'lib/activeEditorsStore';
 import { ElementType } from 'types/slate';
 import useIsMounted from 'utils/useIsMounted';
-import Portal from 'components/Portal';
-import CommandMenu, { type CommandMenuState } from 'components/command-menu/CommandMenu';
 import HoveringToolbar from './toolbar/HoveringToolbar';
 import AddLinkPopover from './AddLinkPopover';
 import EditorElement from './elements/EditorElement';
@@ -50,6 +49,7 @@ type Props = {
 function SoloEditor(props: Props) {
   const { noteId, onChange, className = '', highlightedPath } = props;
   const isMounted = useIsMounted();
+  const commandMenuState = useStore(state => state.commandMenuState);
 
   const value = useStore(state => state.notes[noteId]?.content ?? getDefaultEditorValue());
   const setValue = useCallback(
@@ -79,15 +79,16 @@ function SoloEditor(props: Props) {
   }
   const editor = editorRef.current;
 
+  useEffect(() => {
+    activeEditorsStore.addActiveEditor(noteId, editor);
+    return () => activeEditorsStore.removeActiveEditor(noteId);
+  }, [noteId, editor]);
+
   const renderElement = useMemo(() => {
     const ElementWithSideMenu = withBlockSideMenu(withVerticalSpacing(EditorElement));
     return ElementWithSideMenu;
   }, []);
 
-  const [commandMenuState, setCommandMenuState] = useState<CommandMenuState>({
-    isVisible: false,
-    editor: undefined,
-  });
   const [addLinkPopoverState, setAddLinkPopoverState] = useState<AddLinkPopoverState>({
     isVisible: false,
     selection: undefined,
@@ -115,8 +116,8 @@ function SoloEditor(props: Props) {
   );
 
   const hotkeys = useMemo(
-    () => getDefaultEditorHotkeys(editor, setAddLinkPopoverState, setCommandMenuState),
-    [editor, setCommandMenuState, setAddLinkPopoverState],
+    () => getDefaultEditorHotkeys(editor, setAddLinkPopoverState, noteId),
+    [editor, noteId, setAddLinkPopoverState],
   );
 
   const onKeyDown = useCallback(
@@ -218,11 +219,6 @@ function SoloEditor(props: Props) {
           spellCheck
         />
       </Slate>
-      {commandMenuState.isVisible ? (
-        <Portal>
-          <CommandMenu commandMenuState={commandMenuState} setCommandMenuState={setCommandMenuState} />
-        </Portal>
-      ) : null}
     </>
   );
 }

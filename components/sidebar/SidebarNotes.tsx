@@ -1,20 +1,18 @@
-import { Dispatch, memo, SetStateAction, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { Notes, NoteTreeItem, useStore } from 'lib/store';
 import { Sort } from 'lib/createUserSettingsSlice';
 import { caseInsensitiveStringCompare } from 'utils/string';
 import { dateCompare } from 'utils/date';
-import type { CommandMenuState } from 'components/command-menu/CommandMenu';
 import ErrorBoundary from '../ErrorBoundary';
 import SidebarNotesFooter from './SidebarNotesFooter';
 import SidebarNotesTree from './SidebarNotesTree';
 
 type SidebarNotesProps = {
   className?: string;
-  setCommandMenuState: Dispatch<SetStateAction<CommandMenuState>>;
 };
 
 function SidebarNotes(props: SidebarNotesProps) {
-  const { className, setCommandMenuState } = props;
+  const { className } = props;
 
   const notes = useStore(state => state.notes);
   const noteTree = useStore(state => state.noteTree);
@@ -31,7 +29,7 @@ function SidebarNotes(props: SidebarNotesProps) {
         ) : (
           <p className="flex-1 px-6 my-2 text-center text-gray-500">No notes yet</p>
         )}
-        <SidebarNotesFooter noteSort={noteSort} numOfNotes={numOfNotes} setCommandMenuState={setCommandMenuState} />
+        <SidebarNotesFooter noteSort={noteSort} numOfNotes={numOfNotes} />
       </div>
     </ErrorBoundary>
   );

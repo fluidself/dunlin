@@ -1,8 +1,8 @@
 import { SetStateAction } from 'react';
-import { Descendant, Editor, Transforms } from 'slate';
+import { Descendant, type Editor, Transforms } from 'slate';
 import { ElementType, Mark } from 'types/slate';
 import type { AddLinkPopoverState } from 'components/editor/Editor';
-import type { CommandMenuState } from 'components/command-menu/CommandMenu';
+import { store } from 'lib/store';
 import {
   handleBrackets,
   handleExitBreak,
@@ -24,7 +24,7 @@ export const getDefaultEditorValue = (): Descendant[] => [
 export const getDefaultEditorHotkeys = (
   editor: Editor,
   setAddLinkPopoverState: (value: SetStateAction<AddLinkPopoverState>) => void,
-  setCommandMenuState?: (value: SetStateAction<CommandMenuState>) => void,
+  activeEditor?: string,
 ) => [
   {
     hotkey: 'esc',
@@ -155,11 +155,11 @@ export const getDefaultEditorHotkeys = (
     hotkey: "shift+'",
     callback: () => handleQuotes(editor, '"'),
   },
-  ...(setCommandMenuState
+  ...(activeEditor
     ? [
         {
           hotkey: 'mod+p',
-          callback: () => setCommandMenuState({ isVisible: true, editor }),
+          callback: () => store.getState().setCommandMenuState({ isVisible: true, activeEditor }),
         },
       ]
     : []),
