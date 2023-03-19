@@ -8,8 +8,8 @@
   font-weight: 400 600;
   font-display: optional;
   src: url(/fonts/roboto-mono.woff2) format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122,
-    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @layer components {
@@ -98,6 +98,18 @@
   .react-select-container-header .react-select-header__single-value {
     @apply text-gray-400 my-0 py-0 leading-4;
   }
+}
+
+/* Autogrowing textarea wrapper */
+.grow-wrap::after {
+  content: attr(data-replicated-value) ' ';
+  white-space: pre-wrap;
+  visibility: hidden;
+  grid-area: 1 / 1 / 2 / 2;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
 }
 
 /** Details disclosure editor element **/
