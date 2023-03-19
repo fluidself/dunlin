@@ -35,6 +35,8 @@ import { caseInsensitiveStringEqual } from 'utils/string';
 import useCommandMenuSearch from 'utils/useCommandMenuSearch';
 import { getDefaultEditorValue } from 'editor/constants';
 import useOnNoteLinkClick from 'editor/useOnNoteLinkClick';
+import { uploadAndInsertFile, uploadAndInsertImage } from 'editor/plugins/withMedia';
+import { insertTable, isInTable } from 'editor/plugins/withTables';
 import {
   insertCallout,
   insertDetailsDisclosure,
@@ -42,8 +44,6 @@ import {
   insertThematicBreak,
   toggleElement,
 } from 'editor/formatting';
-import { uploadAndInsertFile, uploadAndInsertImage } from 'editor/plugins/withMedia';
-import { insertTable, isInTable } from 'editor/plugins/withTables';
 import { type EmbedUrlInputState } from 'components/EmbedUrlInput';
 import { CommandMenuMode } from './CommandMenu';
 
@@ -259,10 +259,12 @@ export default function CommandMenuSearch(props: Props) {
   return (
     <div className="flex flex-col z-30 w-full max-w-screen-sm bg-white rounded shadow-popover dark:bg-gray-800">
       <div className="flex items-center flex-shrink-0 w-full">
-        <IconSearch className="ml-4 text-gray-500" size={20} />
+        <div className="w-9 h-full relative">
+          <IconSearch className="absolute top-4 left-4 text-gray-500" size={20} />
+        </div>
         <input
           type="text"
-          className="w-full py-4 px-2 text-xl border-none rounded-tl rounded-tr focus:ring-0 dark:bg-gray-800 dark:text-gray-200"
+          className="w-full py-3 px-2 text-lg border-none focus:ring-0 dark:bg-gray-800 dark:text-gray-200"
           placeholder={editor && !inTable ? 'Find or create a note or use an element' : 'Find or create a note'}
           value={inputText}
           onChange={e => setInputText(e.target.value)}
@@ -276,9 +278,20 @@ export default function CommandMenuSearch(props: Props) {
           autoFocus
         />
       </div>
+      {user && process.env.NEXT_PUBLIC_DAEMON_USERS?.split(',').includes(user.id) ? (
+        <div className="flex items-center text-sm text-gray-300 space-x-6 pt-1 pb-3 px-4">
+          <button className="border border-gray-700 rounded px-2 py-1 bg-white text-gray-900">Notes & elements</button>
+          <button
+            className="border border-gray-700 rounded px-2 py-1 bg-transparent text-gray-300"
+            onClick={() => setSelectedMode(CommandMenuMode.DAEMON)}
+          >
+            Daemon
+          </button>
+        </div>
+      ) : null}
       {options.length > 0 ? (
         <>
-          <div className="flex-1 w-full overflow-y-auto bg-white border-t rounded-bl rounded-br dark:bg-gray-800 dark:border-gray-700">
+          <div className="flex-1 w-full overflow-y-auto bg-white border-t dark:bg-gray-800 dark:border-gray-700">
             {noteOptions.length > 0 ? <div className="px-4 py-2 select-none text-gray-300">Notes</div> : null}
             {noteOptions.map(option => {
               const index = options.findIndex(o => o.id === option.id);
@@ -306,7 +319,7 @@ export default function CommandMenuSearch(props: Props) {
               );
             })}
           </div>
-          <div className="flex items-center justify-center text-sm select-none text-gray-300 space-x-6 py-1">
+          <div className="flex items-center justify-center text-sm rounded-bl rounded-br select-none text-gray-300 space-x-6 py-1">
             <div>
               <span className="text-lg leading-none tracking-tighter">↑↓</span> to navigate
             </div>
