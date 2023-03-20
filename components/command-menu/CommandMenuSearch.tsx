@@ -292,7 +292,7 @@ export default function CommandMenuSearch(props: Props) {
       {options.length > 0 ? (
         <>
           <div className="flex-1 w-full overflow-y-auto bg-white border-t dark:bg-gray-800 dark:border-gray-700">
-            {noteOptions.length > 0 ? <div className="px-4 py-2 select-none text-gray-300">Notes</div> : null}
+            {noteOptions.length > 0 ? <div className="px-4 py-1.5 select-none text-gray-400 text-sm">Notes</div> : null}
             {noteOptions.map(option => {
               const index = options.findIndex(o => o.id === option.id);
               return (
@@ -305,7 +305,7 @@ export default function CommandMenuSearch(props: Props) {
               );
             })}
             {elementOptions.length > 0 ? (
-              <div className="px-4 py-2 select-none text-gray-300">Editor elements</div>
+              <div className="px-4 py-1.5 select-none text-gray-400 text-sm">Editor elements</div>
             ) : null}
             {elementOptions.map(option => {
               const index = options.findIndex(o => o.id === option.id);
@@ -345,7 +345,7 @@ const OptionItem = (props: OptionProps) => {
 
   return (
     <button
-      className={`flex flex-row w-full items-center px-6 py-2 text-gray-800 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${
+      className={`flex flex-row w-full items-center px-6 py-1.5 text-gray-800 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${
         isSelected && 'bg-gray-100 dark:bg-gray-700'
       }`}
       onClick={e => onClick(option, e.shiftKey)}
