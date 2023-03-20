@@ -257,7 +257,7 @@ export default function CommandMenuSearch(props: Props) {
   const elementOptions = options.filter(opt => opt.type === OptionType.ELEMENT);
 
   return (
-    <div className="flex flex-col z-30 w-full max-w-screen-sm bg-white rounded shadow-popover dark:bg-gray-800">
+    <div className="flex flex-col z-30 w-full max-w-2xl bg-white rounded shadow-popover dark:bg-gray-800 border border-gray-700">
       <div className="flex items-center flex-shrink-0 w-full">
         <div className="w-9 h-full relative">
           <IconSearch className="absolute top-4 left-4 text-gray-500" size={20} />
