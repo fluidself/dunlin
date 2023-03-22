@@ -43,7 +43,7 @@ export default function SettingsModal(props: Props) {
     <div className="fixed inset-0 z-20 overflow-y-auto">
       <div className="fixed inset-0 bg-black opacity-30" onClick={() => setIsOpen(false)} />
       <div className="flex items-center justify-center h-screen p-6">
-        <div className="z-30 flex flex-col w-full h-full max-w-full overflow-hidden rounded sm:flex-row sm:max-h-176 sm:w-240 shadow-popover    bg-gray-900 border border-gray-600 relative">
+        <div className="z-30 flex flex-col w-full h-full max-w-full overflow-hidden rounded sm:flex-row sm:max-h-176 sm:w-240 shadow-popover bg-white    dark:bg-gray-900 border border-gray-600 relative">
           <SettingsModalSidebar
             currentTab={currentTab}
             setCurrentTab={setCurrentTab}
@@ -54,7 +54,10 @@ export default function SettingsModal(props: Props) {
           {currentTab === SettingsTab.DeckManagement ? (
             <DeckManagement setCreateJoinRenameModal={setCreateJoinRenameModal} />
           ) : null}
-          <button onClick={() => setIsOpen(false)} className="absolute top-1 right-1 text-gray-300 hover:text-gray-100">
+          <button
+            onClick={() => setIsOpen(false)}
+            className="absolute top-1 right-1 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
+          >
             <IconX size={20} />
           </button>
         </div>
@@ -74,24 +77,26 @@ const SettingsModalSidebar = (props: SettingsModalSidebarProps) => {
   const isOffline = useStore(state => state.isOffline);
 
   return (
-    <div className="flex flex-col flex-none w-full py-4 border-b sm:border-b-0 sm:border-r sm:w-48 sm:h-full bg-gray-900 border-gray-600">
-      <div className="px-4 pb-2 text-sm text-gray-400">Settings</div>
+    <div className="flex flex-col flex-none w-full py-4 border-b sm:border-b-0 sm:border-r sm:w-48 sm:h-full bg-gray-50 dark:bg-gray-900 dark:border-gray-600">
+      <div className="px-4 pb-2 text-sm text-gray-600 dark:text-gray-400">Settings</div>
       <SettingsSidebarItem
-        className="flex hover:bg-gray-700 active:bg-gray-700"
+        className="flex hover:bg-gray-200 active:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-700"
         isHighlighted={currentTab === SettingsTab.Editor}
       >
         <button
           className="flex items-center flex-1 px-4 py-1 overflow-hidden overflow-ellipsis whitespace-nowrap"
           onClick={() => setCurrentTab(SettingsTab.Editor)}
         >
-          <IconFileText size={18} className="mr-1 text-gray-200" />
+          <IconFileText size={18} className="mr-1 text-gray-800 dark:text-gray-200" />
           <span>Editor</span>
         </button>
       </SettingsSidebarItem>
       {canManageEditing && (
         <SettingsSidebarItem
           className={`flex ${
-            isOffline ? 'hover:bg-gray-900 active:bg-gray-900' : 'hover:bg-gray-700 active:bg-gray-700'
+            isOffline
+              ? 'hover:bg-gray-50 active:bg-gray-50 dark:hover:bg-gray-900 dark:active:bg-gray-900'
+              : 'hover:bg-gray-200 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-700'
           }`}
           isHighlighted={!isOffline && currentTab === SettingsTab.Permissions}
         >
@@ -102,14 +107,19 @@ const SettingsModalSidebar = (props: SettingsModalSidebarProps) => {
             disabled={isOffline}
             onClick={() => setCurrentTab(SettingsTab.Permissions)}
           >
-            <IconPencilOff size={18} className={`mr-1 ${isOffline ? 'text-gray-500' : 'text-gray-200'}`} />
+            <IconPencilOff
+              size={18}
+              className={`mr-1 ${isOffline ? 'text-gray-500' : 'text-gray-800 dark:text-gray-200'}`}
+            />
             <span>Permissions</span>
           </button>
         </SettingsSidebarItem>
       )}
       <SettingsSidebarItem
         className={`flex ${
-          isOffline ? 'hover:bg-gray-900 active:bg-gray-900' : 'hover:bg-gray-700 active:bg-gray-700'
+          isOffline
+            ? 'hover:bg-gray-50 active:bg-gray-50 dark:hover:bg-gray-900 dark:active:bg-gray-900'
+            : 'hover:bg-gray-200 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-700'
         }`}
         isHighlighted={!isOffline && currentTab === SettingsTab.DeckManagement}
       >
@@ -120,7 +130,7 @@ const SettingsModalSidebar = (props: SettingsModalSidebarProps) => {
           disabled={isOffline}
           onClick={() => setCurrentTab(SettingsTab.DeckManagement)}
         >
-          <IconBook2 size={18} className={`mr-1 ${isOffline ? 'text-gray-500' : 'text-gray-200'}`} />
+          <IconBook2 size={18} className={`mr-1 ${isOffline ? 'text-gray-500' : 'text-gray-800 dark:text-gray-200'}`} />
           <span>Workspaces</span>
         </button>
       </SettingsSidebarItem>

@@ -43,9 +43,9 @@ export default function DeckManagement(props: Props) {
     }
 
     return (
-      <table className="table-auto w-full text-sm text-gray-300">
+      <table className="table-auto w-full text-sm dark:text-gray-300">
         <thead>
-          <tr className="border-b border-gray-600">
+          <tr className="border-b border-gray-300 dark:border-gray-600">
             <th className="py-3 pl-2 text-left">Name</th>
             <th className="py-3 text-left">ID</th>
             <th className="py-3"></th>
@@ -54,7 +54,7 @@ export default function DeckManagement(props: Props) {
         </thead>
         <tbody>
           {decks.map(deck => (
-            <tr key={deck.id} className="border-b border-gray-600">
+            <tr key={deck.id} className="border-b border-gray-300 dark:border-gray-600">
               <td className="py-3 pl-2">{deck.deck_name}</td>
               <td className="py-3">{deck.id}</td>
               <td className="py-3">
