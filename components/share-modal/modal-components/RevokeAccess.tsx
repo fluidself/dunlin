@@ -45,7 +45,11 @@ const RevokeAccess = (props: Props) => {
       access_control_conditions: accessControlConditions,
     };
 
-    const { data, error } = await supabase.from<Deck>('decks').update({ access_params: accessParams }).eq('id', deckId).single();
+    const { data, error } = await supabase
+      .from<Deck>('decks')
+      .update({ access_params: accessParams })
+      .eq('id', deckId)
+      .single();
     if (!data || error) {
       toast.error('Revoking access failed.');
     }
@@ -61,15 +65,15 @@ const RevokeAccess = (props: Props) => {
     <div>
       <div className="text-lg">Revoke all workspace access</div>
       <div className="flex space-x-4 items-center">
-        <span className="text-xs inline-block mt-2 py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
+        <span className="text-xs inline-block mt-2 py-1 px-2.5 leading-none text-center align-baseline bg-gray-100 dark:bg-gray-800 dark:text-gray-300 rounded">
           {deck_name}
         </span>
-        <span className="text-xs inline-block mt-2 py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
+        <span className="text-xs inline-block mt-2 py-1 px-2.5 leading-none text-center align-baseline bg-gray-100 dark:bg-gray-800 dark:text-gray-300 rounded">
           {deckId}
         </span>
       </div>
       <div className="mt-4">
-        <p>After revoking access, only you will be able to view this workspace.</p>
+        <p>After revoking access, only you will be able to use this workspace.</p>
       </div>
 
       <Navigation

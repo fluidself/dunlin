@@ -192,28 +192,31 @@ export default function PublishNoteModal(props: Props) {
     <div className="fixed inset-0 z-20 overflow-y-auto">
       <div className="fixed inset-0 bg-black opacity-30" onClick={() => setIsOpen(false)} />
       <div className="flex items-center justify-center h-screen">
-        <div className="flex flex-col z-30 w-full max-w-screen-sm rounded shadow-popover bg-gray-900 text-gray-200 border border-gray-600">
+        <div className="flex flex-col z-30 w-full max-w-screen-sm rounded shadow-popover bg-white dark:bg-gray-900 dark:text-gray-200 border border-gray-600">
           <div className="flex items-center justify-between flex-shrink-0 w-full">
             <div className="flex items-center">
               {published ? (
-                <IconConfetti className="ml-4 mr-1 text-gray-200" size={32} />
+                <IconConfetti className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={32} />
               ) : (
-                <IconSend className="ml-4 mr-1 text-gray-200" size={32} />
+                <IconSend className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={32} />
               )}
               <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0">
                 {published ? 'Note published' : 'Publish note'}
               </span>
             </div>
-            <button className="mb-6 mr-2 text-gray-300 hover:text-gray-100" onClick={() => setIsOpen(false)}>
+            <button
+              className="mb-6 mr-2 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
+              onClick={() => setIsOpen(false)}
+            >
               <IconX size={20} />
             </button>
           </div>
-          <div className="px-4 py-4 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br bg-gray-800 border-gray-700">
+          <div className="px-4 py-4 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br dark:bg-gray-800 dark:border-gray-700">
             <div className="flex mb-2 m-[-4px] flex-wrap">
-              <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-900 text-gray-300 rounded">
+              <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-100 dark:bg-gray-900 dark:text-gray-300 rounded">
                 {note.title}
               </span>
-              <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-900 text-gray-300 rounded">
+              <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-100 dark:bg-gray-900 dark:text-gray-300 rounded">
                 {note.id}
               </span>
             </div>
@@ -223,7 +226,7 @@ export default function PublishNoteModal(props: Props) {
                 <p>
                   <Link
                     href={`/publications/${publicationCid}`}
-                    className="text-sm break-words hover:underline text-primary-400"
+                    className="text-sm break-words hover:underline link"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -272,21 +275,13 @@ export default function PublishNoteModal(props: Props) {
                         type="checkbox"
                         checked={publishLinkedNotes}
                         onChange={() => setPublishLinkedNotes(!publishLinkedNotes)}
-                        className="bg-transparent border-2 border-gray-500 p-2 mr-2 rounded-sm hover:cursor-pointer text-primary-500 hover:bg-gray-800 active:bg-gray-700 focus:ring-0 hover:text-primary-600 active:text-primary-700"
+                        className="bg-transparent border-2 hover:cursor-pointer p-2 mr-2 rounded-sm text-primary-500 hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-800 dark:active:bg-gray-700 focus:ring-0 hover:text-primary-600 active:text-primary-700"
                       />
                       <span>Yes, publish linked notes</span>
                     </div>
                   )}
                   <div className="flex items-center justify-center space-x-4">
-                    <Button
-                      className={`${
-                        processing ? 'bg-gray-800 text-gray-400 hover:bg-gray-800 hover:text-gray-400' : ''
-                      }`}
-                      primary
-                      onClick={onConfirm}
-                      disabled={processing}
-                      loading={processing}
-                    >
+                    <Button primary onClick={onConfirm} disabled={processing} loading={processing}>
                       Publish
                     </Button>
                     <Button onClick={() => setIsOpen(false)}>Cancel</Button>

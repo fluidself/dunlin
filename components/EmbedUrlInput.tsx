@@ -92,25 +92,33 @@ export default function EmbedUrlInput(props: Props) {
 
   return (
     <div
-      className="flex flex-col z-30 w-full max-w-screen-sm rounded shadow-popover bg-gray-900 text-gray-200 border border-gray-600"
+      className="flex flex-col z-30 w-full max-w-screen-sm rounded shadow-popover bg-white dark:bg-gray-900 dark:text-gray-200 border border-gray-700"
       id="url-input-modal"
     >
       <div className="flex items-center justify-between flex-shrink-0 w-full">
         <div className="flex items-center">
-          <Icon className="ml-4 mr-1 text-gray-200" size={32} />
+          <Icon className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={32} />
           <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0">
             {`Insert ${state.type === ElementType.Video ? 'a video' : 'an embed'}`}
           </span>
         </div>
-        <button className="mb-6 mr-2 text-gray-300 hover:text-gray-100" onClick={() => setState({ isOpen: false })}>
+        <button
+          className="mb-6 mr-2 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
+          onClick={() => {
+            onCloseCallback?.();
+            setState({ isOpen: false });
+          }}
+        >
           <IconX size={20} />
         </button>
       </div>
-      <div className="px-4 py-4 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br bg-gray-800 border-gray-700">
+      <div className="px-4 py-4 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br dark:bg-gray-800 dark:border-gray-700">
         <input
           type="text"
-          className={`w-full py-3 px-2 text-xl rounded focus:ring-0 bg-gray-900 text-gray-200 border ${
-            error ? 'border-red-500 focus:border-red-500' : 'border-gray-900 focus:border-gray-900'
+          className={`w-full py-3 px-2 text-xl rounded focus:ring-0 bg-gray-50 dark:bg-gray-900 dark:text-gray-200 border ${
+            error
+              ? 'border-red-500 focus:border-red-500'
+              : 'border-gray-100 focus:border-gray-100 dark:border-gray-900 dark:focus:border-gray-900'
           }`}
           placeholder={`Enter ${state.type === ElementType.Video ? 'video URL' : 'URL to embed'}`}
           value={inputText}
@@ -131,7 +139,14 @@ export default function EmbedUrlInput(props: Props) {
           <Button primary onClick={handleSubmit}>
             Insert
           </Button>
-          <Button onClick={() => setState({ isOpen: false })}>Cancel</Button>
+          <Button
+            onClick={() => {
+              onCloseCallback?.();
+              setState({ isOpen: false });
+            }}
+          >
+            Cancel
+          </Button>
         </div>
       </div>
     </div>

@@ -17,15 +17,17 @@ export default function AccessCreated({ deckToShare, onClose }: Props) {
       </div>
       <div className="mt-8">
         <p>Share this link with those you have granted access:</p>
-        <div className="bg-gray-800 mt-4 mb-8 p-2 w-max rounded-md text-sm flex justify-between">
+        <div className="bg-gray-100 dark:bg-gray-800 mt-4 mb-8 p-2 w-max rounded-md text-sm flex justify-between">
           {invitationLink}
           <IconCopy
-            className="ml-4 hover:text-gray-300"
+            className="ml-4 hover:text-gray-500 dark:hover:text-gray-300"
             role="button"
             onClick={async () => await copyToClipboard(invitationLink)}
           />
         </div>
-        <Button onClick={onClose}>All Done</Button>
+        <Button primary onClick={onClose}>
+          All Done
+        </Button>
       </div>
     </div>
   );

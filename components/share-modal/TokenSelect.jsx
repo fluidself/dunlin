@@ -1,23 +1,26 @@
 import React, { useState, useMemo } from 'react';
 import { WindowedMenuList, createFilter, components } from 'react-windowed-select';
 import Creatable from 'react-select/creatable';
+import { useStore } from 'lib/store';
 import Button from 'components/Button';
 
 const Option = ({ data: { label, logo, symbol }, ...props }) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { onMouseMove, onMouseOver, ...rest } = props.innerProps;
   const newProps = Object.assign(props, { innerProps: rest });
+  const darkMode = useStore(state => state.darkMode);
+  const className = `flex items-center h-10 cursor-pointer ${darkMode ? 'text-white' : ''}`;
 
   return (
     <components.Option {...newProps} style={{ padding: 0, zIndex: 105 }}>
-      <div className="flex items-center h-10 text-white cursor-pointer">
+      <div className={className}>
         <div
           className="w-8 h-8 rounded-full bg-black bg-no-repeat bg-contain bg-center mx-2"
           style={{ backgroundImage: logo ? `url(${logo})` : undefined }}
         />
         <div>
-          <div className="">{label}</div>
-          <div className="">{symbol}</div>
+          <div>{label}</div>
+          <div>{symbol}</div>
         </div>
       </div>
     </components.Option>
@@ -56,7 +59,7 @@ const TOP_LIST = [
 
 const TokenSelect = props => {
   const { tokenList, onSelect } = props;
-
+  const darkMode = useStore(state => state.darkMode);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedToken, setSelectedToken] = useState(null);
 
@@ -93,7 +96,7 @@ const TokenSelect = props => {
         <div className="fixed inset-0 z-20 overflow-y-auto">
           <div className="fixed inset-0 bg-black opacity-30" onClick={() => setModalIsOpen(false)} />
           <div className="flex items-center justify-center h-screen p-6">
-            <div className="z-30 flex flex-col w-full h-full max-w-full overflow-hidden bg-background border border-gray-500 sm:max-h-[280px] sm:w-[450px] py-2 px-4">
+            <div className="z-30 flex flex-col w-full h-full max-w-full overflow-hidden bg-white dark:bg-gray-900 border border-gray-600 sm:max-h-[280px] sm:w-[450px] py-2 px-4">
               <div>
                 <label className="mb-2 block">Top Tokens/NFTS</label>
                 <div className="flex mb-2">
@@ -133,11 +136,11 @@ const TokenSelect = props => {
                     menuPortal: base => ({ ...base, zIndex: 9999 }),
                     option: base => ({
                       ...base,
-                      backgroundColor: 'rgb(23 23 23 / var(--tw-bg-opacity))',
+                      backgroundColor: darkMode ? 'rgb(23 23 23 / var(--tw-bg-opacity))' : 'white',
                     }),
                     menuList: base => ({
                       ...base,
-                      backgroundColor: 'rgb(23 23 23 / var(--tw-bg-opacity))',
+                      backgroundColor: darkMode ? 'rgb(23 23 23 / var(--tw-bg-opacity))' : 'white',
                     }),
                   }}
                   menuPortalTarget={document.body}
@@ -146,7 +149,7 @@ const TokenSelect = props => {
               </div>
 
               <div className="mt-4 flex justify-end">
-                <Button disabled={!selectedToken} onClick={handleSelect}>
+                <Button primary disabled={!selectedToken} onClick={handleSelect}>
                   Select
                 </Button>
               </div>

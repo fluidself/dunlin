@@ -19,12 +19,8 @@ export default function EditorPopover(props: Props) {
   const { children, className = '', placement, selection, onClose } = props;
   const editor = useSlate();
 
-  const [referenceElement, setReferenceElement] = useState<
-    Element | VirtualElement | null
-  >(null);
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(
-    null
-  );
+  const [referenceElement, setReferenceElement] = useState<Element | VirtualElement | null>(null);
+  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement,
     modifiers: [
@@ -42,7 +38,7 @@ export default function EditorPopover(props: Props) {
         callback: () => onClose?.(),
       },
     ],
-    [onClose]
+    [onClose],
   );
   useHotkeys(hotkeys);
 
@@ -68,8 +64,7 @@ export default function EditorPopover(props: Props) {
     // Virtual element to be used as the popover reference element
     // We need this in order to position the popover relative to the selection (not just the DOM node)
     const virtualElement = {
-      getBoundingClientRect: () =>
-        getDOMRange()?.getBoundingClientRect() ?? new DOMRect(),
+      getBoundingClientRect: () => getDOMRange()?.getBoundingClientRect() ?? new DOMRect(),
       contextElement: getDOMRange()?.startContainer.parentElement ?? undefined,
     };
 
@@ -79,7 +74,6 @@ export default function EditorPopover(props: Props) {
   return (
     <Portal>
       <div
-        data-testid="editor-popover"
         ref={setPopperElement}
         className={`z-10 flex items-stretch overflow-hidden transition-opacity bg-white border rounded shadow-popover dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 ${className}`}
         style={styles.popper}

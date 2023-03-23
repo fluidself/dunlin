@@ -118,7 +118,7 @@ const WhichWallet = ({ setActiveStep, processingAccess, onAccessControlCondition
     <div>
       <div>
         <h4 className="text-lg">Which wallet(s) should be granted access?</h4>
-        <a className="underline cursor-pointer hover:text-gray-300" onClick={() => setActiveStep('assetWallet')}>
+        <a className="underline cursor-pointer dark:hover:text-gray-300" onClick={() => setActiveStep('assetWallet')}>
           Grant Access on NFT Ownership
         </a>
       </div>

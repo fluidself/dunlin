@@ -20,6 +20,7 @@ const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement
   const { node, isHighlighted, className = '', style, ...otherProps } = props;
 
   const { id: deckId } = useCurrentDeck();
+  const darkMode = useStore(state => state.darkMode);
   const note = useStore(state => state.notes[node.id]);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
   const lastOpenNoteId = useStore(state => state.openNoteIds[state.openNoteIds.length - 1]);
@@ -36,8 +37,15 @@ const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement
   const leftPadding = useMemo(() => (!node.depth ? 7 : 0) + (node.hasChildren ? 3 : 8), [node.depth, node.hasChildren]);
 
   const buttonClassName = classNames(
-    'flex items-center flex-1 h-full rounded-sm cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap hover:bg-gray-700 group-hover:bg-gray-700 group-active/note:bg-gray-600',
-    { 'bg-gray-700': isHighlighted },
+    'flex items-center flex-1 h-full rounded-sm cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap',
+    {
+      'hover:bg-gray-100 group-hover:bg-gray-100 group-hover/note:bg-gray-100 group-active/note:bg-gray-200':
+        !darkMode,
+    },
+    {
+      'hover:bg-gray-700 group-hover:bg-gray-700 group-active/note:bg-gray-300 group-active/note:bg-gray-600': darkMode,
+    },
+    { 'bg-gray-100 dark:bg-gray-700': isHighlighted },
     className,
   );
 
@@ -46,7 +54,7 @@ const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement
   return (
     <SidebarItem
       ref={forwardedRef}
-      className="relative flex items-center overflow-hidden h-full group focus:outline-none dark:hover:bg-gray-800 dark:active:bg-gray-800"
+      className="relative flex items-center overflow-hidden h-full group focus:outline-none hover:bg-gray-50 active:bg-gray-50 dark:hover:bg-gray-800 dark:active:bg-gray-800"
       style={style}
       {...otherProps}
     >
@@ -68,7 +76,7 @@ const SidebarNoteLink = (props: Props, forwardedRef: ForwardedRef<HTMLDivElement
         >
           {node.hasChildren ? (
             <button
-              className="p-0.5 rounded hover:bg-gray-300 active:bg-gray-400 dark:hover:bg-gray-600 dark:active:bg-gray-500"
+              className="p-0.5 rounded hover:bg-gray-200 active:bg-gray-300 dark:hover:bg-gray-600 dark:active:bg-gray-500"
               onClick={e => {
                 e.preventDefault();
                 e.stopPropagation();
