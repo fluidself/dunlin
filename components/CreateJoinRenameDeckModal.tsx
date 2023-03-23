@@ -33,8 +33,8 @@ export default function CreateJoinRenameDeckModal(props: Props) {
   const { mutate } = useSWRConfig();
   const { user } = useAuth();
   const { id: currentDeckId } = useCurrentDeck();
-  const [inputText, setInputText] = useState<string>('');
-  const [processing, setProcessing] = useState<boolean>(false);
+  const [inputText, setInputText] = useState('');
+  const [processing, setProcessing] = useState(false);
 
   const hotkeys = useMemo(
     () => [
@@ -171,10 +171,14 @@ export default function CreateJoinRenameDeckModal(props: Props) {
     [CreateJoinRenameDeckType.Delete]: 'Delete workspace',
   };
   const icons = {
-    [CreateJoinRenameDeckType.Create]: <IconFolderPlus className="ml-4 mr-1 text-gray-200" size={32} />,
-    [CreateJoinRenameDeckType.Join]: <IconGitPullRequest className="ml-4 mr-1 text-gray-200" size={32} />,
-    [CreateJoinRenameDeckType.Rename]: <IconPencil className="ml-4 mr-1 text-gray-200" size={32} />,
-    [CreateJoinRenameDeckType.Delete]: <IconTrash className="ml-4 mr-1 text-gray-200" size={32} />,
+    [CreateJoinRenameDeckType.Create]: (
+      <IconFolderPlus className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={32} />
+    ),
+    [CreateJoinRenameDeckType.Join]: (
+      <IconGitPullRequest className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={32} />
+    ),
+    [CreateJoinRenameDeckType.Rename]: <IconPencil className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={32} />,
+    [CreateJoinRenameDeckType.Delete]: <IconTrash className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={32} />,
   };
   const placeholders = {
     [CreateJoinRenameDeckType.Create]: 'Enter workspace name',
@@ -190,10 +194,10 @@ export default function CreateJoinRenameDeckModal(props: Props) {
 
   const deckTags = () => (
     <div className="flex mb-2 m-[-4px] flex-wrap">
-      <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-900 text-gray-300 rounded">
+      <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-100 dark:bg-gray-900 dark:text-gray-300 rounded">
         {deckName}
       </span>
-      <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-900 text-gray-300 rounded">
+      <span className="text-xs m-1 inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-100 dark:bg-gray-900 dark:text-gray-300 rounded">
         {deckId}
       </span>
     </div>
@@ -214,7 +218,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
             {deckTags()}
             <input
               type="text"
-              className="w-full py-3 px-2 text-xl border-none rounded focus:ring-0 bg-gray-900 text-gray-200"
+              className="w-full py-3 px-2 text-xl border-none rounded focus:ring-0 bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
               placeholder={placeholders[type]}
               value={inputText}
               onChange={e => setInputText(e.target.value)}
@@ -234,7 +238,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
         return (
           <input
             type="text"
-            className="w-full py-3 px-2 text-xl border-none rounded focus:ring-0 bg-gray-900 text-gray-200"
+            className="w-full py-3 px-2 text-xl border-none rounded focus:ring-0 bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
             placeholder={placeholders[type]}
             value={inputText}
             onChange={e => setInputText(e.target.value)}
@@ -256,28 +260,25 @@ export default function CreateJoinRenameDeckModal(props: Props) {
     <div className="fixed inset-0 z-20 overflow-y-auto">
       <div className="fixed inset-0 bg-black opacity-30" onClick={closeModal} />
       <div className="flex items-center justify-center h-screen">
-        <div className="flex flex-col z-30 w-full max-w-screen-sm rounded shadow-popover bg-gray-900 text-gray-200 border border-gray-600">
-          <div className="flex items-center justify-between flex-shrink-0 w-full">
+        <div className="flex flex-col z-30 w-full max-w-screen-sm rounded shadow-popover bg-white dark:bg-gray-900 dark:text-gray-200 border border-gray-600">
+          <div className="flex items-center justify-between flex-shrink-0 w-full bg-gray-50 dark:bg-gray-900">
             <div className="flex items-center">
               {icons[type]}
-              <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0 bg-gray-900">
+              <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0 dark:bg-gray-900">
                 {headings[type]}
               </span>
             </div>
-            <button className="mb-6 mr-2 text-gray-300 hover:text-gray-100" onClick={closeModal}>
+            <button
+              className="mb-6 mr-2 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
+              onClick={closeModal}
+            >
               <IconX size={20} />
             </button>
           </div>
-          <div className="px-4 py-4 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br bg-gray-800 border-gray-700">
+          <div className="px-4 py-4 flex-1 w-full overflow-y-auto border-t rounded-bl rounded-br dark:bg-gray-800 dark:border-gray-700">
             {renderModalContent()}
             <div className="flex space-x-4 justify-end mt-4">
-              <Button
-                className={`${processing ? 'bg-gray-800 text-gray-400 hover:bg-gray-800 hover:text-gray-400' : ''}`}
-                primary
-                onClick={onClickHandlers[type]}
-                disabled={processing}
-                loading={processing}
-              >
+              <Button primary onClick={onClickHandlers[type]} disabled={processing} loading={processing}>
                 {type}
               </Button>
               <Button onClick={closeModal}>Cancel</Button>

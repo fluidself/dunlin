@@ -34,8 +34,13 @@ export default function CurrentAccess(props: Props) {
         return;
       }
 
-      let result = await LitJsSdk.humanizeAccessControlConditions({ accessControlConditions: accessControlConditions.slice(2) });
-      if (!result && (accessControlConditions.slice(2)[0] as AccessControlCondition).standardContractType === 'ProofOfHumanity') {
+      let result = await LitJsSdk.humanizeAccessControlConditions({
+        accessControlConditions: accessControlConditions.slice(2),
+      });
+      if (
+        !result &&
+        (accessControlConditions.slice(2)[0] as AccessControlCondition).standardContractType === 'ProofOfHumanity'
+      ) {
         result = 'Is registered with Proof of Humanity';
       }
 
@@ -54,9 +59,9 @@ export default function CurrentAccess(props: Props) {
 
     return (
       <>
-        <p>{`User must meet ${multipleConditions ? 'one or more of' : ''} ${multipleConditions ? 'these' : 'this'} condition${
-          multipleConditions ? 's' : ''
-        }:`}</p>
+        <p>{`User must meet ${multipleConditions ? 'one or more of' : ''} ${
+          multipleConditions ? 'these' : 'this'
+        } condition${multipleConditions ? 's' : ''}:`}</p>
         <ul className="list-disc ml-8 mt-4">
           {conditions.map((condition, index) => (
             <li key={index}>{condition}</li>
@@ -70,10 +75,10 @@ export default function CurrentAccess(props: Props) {
     <div>
       <div className="text-lg">Current workspace access control conditions</div>
       <div className="flex space-x-4 items-center">
-        <span className="text-xs inline-block mt-2 py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
+        <span className="text-xs inline-block mt-2 py-1 px-2.5 leading-none text-center align-baseline bg-gray-100 dark:bg-gray-800 dark:text-gray-300 rounded">
           {deck_name}
         </span>
-        <span className="text-xs inline-block mt-2 py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
+        <span className="text-xs inline-block mt-2 py-1 px-2.5 leading-none text-center align-baseline bg-gray-100 dark:bg-gray-800 dark:text-gray-300 rounded">
           {deckId}
         </span>
       </div>

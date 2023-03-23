@@ -64,7 +64,7 @@ export default function CommandMenuDaemon(props: Props) {
         </div>
         <div className="w-full h-full grid text-lg grow-wrap" ref={growingWrapperRef}>
           <textarea
-            className="px-2 py-3 text-lg bg-gray-800 border-none text-gray-200 focus:ring-0 resize-none overflow-hidden row-start-1 row-end-2 col-start-1 col-end-2"
+            className="px-2 py-3 text-lg dark:bg-gray-800 border-none dark:text-gray-200 focus:ring-0 resize-none overflow-hidden row-start-1 row-end-2 col-start-1 col-end-2"
             placeholder="Ask a question"
             rows={1}
             value={inputText}
@@ -85,18 +85,20 @@ export default function CommandMenuDaemon(props: Props) {
       </div>
       <div className="flex items-center text-sm text-gray-300 space-x-6 pt-1 pb-3 px-4">
         <button
-          className="border border-gray-700 rounded px-2 py-1 bg-transparent text-gray-300"
+          className="border border-gray-600 rounded px-1.5 py-0.5 bg-transparent text-gray-600 dark:text-gray-300 text-sm"
           onClick={() => setSelectedMode(CommandMenuMode.SEARCH)}
         >
           Notes & elements
         </button>
-        <button className="border border-gray-700 rounded px-2 py-1 bg-white text-gray-900">Daemon</button>
+        <button className="bg-gray-800 dark:bg-white text-gray-100 dark:text-gray-900 border dark:border-gray-700 rounded px-1.5 py-0.5 text-sm">
+          Daemon
+        </button>
       </div>
       {summoning && !output ? (
         <div className="w-full">
           <div className="flex animate-pulse">
             <div className="flex-1">
-              <div className="h-1 bg-primary-400 rounded-bl rounded-br"></div>
+              <div className="h-1 bg-primary-600 dark:bg-primary-400 rounded-bl rounded-br"></div>
             </div>
           </div>
         </div>
@@ -113,7 +115,7 @@ export default function CommandMenuDaemon(props: Props) {
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypePrism]}
             linkTarget="_blank"
-            className="prose prose-invert max-w-none px-4 py-2 prose-table:border prose-table:border-collapse prose-th:border prose-th:border-gray-700 prose-th:align-baseline prose-th:pt-2 prose-th:pl-2 prose-td:border prose-td:border-gray-700 prose-td:pt-2 prose-td:pl-2 prose-a:text-primary-500 hover:prose-a:underline"
+            className="prose dark:prose-invert max-w-none px-4 py-2 prose-table:border prose-table:border-collapse prose-th:border prose-th:border-gray-700 prose-th:align-baseline prose-th:pt-2 prose-th:pl-2 prose-td:border prose-td:border-gray-700 prose-td:pt-2 prose-td:pl-2 prose-a:text-primary-400 hover:prose-a:underline"
           >
             {output}
           </ReactMarkdown>

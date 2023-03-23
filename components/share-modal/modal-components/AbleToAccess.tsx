@@ -15,7 +15,7 @@ const TypeButton = (props: TypeButtonProps) => {
 
   return (
     <button
-      className="flex flex-col justify-between items-center py-2 w-[180px] h-[148px] border border-gray-100 cursor-pointer box-border text-gray-100 hover:bg-gray-800 focus:bg-gray-800"
+      className="flex flex-col justify-between items-center py-2 w-[180px] h-[148px] border border-gray-400 dark:border-gray-100 cursor-pointer box-border dark:text-gray-100 hover:bg-gray-100 focus:bg-gray-100 dark:hover:bg-gray-800 dark:focus:bg-gray-800"
       onClick={() => onClick(type)}
     >
       {icon}
@@ -70,10 +70,10 @@ const AbleToAccess = (props: Props) => {
     <div className="mb-4">
       <div className="text-lg">Who should be able to access this workspace?</div>
       <div className="flex space-x-4 items-center">
-        <span className="text-xs inline-block mt-2 py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
+        <span className="text-xs inline-block mt-2 py-1 px-2.5 leading-none text-center align-baseline bg-gray-100 dark:bg-gray-800 dark:text-gray-300 rounded">
           {deck_name}
         </span>
-        <span className="text-xs inline-block mt-2 py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
+        <span className="text-xs inline-block mt-2 py-1 px-2.5 leading-none text-center align-baseline bg-gray-100 dark:bg-gray-800 dark:text-gray-300 rounded">
           {id}
         </span>
       </div>

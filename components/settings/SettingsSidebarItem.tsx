@@ -12,7 +12,7 @@ function SettingsSidebarItem(props: SidebarItemProps, forwardedRef: ForwardedRef
       'w-full overflow-x-hidden overflow-ellipsis whitespace-nowrap text-gray-800 dark:text-gray-300 dark:bg-gray-900':
         !isHighlighted,
     },
-    { 'bg-gray-200 dark:text-gray-300 dark:bg-gray-700': isHighlighted },
+    { 'bg-gray-100 dark:text-gray-300 dark:bg-gray-700': isHighlighted },
     className,
   );
   return (
