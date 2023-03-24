@@ -139,57 +139,59 @@ export default function PublicationPage(props: Props) {
       <Head>
         <title>{title}</title>
       </Head>
-      <header className="header sticky top-0 flex items-center justify-between pl-10 py-6">
-        <Link href="/" className="flex items-center focus:outline-none">
-          <DunlinIcon />
-          <div className="ml-2">Dunlin</div>
-        </Link>
-      </header>
-      <main className="mt-12 container mx-auto md:max-w-3xl publication">
-        <h1 className="text-5xl font-semibold text-gray-100 mb-5">{title}</h1>
-        <div className="flex space-x-4">
-          <span className="text-xs inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
-            {addEllipsis(address)}
-          </span>
-          <span className="text-xs inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
-            {getReadableDatetime(timestamp)}
-          </span>
-        </div>
+      <div className="w-full h-full min-h-screen bg-gray-900 text-gray-100">
+        <header className="header sticky top-0 flex items-center justify-between pl-10 py-6">
+          <Link href="/" className="flex items-center focus:outline-none">
+            <DunlinIcon />
+            <div className="ml-2">Dunlin</div>
+          </Link>
+        </header>
+        <main className="py-12 container mx-auto md:max-w-3xl">
+          <h1 className="text-5xl font-semibold mb-5">{title}</h1>
+          <div className="flex space-x-4">
+            <span className="text-xs inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
+              {addEllipsis(address)}
+            </span>
+            <span className="text-xs inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
+              {getReadableDatetime(timestamp)}
+            </span>
+          </div>
 
-        <article
-          className="prose prose-invert max-w-none mt-10 prose-table:border prose-table:border-collapse prose-th:border prose-th:border-gray-700 prose-th:align-baseline prose-th:pt-2 prose-th:pl-2 prose-td:border prose-td:border-gray-700 prose-td:pt-2 prose-td:pl-2 prose-a:text-primary-500 hover:prose-a:underline"
-          dangerouslySetInnerHTML={{ __html: parsedBody }}
-        ></article>
+          <article
+            className="prose prose-invert max-w-none mt-10 prose-table:border prose-table:border-collapse prose-th:border prose-th:border-gray-700 prose-th:align-baseline prose-th:pt-2 prose-th:pl-2 prose-td:border prose-td:border-gray-700 prose-td:pt-2 prose-td:pl-2 prose-a:text-primary-400 hover:prose-a:underline"
+            dangerouslySetInnerHTML={{ __html: parsedBody }}
+          ></article>
 
-        <div className="flex flex-col mt-20 mb-12 border border-gray-700 rounded text-gray-400 text-sm">
-          <a
-            className="hover:bg-gray-800"
-            href={`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${cid}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <div className="flex flex-row justify-between p-4 border-b border-gray-700">
-              <div className="flex items-center">
-                <span>IPFS CID</span> <IconExternalLink className="ml-2" size={16} />
+          <div className="flex flex-col mt-20 border border-gray-700 rounded text-gray-400 text-sm">
+            <a
+              className="hover:bg-gray-800"
+              href={`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${cid}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div className="flex flex-row justify-between p-4 border-b border-gray-700">
+                <div className="flex items-center">
+                  <span>IPFS CID</span> <IconExternalLink className="ml-2" size={16} />
+                </div>
+                <div>{cid}</div>
               </div>
-              <div>{cid}</div>
-            </div>
-          </a>
-          <a
-            className="hover:bg-gray-800"
-            href={`https://etherscan.io/address/${address}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <div className="flex flex-row justify-between p-4">
-              <div className="flex items-center">
-                <span>PUBLISHED BY</span> <IconExternalLink className="ml-2" size={16} />
+            </a>
+            <a
+              className="hover:bg-gray-800"
+              href={`https://etherscan.io/address/${address}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div className="flex flex-row justify-between p-4">
+                <div className="flex items-center">
+                  <span>PUBLISHED BY</span> <IconExternalLink className="ml-2" size={16} />
+                </div>
+                <div>{address}</div>
               </div>
-              <div>{address}</div>
-            </div>
-          </a>
-        </div>
-      </main>
+            </a>
+          </div>
+        </main>
+      </div>
     </>
   );
 }

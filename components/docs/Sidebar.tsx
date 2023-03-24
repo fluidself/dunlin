@@ -19,16 +19,12 @@ export default function Sidebar() {
     <Disclosure as="nav">
       {({ open }) => (
         <>
-          <div className="fixed h-screen flex-[0_0_auto] py-12 border-r border-gray-600">
+          <div className="fixed h-screen flex-[0_0_auto] py-12 border-r border-gray-600 bg-gray-800">
             <div className="relative items-center justify-between">
               <div className="absolute inset-y-0 left-0 flex items-center md:hidden">
                 <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
                   <span className="sr-only">Open navigation</span>
-                  {open ? (
-                    <IconX className="block h-6 w-6" aria-hidden="true" />
-                  ) : (
-                    <IconMenu2 className="block h-6 w-6" aria-hidden="true" />
-                  )}
+                  {open ? <IconX size={20} aria-hidden="true" /> : <IconMenu2 size={20} aria-hidden="true" />}
                 </Disclosure.Button>
               </div>
               <div className="flex-1 flex items-center justify-center md:items-stretch md:justify-start">
@@ -49,8 +45,8 @@ export default function Sidebar() {
                         <Link
                           {...link}
                           key={link.href}
-                          className={`w-full focus:outline-none hover:bg-gray-800 ${
-                            active ? 'bg-gray-800 text-primary-500' : ''
+                          className={`w-full focus:outline-none hover:bg-gray-700 ${
+                            active ? 'bg-gray-700 text-primary-400' : ''
                           }`}
                         >
                           <li className="list-none px-8 py-1 my-1 w-full">{link.children}</li>
@@ -72,9 +68,7 @@ export default function Sidebar() {
                     <Link
                       {...link}
                       href={link.href}
-                      className={`w-full focus:outline-none hover:bg-gray-800 ${
-                        active ? 'bg-gray-800 text-primary-500' : ''
-                      }`}
+                      className={`w-full focus:outline-none hover:text-primary-400 ${active ? 'text-primary-400' : ''}`}
                     >
                       {link.children}
                     </Link>
