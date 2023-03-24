@@ -8,7 +8,6 @@ import { useAuth } from 'utils/useAuth';
 import { generateKey, encryptWithLit, encryptNote } from 'utils/encryption';
 import createOnboardingNotes from 'utils/createOnboardingNotes';
 import { verifyDeckAccess } from 'utils/accessControl';
-import Button from 'components/Button';
 import { OnboardingStep } from './OnboardingModal';
 
 export enum InputType {
@@ -31,6 +30,7 @@ export default function CreateOrAccessWorkspace(props: Props) {
   const [invalid, setInvalid] = useState(false);
 
   const handleSubmit = async () => {
+    if (processing) return;
     if (!inputValue) {
       setInvalid(true);
       return;
@@ -114,7 +114,9 @@ export default function CreateOrAccessWorkspace(props: Props) {
     <div className="flex flex-col gap-4 w-96 mx-auto">
       <input
         type="text"
-        className={`input-subdued py-2 ${invalid && 'border-red-500 focus:border-red-500'}`}
+        className={`input bg-transparent py-2 ${
+          invalid ? 'border-red-500 focus:border-red-500' : 'border-gray-500 focus:border-gray-500'
+        }`}
         placeholder={`Enter workspace ${type === InputType.Create ? 'name' : 'ID'}`}
         maxLength={type === InputType.Create ? 20 : undefined}
         autoComplete="off"
@@ -132,12 +134,21 @@ export default function CreateOrAccessWorkspace(props: Props) {
         }}
       />
       <div className="flex flex-row gap-4 items-center justify-between w-full">
-        <Button className="flex-grow" primary disabled={processing} onClick={handleSubmit}>
+        <button
+          className={`flex flex-grow items-center justify-center px-6 py-2 rounded uppercase border border-gray-500 bg-white text-gray-900 hover:text-gray-100 hover:bg-inherit hover:border-gray-100 ${
+            processing ? 'cursor-not-allowed' : ''
+          }`}
+          disabled={processing}
+          onClick={handleSubmit}
+        >
           {type === InputType.Create ? 'Create' : 'Join'}
-        </Button>
-        <Button className="flex-grow" onClick={() => setCurrentStep(OnboardingStep.Options)}>
+        </button>
+        <button
+          className="flex flex-grow items-center justify-center px-6 py-2 rounded uppercase border border-gray-500 text-gray-300 hover:border-gray-100 hover:text-gray-100"
+          onClick={() => setCurrentStep(OnboardingStep.Options)}
+        >
           Cancel
-        </Button>
+        </button>
       </div>
     </div>
   );

@@ -15,7 +15,7 @@ export default function WorkspaceOptions(props: Props) {
   return (
     <div className="flex flex-wrap gap-10 justify-center">
       <button
-        className="flex flex-col justify-between items-center py-4 w-[240px] h-[240px] border border-white cursor-pointer box-border text-white hover:bg-gray-800 focus:bg-gray-800"
+        className="flex flex-col justify-between items-center py-4 w-[240px] h-[240px] border border-gray-300 cursor-pointer box-border text-white hover:bg-gray-800 hover:border-gray-100 focus:bg-gray-800"
         onClick={() => {
           setInputType(InputType.Create);
           setCurrentStep(OnboardingStep.CreateOrAccess);
@@ -25,7 +25,7 @@ export default function WorkspaceOptions(props: Props) {
         <div className="">Create a workspace</div>
       </button>
       <button
-        className="flex flex-col justify-between items-center py-4 w-[240px] h-[240px] border border-white cursor-pointer box-border text-white hover:bg-gray-800 focus:bg-gray-800"
+        className="flex flex-col justify-between items-center py-4 w-[240px] h-[240px] border border-gray-300 cursor-pointer box-border text-white hover:bg-gray-800 hover:border-gray-100 focus:bg-gray-800"
         onClick={() => {
           setInputType(InputType.Access);
           setCurrentStep(OnboardingStep.CreateOrAccess);
