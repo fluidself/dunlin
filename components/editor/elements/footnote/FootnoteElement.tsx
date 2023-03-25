@@ -135,8 +135,8 @@ export default function FootnoteElement(props: Props) {
   }, [editor, path]);
 
   const foootnoteMarkerClassName = classNames(
-    'flex-inline items-center justify-center p-0.25 text-sm rounded text-primary-400 hover:bg-gray-800 active:bg-gray-700 focus:outline-none',
-    { 'bg-primary-900': selected && focused },
+    'flex-inline items-center justify-center p-0.25 text-sm rounded text-primary-600 dark:text-primary-400 hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-800 dark:active:bg-gray-700 focus:outline-none',
+    { 'bg-primary-100 dark:bg-primary-900': selected && focused },
     className,
   );
 
@@ -156,7 +156,7 @@ export default function FootnoteElement(props: Props) {
         {isVisible && (
           <Portal>
             <Popover.Panel
-              className={`z-10 px-2 overflow-y-auto rounded shadow-popover w-96 max-h-128 bg-gray-800 border border-gray-600 ${
+              className={`z-10 px-2 overflow-y-auto rounded shadow-popover w-96 max-h-128 bg-white dark:bg-gray-800 border dark:border-gray-600 ${
                 state?.modifiersData.hide?.isReferenceHidden ? 'invisible pointer-events-none' : ''
               }`}
               contentEditable={false}

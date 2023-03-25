@@ -29,11 +29,11 @@ type TableMenuProps = {
 export default function TableToolbar({ selected }: TableMenuProps) {
   const editor = useSlateStatic();
 
-  const buttonBorderClass = 'border-l border-gray-600';
+  const buttonBorderClass = 'border-l dark:border-gray-600';
 
   return (
     <div
-      className={`border bg-gray-800 border-gray-600 select-none pointer-events-none absolute top-[-46px] left-0 whitespace-nowrap rounded ${
+      className={`bg-white dark:bg-gray-800 border dark:border-gray-600 shadow-popover select-none pointer-events-none absolute top-[-43px] left-0 whitespace-nowrap rounded ${
         selected ? 'block' : 'hidden'
       }`}
     >
@@ -98,7 +98,7 @@ function TableToolbarButton({ Icon, tooltip, className = '', onClick }: TableToo
     <Tooltip content={tooltip} placement="top" disabled={!tooltip}>
       <span>
         <button
-          className={`flex items-center px-2 py-2 cursor-pointer hover:bg-gray-700 active:bg-gray-600 ${className}`}
+          className={`flex items-center px-2 py-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${className}`}
           onClick={onClick}
         >
           <Icon size={18} />

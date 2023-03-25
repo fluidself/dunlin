@@ -80,10 +80,10 @@ export default function CodeBlockElement(props: Props) {
 
   return (
     <pre
-      className={`block relative p-2 border rounded dark:bg-gray-800 dark:border-gray-700 whitespace-pre-wrap overflow-x-auto ${className}`}
+      className={`block relative p-2 border rounded bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 whitespace-pre-wrap overflow-x-auto ${className}`}
       {...attributes}
     >
-      {!readOnly && (
+      {!readOnly ? (
         <select
           value={lang ?? ''}
           onChange={onSelectChange}
@@ -97,7 +97,7 @@ export default function CodeBlockElement(props: Props) {
             </option>
           ))}
         </select>
-      )}
+      ) : null}
       <code className={`language-${lang ?? ''}`}>{children}</code>
     </pre>
   );

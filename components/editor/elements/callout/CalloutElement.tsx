@@ -136,7 +136,7 @@ export default function CalloutElement(props: CalloutElementProps) {
         {!readOnly ? (
           <Tooltip content="Callout settings" placement="bottom">
             <button
-              className="opacity-0.1 group-hover:opacity-100 flex items-center p-1 absolute top-0.5 right-0.5 rounded text-gray-300 hover:text-gray-100 hover:bg-gray-700"
+              className="opacity-0.1 group-hover:opacity-100 flex items-center p-1 absolute top-0.5 right-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:active:bg-gray-500 dark:text-gray-300 dark:hover:text-gray-100"
               onClick={() => setMenuOpen(!isMenuOpen)}
             >
               <IconCode size={18} />
