@@ -35,7 +35,11 @@ export default function NoteEditMenu(props: Props) {
 
   useEffect(() => {
     const fetchPermission = async () => {
-      const { data: deckSettings } = await supabase.from<Deck>('decks').select('author_control_notes').eq('id', deckId).single();
+      const { data: deckSettings } = await supabase
+        .from<Deck>('decks')
+        .select('author_control_notes')
+        .eq('id', deckId)
+        .single();
       if (deckSettings) setAuthorControlNotes(deckSettings.author_control_notes);
     };
     if (!isOffline) {
@@ -70,7 +74,7 @@ export default function NoteEditMenu(props: Props) {
       {onPublishClick && (
         <DropdownItem
           disabled={isOffline}
-          className={`${!userCanControlNotePermission && 'border-t dark:border-gray-700'}`}
+          className={`${!userCanControlNotePermission ? 'border-t dark:border-gray-700' : ''}`}
           onClick={onPublishClick}
         >
           <IconSend size={18} className="mr-1" />
