@@ -39,12 +39,7 @@ export default function Dropdown(props: Props) {
     <Menu>
       {({ open }) => (
         <>
-          <Menu.Button
-            data-testid="dropdown-button"
-            ref={referenceElementRef}
-            className={buttonClassName}
-            contentEditable={false}
-          >
+          <Menu.Button ref={referenceElementRef} className={buttonClassName} contentEditable={false}>
             <Tooltip disabled={!tooltipContent} content={tooltipContent} delay={[200, 0]} placement={tooltipPlacement}>
               <span>{buttonChildren}</span>
             </Tooltip>
@@ -91,9 +86,11 @@ export function DropdownItem(props: DropdownItemProps) {
 
   const itemClassName = useCallback(
     (active: boolean, disabled?: boolean) =>
-      `flex w-full items-center px-4 py-2 text-left text-sm text-gray-800 dark:text-gray-200 select-none ${
-        active && 'bg-gray-100 dark:bg-gray-700'
-      } ${disabled && 'dark:text-gray-500 pointer-events-none'} ${className}`,
+      `flex w-full items-center px-4 py-2 text-left text-sm select-none ${
+        active && !disabled ? 'bg-gray-100 dark:bg-gray-700' : ''
+      } ${
+        disabled ? 'text-gray-300 dark:text-gray-500 pointer-events-none' : 'text-gray-800 dark:text-gray-200'
+      } ${className}`,
     [className],
   );
 

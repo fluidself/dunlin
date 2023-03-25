@@ -65,10 +65,7 @@ export default function FileAttachmentElement(props: FileAttachmentElementProps)
         {!readOnly ? (
           <Tooltip content="Attachment settings" placement="top">
             <button
-              className={`opacity-0.1 group-hover:opacity-100 float-right p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-600 dark:active:bg-gray-500 focus:outline-none ${
-                isOffline ? 'text-gray-500 pointer-events-none' : ''
-              }`}
-              disabled={isOffline}
+              className="opacity-0.1 group-hover:opacity-100 float-right p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-600 dark:active:bg-gray-500 focus:outline-none"
               onClick={() => setMenuOpen(!isMenuOpen)}
             >
               <IconCode size={18} />

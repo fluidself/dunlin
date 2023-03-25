@@ -77,7 +77,7 @@ const SettingsModalSidebar = (props: SettingsModalSidebarProps) => {
   const isOffline = useStore(state => state.isOffline);
 
   return (
-    <div className="flex flex-col flex-none w-full py-4 border-b sm:border-b-0 sm:border-r sm:w-48 sm:h-full bg-gray-50 dark:bg-gray-900 dark:border-gray-600">
+    <div className="flex flex-col flex-none w-full py-4 border-b sm:border-b-0 sm:border-r sm:w-48 sm:h-full bg-gray-50 dark:bg-gray-800 dark:border-gray-600">
       <div className="px-4 pb-2 text-sm text-gray-600 dark:text-gray-400">Settings</div>
       <SettingsSidebarItem
         className="flex hover:bg-gray-100 active:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-700"
@@ -102,14 +102,14 @@ const SettingsModalSidebar = (props: SettingsModalSidebarProps) => {
         >
           <button
             className={`flex items-center flex-1 px-4 py-1 overflow-hidden overflow-ellipsis whitespace-nowrap ${
-              isOffline ? 'text-gray-500 pointer-events-none' : ''
+              isOffline ? 'text-gray-300 dark:text-gray-500 pointer-events-none' : ''
             }`}
             disabled={isOffline}
             onClick={() => setCurrentTab(SettingsTab.Permissions)}
           >
             <IconPencilOff
               size={18}
-              className={`mr-1 ${isOffline ? 'text-gray-500' : 'text-gray-800 dark:text-gray-200'}`}
+              className={`mr-1 ${isOffline ? 'text-gray-300 dark:text-gray-500' : 'text-gray-800 dark:text-gray-200'}`}
             />
             <span>Permissions</span>
           </button>
@@ -125,12 +125,15 @@ const SettingsModalSidebar = (props: SettingsModalSidebarProps) => {
       >
         <button
           className={`flex items-center flex-1 px-4 py-1 overflow-hidden overflow-ellipsis whitespace-nowrap ${
-            isOffline ? 'text-gray-500 pointer-events-none' : ''
+            isOffline ? 'text-gray-300 dark:text-gray-500 pointer-events-none' : ''
           }`}
           disabled={isOffline}
           onClick={() => setCurrentTab(SettingsTab.DeckManagement)}
         >
-          <IconBook2 size={18} className={`mr-1 ${isOffline ? 'text-gray-500' : 'text-gray-800 dark:text-gray-200'}`} />
+          <IconBook2
+            size={18}
+            className={`mr-1 ${isOffline ? 'text-gray-300 dark:text-gray-500' : 'text-gray-800 dark:text-gray-200'}`}
+          />
           <span>Workspaces</span>
         </button>
       </SettingsSidebarItem>

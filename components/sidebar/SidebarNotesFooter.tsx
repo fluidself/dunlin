@@ -47,7 +47,7 @@ function SidebarNotesFooter(props: Props) {
           >
             <IconDownload
               size={16}
-              className={`text-gray-600 ${isOffline ? 'dark:text-gray-500' : 'dark:text-gray-300'}`}
+              className={`${isOffline ? 'text-gray-300 dark:text-gray-500' : 'text-gray-600 dark:text-gray-300'}`}
             />
           </button>
         </Tooltip>

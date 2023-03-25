@@ -199,7 +199,7 @@ const FileButton = ({ format, element, Icon, tooltip, className = '', onlyImages
               isActive && !isOffline
                 ? 'text-primary-500 dark:text-primary-400'
                 : isOffline
-                ? 'text-gray-500 dark:text-gray-500'
+                ? 'text-gray-300 dark:text-gray-500'
                 : 'text-gray-800 dark:text-gray-200'
             }
           />
@@ -216,6 +216,7 @@ type EmbedButtonProps = {
 
 const EmbedButton = ({ format, element, Icon, tooltip, className = '', setEmbedUrlInputState }: EmbedButtonProps) => {
   const editor = useSlate();
+  const isOffline = useStore(state => state.isOffline);
   const path = useMemo(() => ReactEditor.findPath(editor, element), [editor, element]);
   const isActive = isElementActive(editor, format, path);
 
@@ -224,11 +225,18 @@ const EmbedButton = ({ format, element, Icon, tooltip, className = '', setEmbedU
       <span>
         <DropdownItem
           className={`flex items-center px-2 py-2 cursor-pointer rounded hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${className}`}
+          disabled={isOffline}
           onClick={() => setEmbedUrlInputState({ isOpen: true, type: format, path, editor })}
         >
           <Icon
             size={18}
-            className={isActive ? 'text-primary-500 dark:text-primary-400' : 'text-gray-800 dark:text-gray-200'}
+            className={
+              isActive && !isOffline
+                ? 'text-primary-500 dark:text-primary-400'
+                : isOffline
+                ? 'text-gray-300 dark:text-gray-500'
+                : 'text-gray-800 dark:text-gray-200'
+            }
           />
         </DropdownItem>
       </span>

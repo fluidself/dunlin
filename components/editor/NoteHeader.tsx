@@ -161,19 +161,19 @@ export default function NoteHeader() {
     return note.author_only ? (
       <Tooltip content={viewOnlyTooltipContent}>
         <span className="flex items-center justify-center w-8 h-8">
-          <IconEye className="text-gray-600 dark:text-gray-400" />
+          <IconEye className="text-gray-500 dark:text-gray-400" />
         </span>
       </Tooltip>
     ) : (
       <Tooltip content="All workspace members can edit">
         <span className="flex items-center justify-center w-8 h-8">
-          <IconPencil className="text-gray-600 dark:text-gray-400" />
+          <IconPencil className="text-gray-500 dark:text-gray-400" />
         </span>
       </Tooltip>
     );
   };
 
-  const buttonClassName = 'rounded hover:bg-gray-300 active:bg-gray-400 dark:hover:bg-gray-700 dark:active:bg-gray-600';
+  const buttonClassName = 'rounded hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600';
   const iconClassName = 'text-gray-600 dark:text-gray-300';
 
   return (
@@ -194,8 +194,8 @@ export default function NoteHeader() {
             <div className="flex items-center">
               <div className="mr-1">
                 <Select
-                  className="react-select-container-header"
-                  classNamePrefix="react-select-header"
+                  className="react-select-container react-select-container-header"
+                  classNamePrefix="react-select"
                   placeholder="Select workspace..."
                   isDisabled={isOffline}
                   options={deckOptions}
@@ -217,7 +217,9 @@ export default function NoteHeader() {
                   >
                     <span className="flex items-center justify-center w-8 h-8">
                       <IconShare
-                        className={`text-gray-600 ${isOffline ? 'dark:text-gray-500' : 'dark:text-gray-300'}`}
+                        className={`${
+                          isOffline ? 'text-gray-300 dark:text-gray-500' : 'text-gray-600 dark:text-gray-300'
+                        }`}
                       />
                     </span>
                   </button>
@@ -249,7 +251,7 @@ export default function NoteHeader() {
                   <Portal>
                     <Menu.Items
                       ref={setPopperElement}
-                      className="z-10 w-56 overflow-hidden bg-white rounded shadow-popover dark:bg-gray-800 focus:outline-none border border-gray-700"
+                      className="z-10 w-56 overflow-hidden bg-white rounded shadow-popover dark:bg-gray-800 focus:outline-none border dark:border-gray-700"
                       static
                       style={styles.popper}
                       {...attributes.popper}
