@@ -20,7 +20,7 @@ export function replaceMermaidCodeBlocks(input: string) {
   let output = input;
   let i = 0;
 
-  mermaid.initialize(mermaidConfig);
+  mermaid.initialize(mermaidConfig(true));
 
   for (const mermaidCodeblockMatch of input.matchAll(mermaidBlocksInStringRegexGlobal)) {
     const mermaidDefinition = mermaidCodeblockMatch[1];
@@ -37,15 +37,15 @@ export function replaceMermaidCodeBlocks(input: string) {
   return { output, svgs, classNames };
 }
 
-export const mermaidConfig = {
+export const mermaidConfig = (darkMode: boolean) => ({
   startOnLoad: false,
-  theme: 'dark',
+  theme: darkMode ? 'dark' : 'light',
   pie: { useWidth: 640 },
   themeVariables: {
     fontFamily: '"Roboto Mono", monospace',
-    mainBkg: '#404040',
+    mainBkg: darkMode ? '#404040' : '#f5f5f5',
     nodeBorder: '#737373',
-    actorBorder: '#fff',
+    actorBorder: darkMode ? '#fff' : '#737373',
     pie1: '#8dd3c7',
     pie2: '#ffffb3',
     pie3: '#bebada',
@@ -59,4 +59,4 @@ export const mermaidConfig = {
     pie11: '#ccebc5',
     pie12: '#ffed6f',
   },
-};
+});
