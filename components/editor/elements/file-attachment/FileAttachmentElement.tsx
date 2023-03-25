@@ -58,14 +58,14 @@ export default function FileAttachmentElement(props: FileAttachmentElementProps)
         className={`group border ${
           selected && focused && !isMenuOpen
             ? 'ring ring-primary-100 dark:ring-primary-900 border-transparent'
-            : 'border-gray-600'
+            : 'border-gray-400 dark:border-gray-600'
         }`}
         contentEditable={false}
       >
         {!readOnly ? (
           <Tooltip content="Attachment settings" placement="top">
             <button
-              className={`opacity-0.1 group-hover:opacity-100 float-right p-1 rounded hover:bg-gray-600 active:bg-gray-500 focus:outline-none ${
+              className={`opacity-0.1 group-hover:opacity-100 float-right p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-600 dark:active:bg-gray-500 focus:outline-none ${
                 isOffline ? 'text-gray-500 pointer-events-none' : ''
               }`}
               disabled={isOffline}

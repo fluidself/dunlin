@@ -5,6 +5,7 @@ import { Editor, Transforms } from 'slate';
 import { ReactEditor, RenderElementProps, useSlateStatic, useReadOnly, useFocused, useSelected } from 'slate-react';
 import { MermaidDiagram, CodeBlock, ElementType } from 'types/slate';
 import { deserializeCodeLine } from 'editor/plugins/withCodeBlocks';
+import { useStore } from 'lib/store';
 import { mermaidConfig, renderGraph } from 'utils/mermaid';
 import Tooltip from 'components/Tooltip';
 
@@ -22,20 +23,22 @@ export default function MermaidElement(props: Props) {
   const editor = useSlateStatic();
   const selected = useSelected();
   const focused = useFocused();
+  const darkMode = useStore(state => state.darkMode);
   const mermaidId = useMemo(() => `mermaid-${id}`, [id]);
+  const config = useMemo(() => mermaidConfig(darkMode), [darkMode]);
   const path = useMemo(() => ReactEditor.findPath(editor, element), [editor, element]);
   const [html, setHtml] = useState('');
 
   useEffect(() => {
-    mermaid.initialize(mermaidConfig);
-  }, []);
+    mermaid.initialize(config);
+  }, [config]);
 
   useEffect(() => {
     if (definition) {
       const result = renderGraph(mermaidId, definition);
       setHtml(result);
     }
-  }, [definition, mermaidId]);
+  }, [definition, mermaidId, config]);
 
   const convertToCodeBlock = useCallback(() => {
     const codeLines = definition.split('\n').map(deserializeCodeLine);
@@ -68,14 +71,16 @@ export default function MermaidElement(props: Props) {
     <div className={className} {...attributes}>
       <div
         className={`p-2 border border-transparent rounded relative group ${
-          selected && focused ? 'ring ring-primary-100 dark:ring-primary-900' : 'hover:border-gray-700'
+          selected && focused
+            ? 'ring ring-primary-100 dark:ring-primary-900'
+            : 'hover:border-gray-300 dark:hover:border-gray-700'
         }`}
       >
         <div contentEditable={false}>
           {!readOnly && (
             <Tooltip content="Edit this block" placement="bottom">
               <button
-                className="opacity-0.1 group-hover:opacity-100 flex items-center absolute top-0.5 right-0.5 p-1 rounded text-gray-300 hover:text-gray-100 hover:bg-gray-700"
+                className="opacity-0.1 group-hover:opacity-100 flex items-center absolute top-0.5 right-0.5 p-1 rounded dark:text-gray-300 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
                 onClick={convertToCodeBlock}
               >
                 <IconCode size={18} />

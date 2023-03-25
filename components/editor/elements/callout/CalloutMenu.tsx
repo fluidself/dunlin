@@ -36,20 +36,23 @@ export default function CalloutMenu(props: CalloutMenuProps) {
 
   return (
     <div
-      className="flex flex-col z-10 w-60 absolute top-0 right-0 rounded bg-gray-800 border border-gray-700"
+      className="flex flex-col z-10 w-60 absolute top-0 right-0 rounded shadow-popover bg-white dark:bg-gray-800 border border-gray-700"
       ref={setMenuElement}
     >
       <div className="flex items-center justify-between">
         <div className="py-3 pl-4">Callout settings</div>
-        <button className="mb-4 mr-1 text-gray-300 hover:text-gray-100" onClick={onClose}>
+        <button
+          className="mb-4 mr-1 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
+          onClick={onClose}
+        >
           <IconX size={18} />
         </button>
       </div>
-      <div className="flex flex-col px-4 py-3 space-y-2 border-y border-gray-700">
+      <div className="flex flex-col px-4 py-3 space-y-2 border-y dark:border-gray-700">
         <label htmlFor="type">Type</label>
         <select
           id="type"
-          className="input bg-gray-700 border-gray-700"
+          className="input bg-gray-50 dark:bg-gray-700 dark:border-gray-700"
           value={selectedType}
           onChange={e => onUpdate(e.target.value as CalloutType)}
         >
@@ -61,7 +64,7 @@ export default function CalloutMenu(props: CalloutMenuProps) {
         </select>
       </div>
       <button
-        className="flex flex-row items-center justify-center py-3 focus:outline-none hover:bg-gray-700 active:bg-gray-600"
+        className="flex flex-row items-center justify-center py-3 focus:outline-none hover:bg-gray-100 active:bg-gray-100 dark:hover:bg-gray-700 dark:active:bg-gray-600"
         autoFocus
         onClick={handleRemove}
       >

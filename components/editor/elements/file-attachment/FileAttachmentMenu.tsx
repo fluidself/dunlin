@@ -75,24 +75,29 @@ export default function FileAttachmentMenu({ element, onClose }: FileAttachmentM
 
   return (
     <div
-      className="flex flex-col z-10 w-96 absolute top-0 right-0 rounded bg-gray-800 border border-gray-700"
+      className="flex flex-col z-10 w-96 absolute top-0 right-0 rounded shadow-popover bg-white dark:bg-gray-800 border border-gray-700"
       ref={setMenuElement}
     >
       <div className="flex items-center justify-between">
         <div className="py-3 pl-4">Attachment settings</div>
-        <button className="mb-4 mr-1 text-gray-300 hover:text-gray-100" onClick={onClose}>
+        <button
+          className="mb-4 mr-1 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
+          onClick={onClose}
+        >
           <IconX size={18} />
         </button>
       </div>
-      <div className="flex flex-col px-4 py-3 space-y-2 border-y border-gray-700">
+      <div className="flex flex-col px-4 py-3 space-y-2 border-y dark:border-gray-700">
         <label htmlFor="filename">Filename</label>
         <input
           type="text"
           id="filename"
           placeholder="Enter filename"
           autoComplete="off"
-          className={`input bg-gray-700 text-gray-200 ${
-            isFilenameValid ? 'border-gray-700' : 'border-red-500 active:border-red-500 focus:border-red-500'
+          className={`input bg-gray-50 dark:bg-gray-700 dark:text-gray-200 ${
+            isFilenameValid
+              ? 'border-gray-50 dark:border-gray-700'
+              : 'border-red-500 active:border-red-500 focus:border-red-500'
           }`}
           onCopy={e => e.stopPropagation()}
           onPaste={e => e.stopPropagation()}
@@ -105,7 +110,7 @@ export default function FileAttachmentMenu({ element, onClose }: FileAttachmentM
           id="description"
           placeholder="Enter description"
           autoComplete="off"
-          className="input bg-gray-700 text-gray-200 border-gray-700"
+          className="input bg-gray-50 dark:bg-gray-700 dark:text-gray-200 border-gray-50 dark:border-gray-700"
           onCopy={e => e.stopPropagation()}
           onPaste={e => e.stopPropagation()}
           value={description}
@@ -118,7 +123,7 @@ export default function FileAttachmentMenu({ element, onClose }: FileAttachmentM
         </div>
       </div>
       <button
-        className="flex flex-row items-center justify-center py-3 focus:outline-none hover:bg-gray-700 active:bg-gray-600"
+        className="flex flex-row items-center justify-center py-3 focus:outline-none hover:bg-gray-100 active:bg-gray-100 dark:hover:bg-gray-700 dark:active:bg-gray-600"
         autoFocus
         onClick={handleRemove}
       >

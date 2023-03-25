@@ -34,7 +34,7 @@ const EditorLeaf = ({ attributes, children, leaf }: EditorLeafProps) => {
   }
 
   if (leaf.highlight) {
-    children = <mark className="bg-yellow-100 dark:bg-[#828324] dark:text-white">{children}</mark>;
+    children = <mark className="bg-yellow-200 dark:bg-[#828324] dark:text-white">{children}</mark>;
   }
 
   if (leaf.superscript) {
