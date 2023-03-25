@@ -257,14 +257,14 @@ export default function CommandMenuSearch(props: Props) {
   const elementOptions = options.filter(opt => opt.type === OptionType.ELEMENT);
 
   return (
-    <div className="flex flex-col z-30 w-full max-w-2xl bg-white rounded shadow-popover dark:bg-gray-800 border border-gray-700">
+    <div className="flex flex-col z-30 w-full max-w-2xl bg-white rounded shadow-popover dark:bg-gray-900 border dark:border-gray-700">
       <div className="flex items-center flex-shrink-0 w-full">
         <div className="w-9 h-full relative">
           <IconSearch className="absolute top-4 left-4 text-gray-500" size={20} />
         </div>
         <input
           type="text"
-          className="w-full py-3 px-2 text-lg border-none focus:ring-0 dark:bg-gray-800 dark:text-gray-200"
+          className="w-full py-3 px-2 text-lg border-none focus:ring-0 dark:bg-gray-900 dark:text-gray-200"
           placeholder={editor && !inTable ? 'Find or create a note or use an element' : 'Find or create a note'}
           value={inputText}
           onChange={e => setInputText(e.target.value)}
@@ -280,11 +280,11 @@ export default function CommandMenuSearch(props: Props) {
       </div>
       {user && process.env.NEXT_PUBLIC_DAEMON_USERS?.split(',').includes(user.id) ? (
         <div className="flex items-center text-sm text-gray-300 space-x-6 pt-1 pb-3 px-4">
-          <button className="bg-gray-800 dark:bg-white text-gray-100 dark:text-gray-900 border border-gray-800 dark:border-white rounded px-1.5 py-0.5 text-sm">
+          <button className="bg-gray-900 dark:bg-white text-gray-100 dark:text-gray-900 border border-gray-900 dark:border-white rounded px-1.5 py-0.5 text-sm">
             Notes & elements
           </button>
           <button
-            className="border border-gray-600 rounded px-1.5 py-0.5 bg-transparent text-gray-600 dark:text-gray-300 text-sm"
+            className="border border-gray-500 hover:border-gray-800 dark:hover:border-gray-200 rounded px-1.5 py-0.5 bg-inherit hover:bg-gray-50 dark:hover:bg-inherit text-gray-600 dark:text-gray-300 text-sm"
             onClick={() => setSelectedMode(CommandMenuMode.DAEMON)}
           >
             Daemon
@@ -293,7 +293,7 @@ export default function CommandMenuSearch(props: Props) {
       ) : null}
       {options.length > 0 ? (
         <>
-          <div className="flex-1 w-full overflow-y-auto bg-white border-t dark:bg-gray-800 dark:border-gray-700">
+          <div className="flex-1 w-full overflow-y-auto bg-white border-t dark:bg-gray-900 dark:border-gray-700">
             {noteOptions.length > 0 ? (
               <div className="px-4 py-1.5 select-none text-gray-500 dark:text-gray-400 text-sm">Notes</div>
             ) : null}
