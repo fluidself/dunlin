@@ -57,14 +57,14 @@ export default function CommandMenuDaemon(props: Props) {
   }, [inputText, summoning]);
 
   return (
-    <div className="flex flex-col z-30 w-full max-w-2xl bg-white rounded shadow-popover dark:bg-gray-800 border border-gray-700">
+    <div className="flex flex-col z-30 w-full max-w-2xl bg-white rounded shadow-popover dark:bg-gray-900 border dark:border-gray-700">
       <div className="flex items-center flex-shrink-0 w-full">
         <div className="w-9 h-full relative">
           <IconSearch className="absolute top-4 left-4 text-gray-500" size={20} />
         </div>
         <div className="w-full h-full grid text-lg grow-wrap" ref={growingWrapperRef}>
           <textarea
-            className="px-2 py-3 text-lg dark:bg-gray-800 border-none dark:text-gray-200 focus:ring-0 resize-none overflow-hidden row-start-1 row-end-2 col-start-1 col-end-2"
+            className="px-2 py-3 text-lg dark:bg-gray-900 border-none dark:text-gray-200 focus:ring-0 resize-none overflow-hidden row-start-1 row-end-2 col-start-1 col-end-2"
             placeholder="Ask a question"
             rows={1}
             value={inputText}
@@ -85,12 +85,12 @@ export default function CommandMenuDaemon(props: Props) {
       </div>
       <div className="flex items-center text-sm text-gray-300 space-x-6 pt-1 pb-3 px-4">
         <button
-          className="border border-gray-600 rounded px-1.5 py-0.5 bg-transparent text-gray-600 dark:text-gray-300 text-sm"
+          className="border border-gray-500 hover:border-gray-800 dark:hover:border-gray-200 rounded px-1.5 py-0.5 bg-inherit hover:bg-gray-50 dark:hover:bg-inherit text-gray-600 dark:text-gray-300 text-sm"
           onClick={() => setSelectedMode(CommandMenuMode.SEARCH)}
         >
           Notes & elements
         </button>
-        <button className="bg-gray-800 dark:bg-white text-gray-100 dark:text-gray-900 border dark:border-gray-700 rounded px-1.5 py-0.5 text-sm">
+        <button className="bg-gray-900 dark:bg-white text-gray-100 dark:text-gray-900 border border-gray-900 dark:border-white rounded px-1.5 py-0.5 text-sm">
           Daemon
         </button>
       </div>
@@ -110,12 +110,12 @@ export default function CommandMenuDaemon(props: Props) {
         </div>
       ) : null}
       {output ? (
-        <div className="flex-1 w-full overflow-y-auto bg-white border-t rounded-bl rounded-br dark:bg-gray-800 dark:border-gray-700">
+        <div className="flex-1 w-full overflow-y-auto bg-white border-t rounded-bl rounded-br dark:bg-gray-900 dark:border-gray-700">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypePrism]}
             linkTarget="_blank"
-            className="prose dark:prose-invert max-w-none px-4 py-2 prose-table:border prose-table:border-collapse prose-th:border prose-th:border-gray-700 prose-th:align-baseline prose-th:pt-2 prose-th:pl-2 prose-td:border prose-td:border-gray-700 prose-td:pt-2 prose-td:pl-2 prose-a:text-primary-400 hover:prose-a:underline"
+            className="prose dark:prose-invert max-w-none px-4 py-2 prose-table:border prose-table:border-collapse prose-th:border prose-th:border-gray-700 prose-th:align-baseline prose-th:pt-2 prose-th:pl-2 prose-td:border prose-td:border-gray-700 prose-td:pt-2 prose-td:pl-2 prose-a:text-primary-400 hover:prose-a:underline prose-pre:bg-gray-100 prose-pre:dark:bg-gray-800 prose-pre:text-gray-800 prose-pre:dark:text-gray-100 prose-code:bg-gray-100 prose-code:dark:bg-gray-800 prose-code:text-gray-800 prose-code:dark:text-gray-100"
           >
             {output}
           </ReactMarkdown>
