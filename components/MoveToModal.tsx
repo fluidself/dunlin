@@ -28,7 +28,7 @@ export default function MoveToModal(props: Props) {
         <MoveToInput
           noteId={noteId}
           onOptionClick={() => setIsOpen(false)}
-          className="z-30 w-full max-w-screen-sm bg-white rounded shadow-popover dark:bg-gray-800"
+          className="z-30 w-full max-w-screen-sm bg-white rounded shadow-popover dark:bg-gray-800 border dark:border-gray-700"
         />
       </div>
     </div>

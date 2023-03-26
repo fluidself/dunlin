@@ -17,6 +17,7 @@ import {
 import { D3DragEvent, drag } from 'd3-drag';
 import { zoom, zoomIdentity, zoomTransform, ZoomTransform } from 'd3-zoom';
 import { select } from 'd3-selection';
+import { useStore } from 'lib/store';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 
 export type NodeDatum = {
@@ -39,15 +40,12 @@ type Props = {
 export default function ForceGraph(props: Props) {
   const { data, className } = props;
 
+  const router = useRouter();
   const { id: deckId } = useCurrentDeck();
+  const darkMode = useStore(state => state.darkMode);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const transform = useRef(zoomIdentity);
   const hoveredNode = useRef<NodeDatum | null>(null);
-
-  // const darkMode = useStore((state) => state.darkMode);
-  const darkMode = true;
-
-  const router = useRouter();
 
   const neighbors = useMemo(() => {
     const neighbors: Record<string, boolean> = {};
@@ -90,7 +88,7 @@ export default function ForceGraph(props: Props) {
       context.lineWidth = 0.5;
       context.lineTo(target.x, target.y);
       if (isLinkHighlighted) {
-        context.strokeStyle = colors.pink[300];
+        context.strokeStyle = colors.fuchsia[300];
       } else if (darkMode) {
         context.strokeStyle = colors.neutral[700];
       } else {
@@ -119,11 +117,11 @@ export default function ForceGraph(props: Props) {
 
       // Fill node color
       if (isHovered) {
-        context.strokeStyle = colors.pink[900];
+        context.strokeStyle = colors.fuchsia[900];
         context.stroke();
-        context.fillStyle = colors.pink[400];
+        context.fillStyle = colors.fuchsia[400];
       } else if (areNeighbors(hoveredNode.current?.id, node.id)) {
-        context.fillStyle = colors.pink[400];
+        context.fillStyle = colors.fuchsia[400];
       } else {
         context.fillStyle = colors.neutral[400];
       }
@@ -329,7 +327,12 @@ const getMousePos = (canvas: HTMLCanvasElement, event: MouseEvent) => {
   };
 };
 
-const getNode = (simulation: Simulation<NodeDatum, LinkDatum>, canvas: HTMLCanvasElement, canvasX: number, canvasY: number) => {
+const getNode = (
+  simulation: Simulation<NodeDatum, LinkDatum>,
+  canvas: HTMLCanvasElement,
+  canvasX: number,
+  canvasY: number,
+) => {
   const transform = zoomTransform(canvas);
   const x = transform.invertX(canvasX);
   const y = transform.invertY(canvasY);

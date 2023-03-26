@@ -92,7 +92,7 @@ export default function EmbedUrlInput(props: Props) {
 
   return (
     <div
-      className="flex flex-col z-30 w-full max-w-screen-sm rounded shadow-popover bg-white dark:bg-gray-900 dark:text-gray-200 border border-gray-700"
+      className="flex flex-col z-30 w-full max-w-screen-sm rounded shadow-popover bg-white dark:bg-gray-900 dark:text-gray-200 border dark:border-gray-700"
       id="url-input-modal"
     >
       <div className="flex items-center justify-between flex-shrink-0 w-full">

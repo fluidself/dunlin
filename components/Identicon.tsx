@@ -18,5 +18,5 @@ export default function Identicon({ diameter, className }: Props) {
     }
   }, [user, diameter]);
 
-  return <div className={`rounded-full bg-background ${className}`} ref={ref} />;
+  return <div className={`rounded-full ${className}`} ref={ref} />;
 }

@@ -121,7 +121,7 @@ function MoveToInput(props: Props, ref: ForwardedRef<HTMLInputElement>) {
         <input
           ref={ref}
           type="text"
-          className={`w-full py-4 px-2 text-xl border-none rounded-tl rounded-tr focus:ring-0 dark:bg-gray-800 dark:text-gray-200 ${
+          className={`w-full py-4 px-2 text-lg border-none rounded-tl rounded-tr focus:ring-0 dark:bg-gray-800 dark:text-gray-200 ${
             options.length <= 0 ? 'rounded-bl rounded-br' : ''
           }`}
           placeholder="Search note to move to"
