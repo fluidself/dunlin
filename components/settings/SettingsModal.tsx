@@ -43,7 +43,7 @@ export default function SettingsModal(props: Props) {
     <div className="fixed inset-0 z-20 overflow-y-auto">
       <div className="fixed inset-0 bg-black opacity-30" onClick={() => setIsOpen(false)} />
       <div className="flex items-center justify-center h-screen p-6">
-        <div className="z-30 flex flex-col w-full h-full max-w-full overflow-hidden rounded sm:flex-row sm:max-h-176 sm:w-240 shadow-popover bg-white    dark:bg-gray-900 border border-gray-600 relative">
+        <div className="z-30 flex flex-col w-full h-full max-w-full overflow-hidden rounded sm:flex-row sm:max-h-176 sm:w-240 shadow-popover bg-white    dark:bg-gray-900 border dark:border-gray-600 relative">
           <SettingsModalSidebar
             currentTab={currentTab}
             setCurrentTab={setCurrentTab}

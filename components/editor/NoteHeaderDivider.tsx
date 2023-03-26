@@ -1,6 +1,6 @@
 export const NoteHeaderDivider = () => (
   <svg
-    className="w-6 h-6 text-gray-700"
+    className="w-6 h-6 text-gray-400 dark:text-gray-700"
     viewBox="0 0 24 24"
     stroke="currentColor"
     fill="none"

@@ -3,19 +3,28 @@ import classNames from 'classnames';
 
 interface ButtonProps {
   children: ReactNode;
-  onClick?: () => void;
+  primary?: boolean;
   disabled?: boolean;
   loading?: boolean;
   className?: string;
-  primary?: boolean;
+  onClick?: () => void;
 }
 
-const Button = ({ children, onClick, disabled = false, loading, className, primary = false }: ButtonProps) => {
+const Button = ({ children, primary = false, disabled = false, loading, className, onClick }: ButtonProps) => {
   const buttonClassName = classNames(
     'flex items-center justify-center px-6 py-2 rounded uppercase border border-gray-500',
-    { 'bg-white text-black hover:text-white hover:bg-inherit hover:border-white': primary && !disabled },
-    { 'text-gray-300 hover:border-white hover:text-white': !primary && !disabled },
-    { 'bg-gray-900 border-gray-700 text-gray-600 hover:bg-gray-900 cursor-not-allowed': disabled },
+    {
+      'bg-gray-800 dark:bg-white text-gray-100 dark:text-gray-900 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-inherit dark:hover:bg-inherit dark:hover:border-gray-100':
+        primary && !disabled,
+    },
+    {
+      'hover:bg-gray-50 dark:hover:bg-inherit dark:text-gray-300 hover:border-gray-800 dark:hover:border-gray-100 dark:hover:text-gray-100':
+        !primary && !disabled,
+    },
+    {
+      'bg-gray-200 dark:bg-gray-800 dark:border-gray-700 text-gray-400 dark:text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800 cursor-not-allowed':
+        disabled,
+    },
     className,
   );
 
@@ -23,7 +32,7 @@ const Button = ({ children, onClick, disabled = false, loading, className, prima
     <button className={buttonClassName} onClick={onClick} disabled={disabled}>
       {loading && (
         <svg
-          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+          className="animate-spin -ml-1 mr-3 h-5 w-5 dark:text-gray-100"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
