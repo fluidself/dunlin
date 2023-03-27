@@ -9,7 +9,7 @@ class MyDocument extends Document {
     return (
       <Html lang="en-us">
         <Head>
-          <link rel="preload" href="/fonts/roboto-mono.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+          <link rel="preload" href="/fonts/inter.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
 
           <meta name="description" content={DESCRIPTION} />
           <meta name="application-name" content={TITLE} />
@@ -46,7 +46,7 @@ class MyDocument extends Document {
           <meta name="msapplication-TileColor" content="#1e1e1e" />
           <meta name="msapplication-tap-highlight" content="no" />
         </Head>
-        <body className="bg-gray-900 text-gray-100 font-display">
+        <body className="bg-white dark:bg-gray-900 dark:text-gray-100 font-display">
           <Main />
           <NextScript />
         </body>
