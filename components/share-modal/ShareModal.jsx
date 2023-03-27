@@ -103,7 +103,7 @@ export default function ShareModal(props) {
     <div className="fixed inset-0 z-20 overflow-y-auto">
       <div className="fixed inset-0 bg-black opacity-30" onClick={handleClose} />
       <div className="flex items-center justify-center h-screen p-6">
-        <div className="z-30 flex flex-col w-full h-full max-w-full bg-white dark:bg-gray-900 border border-gray-600 overflow-x-hidden overflow-y-scroll no-scrollbar rounded sm:max-h-[540px] sm:w-[740px] py-2 px-4 dark:text-gray-100">
+        <div className="z-30 flex flex-col w-full h-full max-w-full bg-white dark:bg-gray-900 border dark:border-gray-600 shadow-popover overflow-x-hidden overflow-y-scroll no-scrollbar rounded sm:max-h-[540px] sm:w-[740px] py-2 px-4 dark:text-gray-100">
           <div className="flex flex-row justify-end items-center">
             <button
               onClick={handleClose}

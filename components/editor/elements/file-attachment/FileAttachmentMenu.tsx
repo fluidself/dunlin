@@ -75,7 +75,7 @@ export default function FileAttachmentMenu({ element, onClose }: FileAttachmentM
 
   return (
     <div
-      className="flex flex-col z-10 w-96 absolute top-0 right-0 rounded shadow-popover bg-white dark:bg-gray-800 border border-gray-700"
+      className="flex flex-col z-10 w-96 absolute top-0 right-0 rounded shadow-popover bg-white dark:bg-gray-800 border dark:border-gray-600"
       ref={setMenuElement}
     >
       <div className="flex items-center justify-between">
