@@ -42,7 +42,7 @@ export const mermaidConfig = (darkMode: boolean) => ({
   theme: darkMode ? 'dark' : 'light',
   pie: { useWidth: 640 },
   themeVariables: {
-    fontFamily: '"Roboto Mono", monospace',
+    fontFamily: 'Inter, sans',
     mainBkg: darkMode ? '#404040' : '#f5f5f5',
     nodeBorder: '#737373',
     actorBorder: darkMode ? '#fff' : '#737373',

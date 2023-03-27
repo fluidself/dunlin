@@ -3,101 +3,76 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'Roboto Mono';
+  font-family: 'Inter', sans-serif;
   font-style: normal;
   font-weight: 400 600;
   font-display: optional;
-  src: url(/fonts/roboto-mono.woff2) format('woff2');
+  src: url(/fonts/inter.woff2) format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC,
     U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @layer components {
-  .btn {
-    @apply px-5 py-3 font-medium text-white transition duration-200 ease-in-out rounded shadow bg-primary-500 hover:bg-opacity-85;
-  }
-
   .input {
     @apply block py-1 border-gray-300 rounded shadow-sm focus:ring-primary-500 focus:border-primary-500;
-  }
-
-  .input-subdued {
-    @apply block py-1 border-neutral-500 rounded focus:ring-gray-400 focus:border-gray-400 bg-inherit;
   }
 
   .link {
     @apply cursor-pointer text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300;
   }
 
-  input[type='text']:focus,
-  input[type='radio']:focus {
-    box-shadow: none;
+  a,
+  button {
+    @apply focus:outline-primary-500 focus-visible:ring-primary-500;
   }
 
   /* react-select */
   .react-select-container .react-select__control {
-    @apply bg-gray-900 border border-neutral-500 hover:border-neutral-500 py-2;
+    @apply dark:bg-gray-900 border dark:border-gray-500 dark:hover:border-gray-500 py-2;
+  }
+
+  .react-select-container-header .react-select__control {
+    @apply dark:bg-gray-900 py-0 pl-1 border-[0.5px] dark:border-gray-700 dark:hover:border-gray-400 leading-4 text-left text-sm;
   }
 
   .react-select-container .react-select__control--is-focused {
-    @apply border-neutral-400 hover:border-neutral-400 shadow-none;
+    @apply border-primary-500 hover:border-primary-500 dark:border-gray-400 dark:hover:border-gray-400 shadow-none;
   }
 
   .react-select-container .react-select__menu {
-    @apply bg-neutral-900 border-2 border-neutral-600;
+    @apply dark:bg-gray-900 border dark:border-gray-600;
   }
 
   .react-select-container .react-select__option {
-    @apply text-neutral-200 bg-neutral-900 hover:bg-neutral-800;
+    @apply text-gray-800 dark:text-gray-300 bg-white hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-700 text-sm text-left;
+  }
+
+  .react-select-container .react-select__indicators {
+    @apply dark:text-gray-400 my-0 py-0;
   }
 
   .react-select-container .react-select__indicator-separator {
-    @apply bg-neutral-400;
+    @apply invisible mx-0;
+  }
+
+  .react-select-container .react-select__dropdown-indicator {
+    @apply py-1;
+  }
+
+  .react-select-container .react-select__value-container {
+    @apply py-0 border-0 pl-2 pr-0;
   }
 
   .react-select-container .react-select__input-container,
   .react-select-container .react-select__placeholder,
   .react-select-container .react-select__single-value {
-    @apply text-neutral-200;
+    @apply dark:text-gray-300 my-0 py-0 leading-4;
   }
+}
 
-  .react-select-container-header .react-select-header__control {
-    @apply bg-gray-900 py-0 pl-1 border-[0.5px] border-gray-700 hover:border-gray-400 text-sm leading-4 min-w-[474px] text-left;
-  }
-
-  .react-select-container-header .react-select-header__control--is-focused {
-    @apply border-neutral-400 hover:border-neutral-400 shadow-none;
-  }
-
-  .react-select-container-header .react-select-header__menu {
-    @apply bg-neutral-900 border-2 border-neutral-600;
-  }
-
-  .react-select-container-header .react-select-header__indicators {
-    @apply text-gray-400 my-0 py-0;
-  }
-
-  .react-select-container-header .react-select-header__option {
-    @apply text-gray-400 bg-gray-900 hover:bg-neutral-800 text-sm text-left;
-  }
-
-  .react-select-container-header .react-select-header__indicator-separator {
-    @apply invisible mx-0;
-  }
-
-  .react-select-container-header .react-select-header__dropdown-indicator {
-    @apply py-1;
-  }
-
-  .react-select-container-header .react-select-header__value-container {
-    @apply py-0 border-0 pl-2 pr-0;
-  }
-
-  .react-select-container-header .react-select-header__input-container,
-  .react-select-container-header .react-select-header__placeholder,
-  .react-select-container-header .react-select-header__single-value {
-    @apply text-gray-400 my-0 py-0 leading-4;
-  }
+input[type='text']:focus,
+input[type='radio']:focus {
+  box-shadow: none;
 }
 
 /* Autogrowing textarea wrapper */
@@ -122,6 +97,29 @@
   @apply rotate-90;
 }
 
+.settings-modal-tooltip > .tooltiptext {
+  right: 105%;
+}
+
+.settings-modal-tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+.prose td > p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+:root {
+  --color-primary-500: #d946ef;
+  --tw-bg-opacity: 1;
+}
+
+::selection {
+  background-color: #d946ef;
+  color: #f5f5f5;
+}
+
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -133,72 +131,38 @@
   }
 }
 
-:root {
-  /* This is used for the spinner and progress bar */
-  --color-primary-500: #ec4899;
-  --tw-bg-opacity: 1;
-}
-
-::selection {
-  background-color: #ec4899;
-}
-
 @media (pointer: fine) {
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
   }
 
-  /* Track */
   ::-webkit-scrollbar-track {
     @apply bg-gray-100 dark:bg-gray-700;
   }
 
-  /* Handle */
   ::-webkit-scrollbar-thumb {
     @apply bg-gray-300 dark:bg-gray-500;
   }
 
-  /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-gray-400 dark:bg-gray-400;
   }
 }
 
-.settings-modal-tooltip > .tooltiptext {
-  right: 105%;
-}
-
-.settings-modal-tooltip:hover .tooltiptext {
-  visibility: visible;
-}
-
-a:focus,
-button:focus {
-  outline: 1px solid white;
-}
-
-.prose td > p {
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
 body::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
-/* Track */
 body::-webkit-scrollbar-track {
   background-color: rgb(64 64 64 / var(--tw-bg-opacity));
 }
 
-/* Handle */
 body::-webkit-scrollbar-thumb {
   background-color: rgb(115 115 115 / var(--tw-bg-opacity));
 }
 
-/* Handle on hover */
 body::-webkit-scrollbar-thumb:hover {
   background-color: rgb(163 163 163 / var(--tw-bg-opacity));
 }

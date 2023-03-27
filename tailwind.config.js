@@ -19,7 +19,7 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        display: ['Roboto Mono', ...fontFamily.mono],
+        display: ['Inter', ...fontFamily.sans],
       },
       spacing: {
         0.25: '0.0625rem',
@@ -32,12 +32,8 @@ module.exports = {
         'screen-80': '80vh',
       },
       colors: {
-        primary: colors.pink,
+        primary: colors.fuchsia,
         gray: colors.neutral,
-        orange: colors.orange,
-        background: 'rgb(11,11,11)',
-        black: 'rgb(0,0,0)',
-        white: '#E9E9E9',
       },
       boxShadow: {
         popover: 'rgb(15 15 15 / 10%) 0px 3px 6px, rgb(15 15 15 / 20%) 0px 9px 24px',
@@ -51,21 +47,6 @@ module.exports = {
       },
       cursor: {
         alias: 'alias',
-      },
-      animation: {
-        'bounce-x': 'bounce-x 1s infinite',
-      },
-      keyframes: {
-        'bounce-x': {
-          '0%, 100%': {
-            transform: 'translateX(0)',
-            animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)',
-          },
-          '50%': {
-            transform: 'translateX(25%)',
-            animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)',
-          },
-        },
       },
       typography: {
         DEFAULT: {
@@ -95,11 +76,11 @@ module.exports = {
               textDecoration: 'none',
               fontWeight: 'normal',
               '&:hover': {
-                color: colors.pink[500],
+                color: colors.fuchsia[300],
               },
             },
             'input[type="checkbox"]': {
-              color: colors.pink[500],
+              color: colors.fuchsia[500],
             },
             'details > p': {
               marginTop: '10px',
@@ -126,6 +107,7 @@ module.exports = {
               fontWeight: '400',
               fontSize: '1em',
               padding: '0.10rem',
+              borderRadius: '0.25rem',
             },
             'code::before': {
               content: '""',
