@@ -9,7 +9,7 @@ function SettingsSidebarItem(props: SidebarItemProps, forwardedRef: ForwardedRef
   const { children, className = '', isHighlighted, ...otherProps } = props;
   const itemClassName = classNames(
     {
-      'w-full overflow-x-hidden overflow-ellipsis whitespace-nowrap text-gray-800 dark:text-gray-300 dark:bg-gray-900':
+      'w-full overflow-x-hidden overflow-ellipsis whitespace-nowrap text-gray-800 dark:text-gray-300 dark:bg-gray-800':
         !isHighlighted,
     },
     { 'bg-gray-100 dark:text-gray-300 dark:bg-gray-700': isHighlighted },
