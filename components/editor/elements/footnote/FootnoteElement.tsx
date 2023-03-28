@@ -156,7 +156,7 @@ export default function FootnoteElement(props: Props) {
         {isVisible && (
           <Portal>
             <Popover.Panel
-              className={`z-10 px-2 overflow-y-auto rounded shadow-popover w-96 max-h-128 bg-white dark:bg-gray-800 border dark:border-gray-600 ${
+              className={`z-10 px-2 overflow-y-auto rounded shadow-popover w-96 max-h-128 bg-white dark:bg-gray-800 dark:text-gray-100 border dark:border-gray-600 ${
                 state?.modifiersData.hide?.isReferenceHidden ? 'invisible pointer-events-none' : ''
               }`}
               contentEditable={false}
