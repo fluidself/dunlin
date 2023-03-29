@@ -2,13 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { Transforms } from 'slate';
+import { Editor, Transforms } from 'slate';
 import { ReactEditor } from 'slate-react';
 import classNames from 'classnames';
 import { toast } from 'react-toastify';
 import colors from 'tailwindcss/colors';
 import { useAccount } from 'wagmi';
 import useSWR from 'swr';
+import isHotkey from 'is-hotkey';
 import { useStore, store, NoteTreeItem, getNoteTreeItem, Notes, SidebarTab } from 'lib/store';
 import activeEditorsStore from 'lib/activeEditorsStore';
 import supabase from 'lib/supabase';
@@ -242,6 +243,40 @@ export default function AppLayout(props: Props) {
       resetDeck();
     }
   }, [dataFetchError, resetDeck]);
+
+  useEffect(() => {
+    const handleNoteSelect = (event: KeyboardEvent) => {
+      if (isHotkey(['mod+1', 'mod+2', 'mod+3', 'mod+4', 'mod+5', 'mod+6', 'mod+7', 'mod+8', 'mod+9'], event)) {
+        const commandMenuVisible = store.getState().commandMenuState.isVisible;
+        const openNoteIds = store.getState().openNoteIds;
+        if (commandMenuVisible || openNoteIds.length < 2) return;
+
+        try {
+          const noteIdToSelect = openNoteIds[+event.key - 1];
+          const editor = activeEditorsStore.getActiveEditor(noteIdToSelect);
+          if (!editor) return;
+          const locationToSelect = editor.selection ?? {
+            anchor: { path: [0, 0], offset: 0 },
+            focus: { path: [0, 0], offset: 0 },
+          };
+          Editor.withoutNormalizing(editor, () => {
+            ReactEditor.deselect(editor);
+            Transforms.select(editor, locationToSelect);
+          });
+          ReactEditor.focus(editor);
+          event.preventDefault();
+          event.stopPropagation();
+        } catch (e) {
+          // Do nothing.
+        }
+      }
+    };
+
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      document.addEventListener('keydown', handleNoteSelect);
+      return () => document.removeEventListener('keydown', handleNoteSelect);
+    }
+  }, []);
 
   const [createJoinRenameModal, setCreateJoinRenameModal] = useState<{
     open: boolean;
