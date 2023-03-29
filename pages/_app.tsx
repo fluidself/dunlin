@@ -55,7 +55,7 @@ export default function MyApp({ Component, pageProps, router }: AppProps) {
           </ProvideAuth>
         </WagmiConfig>
       </ServiceWorker>
-      <ToastContainer position="top-center" hideProgressBar newestOnTop={true} limit={5} theme="colored" />
+      <ToastContainer position="bottom-right" hideProgressBar newestOnTop={true} limit={5} theme="colored" />
     </>
   );
 }
