@@ -9,6 +9,7 @@ import {
   IconUnderline,
 } from '@tabler/icons';
 import { memo } from 'react';
+import { useFocused } from 'slate-react';
 import { Mark } from 'types/slate';
 import { isMobile, modifierKey } from 'utils/device';
 import type { AddLinkPopoverState } from '../Editor';
@@ -22,10 +23,11 @@ type Props = {
 
 function HoveringToolbar(props: Props) {
   const { setAddLinkPopoverState } = props;
+  const focused = useFocused();
   const key = modifierKey();
 
   return (
-    <EditorPopover placement={isMobile() ? 'bottom-start' : 'top-start'}>
+    <EditorPopover placement={isMobile() ? 'bottom-start' : 'top-start'} className={`${!focused ? 'hidden' : ''}`}>
       <LinkButton setAddLinkPopoverState={setAddLinkPopoverState} className="border-r dark:border-gray-700" />
       <FormatButton format={Mark.Bold} Icon={IconBold} tooltip={`Bold (${key}+B)`} aria-label="Bold" />
       <FormatButton format={Mark.Italic} Icon={IconItalic} tooltip={`Italic (${key}+I)`} aria-label="Italic" />
