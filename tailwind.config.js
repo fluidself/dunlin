@@ -19,7 +19,8 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        display: ['Inter', ...fontFamily.sans],
+        sans: ['Inter', ...fontFamily.sans],
+        heading: ['Cal Sans', 'Inter', ...fontFamily.sans],
       },
       spacing: {
         0.25: '0.0625rem',
