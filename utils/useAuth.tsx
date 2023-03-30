@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, createContext, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import { useAccount, useConnect, useNetwork, useSignMessage, useDisconnect } from 'wagmi';
+import { Connector, useAccount, useConnect, useDisconnect, useNetwork, useSignMessage } from 'wagmi';
 import { SiweMessage } from 'siwe';
 import { box } from 'tweetnacl';
 import { encodeBase64 } from 'tweetnacl-util';
@@ -18,7 +18,7 @@ interface ProviderRpcError extends Error {
 type AuthContextType = {
   isLoaded: boolean;
   user: User | null;
-  signIn: () => Promise<void>;
+  signIn: (connector: Connector) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -27,7 +27,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 function useProvideAuth(): AuthContextType {
   const { isConnected, address: activeAddress } = useAccount();
   const { chain: activeChain } = useNetwork();
-  const { connectors, connectAsync } = useConnect();
+  const { connectAsync } = useConnect();
   const { disconnectAsync } = useDisconnect();
   const { signMessageAsync } = useSignMessage();
   const { mutate } = useSWRConfig();
@@ -48,7 +48,7 @@ function useProvideAuth(): AuthContextType {
     initUser();
   }, []);
 
-  const signIn = useCallback(async () => {
+  const signIn = useCallback(async (connector: Connector) => {
     setSigningIn(true);
 
     try {
@@ -59,7 +59,7 @@ function useProvideAuth(): AuthContextType {
         address = activeAddress;
         chainId = activeChain.id;
       } else {
-        const { account, chain } = await connectAsync({ connector: connectors[0] });
+        const { account, chain } = await connectAsync({ connector });
         address = account;
         chainId = chain.id;
       }

@@ -4,8 +4,9 @@ import { ToastContainer } from 'react-toastify';
 import NProgress from 'nprogress';
 import type { AppProps } from 'next/app';
 import { WagmiConfig, configureChains, createClient } from 'wagmi';
-import { mainnet, goerli } from 'wagmi/chains';
-import { InjectedConnector } from 'wagmi/connectors/injected';
+import { mainnet, goerli, sepolia } from 'wagmi/chains';
+import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
+import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 import { infuraProvider } from 'wagmi/providers/infura';
 import { publicProvider } from 'wagmi/providers/public';
 import { ProvideAuth } from 'utils/useAuth';
@@ -24,13 +25,21 @@ Router.events.on('routeChangeError', () => NProgress.done());
 
 const infuraId = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID as string;
 const { chains, provider } = configureChains(
-  [mainnet, goerli],
+  [mainnet, goerli, sepolia],
   [infuraProvider({ apiKey: infuraId }), publicProvider()],
 );
 
 const client = createClient({
   autoConnect: false,
-  connectors: [new InjectedConnector({ chains })],
+  connectors: [
+    new MetaMaskConnector({ chains }),
+    new WalletConnectConnector({
+      chains,
+      options: {
+        projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID as string,
+      },
+    }),
+  ],
   provider,
 });
 
