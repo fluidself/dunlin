@@ -160,14 +160,14 @@ export default function NoteHeader() {
 
     return note.author_only ? (
       <Tooltip content={viewOnlyTooltipContent}>
-        <span className="flex items-center justify-center w-8 h-8">
-          <IconEye className="text-gray-500 dark:text-gray-400" />
+        <span className="flex items-center justify-center w-7 h-7">
+          <IconEye size={20} className="text-gray-500 dark:text-gray-400" />
         </span>
       </Tooltip>
     ) : (
       <Tooltip content="All workspace members can edit">
-        <span className="flex items-center justify-center w-8 h-8">
-          <IconPencil className="text-gray-500 dark:text-gray-400" />
+        <span className="flex items-center justify-center w-7 h-7">
+          <IconPencil size={20} className="text-gray-500 dark:text-gray-400" />
         </span>
       </Tooltip>
     );
@@ -179,12 +179,12 @@ export default function NoteHeader() {
   return (
     <div className="flex items-center justify-between w-full px-4 py-1 text-right">
       <div>{isSidebarButtonVisible ? <OpenSidebarButton /> : null}</div>
-      <div>
+      <div className="flex items-center">
         {isCloseButtonVisible ? (
           <Tooltip content="Close pane">
             <button className={buttonClassName} onClick={onClosePane} title="Close pane">
-              <span className="flex items-center justify-center w-8 h-8">
-                <IconX className={iconClassName} />
+              <span className="flex items-center justify-center w-7 h-7">
+                <IconX size={20} className={iconClassName} />
               </span>
             </button>
           </Tooltip>
@@ -211,12 +211,13 @@ export default function NoteHeader() {
               {user.id === deckOwner && (
                 <Tooltip content="Share workspace">
                   <button
-                    className={`${buttonClassName} ${isOffline && 'pointer-events-none'}`}
+                    className={`mx-1 ${buttonClassName} ${isOffline ? 'pointer-events-none' : ''}`}
                     disabled={isOffline}
                     onClick={() => setShareModalOpen(true)}
                   >
-                    <span className="flex items-center justify-center w-8 h-8">
+                    <span className="flex items-center justify-center w-7 h-7">
                       <IconShare
+                        size={20}
                         className={`${
                           isOffline ? 'text-gray-300 dark:text-gray-500' : 'text-gray-600 dark:text-gray-300'
                         }`}
@@ -241,8 +242,8 @@ export default function NoteHeader() {
                   <NoteHeaderDivider />
                   <Menu.Button ref={menuButtonRef} className={buttonClassName} title="Options (import, export, etc.)">
                     <Tooltip content="Options (export, import, etc.)">
-                      <span className="flex items-center justify-center w-8 h-8">
-                        <IconDots className={iconClassName} />
+                      <span className="flex items-center justify-center w-7 h-7">
+                        <IconDots size={20} className={iconClassName} />
                       </span>
                     </Tooltip>
                   </Menu.Button>

@@ -32,7 +32,7 @@
   }
 
   .react-select-container-header .react-select__control {
-    @apply dark:bg-gray-900 py-0 pl-1 border-[0.5px] dark:border-gray-700 dark:hover:border-gray-400 leading-4 text-left text-sm;
+    @apply dark:bg-gray-900 h-8 min-h-[32px] py-0 pl-1 border-[0.5px] dark:border-gray-700 dark:hover:border-gray-400 leading-4 text-left text-sm;
   }
 
   .react-select-container .react-select__control--is-focused {
@@ -44,7 +44,7 @@
   }
 
   .react-select-container .react-select__option {
-    @apply text-gray-800 dark:text-gray-300 bg-white hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-700 text-sm text-left;
+    @apply text-gray-800 dark:text-gray-300 bg-white hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-700 text-sm text-left py-1.5;
   }
 
   .react-select-container .react-select__indicators {
