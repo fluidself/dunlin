@@ -85,6 +85,15 @@ input[type='radio']:focus {
   box-shadow: none;
 }
 
+.heading-border-white {
+  -moz-text-fill-color: #171717;
+  -webkit-text-fill-color: #171717;
+  -moz-text-stroke-width: 2px;
+  -webkit-text-stroke-width: 2px;
+  -moz-text-stroke-color: #f5f5f5;
+  -webkit-text-stroke-color: #f5f5f5;
+}
+
 /* Autogrowing textarea wrapper */
 .grow-wrap::after {
   content: attr(data-replicated-value) ' ';

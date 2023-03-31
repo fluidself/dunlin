@@ -6,9 +6,9 @@ import { useAccount } from 'wagmi';
 import { ironOptions } from 'constants/iron-session';
 import selectDecks from 'lib/api/selectDecks';
 import { useAuth } from 'utils/useAuth';
-import { EthereumIcon } from 'components/EthereumIcon';
 import Portal from 'components/Portal';
 import DunlinIcon from 'components/DunlinIcon';
+import { EthereumIcon } from 'components/onboarding/EthereumIcon';
 import ConnectModal from 'components/onboarding/ConnectModal';
 import OnboardingModal from 'components/onboarding/OnboardingModal';
 import ErrorPage from 'components/ErrorPage';
@@ -46,13 +46,15 @@ export default function Home() {
           </Link>
         </header>
         <main className="container flex flex-col overflow-y-hidden mt-16 md:mt-20 pb-8">
-          <div className="mx-auto mb-12 max-w-3xl text-center">
-            <h1 className="text-3xl md:text-7xl font-bold leading-[3.5rem] md:!leading-[6rem] bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
-              Organized knowledge.
+          <div className="mx-auto mb-12 px-4 md:px-0 max-w-4xl">
+            <h1 className="text-4xl md:pl-0 md:text-7xl font-heading">
+              Knowledge management
+              <br />
+              for <span className="heading-border-white">crypto natives.</span>
             </h1>
-            <div className="mt-6 md:mt-12 md:text-xl text-center">
+            <div className="mt-6 md:mt-12 md:text-xl mx-auto text-center">
               Dunlin is a note-taking app that helps individuals and communities capture, organize, make sense of, and
-              share complex information.
+              share complex information. Encrypted by default and fully collaborative workspaces.
             </div>
           </div>
           <button
