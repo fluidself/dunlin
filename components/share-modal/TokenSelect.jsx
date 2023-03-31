@@ -98,7 +98,7 @@ const TokenSelect = props => {
           <div className="flex items-center justify-center h-screen p-6">
             <div className="z-30 flex flex-col w-full h-full max-w-full overflow-hidden bg-white dark:bg-gray-900 border border-gray-600 sm:max-h-[280px] sm:w-[450px] py-2 px-4">
               <div>
-                <label className="mb-2 block">Top Tokens/NFTS</label>
+                <label className="mb-2 block font-heading tracking-wide">Top Tokens/NFTS</label>
                 <div className="flex mb-2">
                   {TOP_LIST.map(t => (
                     <div

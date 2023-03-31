@@ -13,7 +13,7 @@ export default function AccessCreated({ deckToShare, onClose }: Props) {
   return (
     <div>
       <div>
-        <h4 className="text-lg">Access to your workspace has been configured</h4>
+        <h4 className="text-lg font-heading tracking-wide">Access to your workspace has been configured</h4>
       </div>
       <div className="mt-8">
         <p>Share this link with those you have granted access:</p>

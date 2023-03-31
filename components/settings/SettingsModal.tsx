@@ -78,7 +78,7 @@ const SettingsModalSidebar = (props: SettingsModalSidebarProps) => {
 
   return (
     <div className="flex flex-col flex-none w-full py-4 border-b sm:border-b-0 sm:border-r sm:w-48 sm:h-full bg-gray-50 dark:bg-gray-800 dark:border-gray-600">
-      <div className="px-4 pb-2 text-sm text-gray-600 dark:text-gray-400">Settings</div>
+      <div className="px-4 pb-2 text-xs text-gray-600 dark:text-gray-400 font-semibold uppercase">Settings</div>
       <SettingsSidebarItem
         className="flex hover:bg-gray-100 active:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-700"
         isHighlighted={currentTab === SettingsTab.Editor}

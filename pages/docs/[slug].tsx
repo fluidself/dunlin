@@ -19,7 +19,7 @@ export default function DocsPage(props: Props) {
         <Sidebar />
         <main className="mt-16 md:mt-12 px-2 md:px-0 pb-4 container mx-auto md:max-w-3xl">
           <article
-            className="prose prose-invert max-w-none prose-a:text-primary-400 hover:prose-a:underline"
+            className="prose prose-invert max-w-none prose-a:text-primary-400 hover:prose-a:underline prose-h1:font-heading prose-h1:tracking-wide prose-h2:font-heading prose-h2:tracking-wider prose-h3:font-heading prose-h3:tracking-wider"
             dangerouslySetInnerHTML={{ __html: content }}
           ></article>
         </main>

@@ -57,7 +57,7 @@ export default function OnboardingModal(props: Props) {
               <IconX size={20} />
             </button>
           </div>
-          <h2 className="text-3xl my-12 font-semibold tracking-wider">Welcome to Dunlin</h2>
+          <h2 className="text-3xl my-12 font-heading tracking-wider">Welcome to Dunlin</h2>
           {currentStep === OnboardingStep.Options ? (
             <WorkspaceOptions setCurrentStep={setCurrentStep} setInputType={setInputType} />
           ) : null}

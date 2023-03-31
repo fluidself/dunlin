@@ -57,7 +57,7 @@ export default function ConnectModal(props: Props) {
               <IconX size={20} />
             </button>
           </div>
-          <h2 className="text-3xl my-12 font-semibold tracking-wider">Connect wallet</h2>
+          <h2 className="text-3xl my-12 font-heading tracking-wider">Connect wallet</h2>
           <div className="flex flex-col gap-6 items-center">
             {connectors.map(connector => {
               const ConnectorIcon = ConnectorIcons[connector.id];

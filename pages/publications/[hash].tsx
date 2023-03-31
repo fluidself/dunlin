@@ -147,7 +147,7 @@ export default function PublicationPage(props: Props) {
           </Link>
         </header>
         <main className="py-12 container mx-auto md:max-w-3xl">
-          <h1 className="text-5xl font-semibold mb-5">{title}</h1>
+          <h1 className="text-5xl font-heading mb-5">{title}</h1>
           <div className="flex space-x-4">
             <span className="text-xs inline-block py-1 px-2.5 leading-none text-center align-baseline bg-gray-800 text-gray-300 rounded">
               {addEllipsis(address)}
@@ -158,7 +158,7 @@ export default function PublicationPage(props: Props) {
           </div>
 
           <article
-            className="prose prose-invert max-w-none mt-10 prose-table:border prose-table:border-collapse prose-th:border prose-th:border-gray-700 prose-th:align-baseline prose-th:pt-2 prose-th:pl-2 prose-td:border prose-td:border-gray-700 prose-td:pt-2 prose-td:pl-2 prose-a:text-primary-400 hover:prose-a:underline"
+            className="prose prose-invert max-w-none mt-10 prose-table:border prose-table:border-collapse prose-th:border prose-th:border-gray-700 prose-th:align-baseline prose-th:pt-2 prose-th:pl-2 prose-td:border prose-td:border-gray-700 prose-td:pt-2 prose-td:pl-2 prose-a:text-primary-400 hover:prose-a:underline prose-h1:font-heading prose-h2:font-heading prose-h2:tracking-wider prose-h3:font-heading prose-h3:tracking-wider prose-h4:font-heading prose-h4:tracking-wider prose-pre:!bg-gray-800 prose-pre:!text-gray-100 prose-code:!bg-gray-800 prose-code:!text-gray-100"
             dangerouslySetInnerHTML={{ __html: parsedBody }}
           ></article>
 

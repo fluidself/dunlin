@@ -72,7 +72,7 @@ export default function ChoosePOAP({ setActiveStep, processingAccess, onAccessCo
 
   return (
     <div>
-      <h4 className="text-lg">Which POAP should be granted access?</h4>
+      <h4 className="text-lg font-heading tracking-wide">Which POAP should be granted access?</h4>
       <div className="mt-8">
         <InputWrapper
           value={POAPName}

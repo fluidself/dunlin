@@ -172,13 +172,13 @@ export default function CreateJoinRenameDeckModal(props: Props) {
   };
   const icons = {
     [CreateJoinRenameDeckType.Create]: (
-      <IconFolderPlus className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={32} />
+      <IconFolderPlus className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={24} />
     ),
     [CreateJoinRenameDeckType.Join]: (
-      <IconGitPullRequest className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={32} />
+      <IconGitPullRequest className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={24} />
     ),
-    [CreateJoinRenameDeckType.Rename]: <IconPencil className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={32} />,
-    [CreateJoinRenameDeckType.Delete]: <IconTrash className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={32} />,
+    [CreateJoinRenameDeckType.Rename]: <IconPencil className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={24} />,
+    [CreateJoinRenameDeckType.Delete]: <IconTrash className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={24} />,
   };
   const placeholders = {
     [CreateJoinRenameDeckType.Create]: 'Enter workspace name',
@@ -264,7 +264,7 @@ export default function CreateJoinRenameDeckModal(props: Props) {
           <div className="flex items-center justify-between flex-shrink-0 w-full bg-gray-50 dark:bg-gray-900">
             <div className="flex items-center">
               {icons[type]}
-              <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0 dark:bg-gray-900">
+              <span className="text-xl font-heading tracking-wide py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0 dark:bg-gray-900">
                 {headings[type]}
               </span>
             </div>

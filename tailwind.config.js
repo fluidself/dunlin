@@ -56,16 +56,16 @@ module.exports = {
               fontWeight: 600,
             },
             h1: {
-              fontWeight: 600,
+              fontWeight: 400,
             },
             h2: {
-              fontWeight: 600,
+              fontWeight: 400,
             },
             h3: {
-              fontWeight: 600,
+              fontWeight: 400,
             },
             h4: {
-              fontWeight: 600,
+              fontWeight: 400,
             },
             h5: {
               fontWeight: 600,

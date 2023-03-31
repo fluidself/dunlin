@@ -34,7 +34,7 @@ const ProofOfHumanity = (props: Props) => {
 
   return (
     <div>
-      <div className="text-lg">Grant Proof of Humanity users access?</div>
+      <h4 className="text-lg font-heading tracking-wide">Grant Proof of Humanity users access?</h4>
       <div className="mt-4">
         <p>
           Any user who is registered with the{' '}

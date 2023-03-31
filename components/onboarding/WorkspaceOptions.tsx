@@ -22,7 +22,7 @@ export default function WorkspaceOptions(props: Props) {
         }}
       >
         <Image src={create} width={160} height={160} alt="" priority />
-        <div className="">Create a workspace</div>
+        <div className="font-heading tracking-wider">Create a workspace</div>
       </button>
       <button
         className="flex flex-col justify-between items-center py-4 w-[240px] h-[240px] border border-gray-300 cursor-pointer box-border text-white hover:bg-gray-800 hover:border-gray-100 focus:bg-gray-800"
@@ -32,7 +32,7 @@ export default function WorkspaceOptions(props: Props) {
         }}
       >
         <Image src={join} width={160} height={160} alt="" priority />
-        <div className="">Join a workspace</div>
+        <div className="font-heading tracking-wider">Join a workspace</div>
       </button>
     </div>
   );

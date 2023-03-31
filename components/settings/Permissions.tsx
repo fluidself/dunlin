@@ -106,7 +106,7 @@ export default function Permissions() {
       <>
         <div>
           <div className="mb-4">
-            <h2 className="text-lg font-medium">View-only notes</h2>
+            <h2 className="text-lg font-heading tracking-wide">View-only notes</h2>
             <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
               If on, notes can only be edited by their original author and the workspace owner.
             </p>
@@ -119,7 +119,7 @@ export default function Permissions() {
           {authorOnly && (
             <>
               <div className="my-4">
-                <h4 className="text-sm font-medium">Allow note author control</h4>
+                <h4 className="text-sm font-heading tracking-wider">Allow note author control</h4>
                 <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
                   If on, workspace members can toggle view-only status for their own notes.
                 </p>

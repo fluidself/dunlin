@@ -30,7 +30,7 @@ const DAOMembers = ({ setActiveStep, processingAccess, onAccessControlConditions
 
   return (
     <div>
-      <h4 className="text-lg">Which DAO&apos;s members should be granted access?</h4>
+      <h4 className="text-lg font-heading tracking-wide">Which DAO&apos;s members should be granted access?</h4>
       <div className="mt-4">
         <div className="mt-4">
           <label>Select blockchain to check requirements against</label>

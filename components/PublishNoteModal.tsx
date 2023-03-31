@@ -196,11 +196,11 @@ export default function PublishNoteModal(props: Props) {
           <div className="flex items-center justify-between flex-shrink-0 w-full bg-gray-50 dark:bg-gray-900">
             <div className="flex items-center">
               {published ? (
-                <IconConfetti className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={32} />
+                <IconConfetti className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={24} />
               ) : (
-                <IconSend className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={32} />
+                <IconSend className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={24} />
               )}
-              <span className="text-xl py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0">
+              <span className="text-xl font-heading tracking-wide py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0">
                 {published ? 'Note published' : 'Publish note'}
               </span>
             </div>

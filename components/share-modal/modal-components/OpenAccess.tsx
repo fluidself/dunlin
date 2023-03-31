@@ -34,7 +34,7 @@ const OpenAccess = (props: Props) => {
 
   return (
     <div>
-      <div className="text-lg">Grant all users access?</div>
+      <h4 className="text-lg font-heading tracking-wide">Grant all users access?</h4>
       <div className="mt-4">
         <p>Anyone with an Ethereum address will be able to access the workspace.</p>
       </div>

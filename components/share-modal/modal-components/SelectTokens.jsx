@@ -183,7 +183,7 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
 
   return (
     <div>
-      <h4 className="text-lg">Which wallet(s) should be granted access?</h4>
+      <h4 className="text-lg font-heading tracking-wide">Which wallet(s) should be granted access?</h4>
       <div className="mt-4">
         <div>
           <div>
