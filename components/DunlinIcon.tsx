@@ -6,7 +6,7 @@ type Props = {
 export default function DunlinIcon({ width, height }: Props) {
   return (
     <svg
-      className={`rounded-full w-${width ?? '6'} h-${height ?? '6'} `}
+      className={`rounded-full w-${width ?? '5'} h-${height ?? '5'} `}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 544 544"
     >
