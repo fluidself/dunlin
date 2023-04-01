@@ -1,8 +1,9 @@
 import { useCallback, useRef, useState } from 'react';
 import remarkGfm from 'remark-gfm';
 import rehypePrism from 'rehype-prism';
-import { IconExclamationCircle, IconSearch } from '@tabler/icons';
+import { IconCopy, IconExclamationCircle, IconSearch } from '@tabler/icons';
 import ReactMarkdown from 'lib/react-markdown';
+import copyToClipboard from 'utils/copyToClipboard';
 import { CommandMenuMode } from './CommandMenu';
 
 type Props = {
@@ -111,6 +112,11 @@ export default function CommandMenuDaemon(props: Props) {
       ) : null}
       {output ? (
         <div className="flex-1 w-full overflow-y-auto bg-white border-t rounded-bl rounded-br dark:bg-gray-900 dark:border-gray-700">
+          <IconCopy
+            className="float-right text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+            role="button"
+            onClick={async () => await copyToClipboard(output)}
+          />
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypePrism]}
