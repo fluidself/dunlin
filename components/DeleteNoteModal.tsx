@@ -46,12 +46,10 @@ export default function DeleteNoteModal(props: Props) {
       <div className="fixed inset-0 bg-black opacity-30" onClick={() => setIsOpen(false)} />
       <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col z-30 w-full max-w-screen-sm rounded shadow-popover bg-white dark:bg-gray-900 dark:text-gray-200 border dark:border-gray-600">
-          <div className="flex items-center justify-between flex-shrink-0 w-full bg-gray-50 dark:bg-gray-900">
+          <div className="flex items-center justify-between flex-shrink-0 py-2 w-full bg-gray-50 dark:bg-gray-900">
             <div className="flex items-center">
-              <IconTrash className="ml-4 mr-1 text-gray-500 dark:text-gray-200" size={24} />
-              <span className="text-xl font-heading tracking-wide py-4 px-2 border-none rounded-tl rounded-tr focus:ring-0">
-                Delete note
-              </span>
+              <IconTrash className="ml-4 mr-1 text-gray-600 dark:text-gray-200" size={24} />
+              <span className="text-lg font-heading tracking-wide px-2 border-none focus:ring-0">Delete note</span>
             </div>
             <button
               className="mb-6 mr-2 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
