@@ -9,13 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@dnd-kit/core": "^6.0.6",
-    "@dnd-kit/sortable": "^7.0.1",
+    "@dnd-kit/core": "^6.0.8",
+    "@dnd-kit/sortable": "^7.0.2",
     "@extractus/oembed-extractor": "^3.1.8",
-    "@headlessui/react": "^1.7.8",
+    "@headlessui/react": "^1.7.13",
     "@metamask/jazzicon": "^2.0.0",
     "@popperjs/core": "^2.11.2",
-    "@react-spring/web": "^9.6.1",
+    "@react-spring/web": "^9.7.1",
     "@supabase/supabase-js": "^1.35.7",
     "@tabler/icons": "^1.119.0",
     "@tanstack/react-virtual": "^3.0.0-beta.23",
