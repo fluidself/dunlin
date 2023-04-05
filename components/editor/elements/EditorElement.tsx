@@ -69,7 +69,7 @@ export default function EditorElement(props: EditorElementProps) {
       );
     case ElementType.NumberedList:
       return (
-        <ol className={`ml-9 list-decimal ${className}`} {...attributes}>
+        <ol className={`ml-[26px] list-decimal ${className}`} {...attributes}>
           {children}
         </ol>
       );
