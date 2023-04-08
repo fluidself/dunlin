@@ -114,7 +114,10 @@ export default function PublicationPage(props: Props) {
 
         const originalBgColor = target.style.backgroundColor;
         target.style.backgroundColor = '#828324';
-        target.scrollIntoView();
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
 
         timeout = setTimeout(() => {
           target.style.backgroundColor = originalBgColor;
