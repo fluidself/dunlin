@@ -2,10 +2,11 @@ import { memo, useCallback } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { IconAffiliate, IconSearch } from '@tabler/icons';
+import { IconAffiliate, IconGhost2, IconSearch } from '@tabler/icons';
 import { useTransition, animated } from '@react-spring/web';
 import { isMobile, modifierKey } from 'utils/device';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
+import { useAuth } from 'utils/useAuth';
 import { useStore } from 'lib/store';
 import { SPRING_CONFIG } from 'constants/spring';
 import { CreateJoinRenameDeckType } from 'components/CreateJoinRenameDeckModal';
@@ -22,6 +23,7 @@ type Props = {
 
 function Sidebar(props: Props) {
   const { setIsSettingsOpen, setCreateJoinRenameModal, className = '' } = props;
+  const { user } = useAuth();
   const isSidebarOpen = useStore(state => state.isSidebarOpen);
   const setCommandMenuState = useStore(state => state.setCommandMenuState);
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
@@ -104,6 +106,9 @@ function Sidebar(props: Props) {
                 }}
               />
               <GraphButton onClick={hideSidebarOnMobile} />
+              {user && process.env.NEXT_PUBLIC_DAEMON_USERS?.split(',').includes(user.id) ? (
+                <DaemonButton onClick={hideSidebarOnMobile} />
+              ) : null}
               <SidebarContent className="flex-1 mt-px overflow-x-hidden overflow-y-auto" />
             </div>
           </animated.div>
@@ -146,7 +151,7 @@ const GraphButton = (props: GraphButtonProps) => {
   const router = useRouter();
 
   return (
-    <SidebarItem isHighlighted={router.pathname.includes(`/app/${deckId}/graph`)} onClick={onClick}>
+    <SidebarItem isHighlighted={router.pathname.includes('/app/[deckId]/graph')} onClick={onClick}>
       <Tooltip
         content={`Visualization of your notes as a network (${modifierKey()}+Shift+G)`}
         placement="right"
@@ -158,6 +163,29 @@ const GraphButton = (props: GraphButtonProps) => {
             <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap text-sm">
               Graph view
             </span>
+          </Link>
+        </span>
+      </Tooltip>
+    </SidebarItem>
+  );
+};
+
+type DaemonButtonProps = {
+  onClick: () => void;
+};
+
+const DaemonButton = (props: DaemonButtonProps) => {
+  const { onClick } = props;
+  const { id: deckId } = useCurrentDeck();
+  const router = useRouter();
+
+  return (
+    <SidebarItem isHighlighted={router.pathname.includes('/app/[deckId]/daemon')} onClick={onClick}>
+      <Tooltip content={`Summon your daemon (${modifierKey()}+Shift+D)`} placement="right" touch={false}>
+        <span>
+          <Link href={`/app/${deckId}/daemon`} className="flex items-center h-8 px-4 py-1">
+            <IconGhost2 className="flex-shrink-0 mr-1 text-gray-800 dark:text-gray-300" size={16} />
+            <span className="overflow-x-hidden select-none overflow-ellipsis whitespace-nowrap text-sm">Daemon</span>
           </Link>
         </span>
       </Tooltip>
