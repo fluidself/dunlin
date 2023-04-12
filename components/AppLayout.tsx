@@ -331,11 +331,19 @@ export default function AppLayout(props: Props) {
         callback: () => router.push(`/app/${deckId}/graph`),
       },
       {
+        hotkey: 'mod+shift+d',
+        callback: () => {
+          if (user?.id && process.env.NEXT_PUBLIC_DAEMON_USERS?.split(',').includes(user.id)) {
+            router.push(`/app/${deckId}/daemon`);
+          }
+        },
+      },
+      {
         hotkey: 'mod+\\',
         callback: () => setIsSidebarOpen(isOpen => !isOpen),
       },
     ],
-    [setSidebarTab, setCommandMenuState, setIsSidebarOpen, router, deckId, commandMenuState],
+    [setSidebarTab, setCommandMenuState, setIsSidebarOpen, router, deckId, user?.id, commandMenuState],
   );
   useHotkeys(hotkeys);
 
