@@ -1,8 +1,13 @@
 import { createParser, ParsedEvent, ReconnectInterval } from 'eventsource-parser';
 
+export interface ChatCompletionMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
 export interface OpenAIStreamPayload {
   model: string;
-  messages: { role: string; content: string }[];
+  messages: ChatCompletionMessage[];
   temperature?: number;
   top_p?: number;
   frequency_penalty?: number;
