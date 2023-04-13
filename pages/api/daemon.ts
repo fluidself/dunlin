@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getIronSession } from 'iron-session/edge';
 import { ironOptions } from 'constants/iron-session';
-import { OpenAIStream, OpenAIStreamPayload } from 'utils/openai-stream';
+import { OpenAIStream, OpenAIStreamPayload, ChatCompletionMessage } from 'utils/openai-stream';
 
 export const config = {
   runtime: 'edge',
@@ -24,29 +24,27 @@ export default async function daemon(req: NextRequest): Promise<Response> {
   }
 
   try {
-    const { prompt } = await req.json();
-    if (!prompt || typeof prompt !== 'string') {
-      return new Response('Prompt is required', { status: 400 });
+    const { messageLog } = (await req.json()) as { messageLog: ChatCompletionMessage[] };
+    if (!messageLog) {
+      return new Response('Malformed request', { status: 400 });
     }
 
-    const query = prompt.trim().replace(/\n/g, ' ');
-    const messages = [
+    const messages: ChatCompletionMessage[] = [
       {
         role: 'system',
         content:
-          'You are a helpful, succinct assistant. You always format your output in markdown and include code snippets, tables, and links if relevant.',
+          'You are a helpful, succinct assistant. You always format your output in markdown and include code snippets and tables if relevant.',
       },
-      {
-        role: 'user',
-        content: query,
-      },
+      ...messageLog.map(msg =>
+        msg.role === 'user' ? { ...msg, content: msg.content.trim().replace(/\n/g, ' ') } : msg,
+      ),
     ];
 
     const payload: OpenAIStreamPayload = {
       model: 'gpt-3.5-turbo-0301',
       messages: messages,
       temperature: 1,
-      max_tokens: 2000,
+      max_tokens: 1000,
       stream: true,
       n: 1,
     };
