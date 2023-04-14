@@ -1,4 +1,3 @@
-import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Transforms } from 'slate';
 import { ReactEditor } from 'slate-react';
@@ -7,12 +6,10 @@ import { useStore } from 'lib/store';
 import activeEditorsStore from 'lib/activeEditorsStore';
 import EmbedUrlInput, { type EmbedUrlInputState } from 'components/EmbedUrlInput';
 import CommandMenuSearch from './CommandMenuSearch';
-const CommandMenuDaemon = dynamic(() => import('./CommandMenuDaemon'));
 
 export enum CommandMenuMode {
   SEARCH,
   EMBED_INPUT,
-  DAEMON,
 }
 
 export default function CommandMenu() {
@@ -60,7 +57,6 @@ export default function CommandMenu() {
         {selectedMode === CommandMenuMode.EMBED_INPUT && (
           <EmbedUrlInput state={embedUrlState} setState={setEmbedUrlState} />
         )}
-        {selectedMode === CommandMenuMode.DAEMON && <CommandMenuDaemon setSelectedMode={setSelectedMode} />}
       </div>
     </div>
   );
