@@ -5,6 +5,7 @@ import { immer } from 'zustand/middleware/immer';
 import { Draft } from 'immer';
 import localforage from 'localforage';
 import type { DecryptedNote } from 'types/decrypted';
+import type { ChatCompletionMessage } from 'utils/openai-stream';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { Backlink } from 'editor/backlinks/useBacklinks';
 import type { PickPartial } from 'types/utils';
@@ -87,6 +88,8 @@ export type Store = {
   setShareModalOpen: Setter<boolean>;
   commandMenuState: CommandMenuState;
   setCommandMenuState: Setter<CommandMenuState>;
+  daemonMessages: ChatCompletionMessage[];
+  setDaemonMessages: Setter<ChatCompletionMessage[]>;
 } & UserSettings;
 
 type FunctionPropertyNames<T> = {
@@ -241,6 +244,8 @@ export const store = createVanilla<Store>()(
       setShareModalOpen: setter(set, 'shareModalOpen'),
       commandMenuState: { isVisible: false, editor: undefined },
       setCommandMenuState: setter(set, 'commandMenuState'),
+      daemonMessages: [],
+      setDaemonMessages: setter(set, 'daemonMessages'),
       ...createUserSettingsSlice(set),
     })),
     {
@@ -254,6 +259,7 @@ export const store = createVanilla<Store>()(
         darkMode: state.darkMode,
         isPageStackingOn: state.isPageStackingOn,
         confirmNoteDeletion: state.confirmNoteDeletion,
+        daemonMessages: state.daemonMessages,
       }),
     },
   ),
