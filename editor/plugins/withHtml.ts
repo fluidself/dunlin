@@ -1,5 +1,11 @@
-import { Editor, Element, Node, Transforms } from 'slate';
+import { Descendant, Editor, Element, Node, Transforms } from 'slate';
 import { jsx } from 'slate-hyperscript';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
+import wikiLinkPlugin from 'remark-wiki-link';
+import remarkSupersub from 'lib/remark-supersub';
+import remarkToSlate from 'editor/serialization/remarkToSlate';
 import { ElementType, Mark, TableCell, TableRow } from 'types/slate';
 import { PickPartial } from 'types/utils';
 import { isTextType } from 'editor/checks';
@@ -99,17 +105,33 @@ const withHtml = (editor: Editor) => {
 
   editor.insertData = (data: any) => {
     const html = data.getData('text/html');
-    const isSlateFragment = data.types.includes('application/x-slate-fragment');
+    const dataIsSlateFragment = data.types.includes('application/x-slate-fragment');
 
     // Only insert HTML if it doesn't come from a Slate editor.
     // We assume that if it comes from a Slate editor, then it's from our own,
     // so we want to preserve the original copy and paste behavior.
     // We can't currently differentiate between different editors; see https://github.com/ianstormtaylor/slate/issues/1024
-    if (html && !isSlateFragment) {
+    if (html && !dataIsSlateFragment) {
       const parsed = new DOMParser().parseFromString(html, 'text/html');
       const fragment = deserialize(parsed.body).map(normalizeTable);
 
       Transforms.insertFragment(editor, fragment);
+      return;
+    }
+
+    const text = data.getData('text/plain');
+    const { result } = unified()
+      .use(remarkParse)
+      .use(remarkSupersub)
+      .use(remarkGfm)
+      .use(wikiLinkPlugin, { aliasDivider: '|' })
+      .use(remarkToSlate)
+      .processSync(text);
+
+    // If we successfully parsed inserted data as editor elements, insert them.
+    // Else, fall back to the original `insertData`.
+    if (result && (result as Descendant[]).length && !dataIsSlateFragment) {
+      Transforms.insertFragment(editor, result as Descendant[]);
       return;
     }
 
