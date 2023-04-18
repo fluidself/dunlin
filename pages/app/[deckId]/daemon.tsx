@@ -10,9 +10,12 @@ import {
   IconGhost2,
   IconRefresh,
   IconSend,
+  IconSettings,
   IconX,
 } from '@tabler/icons';
 import classNames from 'classnames';
+import { usePopper } from 'react-popper';
+import { Menu } from '@headlessui/react';
 import type { Descendant } from 'slate';
 import { toast } from 'react-toastify';
 import rehypePrism from 'rehype-prism';
@@ -29,9 +32,11 @@ import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useAuth } from 'utils/useAuth';
 import copyToClipboard from 'utils/copyToClipboard';
 import type { ChatCompletionMessage } from 'utils/openai-stream';
-import ErrorBoundary from 'components/ErrorBoundary';
 import OpenSidebarButton from 'components/sidebar/OpenSidebarButton';
+import ErrorBoundary from 'components/ErrorBoundary';
 import Identicon from 'components/Identicon';
+import Portal from 'components/Portal';
+import Tooltip from 'components/Tooltip';
 
 export default function Daemon() {
   const router = useRouter();
@@ -39,8 +44,12 @@ export default function Daemon() {
   const { id: deckId } = useCurrentDeck();
   const isSidebarOpen = useStore(state => state.isSidebarOpen);
   const authorOnlyNotes = useStore(state => state.authorOnlyNotes);
-  const messages = useStore(state => state.daemonMessages);
-  const setMessages = useStore(state => state.setDaemonMessages);
+  const messages = useStore(state => state.messages);
+  const temperature = useStore(state => state.temperature);
+  const maxTokens = useStore(state => state.maxTokens);
+  const setMessages = useStore(state => state.setMessages);
+  const setTemperature = useStore(state => state.setTemperature);
+  const setMaxTokens = useStore(state => state.setMaxTokens);
   const [inputText, setInputText] = useState('');
   const [noteTitle, setNoteTitle] = useState('');
   const [summoning, setSummoning] = useState(false);
@@ -83,7 +92,7 @@ export default function Daemon() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ messageLog: [...messages, userMessage] }),
+      body: JSON.stringify({ message_log: [...messages, userMessage], temperature, max_tokens: maxTokens }),
     });
     const data = response.body;
     if (!response.ok || !data) {
@@ -168,62 +177,71 @@ export default function Daemon() {
                 <Message key={idx} message={message} />
               ))}
             </div>
-            <div className="sticky bottom-0 flex flex-col items-center space-y-2 pt-3 pb-12 md:w-128 lg:w-160 xl:w-192 bg-white dark:bg-gray-900">
-              {messages.length && !summoning && !saving ? (
-                <div className="flex items-center space-x-2">
-                  <button
-                    className="flex items-center justify-center px-2 py-1 text-sm bg-transparent rounded border border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
-                    disabled={summoning}
-                    onClick={() => setMessages([])}
-                  >
-                    <IconRefresh size={16} className="mr-1" />
-                    Reset daemon
-                  </button>
-                  <button
-                    className="flex items-center justify-center px-2 py-1 text-sm bg-transparent rounded border border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
-                    disabled={summoning}
-                    onClick={() => setIsSaving(true)}
-                  >
-                    <IconDownload size={16} className="mr-1" />
-                    Save as note
-                  </button>
-                </div>
-              ) : null}
-              {messages.length && !summoning && saving ? (
-                <div className="w-1/3 flex items-center space-x-1">
-                  <input
-                    type="text"
-                    className="input text-sm bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
-                    placeholder="Enter note name"
-                    value={noteTitle}
-                    onChange={event => setNoteTitle(event.target.value)}
-                    onKeyDown={event => {
-                      if (event.key === 'Escape') {
-                        setIsSaving(false);
-                      } else if (event.key === 'Enter' && noteTitle) {
-                        event.preventDefault();
-                        saveAsNote();
-                      }
-                    }}
-                    autoFocus
-                  />
-                  <button
-                    className={`text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100 ${
-                      !noteTitle ? 'cursor-not-allowed' : 'cursor-pointer'
-                    }`}
-                    disabled={!noteTitle}
-                    onClick={saveAsNote}
-                  >
-                    <IconCheck size={20} />
-                  </button>
-                  <button
-                    className="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100"
-                    onClick={() => setIsSaving(false)}
-                  >
-                    <IconX size={20} />
-                  </button>
-                </div>
-              ) : null}
+            <div className="sticky bottom-0 flex flex-col items-center space-y-1 pt-3 pb-12 md:w-128 lg:w-160 xl:w-192 bg-white dark:bg-gray-900">
+              <div className="flex justify-end w-full space-x-2">
+                {messages.length && !summoning && !saving ? (
+                  <div className="flex items-center space-x-2">
+                    <Tooltip content="Reset daemon">
+                      <button
+                        className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
+                        disabled={summoning}
+                        onClick={() => setMessages([])}
+                      >
+                        <IconRefresh size={16} className="text-gray-600 dark:text-gray-300" />
+                      </button>
+                    </Tooltip>
+                    <Tooltip content="Save as note">
+                      <button
+                        className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
+                        disabled={summoning}
+                        onClick={() => setIsSaving(true)}
+                      >
+                        <IconDownload size={16} className="text-gray-600 dark:text-gray-300" />
+                      </button>
+                    </Tooltip>
+                  </div>
+                ) : messages.length && !summoning && saving ? (
+                  <div className="flex items-center space-x-1">
+                    <input
+                      type="text"
+                      className="input px-1 h-[28px] text-sm bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+                      placeholder="Enter note name"
+                      value={noteTitle}
+                      onChange={event => setNoteTitle(event.target.value)}
+                      onKeyDown={event => {
+                        if (event.key === 'Escape') {
+                          setIsSaving(false);
+                        } else if (event.key === 'Enter' && noteTitle) {
+                          event.preventDefault();
+                          saveAsNote();
+                        }
+                      }}
+                      autoFocus
+                    />
+                    <button
+                      className={`text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100 ${
+                        !noteTitle ? 'cursor-not-allowed' : 'cursor-pointer'
+                      }`}
+                      disabled={!noteTitle}
+                      onClick={saveAsNote}
+                    >
+                      <IconCheck size={16} />
+                    </button>
+                    <button
+                      className="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100"
+                      onClick={() => setIsSaving(false)}
+                    >
+                      <IconX size={16} />
+                    </button>
+                  </div>
+                ) : null}
+                <SettingsMenu
+                  temperature={temperature}
+                  setTemperature={setTemperature}
+                  maxTokens={maxTokens}
+                  setMaxTokens={setMaxTokens}
+                />
+              </div>
               <div className="flex items-center w-full relative">
                 <div className="w-full h-full grid text-lg grow-wrap" ref={growingWrapperRef}>
                   <textarea
@@ -265,8 +283,8 @@ export default function Daemon() {
                 ) : null}
               </div>
               {isError ? (
-                <div className="flex items-center pt-2 text-red-500">
-                  <IconExclamationCircle className="mr-1" size={20} />
+                <div className="flex items-center pt-2 text-sm text-red-500">
+                  <IconExclamationCircle className="mr-1" size={16} />
                   The daemon has failed you. Try again later.
                 </div>
               ) : null}
@@ -286,6 +304,86 @@ export default function Daemon() {
     </>
   );
 }
+
+type SettingsMenuProps = {
+  temperature: number;
+  setTemperature: (temperature: number) => void;
+  maxTokens: number;
+  setMaxTokens: (maxTokens: number) => void;
+};
+
+const SettingsMenu = (props: SettingsMenuProps) => {
+  const { temperature, setTemperature, maxTokens, setMaxTokens } = props;
+
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
+  const { styles, attributes } = usePopper(buttonRef.current, popperElement, {
+    placement: 'top-end',
+  });
+
+  return (
+    <Menu>
+      {({ open }) => (
+        <>
+          <Menu.Button
+            className="rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600"
+            ref={buttonRef}
+          >
+            <Tooltip content="Settings">
+              <span className="flex items-center justify-center w-7 h-7">
+                <IconSettings size={16} className="text-gray-600 dark:text-gray-300" />
+              </span>
+            </Tooltip>
+          </Menu.Button>
+          {open && (
+            <Portal>
+              <Menu.Items
+                className="z-20 w-auto bg-white rounded dark:bg-gray-800 shadow-popover focus:outline-none border dark:border-gray-700"
+                static
+                ref={setPopperElement}
+                style={styles.popper}
+                {...attributes.popper}
+              >
+                <div className="flex flex-col space-y-2 p-2 dark:text-gray-200">
+                  <div className="flex justify-between text-sm">
+                    <label htmlFor="temperature">Temperature</label>
+                    <span>{temperature}</span>
+                  </div>
+                  <input
+                    id="temperature"
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.1}
+                    value={temperature}
+                    onChange={e => setTemperature(+e.target.value)}
+                    className="w-full h-2 bg-gray-200 rounded appearance-none cursor-pointer accent-primary-500 dark:bg-gray-700"
+                  />
+                </div>
+                <div className="flex flex-col space-y-2 p-2 dark:text-gray-200">
+                  <div className="flex justify-between text-sm">
+                    <label htmlFor="max_tokens">Max. length</label>
+                    <span>{maxTokens}</span>
+                  </div>
+                  <input
+                    id="max_tokens"
+                    type="range"
+                    min={1}
+                    max={2048}
+                    step={1}
+                    value={maxTokens}
+                    onChange={e => setMaxTokens(+e.target.value)}
+                    className="w-full h-2 bg-gray-200 rounded appearance-none cursor-pointer accent-primary-500 dark:bg-gray-700"
+                  />
+                </div>
+              </Menu.Items>
+            </Portal>
+          )}
+        </>
+      )}
+    </Menu>
+  );
+};
 
 type MessageProps = {
   message: ChatCompletionMessage;

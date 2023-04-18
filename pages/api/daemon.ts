@@ -24,8 +24,12 @@ export default async function daemon(req: NextRequest): Promise<Response> {
   }
 
   try {
-    const { messageLog } = (await req.json()) as { messageLog: ChatCompletionMessage[] };
-    if (!messageLog) {
+    const { message_log, temperature, max_tokens } = (await req.json()) as {
+      message_log: ChatCompletionMessage[];
+      temperature: number;
+      max_tokens: number;
+    };
+    if (!message_log || !temperature || !max_tokens) {
       return new Response('Malformed request', { status: 400 });
     }
 
@@ -35,7 +39,7 @@ export default async function daemon(req: NextRequest): Promise<Response> {
         content:
           'You are a helpful, succinct assistant. You always format your output in markdown and include code snippets and tables if relevant.',
       },
-      ...messageLog.map(msg =>
+      ...message_log.map(msg =>
         msg.role === 'user' ? { ...msg, content: msg.content.trim().replace(/\n/g, ' ') } : msg,
       ),
     ];
@@ -43,8 +47,8 @@ export default async function daemon(req: NextRequest): Promise<Response> {
     const payload: OpenAIStreamPayload = {
       model: 'gpt-3.5-turbo-0301',
       messages: messages,
-      temperature: 1,
-      max_tokens: 1000,
+      temperature,
+      max_tokens,
       stream: true,
       n: 1,
     };
