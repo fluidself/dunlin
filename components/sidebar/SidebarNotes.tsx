@@ -7,13 +7,7 @@ import ErrorBoundary from '../ErrorBoundary';
 import SidebarNotesFooter from './SidebarNotesFooter';
 import SidebarNotesTree from './SidebarNotesTree';
 
-type SidebarNotesProps = {
-  className?: string;
-};
-
-function SidebarNotes(props: SidebarNotesProps) {
-  const { className } = props;
-
+function SidebarNotes() {
   const notes = useStore(state => state.notes);
   const noteTree = useStore(state => state.noteTree);
   const noteSort = useStore(state => state.noteSort);
@@ -23,7 +17,7 @@ function SidebarNotes(props: SidebarNotesProps) {
 
   return (
     <ErrorBoundary>
-      <div className={`flex flex-col flex-1 overflow-x-hidden ${className}`}>
+      <div className="flex flex-col flex-1 overflow-x-hidden">
         {sortedNoteTree && sortedNoteTree.length > 0 ? (
           <SidebarNotesTree data={sortedNoteTree} className="flex-1 overflow-y-auto" />
         ) : (

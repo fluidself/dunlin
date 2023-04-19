@@ -10,12 +10,7 @@ import VirtualTree from '../VirtualTree';
 
 const DEBOUNCE_MS = 500;
 
-type Props = {
-  className?: string;
-};
-
-export default function SidebarSearch(props: Props) {
-  const { className } = props;
+export default function SidebarSearch() {
   const deckId = useStore(state => state.deckId);
   const inputText = useStore(state => state.sidebarSearchQuery);
   const setInputText = useStore(state => state.setSidebarSearchQuery);
@@ -50,7 +45,7 @@ export default function SidebarSearch(props: Props) {
 
   return (
     <ErrorBoundary>
-      <div className={`flex flex-col flex-1 overflow-y-auto ${className}`}>
+      <div className="flex flex-col flex-1 overflow-y-auto">
         <input
           type="text"
           className="block py-1 mx-4 my-2 bg-white border-gray-200 rounded dark:bg-gray-700 dark:border-gray-700 input"
