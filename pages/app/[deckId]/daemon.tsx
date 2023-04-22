@@ -189,7 +189,10 @@ export default function Daemon() {
                       <button
                         className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
                         disabled={summoning}
-                        onClick={() => setMessages([])}
+                        onClick={() => {
+                          setMessages([]);
+                          setIsError(false);
+                        }}
                       >
                         <IconRefresh size={16} className="text-gray-600 dark:text-gray-300" />
                       </button>
