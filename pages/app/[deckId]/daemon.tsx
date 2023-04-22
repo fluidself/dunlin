@@ -13,6 +13,7 @@ import {
   IconSettings,
   IconX,
 } from '@tabler/icons';
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 import classNames from 'classnames';
 import { usePopper } from 'react-popper';
 import { Menu } from '@headlessui/react';
@@ -23,15 +24,15 @@ import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import wikiLinkPlugin from 'remark-wiki-link';
+import remarkToSlate from 'editor/serialization/remarkToSlate';
 import remarkSupersub from 'lib/remark-supersub';
 import ReactMarkdown from 'lib/react-markdown';
 import upsertNote from 'lib/api/upsertNote';
 import { useStore } from 'lib/store';
-import remarkToSlate from 'editor/serialization/remarkToSlate';
+import type { DaemonMessage } from 'lib/createDaemonSlice';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useAuth } from 'utils/useAuth';
 import copyToClipboard from 'utils/copyToClipboard';
-import type { ChatCompletionMessage } from 'utils/openai-stream';
 import OpenSidebarButton from 'components/sidebar/OpenSidebarButton';
 import ErrorBoundary from 'components/ErrorBoundary';
 import Identicon from 'components/Identicon';
@@ -80,52 +81,55 @@ export default function Daemon() {
 
   const summonDaemon = async () => {
     if (summoning || !inputText) return;
-    const userMessage: ChatCompletionMessage = { role: 'user', content: inputText };
+    const userMessage: DaemonMessage = { type: 'human', text: inputText };
+    const ctrl = new AbortController();
 
     setSummoning(true);
     setIsError(false);
     setMessages(prevMessages => [...prevMessages, userMessage]);
     updateInputText('');
 
-    const response = await fetch('/api/daemon', {
+    fetchEventSource('/api/daemon', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ message_log: [...messages, userMessage], temperature, max_tokens: maxTokens }),
+      body: JSON.stringify({ messages: [...messages, userMessage], temperature, maxTokens }),
+      signal: ctrl.signal,
+      async onopen(response) {
+        if (response.ok) {
+          setMessages(prevMessages => [...prevMessages, { type: 'ai', text: '' }]);
+          return;
+        } else {
+          setIsError(true);
+          setSummoning(false);
+        }
+      },
+      onmessage(event) {
+        const data = JSON.parse(event.data);
+        setMessages(prevMessages => {
+          const lastMsg = prevMessages[prevMessages.length - 1];
+          const newMessages = [...prevMessages.slice(0, -1), { ...lastMsg, text: lastMsg.text + data.token }];
+          return newMessages;
+        });
+      },
+      onclose() {
+        setSummoning(false);
+        ctrl.abort();
+      },
+      onerror() {
+        setIsError(true);
+        setSummoning(false);
+        ctrl.abort();
+      },
     });
-    const data = response.body;
-    if (!response.ok || !data) {
-      setIsError(true);
-      setSummoning(false);
-      return;
-    }
-
-    const reader = data.getReader();
-    const decoder = new TextDecoder();
-    let done = false;
-
-    setMessages(prevMessages => [...prevMessages, { role: 'assistant', content: '' }]);
-
-    while (!done) {
-      const { value, done: doneReading } = await reader.read();
-      done = doneReading;
-      const chunkValue = decoder.decode(value);
-      setMessages(prevMessages => {
-        const lastMsg = prevMessages[prevMessages.length - 1];
-        const newMessages = [...prevMessages.slice(0, -1), { ...lastMsg, content: lastMsg.content + chunkValue }];
-        return newMessages;
-      });
-    }
-
-    setSummoning(false);
   };
 
   const saveAsNote = async () => {
     if (!user?.id || !noteTitle) return;
 
     const parsedMessages = messages
-      .map(message => `**${message.role === 'user' ? 'User' : 'Daemon'}**:\n${message.content}\n\n---\n\n`)
+      .map(message => `**${message.type === 'human' ? 'User' : 'Daemon'}**:\n${message.text}\n\n---\n\n`)
       .join('');
     const { result } = unified()
       .use(remarkParse)
@@ -386,22 +390,22 @@ const SettingsMenu = (props: SettingsMenuProps) => {
 };
 
 type MessageProps = {
-  message: ChatCompletionMessage;
+  message: DaemonMessage;
 };
 
 const Message = (props: MessageProps) => {
-  const { role, content } = props.message;
+  const { type, text } = props.message;
   const messageClassName = classNames(
     'flex w-full space-x-2 py-4 pl-2 dark:text-gray-200',
-    { 'bg-gray-100 dark:bg-gray-800': role === 'user' },
-    { 'bg-gray-50 dark:bg-gray-700': role === 'assistant' },
+    { 'bg-gray-100 dark:bg-gray-800': type === 'human' },
+    { 'bg-gray-50 dark:bg-gray-700': type === 'ai' },
   );
 
   return (
     <div className={messageClassName}>
-      <div>{role === 'user' ? <Identicon diameter={20} className="w-5 h-5" /> : <IconGhost2 size={20} />}</div>
-      {role === 'user' ? (
-        <div className="whitespace-pre-line overflow-x-auto">{content}</div>
+      <div>{type === 'human' ? <Identicon diameter={20} className="w-5 h-5" /> : <IconGhost2 size={20} />}</div>
+      {type === 'human' ? (
+        <div className="whitespace-pre-line overflow-x-auto">{text}</div>
       ) : (
         <div className="relative flex flex-col w-[calc(100%-50px)] lg:w-[calc(100%-65px)] h-full">
           <ReactMarkdown
@@ -410,16 +414,16 @@ const Message = (props: MessageProps) => {
             linkTarget="_blank"
             className="prose dark:prose-invert max-w-none overflow-x-auto prose-p:whitespace-pre-line prose-table:border prose-table:border-collapse prose-th:border prose-th:border-gray-700 prose-th:align-baseline prose-th:pt-2 prose-th:pl-2 prose-td:border prose-td:border-gray-700 prose-td:pt-2 prose-td:pl-2 prose-a:text-primary-400 hover:prose-a:underline prose-pre:bg-gray-100 prose-pre:dark:bg-gray-800 prose-pre:text-gray-800 prose-pre:dark:text-gray-100 prose-code:bg-gray-100 prose-code:dark:bg-gray-800 prose-code:text-gray-800 prose-code:dark:text-gray-100"
           >
-            {content}
+            {text}
           </ReactMarkdown>
         </div>
       )}
-      {role === 'assistant' ? (
+      {type === 'ai' ? (
         <IconCopy
           size={20}
           className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
           role="button"
-          onClick={async () => await copyToClipboard(content)}
+          onClick={async () => await copyToClipboard(text)}
         />
       ) : null}
     </div>

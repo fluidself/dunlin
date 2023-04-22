@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getIronSession } from 'iron-session/edge';
+import { ChatOpenAI } from 'langchain/chat_models/openai';
+import { SystemChatMessage, HumanChatMessage, AIChatMessage } from 'langchain/schema';
+import { CallbackManager } from 'langchain/callbacks';
+import type { DaemonMessage } from 'lib/createDaemonSlice';
 import { ironOptions } from 'constants/iron-session';
-import { OpenAIStream, OpenAIStreamPayload, ChatCompletionMessage } from 'utils/openai-stream';
 
 export const config = {
   runtime: 'edge',
@@ -12,7 +15,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-export default async function daemon(req: NextRequest): Promise<Response> {
+export default async function daemon(req: NextRequest) {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -24,37 +27,55 @@ export default async function daemon(req: NextRequest): Promise<Response> {
   }
 
   try {
-    const { message_log, temperature, max_tokens } = (await req.json()) as {
-      message_log: ChatCompletionMessage[];
+    const { messages, temperature, maxTokens } = (await req.json()) as {
+      messages: DaemonMessage[];
       temperature: number;
-      max_tokens: number;
+      maxTokens: number;
     };
-    if (!message_log || !temperature || !max_tokens) {
+    if (!messages || !temperature || !maxTokens) {
       return new Response('Malformed request', { status: 400 });
     }
 
-    const messages: ChatCompletionMessage[] = [
-      {
-        role: 'system',
-        content:
-          'You are a helpful, succinct assistant. You always format your output in markdown and include code snippets and tables if relevant.',
-      },
-      ...message_log.map(msg =>
-        msg.role === 'user' ? { ...msg, content: msg.content.trim().replace(/\n/g, ' ') } : msg,
-      ),
-    ];
-
-    const payload: OpenAIStreamPayload = {
-      model: 'gpt-3.5-turbo-0301',
-      messages: messages,
+    const encoder = new TextEncoder();
+    const stream = new TransformStream();
+    const writer = stream.writable.getWriter();
+    const llm = new ChatOpenAI({
+      modelName: 'gpt-3.5-turbo-0301',
+      streaming: true,
       temperature,
-      max_tokens,
-      stream: true,
-      n: 1,
-    };
+      maxTokens,
+      callbackManager: CallbackManager.fromHandlers({
+        async handleLLMNewToken(token) {
+          await writer.ready;
+          const data = JSON.stringify({ token: token });
+          await writer.write(encoder.encode(`data: ${data}\n\n`));
+        },
+        async handleLLMEnd() {
+          await writer.ready;
+          await writer.close();
+        },
+        async handleLLMError(error) {
+          await writer.ready;
+          await writer.abort(error);
+        },
+      }),
+    });
 
-    const stream = await OpenAIStream(payload);
-    return new Response(stream);
+    llm.call([
+      new SystemChatMessage(
+        'You are a helpful, succinct assistant. You always format your output in markdown and include code snippets and tables if relevant.',
+      ),
+      ...messages.map(msg =>
+        msg.type === 'human' ? new HumanChatMessage(msg.text.trim().replace(/\n/g, ' ')) : new AIChatMessage(msg.text),
+      ),
+    ]);
+
+    return new NextResponse(stream.readable, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache, no-transform',
+      },
+    });
   } catch (err) {
     console.error(err);
     return new Response('There was an error processing your request', { status: 500 });
