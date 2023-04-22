@@ -1,10 +1,14 @@
 import { Draft } from 'immer';
-import type { ChatCompletionMessage } from 'utils/openai-stream';
 import { setter, Setter, Store } from './store';
 
+export type DaemonMessage = {
+  type: 'system' | 'human' | 'ai';
+  text: string;
+};
+
 export type DaemonStore = {
-  messages: ChatCompletionMessage[];
-  setMessages: Setter<ChatCompletionMessage[]>;
+  messages: DaemonMessage[];
+  setMessages: Setter<DaemonMessage[]>;
   temperature: number;
   setTemperature: Setter<number>;
   maxTokens: number;
