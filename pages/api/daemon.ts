@@ -32,7 +32,7 @@ export default async function daemon(req: NextRequest) {
       temperature: number;
       maxTokens: number;
     };
-    if (!messages || !temperature || !maxTokens) {
+    if (!messages || typeof temperature === 'undefined' || !maxTokens) {
       return new Response('Malformed request', { status: 400 });
     }
 
