@@ -151,20 +151,20 @@ input[type='radio']:focus {
 }
 
 @media (pointer: fine) {
-  ::-webkit-scrollbar {
+  *::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
 
-  ::-webkit-scrollbar-track {
+  *::-webkit-scrollbar-track {
     @apply bg-gray-100 dark:bg-gray-700;
   }
 
-  ::-webkit-scrollbar-thumb {
+  *::-webkit-scrollbar-thumb {
     @apply bg-gray-300 dark:bg-gray-500;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
+  *::-webkit-scrollbar-thumb:hover {
     @apply bg-gray-400 dark:bg-gray-400;
   }
 }
