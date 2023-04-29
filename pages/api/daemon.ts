@@ -40,7 +40,7 @@ export default async function daemon(req: NextRequest) {
     const stream = new TransformStream();
     const writer = stream.writable.getWriter();
     const llm = new ChatOpenAI({
-      modelName: 'gpt-3.5-turbo-0301',
+      modelName: 'gpt-3.5-turbo',
       streaming: true,
       temperature,
       maxTokens,
