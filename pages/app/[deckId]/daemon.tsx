@@ -178,7 +178,12 @@ export default function Daemon() {
           <div className="flex flex-col w-full h-full mx-auto md:w-128 lg:w-160 xl:w-192">
             <div className="flex-1">
               {messages.map((message, idx) => (
-                <Message key={idx} message={message} />
+                <Message
+                  key={idx}
+                  message={message}
+                  messageIsLatest={idx === (messages.length ?? 0) - 1}
+                  messageIsStreaming={summoning}
+                />
               ))}
             </div>
             <div className="sticky bottom-0 flex flex-col items-center space-y-1 pt-3 pb-12 md:w-128 lg:w-160 xl:w-192 bg-white dark:bg-gray-900">
@@ -394,10 +399,16 @@ const SettingsMenu = (props: SettingsMenuProps) => {
 
 type MessageProps = {
   message: DaemonMessage;
+  messageIsLatest: boolean;
+  messageIsStreaming: boolean;
 };
 
 const Message = (props: MessageProps) => {
-  const { type, text } = props.message;
+  const {
+    message: { type, text },
+    messageIsLatest,
+    messageIsStreaming,
+  } = props;
   const messageClassName = classNames(
     'flex w-full space-x-2 py-4 pl-2 dark:text-gray-200',
     { 'bg-gray-100 dark:bg-gray-800': type === 'human' },
@@ -411,14 +422,18 @@ const Message = (props: MessageProps) => {
         <div className="whitespace-pre-line overflow-x-auto">{text}</div>
       ) : (
         <div className="relative flex flex-col w-[calc(100%-50px)] lg:w-[calc(100%-65px)] h-full">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypePrism]}
-            linkTarget="_blank"
-            className="prose dark:prose-invert max-w-none overflow-x-auto prose-p:whitespace-pre-line prose-table:border prose-table:border-collapse prose-th:border prose-th:border-gray-700 prose-th:align-baseline prose-th:pt-2 prose-th:pl-2 prose-td:border prose-td:border-gray-700 prose-td:pt-2 prose-td:pl-2 prose-a:text-primary-400 hover:prose-a:underline prose-pre:bg-gray-100 prose-pre:dark:bg-gray-800 prose-pre:text-gray-800 prose-pre:dark:text-gray-100 prose-code:bg-gray-100 prose-code:dark:bg-gray-800 prose-code:text-gray-800 prose-code:dark:text-gray-100"
-          >
-            {text}
-          </ReactMarkdown>
+          {text ? (
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypePrism]}
+              linkTarget="_blank"
+              className="prose dark:prose-invert max-w-none overflow-x-auto prose-p:whitespace-pre-line prose-table:border prose-table:border-collapse prose-th:border prose-th:border-gray-700 prose-th:align-baseline prose-th:pt-2 prose-th:pl-2 prose-td:border prose-td:border-gray-700 prose-td:pt-2 prose-td:pl-2 prose-a:text-primary-400 hover:prose-a:underline prose-pre:bg-gray-100 prose-pre:dark:bg-gray-800 prose-pre:text-gray-800 prose-pre:dark:text-gray-100 prose-code:bg-gray-100 prose-code:dark:bg-gray-800 prose-code:text-gray-800 prose-code:dark:text-gray-100"
+            >
+              {`${text}${messageIsLatest && messageIsStreaming ? '`▍`' : ''}`}
+            </ReactMarkdown>
+          ) : (
+            <span className="animate-pulse">▍</span>
+          )}
         </div>
       )}
       {type === 'ai' ? (
