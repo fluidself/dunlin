@@ -44,7 +44,7 @@ export default async function daemon(req: NextRequest) {
       streaming: true,
       temperature,
       maxTokens,
-      callbackManager: CallbackManager.fromHandlers({
+      callbacks: CallbackManager.fromHandlers({
         async handleLLMNewToken(token) {
           await writer.ready;
           const data = JSON.stringify({ token: token });
