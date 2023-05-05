@@ -45,6 +45,7 @@ export default function Daemon() {
   const { id: deckId } = useCurrentDeck();
   const isSidebarOpen = useStore(state => state.isSidebarOpen);
   const authorOnlyNotes = useStore(state => state.authorOnlyNotes);
+  const isDaemonUser = useStore(state => state.isDaemonUser);
   const messages = useStore(state => state.messages);
   const temperature = useStore(state => state.temperature);
   const maxTokens = useStore(state => state.maxTokens);
@@ -61,10 +62,10 @@ export default function Daemon() {
   const growingWrapperRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (user && !process.env.NEXT_PUBLIC_DAEMON_USERS?.split(',').includes(user.id)) {
+    if (user && !isDaemonUser) {
       router.replace('/app');
     }
-  }, [user, router]);
+  }, [user, isDaemonUser, router]);
 
   useEffect(() => {
     scrollToBottom();

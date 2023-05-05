@@ -59,6 +59,7 @@ export default function AppLayout(props: Props) {
   const darkMode = useStore(state => state.darkMode);
   const shareModalOpen = useStore(state => state.shareModalOpen);
   const commandMenuState = useStore(state => state.commandMenuState);
+  const isDaemonUser = useStore(state => state.isDaemonUser);
   const setStoreDeckKey = useStore(state => state.setDeckKey);
   const setNotes = useStore(state => state.setNotes);
   const setNoteTree = useStore(state => state.setNoteTree);
@@ -70,6 +71,7 @@ export default function AppLayout(props: Props) {
   const setIsSidebarOpen = useStore(state => state.setIsSidebarOpen);
   const setSidebarTab = useStore(state => state.setSidebarTab);
   const setCommandMenuState = useStore(state => state.setCommandMenuState);
+  const setIsDaemonUser = useStore(state => state.setIsDaemonUser);
 
   useEffect(() => {
     const onDisconnect = () => signOut();
@@ -130,6 +132,10 @@ export default function AppLayout(props: Props) {
 
     setDeckId(deckId);
     setUserId(user.id);
+
+    if (process.env.NEXT_PUBLIC_DAEMON_USERS?.split(',').includes(user.id)) {
+      setIsDaemonUser(true);
+    }
 
     const {
       access_params: { access_control_conditions },
@@ -213,6 +219,7 @@ export default function AppLayout(props: Props) {
     decryptDeck,
     setAuthorOnlyNotes,
     setCollaborativeDeck,
+    setIsDaemonUser,
   ]);
 
   useEffect(() => {
@@ -333,7 +340,7 @@ export default function AppLayout(props: Props) {
       {
         hotkey: 'mod+shift+d',
         callback: () => {
-          if (user?.id && process.env.NEXT_PUBLIC_DAEMON_USERS?.split(',').includes(user.id)) {
+          if (isDaemonUser) {
             router.push(`/app/${deckId}/daemon`);
           }
         },
@@ -343,7 +350,7 @@ export default function AppLayout(props: Props) {
         callback: () => setIsSidebarOpen(isOpen => !isOpen),
       },
     ],
-    [setSidebarTab, setCommandMenuState, setIsSidebarOpen, router, deckId, user?.id, commandMenuState],
+    [setSidebarTab, setCommandMenuState, setIsSidebarOpen, router, deckId, commandMenuState, isDaemonUser],
   );
   useHotkeys(hotkeys);
 
