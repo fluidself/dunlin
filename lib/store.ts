@@ -257,6 +257,7 @@ export const store = createVanilla<Store>()(
         darkMode: state.darkMode,
         isPageStackingOn: state.isPageStackingOn,
         confirmNoteDeletion: state.confirmNoteDeletion,
+        isDaemonUser: state.isDaemonUser,
         messages: state.messages,
         temperature: state.temperature,
         maxTokens: state.maxTokens,
