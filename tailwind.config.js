@@ -118,6 +118,7 @@ module.exports = {
               content: '""',
               'padding-right': '0.25rem',
             },
+            '--tw-prose-invert-bullets': colors.neutral[400],
           },
         },
       },
