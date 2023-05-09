@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState, KeyboardEvent, memo, useEffect } from '
 import { createEditor, Range, Editor as SlateEditor, Descendant, Transforms, Node } from 'slate';
 import { withReact, Editable, ReactEditor, Slate, useReadOnly } from 'slate-react';
 import { withHistory } from 'slate-history';
+import { IconX } from '@tabler/icons';
 import { isHotkey } from 'is-hotkey';
 import { ElementType } from 'types/slate';
 import { isElementActive } from 'editor/formatting';
@@ -18,7 +19,6 @@ import withAnnotations from 'editor/plugins/withAnnotations';
 import withHtml from 'editor/plugins/withHtml';
 import { getDefaultEditorHotkeys } from 'editor/constants';
 import useIsMounted from 'utils/useIsMounted';
-import useOnClickOutside from 'utils/useOnClickOutside';
 import useHotkeys from 'utils/useHotkeys';
 import type { AddLinkPopoverState } from 'components/editor/Editor';
 import HoveringToolbar from 'components/editor/toolbar/HoveringToolbar';
@@ -41,8 +41,6 @@ function FootnoteDefinition(props: Props) {
   const { value, className = '', onChange, onClose } = props;
   const isMounted = useIsMounted();
   const readOnly = useReadOnly();
-  const [defElement, setDefElement] = useState<HTMLDivElement | null>(null);
-  useOnClickOutside(defElement, onClose);
 
   const closeHotkey = useMemo(
     () => [
@@ -177,7 +175,10 @@ function FootnoteDefinition(props: Props) {
   }
 
   return (
-    <div ref={setDefElement}>
+    <div className="pr-1">
+      <button className="absolute top-0.5 right-0.5 text-gray-300 hover:text-gray-100" onClick={onClose}>
+        <IconX size={14} />
+      </button>
       <Slate editor={editor} value={value} onChange={onSlateChange}>
         {isToolbarVisible ? <HoveringToolbar setAddLinkPopoverState={setAddLinkPopoverState} /> : null}
         {addLinkPopoverState.isVisible ? (
