@@ -37,6 +37,10 @@ const EditorLeaf = ({ attributes, children, leaf }: EditorLeafProps) => {
     children = <mark className="bg-yellow-200 dark:bg-[#828324] dark:text-white">{children}</mark>;
   }
 
+  if (leaf.select) {
+    children = <mark className="py-[3px] bg-primary-500 text-gray-100">{children}</mark>;
+  }
+
   if (leaf.superscript) {
     children = <sup className="align-super">{children}</sup>;
   }

@@ -48,6 +48,7 @@ export enum Mark {
   Highlight = 'highlight',
   Superscript = 'superscript',
   Subscript = 'subscript',
+  Select = 'select',
 }
 
 export type ParagraphElement = {
