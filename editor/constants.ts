@@ -2,6 +2,7 @@ import { SetStateAction } from 'react';
 import { Descendant, type Editor, Transforms } from 'slate';
 import { ElementType, Mark } from 'types/slate';
 import type { AddLinkPopoverState } from 'components/editor/Editor';
+import type { DaemonPopoverState } from 'components/editor/DaemonPopover';
 import { store } from 'lib/store';
 import {
   handleBrackets,
@@ -23,6 +24,9 @@ export const getDefaultEditorValue = (): Descendant[] => [
 
 export const getDefaultEditorHotkeys = (
   editor: Editor,
+  isDaemonUser: boolean,
+  hasExpandedSelection: boolean,
+  setDaemonPopoverState: (value: SetStateAction<DaemonPopoverState>) => void,
   setAddLinkPopoverState: (value: SetStateAction<AddLinkPopoverState>) => void,
   activeEditor?: string,
 ) => [
@@ -155,6 +159,21 @@ export const getDefaultEditorHotkeys = (
     hotkey: "shift+'",
     callback: () => handleQuotes(editor, '"'),
   },
+  ...(isDaemonUser
+    ? [
+        {
+          hotkey: 'mod+j',
+          callback: () => {
+            if (hasExpandedSelection) {
+              setDaemonPopoverState({
+                isVisible: true,
+                selection: editor.selection,
+              });
+            }
+          },
+        },
+      ]
+    : []),
   ...(activeEditor
     ? [
         {
