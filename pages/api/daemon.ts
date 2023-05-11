@@ -15,6 +15,15 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const defaultPrompt =
+  'You are a helpful, succinct assistant. You always format your output in markdown and include code snippets and tables if relevant.';
+
+const editorPrompt = (request: string) =>
+  `You are a helpful assistant.
+- Respond as succinctly as possible. Do not offer any explanations or reasoning.
+- Return answer in markdown format.
+- You are tasked with the following: ${request}`;
+
 export default async function daemon(req: NextRequest) {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -27,12 +36,13 @@ export default async function daemon(req: NextRequest) {
   }
 
   try {
-    const { messages, temperature, maxTokens } = (await req.json()) as {
+    const { messages, temperature, maxTokens, editorRequest } = (await req.json()) as {
       messages: DaemonMessage[];
-      temperature: number;
-      maxTokens: number;
+      temperature?: number;
+      maxTokens?: number;
+      editorRequest?: string;
     };
-    if (!messages || typeof temperature === 'undefined' || !maxTokens) {
+    if (!messages) {
       return new Response('Malformed request', { status: 400 });
     }
 
@@ -42,29 +52,27 @@ export default async function daemon(req: NextRequest) {
     const llm = new ChatOpenAI({
       modelName: 'gpt-3.5-turbo',
       streaming: true,
-      temperature,
-      maxTokens,
+      temperature: temperature ?? 0,
+      maxTokens: maxTokens ?? 1024,
       callbacks: CallbackManager.fromHandlers({
         async handleLLMNewToken(token) {
           await writer.ready;
           const data = JSON.stringify({ token: token });
           await writer.write(encoder.encode(`data: ${data}\n\n`));
         },
-        async handleLLMEnd() {
-          await writer.ready;
-          await writer.close();
-        },
         async handleLLMError(error) {
           await writer.ready;
           await writer.abort(error);
+        },
+        async handleLLMEnd() {
+          await writer.ready;
+          await writer.close();
         },
       }),
     });
 
     llm.call([
-      new SystemChatMessage(
-        'You are a helpful, succinct assistant. You always format your output in markdown and include code snippets and tables if relevant.',
-      ),
+      new SystemChatMessage(editorRequest ? editorPrompt(editorRequest) : defaultPrompt),
       ...messages.map(msg =>
         msg.type === 'human' ? new HumanChatMessage(msg.text.trim().replace(/\n/g, ' ')) : new AIChatMessage(msg.text),
       ),
