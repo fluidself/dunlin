@@ -19,6 +19,7 @@ import { useStore } from 'lib/store';
 import activeEditorsStore from 'lib/activeEditorsStore';
 import { isElementActive } from 'editor/formatting';
 import decorateCodeBlocks from 'editor/decorateCodeBlocks';
+import decorateLastActiveSelection from 'editor/decorateLastActiveSelection';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
 import withMedia from 'editor/plugins/withMedia';
@@ -37,6 +38,7 @@ import AddLinkPopover from 'components/editor/AddLinkPopover';
 import EditorElement from 'components/editor/elements/EditorElement';
 import withVerticalSpacing from 'components/editor/elements/withVerticalSpacing';
 import EditorLeaf from 'components/editor/elements/EditorLeaf';
+import DaemonPopover, { type DaemonPopoverState } from 'components/editor/DaemonPopover';
 import LinkAutocompletePopover from 'components/editor/LinkAutocompletePopover';
 import BlockAutocompletePopover from 'components/editor/BlockAutocompletePopover';
 import TagAutocompletePopover from 'components/editor/TagAutocompletePopover';
@@ -55,6 +57,7 @@ function CalloutContent(props: Props) {
   const { user } = useAuth();
   const { id: noteId } = useCurrentNote();
   const commandMenuState = useStore(state => state.commandMenuState);
+  const isDaemonUser = useStore(state => state.isDaemonUser);
   const note = useStore(state => state.notes[noteId]);
 
   const color = useMemo(
@@ -139,6 +142,10 @@ function CalloutContent(props: Props) {
     selection: undefined,
     isLink: false,
   });
+  const [daemonPopoverState, setDaemonPopoverState] = useState<DaemonPopoverState>({
+    isVisible: false,
+    selection: undefined,
+  });
 
   const [selection, setSelection] = useState(editor.selection);
   const [toolbarCanBeVisible, setToolbarCanBeVisible] = useState(true);
@@ -155,20 +162,35 @@ function CalloutContent(props: Props) {
       toolbarCanBeVisible &&
       hasExpandedSelection &&
       !addLinkPopoverState.isVisible &&
+      !daemonPopoverState.isVisible &&
       !commandMenuState.isVisible &&
       !isElementActive(editor, ElementType.CodeLine),
-    [toolbarCanBeVisible, hasExpandedSelection, editor, addLinkPopoverState.isVisible, commandMenuState.isVisible],
+    [
+      toolbarCanBeVisible,
+      hasExpandedSelection,
+      editor,
+      addLinkPopoverState.isVisible,
+      daemonPopoverState.isVisible,
+      commandMenuState.isVisible,
+    ],
   );
 
   const hotkeys = useMemo(
     () => [
-      ...getDefaultEditorHotkeys(editor, setAddLinkPopoverState, elementId),
+      ...getDefaultEditorHotkeys(
+        editor,
+        isDaemonUser,
+        hasExpandedSelection,
+        setDaemonPopoverState,
+        setAddLinkPopoverState,
+        elementId,
+      ),
       {
         hotkey: 'mod+a',
         callback: () => Transforms.select(editor, []),
       },
     ],
-    [editor, elementId, setAddLinkPopoverState],
+    [editor, elementId, isDaemonUser, hasExpandedSelection, setAddLinkPopoverState, setDaemonPopoverState],
   );
 
   const onKeyDown = useCallback(
@@ -244,9 +266,17 @@ function CalloutContent(props: Props) {
   return (
     <>
       <Slate editor={editor} value={value} onChange={onSlateChange}>
-        {isToolbarVisible ? <HoveringToolbar setAddLinkPopoverState={setAddLinkPopoverState} /> : null}
+        {isToolbarVisible ? (
+          <HoveringToolbar
+            setAddLinkPopoverState={setAddLinkPopoverState}
+            setDaemonPopoverState={setDaemonPopoverState}
+          />
+        ) : null}
         {addLinkPopoverState.isVisible ? (
           <AddLinkPopover addLinkPopoverState={addLinkPopoverState} setAddLinkPopoverState={setAddLinkPopoverState} />
+        ) : null}
+        {daemonPopoverState.isVisible ? (
+          <DaemonPopover daemonPopoverState={daemonPopoverState} setDaemonPopoverState={setDaemonPopoverState} />
         ) : null}
         <LinkAutocompletePopover />
         <BlockAutocompletePopover />
@@ -257,8 +287,9 @@ function CalloutContent(props: Props) {
           renderLeaf={EditorLeaf}
           decorate={entry => {
             const codeSyntaxRanges = decorateCodeBlocks(editor, entry);
+            const daemonSelection = decorateLastActiveSelection(editor, entry, daemonPopoverState.selection);
             const cursorRanges = decorate(entry);
-            return [...codeSyntaxRanges, ...cursorRanges];
+            return [...codeSyntaxRanges, ...daemonSelection, ...cursorRanges];
           }}
           onKeyDown={onKeyDown}
           onPointerDown={() => setToolbarCanBeVisible(false)}
