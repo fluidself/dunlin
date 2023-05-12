@@ -7,6 +7,7 @@ import { isHotkey } from 'is-hotkey';
 import { ElementType } from 'types/slate';
 import { isElementActive } from 'editor/formatting';
 import decorateCodeBlocks from 'editor/decorateCodeBlocks';
+import decorateLastActiveSelection from 'editor/decorateLastActiveSelection';
 import withAutoMarkdown from 'editor/plugins/withAutoMarkdown';
 import withBlockBreakout from 'editor/plugins/withBlockBreakout';
 import withMedia from 'editor/plugins/withMedia';
@@ -20,12 +21,14 @@ import withHtml from 'editor/plugins/withHtml';
 import { getDefaultEditorHotkeys } from 'editor/constants';
 import useIsMounted from 'utils/useIsMounted';
 import useHotkeys from 'utils/useHotkeys';
+import { useStore } from 'lib/store';
 import type { AddLinkPopoverState } from 'components/editor/Editor';
 import HoveringToolbar from 'components/editor/toolbar/HoveringToolbar';
 import AddLinkPopover from 'components/editor/AddLinkPopover';
 import EditorElement from 'components/editor/elements/EditorElement';
 import withVerticalSpacing from 'components/editor/elements/withVerticalSpacing';
 import EditorLeaf from 'components/editor/elements/EditorLeaf';
+import DaemonPopover, { type DaemonPopoverState } from 'components/editor/DaemonPopover';
 import LinkAutocompletePopover from 'components/editor/LinkAutocompletePopover';
 import BlockAutocompletePopover from 'components/editor/BlockAutocompletePopover';
 import TagAutocompletePopover from 'components/editor/TagAutocompletePopover';
@@ -41,6 +44,7 @@ function FootnoteDefinition(props: Props) {
   const { value, className = '', onChange, onClose } = props;
   const isMounted = useIsMounted();
   const readOnly = useReadOnly();
+  const isDaemonUser = useStore(state => state.isDaemonUser);
 
   const closeHotkey = useMemo(
     () => [
@@ -88,6 +92,10 @@ function FootnoteDefinition(props: Props) {
     selection: undefined,
     isLink: false,
   });
+  const [daemonPopoverState, setDaemonPopoverState] = useState<DaemonPopoverState>({
+    isVisible: false,
+    selection: undefined,
+  });
 
   const [selection, setSelection] = useState(editor.selection);
   const [toolbarCanBeVisible, setToolbarCanBeVisible] = useState(true);
@@ -110,7 +118,13 @@ function FootnoteDefinition(props: Props) {
 
   const hotkeys = useMemo(
     () => [
-      ...getDefaultEditorHotkeys(editor, setAddLinkPopoverState),
+      ...getDefaultEditorHotkeys(
+        editor,
+        isDaemonUser,
+        hasExpandedSelection,
+        setDaemonPopoverState,
+        setAddLinkPopoverState,
+      ),
       {
         hotkey: 'mod+a',
         callback: () => Transforms.select(editor, []),
@@ -120,7 +134,7 @@ function FootnoteDefinition(props: Props) {
         callback: () => onClose(),
       },
     ],
-    [editor, setAddLinkPopoverState, onClose],
+    [editor, isDaemonUser, hasExpandedSelection, setAddLinkPopoverState, onClose],
   );
 
   const onKeyDown = useCallback(
@@ -156,21 +170,26 @@ function FootnoteDefinition(props: Props) {
 
   if (readOnly) {
     return (
-      <Slate
-        editor={editor}
-        value={value}
-        onChange={() => {
-          /* Do nothing, this is a read only editor */
-        }}
-      >
-        <Editable
-          className={`overflow-hidden focus-visible:outline-none ${className}`}
-          renderElement={renderElement}
-          renderLeaf={EditorLeaf}
-          decorate={entry => decorateCodeBlocks(editor, entry)}
-          readOnly
-        />
-      </Slate>
+      <div className="pr-1">
+        <button className="absolute top-0.5 right-0.5 text-gray-300 hover:text-gray-100" onClick={onClose}>
+          <IconX size={14} />
+        </button>
+        <Slate
+          editor={editor}
+          value={value}
+          onChange={() => {
+            /* Do nothing, this is a read only editor */
+          }}
+        >
+          <Editable
+            className={`overflow-hidden focus-visible:outline-none ${className}`}
+            renderElement={renderElement}
+            renderLeaf={EditorLeaf}
+            decorate={entry => decorateCodeBlocks(editor, entry)}
+            readOnly
+          />
+        </Slate>
+      </div>
     );
   }
 
@@ -180,9 +199,17 @@ function FootnoteDefinition(props: Props) {
         <IconX size={14} />
       </button>
       <Slate editor={editor} value={value} onChange={onSlateChange}>
-        {isToolbarVisible ? <HoveringToolbar setAddLinkPopoverState={setAddLinkPopoverState} /> : null}
+        {isToolbarVisible ? (
+          <HoveringToolbar
+            setAddLinkPopoverState={setAddLinkPopoverState}
+            setDaemonPopoverState={setDaemonPopoverState}
+          />
+        ) : null}
         {addLinkPopoverState.isVisible ? (
           <AddLinkPopover addLinkPopoverState={addLinkPopoverState} setAddLinkPopoverState={setAddLinkPopoverState} />
+        ) : null}
+        {daemonPopoverState.isVisible ? (
+          <DaemonPopover daemonPopoverState={daemonPopoverState} setDaemonPopoverState={setDaemonPopoverState} />
         ) : null}
         <LinkAutocompletePopover />
         <BlockAutocompletePopover />
@@ -192,7 +219,11 @@ function FootnoteDefinition(props: Props) {
           renderElement={renderElement}
           renderLeaf={EditorLeaf}
           placeholder="Enter footnote definition…"
-          decorate={entry => decorateCodeBlocks(editor, entry)}
+          decorate={entry => {
+            const codeSyntaxRanges = decorateCodeBlocks(editor, entry);
+            const daemonSelection = decorateLastActiveSelection(editor, entry, daemonPopoverState.selection);
+            return [...codeSyntaxRanges, ...daemonSelection];
+          }}
           onKeyDown={onKeyDown}
           onPointerDown={() => setToolbarCanBeVisible(false)}
           onPointerUp={() =>
