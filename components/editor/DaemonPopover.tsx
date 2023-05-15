@@ -11,18 +11,14 @@ import {
   type TablerIcon,
 } from '@tabler/icons';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { unified } from 'unified';
 import remarkGfm from 'remark-gfm';
 import rehypePrism from 'rehype-prism';
-import remarkParse from 'remark-parse';
-import wikiLinkPlugin from 'remark-wiki-link';
-import remarkToSlate from 'editor/serialization/remarkToSlate';
-import remarkSupersub from 'lib/remark-supersub';
 import { ReactMarkdown } from 'lib/react-markdown/react-markdown';
 import { DaemonMessage } from 'lib/createDaemonSlice';
 import { useStore } from 'lib/store';
 import { toggleElement } from 'editor/formatting';
 import { createNodeId } from 'editor/plugins/withNodeId';
+import { stringToSlate } from 'editor/utils';
 import { DeckElement, ElementType } from 'types/slate';
 import EditorPopover from './EditorPopover';
 
@@ -110,17 +106,6 @@ export default function DaemonPopover(props: Props) {
     });
   };
 
-  const outputToSlate = () => {
-    const { result } = unified()
-      .use(remarkParse)
-      .use(remarkSupersub)
-      .use(remarkGfm)
-      .use(wikiLinkPlugin, { aliasDivider: '|' })
-      .use(remarkToSlate)
-      .processSync(output);
-    return result as DeckElement[];
-  };
-
   const setSelectionAndClose = (firstElementId: string, lastElementId: string) => {
     const [startPath] = Array.from(
       Editor.nodes(editor, { at: [], match: n => Element.isElement(n) && n.id === firstElementId }),
@@ -133,7 +118,7 @@ export default function DaemonPopover(props: Props) {
   };
 
   const replaceSelection = () => {
-    const fragment = outputToSlate();
+    const fragment = stringToSlate(output) as DeckElement[];
     const [firstElementId, lastElementId] = [fragment[0].id, fragment[fragment.length - 1].id];
 
     Editor.withoutNormalizing(editor, () => {
@@ -149,7 +134,7 @@ export default function DaemonPopover(props: Props) {
 
   const insertBelow = () => {
     if (!daemonPopoverState.selection) return;
-    const fragment = outputToSlate();
+    const fragment = stringToSlate(output) as DeckElement[];
     const [firstElementId, lastElementId] = [fragment[0].id, fragment[fragment.length - 1].id];
     const endOfSelection = Editor.end(editor, daemonPopoverState.selection);
     const location = Editor.after(editor, endOfSelection.path, { unit: 'line', voids: true }) ?? Editor.end(editor, []);

@@ -17,15 +17,9 @@ import { fetchEventSource } from '@microsoft/fetch-event-source';
 import classNames from 'classnames';
 import { usePopper } from 'react-popper';
 import { Menu } from '@headlessui/react';
-import type { Descendant } from 'slate';
 import { toast } from 'react-toastify';
 import rehypePrism from 'rehype-prism';
-import { unified } from 'unified';
-import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
-import wikiLinkPlugin from 'remark-wiki-link';
-import remarkToSlate from 'editor/serialization/remarkToSlate';
-import remarkSupersub from 'lib/remark-supersub';
 import ReactMarkdown from 'lib/react-markdown';
 import upsertNote from 'lib/api/upsertNote';
 import { useStore } from 'lib/store';
@@ -33,6 +27,7 @@ import type { DaemonMessage } from 'lib/createDaemonSlice';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useAuth } from 'utils/useAuth';
 import copyToClipboard from 'utils/copyToClipboard';
+import { stringToSlate } from 'editor/utils';
 import OpenSidebarButton from 'components/sidebar/OpenSidebarButton';
 import ErrorBoundary from 'components/ErrorBoundary';
 import Identicon from 'components/Identicon';
@@ -132,19 +127,13 @@ export default function Daemon() {
     const parsedMessages = messages
       .map(message => `**${message.type === 'human' ? 'User' : 'Daemon'}**:\n${message.text}\n\n---\n\n`)
       .join('');
-    const { result } = unified()
-      .use(remarkParse)
-      .use(remarkSupersub)
-      .use(remarkGfm)
-      .use(wikiLinkPlugin, { aliasDivider: '|' })
-      .use(remarkToSlate)
-      .processSync(parsedMessages);
+    const slateContent = stringToSlate(parsedMessages);
     const newNote = {
       deck_id: deckId,
       user_id: user.id,
       author_only: authorOnlyNotes,
       title: noteTitle,
-      content: result as Descendant[],
+      content: slateContent,
     };
     const note = await upsertNote(newNote);
 

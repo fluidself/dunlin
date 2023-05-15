@@ -1,14 +1,9 @@
-import { Descendant, Editor, Element, Node, Transforms } from 'slate';
+import { Editor, Element, Node, Transforms } from 'slate';
 import { jsx } from 'slate-hyperscript';
-import { unified } from 'unified';
-import remarkParse from 'remark-parse';
-import remarkGfm from 'remark-gfm';
-import wikiLinkPlugin from 'remark-wiki-link';
-import remarkSupersub from 'lib/remark-supersub';
-import remarkToSlate from 'editor/serialization/remarkToSlate';
 import { ElementType, Mark, TableCell, TableRow } from 'types/slate';
 import { PickPartial } from 'types/utils';
 import { isTextType } from 'editor/checks';
+import { stringToSlate } from 'editor/utils';
 
 const ELEMENT_TAGS: Record<string, (el: HTMLElement) => PickPartial<Element, 'id' | 'children'>> = {
   A: (el: HTMLElement) => ({
@@ -120,18 +115,12 @@ const withHtml = (editor: Editor) => {
     }
 
     const text = data.getData('text/plain');
-    const { result } = unified()
-      .use(remarkParse)
-      .use(remarkSupersub)
-      .use(remarkGfm)
-      .use(wikiLinkPlugin, { aliasDivider: '|' })
-      .use(remarkToSlate)
-      .processSync(text);
+    const slateContent = stringToSlate(text);
 
     // If we successfully parsed inserted data as editor elements, insert them.
     // Else, fall back to the original `insertData`.
-    if (result && (result as Descendant[]).length && !dataIsSlateFragment) {
-      Transforms.insertFragment(editor, result as Descendant[]);
+    if (slateContent && slateContent.length && !dataIsSlateFragment) {
+      Transforms.insertFragment(editor, slateContent);
       return;
     }
 

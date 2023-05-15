@@ -1,17 +1,12 @@
 import { useCallback } from 'react';
 import { Descendant, Element, Node } from 'slate';
 import { toast } from 'react-toastify';
-import { unified } from 'unified';
-import remarkParse from 'remark-parse';
-import remarkGfm from 'remark-gfm';
-import wikiLinkPlugin from 'remark-wiki-link';
 import { v4 as uuidv4 } from 'uuid';
 import { store, useStore } from 'lib/store';
 import { NoteUpsert } from 'lib/api/upsertNote';
 import supabase from 'lib/supabase';
-import remarkSupersub from 'lib/remark-supersub';
-import remarkToSlate from 'editor/serialization/remarkToSlate';
 import { getDefaultEditorValue } from 'editor/constants';
+import { stringToSlate } from 'editor/utils';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { encryptNote } from 'utils/encryption';
@@ -63,17 +58,10 @@ export default function useImport() {
           continue;
         }
         const fileContent = await file.text();
-
-        const { result } = unified()
-          .use(remarkParse)
-          .use(remarkSupersub)
-          .use(remarkGfm)
-          .use(wikiLinkPlugin, { aliasDivider: '|' })
-          .use(remarkToSlate)
-          .processSync(fileContent);
+        const slateFragment = stringToSlate(fileContent);
 
         const { content: slateContent, upsertData: newUpsertData } = fixNoteLinks(
-          result as Descendant[],
+          slateFragment,
           noteTitleToIdCache,
           deckId,
         );
