@@ -22,11 +22,12 @@ import rehypePrism from 'rehype-prism';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'lib/react-markdown';
 import upsertNote from 'lib/api/upsertNote';
-import { useStore } from 'lib/store';
+import { store, useStore } from 'lib/store';
 import type { DaemonMessage } from 'lib/createDaemonSlice';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useAuth } from 'utils/useAuth';
 import copyToClipboard from 'utils/copyToClipboard';
+import { caseInsensitiveStringEqual } from 'utils/string';
 import { stringToSlate } from 'editor/utils';
 import OpenSidebarButton from 'components/sidebar/OpenSidebarButton';
 import ErrorBoundary from 'components/ErrorBoundary';
@@ -123,6 +124,13 @@ export default function Daemon() {
 
   const saveAsNote = async () => {
     if (!user?.id || !noteTitle) return;
+    const notesArr = Object.values(store.getState().notes);
+    const isTitleUnique = notesArr.findIndex(n => caseInsensitiveStringEqual(n.title, noteTitle)) === -1;
+
+    if (!isTitleUnique) {
+      toast.error(`There's already a note called ${noteTitle}. Please use a different title.`);
+      return;
+    }
 
     const parsedMessages = messages
       .map(message => `**${message.type === 'human' ? 'User' : 'Daemon'}**:\n${message.text}\n\n---\n\n`)
