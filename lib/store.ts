@@ -62,6 +62,8 @@ export type Store = {
   deleteNote: (noteId: string) => void;
   openNoteIds: string[];
   setOpenNoteIds: (openNoteIds: string[], index?: number) => void;
+  activeNoteId: string;
+  setActiveNoteId: Setter<string>;
   noteTree: NoteTreeItem[];
   setNoteTree: Setter<NoteTreeItem[]>;
   moveNoteTreeItem: (noteId: string, newParentNoteId: string | null) => void;
@@ -190,6 +192,11 @@ export const store = createVanilla<Store>()(
           state.openNoteIds.splice(index, state.openNoteIds.length - index, ...newOpenNoteIds);
         });
       },
+      /**
+       * The latest active note
+       */
+      activeNoteId: '',
+      setActiveNoteId: setter(set, 'activeNoteId'),
       /**
        * The tree of notes visible in the sidebar
        */
