@@ -130,6 +130,11 @@ function SoloEditor(props: Props) {
     ],
   );
 
+  const isFocused = ReactEditor.isFocused(editor);
+  useEffect(() => {
+    if (isFocused) store.getState().setActiveNoteId(noteId);
+  }, [isFocused, noteId]);
+
   const hotkeys = useMemo(
     () =>
       getDefaultEditorHotkeys(
