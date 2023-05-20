@@ -3,11 +3,12 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Path } from 'slate';
-import Note from 'components/Note';
 import { useStore } from 'lib/store';
 import usePrevious from 'utils/usePrevious';
 import { queryParamToArray } from 'utils/url';
 import useBlockBacklinks from 'editor/backlinks/useBlockBacklinks';
+import Note from 'components/Note';
+import WordCount from 'components/editor/WordCount';
 
 export default function NotePage() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function NotePage() {
 
   const openNoteIds = useStore(state => state.openNoteIds);
   const setOpenNoteIds = useStore(state => state.setOpenNoteIds);
+  const setActiveNoteId = useStore(state => state.setActiveNoteId);
   const prevOpenNoteIds = usePrevious(openNoteIds);
 
   const pageTitle = useStore(state => {
@@ -44,11 +46,12 @@ export default function NotePage() {
 
     const newOpenNoteIds = [noteId, ...queryParamToArray(stackQuery)];
     setOpenNoteIds(newOpenNoteIds);
+    setActiveNoteId(noteId);
 
     // We use router.asPath specifically so we handle any route change (even if asPath is the same)
     const newHighlightedPath = getHighlightedPath(router.asPath);
     setHighlightedPath(newHighlightedPath);
-  }, [setOpenNoteIds, router, noteId, stackQuery]);
+  }, [setOpenNoteIds, setActiveNoteId, router, noteId, stackQuery]);
 
   useEffect(() => {
     // Scroll the last open note into view if:
@@ -102,6 +105,7 @@ export default function NotePage() {
             ))
           : null}
       </div>
+      <WordCount />
     </>
   );
 }
