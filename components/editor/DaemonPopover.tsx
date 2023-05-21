@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useMemo } from 'react';
+import { useRef, useState, useCallback, useMemo, useEffect } from 'react';
 import { BaseRange, Editor, Element, Path, Range, Transforms } from 'slate';
 import { ReactEditor, useSlateStatic } from 'slate-react';
 import {
@@ -35,13 +35,21 @@ type Props = {
 export default function DaemonPopover(props: Props) {
   const { daemonPopoverState, setDaemonPopoverState } = props;
   const isDaemonUser = useStore(state => state.isDaemonUser);
-  const growingWrapperRef = useRef<HTMLDivElement | null>(null);
   const editor = useSlateStatic();
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [summoning, setSummoning] = useState(false);
   const [isError, setIsError] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const ctrl = useMemo(() => new AbortController(), []);
+
+  useEffect(() => {
+    if (textareaRef && textareaRef.current) {
+      textareaRef.current.style.height = 'inherit';
+      textareaRef.current.style.height = `${textareaRef.current?.scrollHeight}px`;
+      textareaRef.current.style.overflow = `${textareaRef.current?.scrollHeight > 200 ? 'auto' : 'hidden'}`;
+    }
+  }, [input]);
 
   const hidePopover = useCallback(
     (confirmDiscard = true, locationToSelect?: BaseRange) => {
@@ -62,12 +70,6 @@ export default function DaemonPopover(props: Props) {
     [editor, daemonPopoverState, summoning, output, ctrl, setDaemonPopoverState],
   );
 
-  const updateInput = (text: string) => {
-    setInput(text);
-    if (!growingWrapperRef.current) return;
-    growingWrapperRef.current.dataset.replicatedValue = text;
-  };
-
   const summonDaemon = async () => {
     if (summoning || !isDaemonUser || !daemonPopoverState.selection || !input) return;
     const selectionText = Editor.string(editor, daemonPopoverState.selection);
@@ -75,7 +77,7 @@ export default function DaemonPopover(props: Props) {
 
     setSummoning(true);
     setIsError(false);
-    updateInput('');
+    setInput('');
     setOutput('');
 
     fetchEventSource('/api/daemon', {
@@ -190,24 +192,27 @@ export default function DaemonPopover(props: Props) {
         </>
       ) : (
         <div className="flex items-center w-full relative">
-          <div className="w-full h-full grid text-lg grow-wrap" ref={growingWrapperRef}>
-            <textarea
-              className="pl-2 pr-6 py-3 dark:bg-gray-800 shadow-popover dark:text-gray-200 border-gray-50 dark:border-gray-700 focus:ring-0 focus:border-primary-500 resize-none overflow-hidden row-start-1 row-end-2 col-start-1 col-end-2"
-              placeholder="Ask daemon to edit or generate from selection"
-              rows={1}
-              value={input}
-              onChange={event => updateInput(event.target.value)}
-              onKeyDown={event => {
-                if (event.key === 'Enter' && !event.shiftKey && input) {
-                  event.preventDefault();
-                  !summoning && summonDaemon();
-                }
-              }}
-              autoFocus
-            ></textarea>
-          </div>
+          <textarea
+            ref={textareaRef}
+            className="w-full pl-2 pr-6 py-3 dark:bg-gray-800 shadow-popover dark:text-gray-200 border-gray-50 dark:border-gray-700 focus:ring-0 focus:border-primary-500 resize-none"
+            style={{
+              maxHeight: '200px',
+              overflow: `${textareaRef.current && textareaRef.current.scrollHeight > 200 ? 'auto' : 'hidden'}`,
+            }}
+            rows={1}
+            value={input}
+            placeholder="Ask daemon to edit or generate from selection"
+            onChange={event => setInput(event.target.value)}
+            onKeyDown={event => {
+              if (event.key === 'Enter' && !event.shiftKey && input) {
+                event.preventDefault();
+                !summoning && summonDaemon();
+              }
+            }}
+            autoFocus
+          />
           <button
-            className={`rounded absolute bottom-3.5 right-2 p-1 ${
+            className={`rounded absolute bottom-2.5 right-2 p-1 ${
               !summoning && input
                 ? 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
                 : 'text-gray-300 dark:text-gray-600 cursor-default'
@@ -215,7 +220,7 @@ export default function DaemonPopover(props: Props) {
             disabled={summoning || !input}
             onClick={summonDaemon}
           >
-            <IconSend size={16} />
+            <IconSend size={18} />
           </button>
         </div>
       )}

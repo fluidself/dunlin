@@ -55,7 +55,7 @@ export default function Daemon() {
   const [saving, setIsSaving] = useState(false);
   const [scrollHeight, setScrollHeight] = useState(0);
   const daemonContainerRef = useRef<HTMLDivElement | null>(null);
-  const growingWrapperRef = useRef<HTMLDivElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     if (user && !isDaemonUser) {
@@ -76,6 +76,14 @@ export default function Daemon() {
     }
   };
 
+  useEffect(() => {
+    if (textareaRef && textareaRef.current) {
+      textareaRef.current.style.height = 'inherit';
+      textareaRef.current.style.height = `${textareaRef.current?.scrollHeight}px`;
+      textareaRef.current.style.overflow = `${textareaRef.current?.scrollHeight > 200 ? 'auto' : 'hidden'}`;
+    }
+  }, [inputText]);
+
   const summonDaemon = async () => {
     if (summoning || !inputText) return;
     const userMessage: DaemonMessage = { type: 'human', text: inputText };
@@ -84,7 +92,7 @@ export default function Daemon() {
     setSummoning(true);
     setIsError(false);
     setMessages(prevMessages => [...prevMessages, userMessage]);
-    updateInputText('');
+    setInputText('');
 
     fetchEventSource('/api/daemon', {
       method: 'POST',
@@ -151,12 +159,6 @@ export default function Daemon() {
     }
 
     router.push(`/app/${deckId}/note/${note.id}`);
-  };
-
-  const updateInputText = (text: string) => {
-    setInputText(text);
-    if (!growingWrapperRef.current) return;
-    growingWrapperRef.current.dataset.replicatedValue = text;
   };
 
   return (
@@ -253,26 +255,29 @@ export default function Daemon() {
                 />
               </div>
               <div className="flex items-center w-full relative">
-                <div className="w-full h-full grid text-lg grow-wrap" ref={growingWrapperRef}>
-                  <textarea
-                    className={`pl-2 pr-6 py-3 text-lg dark:bg-gray-800 shadow-popover border dark:text-gray-200 border-gray-50 dark:border-gray-700 focus:ring-0 focus:border-primary-500 resize-none overflow-hidden row-start-1 row-end-2 col-start-1 col-end-2 ${
-                      summoning ? 'rounded-tl rounded-tr' : 'rounded'
-                    }`}
-                    placeholder="Send a message..."
-                    rows={1}
-                    value={inputText}
-                    onChange={event => updateInputText(event.target.value)}
-                    onKeyDown={event => {
-                      if (event.key === 'Enter' && !event.shiftKey && inputText) {
-                        event.preventDefault();
-                        !summoning && summonDaemon();
-                      }
-                    }}
-                    autoFocus
-                  ></textarea>
-                </div>
+                <textarea
+                  ref={textareaRef}
+                  className={`w-full pl-2 pr-6 py-3 dark:bg-gray-800 shadow-popover border dark:text-gray-200 border-gray-50 dark:border-gray-700 focus:ring-0 focus:border-primary-500 resize-none ${
+                    summoning ? 'rounded-tl rounded-tr' : 'rounded'
+                  }`}
+                  style={{
+                    maxHeight: '200px',
+                    overflow: `${textareaRef.current && textareaRef.current.scrollHeight > 200 ? 'auto' : 'hidden'}`,
+                  }}
+                  rows={1}
+                  value={inputText}
+                  placeholder="Send a message..."
+                  onChange={event => setInputText(event.target.value)}
+                  onKeyDown={event => {
+                    if (event.key === 'Enter' && !event.shiftKey && inputText) {
+                      event.preventDefault();
+                      !summoning && summonDaemon();
+                    }
+                  }}
+                  autoFocus
+                />
                 <button
-                  className={`rounded absolute bottom-3.5 right-2 p-1 ${
+                  className={`rounded absolute bottom-2.5 right-2 p-1 ${
                     !summoning && inputText
                       ? 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
                       : 'text-gray-300 dark:text-gray-600 cursor-default'
@@ -280,7 +285,7 @@ export default function Daemon() {
                   disabled={summoning || !inputText}
                   onClick={summonDaemon}
                 >
-                  <IconSend size={20} />
+                  <IconSend size={18} />
                 </button>
               </div>
               <div className="w-full h-1">
