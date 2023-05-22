@@ -186,8 +186,8 @@ export default function Daemon() {
                 />
               ))}
             </div>
-            <div className="sticky bottom-0 flex flex-col items-center space-y-1 pt-3 pb-12 md:w-128 lg:w-160 xl:w-192 bg-white dark:bg-gray-900">
-              <div className="flex justify-end w-full space-x-2">
+            <div className="sticky bottom-0 flex flex-col items-center pt-3 pb-12 md:w-128 lg:w-160 xl:w-192 bg-white dark:bg-gray-900">
+              <div className="flex justify-end w-full space-x-2 mb-1">
                 {messages.length && !summoning && !saving ? (
                   <div className="flex items-center space-x-2">
                     <Tooltip content="Reset daemon">
