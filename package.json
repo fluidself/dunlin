@@ -73,9 +73,9 @@
     "tweetnacl-util": "^0.15.1",
     "unified": "^10.1.2",
     "uuid": "^9.0.0",
-    "w3name": "^1.0.7",
+    "w3name": "^1.0.8",
     "wagmi": "^0.12.7",
-    "web3.storage": "^4.4.0",
+    "web3.storage": "^4.5.4",
     "y-websocket": "^1.4.3",
     "yjs": "^13.5.38",
     "zustand": "4.1.5"
