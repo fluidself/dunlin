@@ -55,8 +55,7 @@ const withCodeBlocks = (editor: Editor) => {
           ? node.children.map((child: CodeLine) => ({ ...child, id: createNodeId() }))
           : deserializeCodeLine(Node.string(node)),
       );
-      Transforms.insertFragment(editor, transformedFragment);
-      return;
+      return insertFragment(transformedFragment);
     }
 
     insertFragment(fragment);
@@ -84,9 +83,7 @@ const withCodeBlocks = (editor: Editor) => {
             transformedFragment.push(node);
           }
         }
-
-        Transforms.insertFragment(editor, transformedFragment);
-        return;
+        return insertFragment(transformedFragment);
       } catch (error) {
         insertData(data);
       }

@@ -1,4 +1,4 @@
-import { Editor, Element, Node, Transforms } from 'slate';
+import { Editor, Element, Node } from 'slate';
 import { jsx } from 'slate-hyperscript';
 import { ElementType, Mark, TableCell, TableRow } from 'types/slate';
 import { PickPartial } from 'types/utils';
@@ -96,7 +96,7 @@ export const deserialize = (el: HTMLElement): Node[] => {
 };
 
 const withHtml = (editor: Editor) => {
-  const { insertData } = editor;
+  const { insertData, insertFragment } = editor;
 
   editor.insertData = (data: any) => {
     const html = data.getData('text/html');
@@ -109,9 +109,7 @@ const withHtml = (editor: Editor) => {
     if (html && !dataIsSlateFragment) {
       const parsed = new DOMParser().parseFromString(html, 'text/html');
       const fragment = deserialize(parsed.body).map(normalizeTable);
-
-      Transforms.insertFragment(editor, fragment);
-      return;
+      return insertFragment(fragment);
     }
 
     const text = data.getData('text/plain');
@@ -120,8 +118,7 @@ const withHtml = (editor: Editor) => {
     // If we successfully parsed inserted data as editor elements, insert them.
     // Else, fall back to the original `insertData`.
     if (slateContent && slateContent.length && !dataIsSlateFragment) {
-      Transforms.insertFragment(editor, slateContent);
-      return;
+      return insertFragment(slateContent);
     }
 
     insertData(data);

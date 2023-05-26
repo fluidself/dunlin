@@ -1,4 +1,4 @@
-import { Editor, Transforms } from 'slate';
+import { Editor } from 'slate';
 import type { Table, TableRow } from 'types/slate';
 import { isTableNode, isTableRowNode, isTableCellNode } from 'editor/checks';
 import { deserialize } from 'editor/plugins/withHtml';
@@ -13,7 +13,7 @@ export * from './core';
 export { createTableNode, createTableRowNode, createTableCellNode } from './lib';
 
 export default function withTables(editor: Editor) {
-  const { insertData, insertText } = editor;
+  const { insertData, insertText, insertFragment } = editor;
 
   const schema: TablesSchema = {
     createContentNode: () => ({ text: '' }),
@@ -40,11 +40,10 @@ export default function withTables(editor: Editor) {
     const html = data.getData('text/html');
     const isSlateFragment = data.types.includes('application/x-slate-fragment');
 
-    if (isInTable(editor) && isSlateFragment && html) {
+    if (isInTable(editor) && !isSlateFragment && html) {
       const parsed = new DOMParser().parseFromString(html, 'text/html');
       const fragment = deserialize(parsed.body);
-      Transforms.insertFragment(editor, fragment);
-      return;
+      return insertFragment(fragment);
     }
 
     insertData(data);
