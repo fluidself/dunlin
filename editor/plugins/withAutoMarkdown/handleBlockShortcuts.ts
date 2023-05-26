@@ -86,7 +86,7 @@ const handleBlockShortcuts = (editor: Editor, text: string): boolean => {
       });
 
       // Update node type
-      Transforms.setNodes(editor, { type }, { match: n => Editor.isBlock(editor, n) });
+      Transforms.setNodes(editor, { type });
 
       if (type === ElementType.ListItem) {
         const list: ListElement = {
