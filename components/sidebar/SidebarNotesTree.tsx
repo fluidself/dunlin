@@ -140,7 +140,7 @@ function SidebarNotesTree(props: Props) {
       >
         <SortableContext items={flattenedData} strategy={verticalListSortingStrategy}>
           <AutoSizer>
-            {({ width, height }) => (
+            {({ width, height }: { width: number; height: number }) => (
               <List width={width} height={height} itemCount={flattenedData.length} itemSize={30}>
                 {Row}
               </List>
