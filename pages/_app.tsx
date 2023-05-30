@@ -3,7 +3,7 @@ import Router from 'next/router';
 import { ToastContainer } from 'react-toastify';
 import NProgress from 'nprogress';
 import type { AppProps } from 'next/app';
-import { WagmiConfig, configureChains, createClient } from 'wagmi';
+import { WagmiConfig, configureChains, createConfig } from 'wagmi';
 import { mainnet, goerli, sepolia } from 'wagmi/chains';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
@@ -24,12 +24,12 @@ Router.events.on('routeChangeComplete', () => NProgress.done());
 Router.events.on('routeChangeError', () => NProgress.done());
 
 const infuraId = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID as string;
-const { chains, provider } = configureChains(
+const { chains, publicClient } = configureChains(
   [mainnet, goerli, sepolia],
   [infuraProvider({ apiKey: infuraId }), publicProvider()],
 );
 
-const client = createClient({
+const config = createConfig({
   autoConnect: false,
   connectors: [
     new MetaMaskConnector({ chains }),
@@ -40,7 +40,7 @@ const client = createClient({
       },
     }),
   ],
-  provider,
+  publicClient,
 });
 
 export default function MyApp({ Component, pageProps, router }: AppProps) {
@@ -52,7 +52,7 @@ export default function MyApp({ Component, pageProps, router }: AppProps) {
       </Head>
 
       <ServiceWorker>
-        <WagmiConfig client={client}>
+        <WagmiConfig config={config}>
           <ProvideAuth>
             {router.pathname.startsWith('/app/') ? (
               <AppLayout>
