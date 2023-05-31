@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { utils } from 'ethers';
+import { parseEther, parseUnits } from 'viem';
 import LitJsSdk from 'lit-js-sdk';
 import { IconX } from '@tabler/icons';
 import InputWrapper from '../InputWrapper';
@@ -25,14 +25,13 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
         let decimals = 0;
         try {
           decimals = await LitJsSdk.decimalPlaces({
-            chain: chain.value,
             contractAddress: contractAddress,
+            chain: chain.value,
           });
         } catch (e) {
           console.log(e);
         }
-        console.log(`decimals`, decimals);
-        const amountInBaseUnit = utils.parseUnits(amount, decimals);
+        const amountInBaseUnit = parseUnits(amount, decimals);
         accessControlConditions = [
           {
             contractAddress: contractAddress,
@@ -75,11 +74,11 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
           },
         ];
       }
-      console.log('accessControlConditions contract', accessControlConditions);
+
       success = await onAccessControlConditionsSelected(accessControlConditions);
     } else if (selectedToken && selectedToken.value === 'ethereum') {
       // ethereum
-      const amountInWei = utils.parseEther(amount);
+      const amountInWei = parseEther(amount);
       const accessControlConditions = [
         {
           contractAddress: '',
@@ -93,11 +92,8 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
           },
         },
       ];
-      console.log('accessControlConditions token', accessControlConditions);
       success = await onAccessControlConditionsSelected(accessControlConditions);
     } else {
-      console.log('selectedToken', selectedToken);
-
       let tokenType;
       if (selectedToken && selectedToken.standard?.toLowerCase() === 'erc721') {
         tokenType = 'erc721';
@@ -109,6 +105,7 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
         try {
           decimals = await LitJsSdk.decimalPlaces({
             contractAddress: selectedToken.value,
+            chain: chain.value,
           });
         } catch (e) {
           console.log(e);
@@ -119,8 +116,6 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
           tokenType = 'erc20';
         }
       }
-
-      console.log('tokenType is', tokenType);
 
       if (tokenType == 'erc721') {
         // erc721
@@ -137,26 +132,24 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
             },
           },
         ];
-        console.log('accessControlConditions typeerc721', accessControlConditions);
         success = await onAccessControlConditionsSelected(accessControlConditions);
       } else {
         // erc20 token
         let amountInBaseUnit;
         if (selectedToken.decimals) {
-          amountInBaseUnit = utils.parseUnits(amount, selectedToken.decimals);
+          amountInBaseUnit = parseUnits(amount, selectedToken.decimals);
         } else {
-          // need to check the contract for decimals
-          // this will auto switch the chain to the selected one in metamask
+          // check the contract for decimals
           let decimals = 0;
           try {
             decimals = await LitJsSdk.decimalPlaces({
               contractAddress: selectedToken.value,
+              chain: chain.value,
             });
           } catch (e) {
             console.log(e);
           }
-          console.log(`decimals in ${selectedToken.value}`, decimals);
-          amountInBaseUnit = utils.parseUnits(amount, decimals);
+          amountInBaseUnit = parseUnits(amount, decimals);
         }
         const accessControlConditions = [
           {
@@ -171,7 +164,6 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
             },
           },
         ];
-        console.log('accessControlConditions else', accessControlConditions);
         success = await onAccessControlConditionsSelected(accessControlConditions);
       }
     }
