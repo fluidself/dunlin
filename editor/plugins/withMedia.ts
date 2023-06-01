@@ -1,4 +1,4 @@
-import LitJsSdk from 'lit-js-sdk';
+import { encryptFile } from '@lit-protocol/encryption';
 import { encodeBase64 } from 'tweetnacl-util';
 import { Editor, Path } from 'slate';
 import { Web3Storage } from 'web3.storage';
@@ -50,8 +50,8 @@ export const uploadAndInsertImage = async (editor: Editor, file: File, path?: Pa
 
 export const uploadAndInsertFile = async (editor: Editor, file: File, path?: Path) => {
   try {
-    const { encryptedFile, symmetricKey } = await LitJsSdk.encryptFile({ file });
-    const symmetricKeyBase64 = encodeBase64(symmetricKey);
+    const { encryptedFile, symmetricKey } = await encryptFile({ file });
+    const symmetricKeyBase64 = encodeBase64(symmetricKey as Uint8Array);
     const cid = await uploadFile(encryptedFile);
 
     if (cid) {
@@ -69,7 +69,7 @@ export const uploadAndInsertFile = async (editor: Editor, file: File, path?: Pat
   }
 };
 
-const uploadFile = async (file: File) => {
+const uploadFile = async (file: File | Blob) => {
   const UPLOAD_LIMIT = 5 * 1024 * 1024; // 5 MB
 
   if (file.size > UPLOAD_LIMIT) {

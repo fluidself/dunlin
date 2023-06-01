@@ -1,9 +1,10 @@
-import LitJsSdk from 'lit-js-sdk';
+import { decryptString, encryptString } from '@lit-protocol/encryption';
+import type { AuthSig, AccsDefaultParams } from '@lit-protocol/types';
 import { secretbox, randomBytes } from 'tweetnacl';
 import { decodeUTF8, encodeUTF8, encodeBase64, decodeBase64 } from 'tweetnacl-util';
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string';
 import type { Descendant } from 'slate';
-import type { AuthSig, AccessControlCondition, BooleanCondition } from 'types/lit';
+import type { AccessControlCondition, BooleanCondition } from 'types/lit';
 import type { Note } from 'types/supabase';
 import type { DecryptedNote } from 'types/decrypted';
 
@@ -80,14 +81,14 @@ export const encryptWithLit = async (
 ): Promise<string[]> => {
   const storedAuthSig = localStorage.getItem('lit-auth-signature');
 
-  if (!storedAuthSig) {
+  if (!storedAuthSig || !window.litCoreClient) {
     throw new Error('Encryption failed');
   }
 
   const authSig: AuthSig = JSON.parse(storedAuthSig);
-  const { encryptedString, symmetricKey } = await LitJsSdk.encryptString(toEncrypt);
-  const encryptedSymmetricKey = await window.litNodeClient.saveEncryptionKey({
-    accessControlConditions,
+  const { encryptedString, symmetricKey } = await encryptString(toEncrypt);
+  const encryptedSymmetricKey = await window.litCoreClient.saveEncryptionKey({
+    accessControlConditions: accessControlConditions as AccsDefaultParams[],
     symmetricKey,
     authSig,
     chain,
@@ -110,19 +111,19 @@ export const decryptWithLit = async (
   const decodedSymmetricKey = decodeBase64(encryptedSymmetricKey);
   const storedAuthSig = localStorage.getItem('lit-auth-signature');
 
-  if (!decodedString || !decodedSymmetricKey || !storedAuthSig) {
+  if (!decodedString || !decodedSymmetricKey || !storedAuthSig || !window.litCoreClient) {
     throw new Error('Decryption failed');
   }
 
   const authSig: AuthSig = JSON.parse(storedAuthSig);
   const toDecrypt = uint8ArrayToString(decodedSymmetricKey, 'base16');
-  const decryptedSymmetricKey = await window.litNodeClient.getEncryptionKey({
-    accessControlConditions,
+  const decryptedSymmetricKey = await window.litCoreClient.getEncryptionKey({
+    accessControlConditions: accessControlConditions as AccsDefaultParams[],
     toDecrypt,
     chain,
     authSig,
   });
-  const decryptedString = await LitJsSdk.decryptString(new Blob([decodedString]), decryptedSymmetricKey);
+  const decryptedString = await decryptString(new Blob([decodedString]), decryptedSymmetricKey);
 
   return decryptedString;
 };

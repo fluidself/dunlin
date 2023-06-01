@@ -1,4 +1,4 @@
-import LitJsSdk from 'lit-js-sdk';
+import { decryptFile } from '@lit-protocol/encryption';
 import { ReactNode, useState } from 'react';
 import { RenderElementProps, useFocused, useReadOnly, useSelected } from 'slate-react';
 import { IconCode, IconDownload } from '@tabler/icons';
@@ -40,8 +40,8 @@ export default function FileAttachmentElement(props: FileAttachmentElementProps)
 
       const [encryptedFile] = files;
       const symmetricKey = decodeBase64(file.symmKey);
-      const decryptedFile: ArrayBuffer = await LitJsSdk.decryptFile({ file: encryptedFile, symmetricKey });
-      const blob = new Blob([new Uint8Array(decryptedFile)]);
+      const decryptedFile = await decryptFile({ file: encryptedFile, symmetricKey });
+      const blob = new Blob([decryptedFile]);
 
       saveAs(blob, `${file.filename}`);
     } catch (e) {
