@@ -1,4 +1,4 @@
-import LitJsSdk from 'lit-js-sdk';
+import { LitCore } from '@lit-protocol/core';
 import { useEffect, useMemo, useState } from 'react';
 import useIsMounted from 'utils/useIsMounted';
 
@@ -9,7 +9,7 @@ export default function useLitProtocol() {
 
   const client = useMemo(
     () =>
-      new LitJsSdk.LitNodeClient({
+      new LitCore({
         alertWhenUnauthorized: false,
         debug: false,
       }),
@@ -20,14 +20,14 @@ export default function useLitProtocol() {
     const initLit = async () => {
       try {
         await client.connect();
-        window.litNodeClient = client;
+        window.litCoreClient = client;
         setIsReady(true);
       } catch (error) {
         setIsError(true);
       }
     };
 
-    if (window.litNodeClient) {
+    if (window.litCoreClient) {
       setIsReady(true);
     } else if (isMounted()) {
       initLit();

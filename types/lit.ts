@@ -15,10 +15,3 @@ export type AccessControlCondition = {
 export type BooleanCondition = {
   operator: 'and' | 'or';
 };
-
-export type AuthSig = {
-  sig: string;
-  derivedVia: string;
-  signedMessage: string;
-  address: string;
-};
