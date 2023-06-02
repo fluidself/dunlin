@@ -1,4 +1,5 @@
-import LitJsSdk from 'lit-js-sdk';
+import { humanizeAccessControlConditions } from '@lit-protocol/access-control-conditions';
+import type { AccessControlConditions } from '@lit-protocol/types';
 import { useState, useEffect } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
@@ -14,7 +15,7 @@ type Props = {
 export default function CurrentAccess(props: Props) {
   const { setActiveStep } = props;
   const { id: deckId, deck_name } = useCurrentDeck();
-  const [conditions, setConditions] = useState([]);
+  const [conditions, setConditions] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [ready, setReady] = useState(false);
 
@@ -34,18 +35,20 @@ export default function CurrentAccess(props: Props) {
         return;
       }
 
-      let result = await LitJsSdk.humanizeAccessControlConditions({
-        accessControlConditions: accessControlConditions.slice(2),
+      let result = await humanizeAccessControlConditions({
+        accessControlConditions: accessControlConditions.slice(2) as AccessControlConditions,
       });
+
       if (
-        !result &&
+        (!result || result === 'Oops. something went wrong!') &&
         (accessControlConditions.slice(2)[0] as AccessControlCondition).standardContractType === 'ProofOfHumanity'
       ) {
         result = 'Is registered with Proof of Humanity';
       }
-
-      setConditions(result.split(' or '));
-      setReady(true);
+      if (result) {
+        setConditions(result.split(' or '));
+        setReady(true);
+      }
     };
     initAcc();
   }, [deckId]);

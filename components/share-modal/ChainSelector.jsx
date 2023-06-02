@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect } from 'react';
 import Select from 'react-select';
-import LitJsSdk from 'lit-js-sdk';
+import { LIT_CHAINS } from '@lit-protocol/constants';
 
 const ChainSelector = ({ chain, setChain }) => {
   // Set Ethereum as default
@@ -16,9 +16,9 @@ const ChainSelector = ({ chain, setChain }) => {
 
   const chainOptions = useMemo(
     () =>
-      Object.keys(LitJsSdk.LIT_CHAINS).map(item => {
+      Object.keys(LIT_CHAINS).map(item => {
         return {
-          label: LitJsSdk.LIT_CHAINS[item].name,
+          label: LIT_CHAINS[item].name,
           id: item,
           value: item,
         };

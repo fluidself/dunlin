@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { decimalPlaces } from '@lit-protocol/misc';
 import { parseEther, parseUnits } from 'viem';
-import LitJsSdk from 'lit-js-sdk';
 import { IconX } from '@tabler/icons';
 import InputWrapper from '../InputWrapper';
 import ChainSelector from '../ChainSelector';
@@ -24,7 +24,7 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
       if (contractType === 'ERC20') {
         let decimals = 0;
         try {
-          decimals = await LitJsSdk.decimalPlaces({
+          decimals = await decimalPlaces({
             contractAddress: contractAddress,
             chain: chain.value,
           });
@@ -103,7 +103,7 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
         // if we don't already know the type, try and get decimal places.  if we get back 0 or the request fails then it's probably erc721.
         let decimals = 0;
         try {
-          decimals = await LitJsSdk.decimalPlaces({
+          decimals = await decimalPlaces({
             contractAddress: selectedToken.value,
             chain: chain.value,
           });
@@ -142,7 +142,7 @@ const SelectTokens = ({ setActiveStep, processingAccess, onAccessControlConditio
           // check the contract for decimals
           let decimals = 0;
           try {
-            decimals = await LitJsSdk.decimalPlaces({
+            decimals = await decimalPlaces({
               contractAddress: selectedToken.value,
               chain: chain.value,
             });
