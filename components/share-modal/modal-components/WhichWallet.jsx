@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import LitJsSdk from 'lit-js-sdk';
+import { useMemo, useState } from 'react';
+import { createPublicClient, http } from 'viem';
+import { mainnet } from 'viem/chains';
 import Button from 'components/Button';
 import InputWrapper from '../InputWrapper';
 import ChainSelector from '../ChainSelector';
@@ -12,6 +13,14 @@ const WhichWallet = ({ setActiveStep, processingAccess, onAccessControlCondition
   const [walletAddresses, setWalletAddresses] = useState([{ value: '', error: '' }]);
   const [chain, setChain] = useState(null);
   const [processing, setProcessing] = useState(false);
+  const client = useMemo(
+    () =>
+      createPublicClient({
+        chain: mainnet,
+        transport: http(),
+      }),
+    [],
+  );
 
   const handleInputChange = (index, value) => {
     let data = [...walletAddresses];
@@ -37,10 +46,7 @@ const WhichWallet = ({ setActiveStep, processingAccess, onAccessControlCondition
 
     for (let i = 0; i < walletAddresses.length; i++) {
       if (ENS_REGEX.test(walletAddresses[i].value)) {
-        const resolvedAddress = await LitJsSdk.lookupNameServiceAddress({
-          chain: chain.value,
-          name: walletAddresses[i].value,
-        });
+        const resolvedAddress = await client.getEnsAddress({ name: walletAddresses[i].value });
         if (!resolvedAddress) {
           const data = [...walletAddresses];
           data[i].error = 'Could not resolve ENS address';

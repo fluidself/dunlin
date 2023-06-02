@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { IconX } from '@tabler/icons';
 import { toast } from 'react-toastify';
-import LitJsSdk from 'lit-js-sdk';
 import useHotkeys from 'utils/useHotkeys';
 import {
   AbleToAccess,
@@ -48,9 +47,13 @@ export default function ShareModal(props) {
 
   useEffect(() => {
     const getTokens = async () => {
-      // get token list and cache it
-      const tokens = await LitJsSdk.getTokenList();
-      setTokenList(tokens);
+      const erc20Promise = fetch('https://tokens.coingecko.com/uniswap/all.json').then(r => r.json());
+      const erc721Promise = fetch(
+        'https://raw.githubusercontent.com/0xsequence/token-directory/main/index/mainnet/erc721.json',
+      ).then(r => r.json());
+      const [erc20s, erc721s] = await Promise.all([erc20Promise, erc721Promise]);
+      const sorted = [...erc20s.tokens, ...erc721s.tokens].sort((a, b) => (a.name > b.name ? 1 : -1));
+      setTokenList(sorted);
     };
 
     getTokens();
