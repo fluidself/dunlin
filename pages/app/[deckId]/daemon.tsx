@@ -18,7 +18,6 @@ import classNames from 'classnames';
 import { usePopper } from 'react-popper';
 import { Menu } from '@headlessui/react';
 import { toast } from 'react-toastify';
-import rehypePrism from 'rehype-prism';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'lib/react-markdown';
 import upsertNote from 'lib/api/upsertNote';
@@ -30,6 +29,7 @@ import copyToClipboard from 'utils/copyToClipboard';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { stringToSlate } from 'editor/utils';
 import OpenSidebarButton from 'components/sidebar/OpenSidebarButton';
+import CodeBlock from 'components/daemon/CodeBlock';
 import ErrorBoundary from 'components/ErrorBoundary';
 import Identicon from 'components/Identicon';
 import Portal from 'components/Portal';
@@ -427,10 +427,52 @@ const Message = (props: MessageProps) => {
         <div className="relative flex flex-col w-[calc(100%-50px)] lg:w-[calc(100%-65px)] h-full">
           {text ? (
             <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypePrism]}
+              className="prose dark:prose-invert max-w-none overflow-x-auto prose-p:whitespace-pre-line prose-a:text-primary-400 hover:prose-a:underline prose-pre:m-0 prose-pre:p-0 prose-pre:bg-gray-100 prose-pre:dark:bg-gray-800 prose-pre:text-gray-800 prose-pre:dark:text-gray-100 prose-code:bg-gray-100 prose-code:dark:bg-gray-800 prose-code:text-gray-800 prose-code:dark:text-gray-100"
               linkTarget="_blank"
-              className="prose dark:prose-invert max-w-none overflow-x-auto prose-p:whitespace-pre-line prose-table:border prose-table:border-collapse prose-th:border prose-th:border-gray-700 prose-th:align-baseline prose-th:pt-2 prose-th:pl-2 prose-td:border prose-td:border-gray-700 prose-td:pt-2 prose-td:pl-2 prose-a:text-primary-400 hover:prose-a:underline prose-pre:bg-gray-100 prose-pre:dark:bg-gray-800 prose-pre:text-gray-800 prose-pre:dark:text-gray-100 prose-code:bg-gray-100 prose-code:dark:bg-gray-800 prose-code:text-gray-800 prose-code:dark:text-gray-100"
+              remarkPlugins={[remarkGfm]}
+              components={{
+                code({ node, inline, className, children, ...props }) {
+                  if (children.length) {
+                    if (children[0] == '▍') {
+                      return <span className="animate-pulse">▍</span>;
+                    }
+                    children[0] = (children[0] as string).replace('`▍`', '▍');
+                  }
+                  const match = /language-(\w+)/.exec(className || '');
+
+                  return !inline ? (
+                    <CodeBlock
+                      key={Math.random()}
+                      language={(match && match[1]) || ''}
+                      value={String(children).replace(/\n$/, '')}
+                      {...props}
+                    />
+                  ) : (
+                    <code className={className} {...props}>
+                      {children}
+                    </code>
+                  );
+                },
+                table({ children }) {
+                  return (
+                    <table className="border-collapse border border-gray-700 px-2 py-1 dark:border-gray-300">
+                      {children}
+                    </table>
+                  );
+                },
+                th({ children }) {
+                  return (
+                    <th className="break-words align-baseline border border-gray-700 bg-gray-200 dark:bg-gray-800 px-2 py-1 dark:border-gray-300">
+                      {children}
+                    </th>
+                  );
+                },
+                td({ children }) {
+                  return (
+                    <td className="break-words border border-gray-700 px-2 py-1 dark:border-gray-300">{children}</td>
+                  );
+                },
+              }}
             >
               {`${text}${messageIsLatest && messageIsStreaming ? '`▍`' : ''}`}
             </ReactMarkdown>
@@ -441,7 +483,7 @@ const Message = (props: MessageProps) => {
       )}
       {type === 'ai' ? (
         <IconCopy
-          size={20}
+          size={18}
           className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
           role="button"
           onClick={async () => await copyToClipboard(text)}
