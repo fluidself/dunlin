@@ -8,16 +8,18 @@ type CodeBlockProps = {
   value: string;
 };
 
-function CodeBlock({ language, value }: CodeBlockProps) {
+function CodeBlock(props: CodeBlockProps) {
+  const { language, value } = props;
+
   useEffect(() => {
     Prism.highlightAll();
   }, []);
 
   return (
     <div className="relative">
-      <div className="absolute top-[-2px] right-1">
+      <div className="absolute top-[-3px] right-1">
         <IconCopy
-          size={20}
+          size={18}
           className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
           role="button"
           onClick={async () => await copyToClipboard(value)}
