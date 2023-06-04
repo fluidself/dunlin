@@ -4,36 +4,26 @@ import { useRouter } from 'next/router';
 import {
   IconArrowDown,
   IconCheck,
-  IconCopy,
   IconDownload,
   IconExclamationCircle,
-  IconGhost2,
   IconRefresh,
   IconSend,
-  IconSettings,
   IconX,
 } from '@tabler/icons';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import classNames from 'classnames';
-import { usePopper } from 'react-popper';
-import { Menu } from '@headlessui/react';
 import { toast } from 'react-toastify';
-import remarkGfm from 'remark-gfm';
-import ReactMarkdown from 'lib/react-markdown';
 import upsertNote from 'lib/api/upsertNote';
 import { store, useStore } from 'lib/store';
 import type { DaemonMessage } from 'lib/createDaemonSlice';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useAuth } from 'utils/useAuth';
-import copyToClipboard from 'utils/copyToClipboard';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { stringToSlate } from 'editor/utils';
 import OpenSidebarButton from 'components/sidebar/OpenSidebarButton';
-import CodeBlock from 'components/daemon/CodeBlock';
 import ErrorBoundary from 'components/ErrorBoundary';
-import Identicon from 'components/Identicon';
-import Portal from 'components/Portal';
 import Tooltip from 'components/Tooltip';
+import SettingsMenu from 'components/daemon/SettingsMenu';
+import Message from 'components/daemon/Message';
 
 export default function Daemon() {
   const router = useRouter();
@@ -319,176 +309,3 @@ export default function Daemon() {
     </>
   );
 }
-
-type SettingsMenuProps = {
-  temperature: number;
-  setTemperature: (temperature: number) => void;
-  maxTokens: number;
-  setMaxTokens: (maxTokens: number) => void;
-};
-
-const SettingsMenu = (props: SettingsMenuProps) => {
-  const { temperature, setTemperature, maxTokens, setMaxTokens } = props;
-
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
-  const { styles, attributes } = usePopper(buttonRef.current, popperElement, {
-    placement: 'top-end',
-  });
-
-  return (
-    <Menu>
-      {({ open }) => (
-        <>
-          <Menu.Button
-            className="rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600"
-            ref={buttonRef}
-          >
-            <Tooltip content="Settings">
-              <span className="flex items-center justify-center w-7 h-7">
-                <IconSettings size={16} className="text-gray-600 dark:text-gray-300" />
-              </span>
-            </Tooltip>
-          </Menu.Button>
-          {open && (
-            <Portal>
-              <Menu.Items
-                className="z-20 w-auto bg-white rounded dark:bg-gray-800 shadow-popover focus:outline-none border dark:border-gray-700"
-                static
-                ref={setPopperElement}
-                style={styles.popper}
-                {...attributes.popper}
-              >
-                <div className="flex flex-col space-y-2 p-2 dark:text-gray-200">
-                  <div className="flex justify-between text-sm">
-                    <label htmlFor="temperature">Temperature</label>
-                    <span>{temperature}</span>
-                  </div>
-                  <input
-                    id="temperature"
-                    type="range"
-                    min={0}
-                    max={1}
-                    step={0.1}
-                    value={temperature}
-                    onChange={e => setTemperature(+e.target.value)}
-                    className="w-full h-2 bg-gray-200 rounded appearance-none cursor-pointer accent-primary-500 dark:bg-gray-700"
-                  />
-                </div>
-                <div className="flex flex-col space-y-2 p-2 dark:text-gray-200">
-                  <div className="flex justify-between text-sm">
-                    <label htmlFor="max_tokens">Max. length</label>
-                    <span>{maxTokens}</span>
-                  </div>
-                  <input
-                    id="max_tokens"
-                    type="range"
-                    min={1}
-                    max={2048}
-                    step={1}
-                    value={maxTokens}
-                    onChange={e => setMaxTokens(+e.target.value)}
-                    className="w-full h-2 bg-gray-200 rounded appearance-none cursor-pointer accent-primary-500 dark:bg-gray-700"
-                  />
-                </div>
-              </Menu.Items>
-            </Portal>
-          )}
-        </>
-      )}
-    </Menu>
-  );
-};
-
-type MessageProps = {
-  message: DaemonMessage;
-  messageIsLatest: boolean;
-  messageIsStreaming: boolean;
-};
-
-const Message = (props: MessageProps) => {
-  const {
-    message: { type, text },
-    messageIsLatest,
-    messageIsStreaming,
-  } = props;
-  const messageClassName = classNames(
-    'flex w-full space-x-2 py-4 pl-2 dark:text-gray-200',
-    { 'bg-gray-100 dark:bg-gray-800': type === 'human' },
-    { 'bg-gray-50 dark:bg-gray-700': type === 'ai' },
-  );
-
-  return (
-    <div className={messageClassName}>
-      <div>{type === 'human' ? <Identicon diameter={20} className="w-5 h-5" /> : <IconGhost2 size={20} />}</div>
-      {type === 'human' ? (
-        <div className="whitespace-pre-line overflow-x-auto">{text}</div>
-      ) : (
-        <div className="relative flex flex-col w-[calc(100%-50px)] lg:w-[calc(100%-65px)] h-full">
-          {text ? (
-            <ReactMarkdown
-              className="prose dark:prose-invert max-w-none overflow-x-auto prose-p:whitespace-pre-line prose-a:text-primary-400 hover:prose-a:underline prose-pre:m-0 prose-pre:p-0 prose-pre:bg-gray-100 prose-pre:dark:bg-gray-800 prose-pre:text-gray-800 prose-pre:dark:text-gray-100 prose-code:bg-gray-100 prose-code:dark:bg-gray-800 prose-code:text-gray-800 prose-code:dark:text-gray-100"
-              linkTarget="_blank"
-              remarkPlugins={[remarkGfm]}
-              components={{
-                code({ node, inline, className, children, ...props }) {
-                  if (children.length) {
-                    if (children[0] == '▍') {
-                      return <span className="animate-pulse">▍</span>;
-                    }
-                    children[0] = (children[0] as string).replace('`▍`', '▍');
-                  }
-                  const match = /language-(\w+)/.exec(className || '');
-
-                  return !inline ? (
-                    <CodeBlock
-                      key={Math.random()}
-                      language={(match && match[1]) || ''}
-                      value={String(children).replace(/\n$/, '')}
-                      {...props}
-                    />
-                  ) : (
-                    <code className={className} {...props}>
-                      {children}
-                    </code>
-                  );
-                },
-                table({ children }) {
-                  return (
-                    <table className="border-collapse border border-gray-700 px-2 py-1 dark:border-gray-300">
-                      {children}
-                    </table>
-                  );
-                },
-                th({ children }) {
-                  return (
-                    <th className="break-words align-baseline border border-gray-700 bg-gray-200 dark:bg-gray-800 px-2 py-1 dark:border-gray-300">
-                      {children}
-                    </th>
-                  );
-                },
-                td({ children }) {
-                  return (
-                    <td className="break-words border border-gray-700 px-2 py-1 dark:border-gray-300">{children}</td>
-                  );
-                },
-              }}
-            >
-              {`${text}${messageIsLatest && messageIsStreaming ? '`▍`' : ''}`}
-            </ReactMarkdown>
-          ) : (
-            <span className="animate-pulse">▍</span>
-          )}
-        </div>
-      )}
-      {type === 'ai' ? (
-        <IconCopy
-          size={18}
-          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-          role="button"
-          onClick={async () => await copyToClipboard(text)}
-        />
-      ) : null}
-    </div>
-  );
-};
