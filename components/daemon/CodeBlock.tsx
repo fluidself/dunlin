@@ -3,12 +3,12 @@ import { IconCopy } from '@tabler/icons';
 import Prism from 'prismjs';
 import copyToClipboard from 'utils/copyToClipboard';
 
-type DaemonCodeBlockProps = {
+type CodeBlockProps = {
   language: string;
   value: string;
 };
 
-function DaemonCodeBlock({ language, value }: DaemonCodeBlockProps) {
+function CodeBlock({ language, value }: CodeBlockProps) {
   useEffect(() => {
     Prism.highlightAll();
   }, []);
@@ -30,4 +30,4 @@ function DaemonCodeBlock({ language, value }: DaemonCodeBlockProps) {
   );
 }
 
-export default memo(DaemonCodeBlock);
+export default memo(CodeBlock);
