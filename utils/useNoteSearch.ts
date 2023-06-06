@@ -71,7 +71,7 @@ const flattenContent = (content: Descendant[]): NoteBlock[] => {
 
   const blocks = Editor.nodes(editor, {
     at: [],
-    match: n => !Editor.isEditor(n) && Editor.isBlock(editor, n),
+    match: n => !Editor.isEditor(n),
     mode: 'lowest',
   });
 
