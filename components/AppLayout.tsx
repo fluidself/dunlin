@@ -255,10 +255,10 @@ export default function AppLayout(props: Props) {
     const handleNoteSelect = (event: KeyboardEvent) => {
       if (isHotkey(['mod+1', 'mod+2', 'mod+3', 'mod+4', 'mod+5', 'mod+6', 'mod+7', 'mod+8', 'mod+9'], event)) {
         const commandMenuVisible = store.getState().commandMenuState.isVisible;
-        const openNoteIds = store.getState().openNoteIds;
-        if (commandMenuVisible || openNoteIds.length < 2) return;
+        if (commandMenuVisible) return;
 
         try {
+          const openNoteIds = store.getState().openNoteIds;
           const noteIdToSelect = openNoteIds[+event.key - 1];
           const editor = activeEditorsStore.getActiveEditor(noteIdToSelect);
           if (!editor) return;
