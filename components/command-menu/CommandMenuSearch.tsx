@@ -142,12 +142,13 @@ export default function CommandMenuSearch(props: Props) {
         }
 
         document.body.removeChild(input);
+        hideCommandMenu();
       };
 
       document.body.appendChild(input);
       input.click();
     },
-    [editor],
+    [editor, hideCommandMenu],
   );
 
   const onOptionClick = useCallback(
