@@ -4,7 +4,6 @@ import { isHotkey } from 'is-hotkey';
 import { CodeBlock, CodeLine, ElementType, FormattedText } from 'types/slate';
 import { getIndent } from 'editor/formatting';
 import { createNodeId } from './withNodeId';
-import { deserialize } from './withHtml';
 
 const withCodeBlocks = (editor: Editor) => {
   const { insertData, insertFragment, normalizeNode } = editor;
@@ -62,28 +61,16 @@ const withCodeBlocks = (editor: Editor) => {
   };
 
   editor.insertData = (data: any) => {
-    const html = data.getData('text/html');
+    const text = data.getData('text/plain');
     const isSlateFragment = data.types.includes('application/x-slate-fragment');
     const inCodeLine = Editor.above(editor, {
       match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.CodeLine,
     });
 
-    if (inCodeLine && html && !isSlateFragment) {
+    if (inCodeLine && !isSlateFragment) {
       try {
-        const parsed = new DOMParser().parseFromString(html, 'text/html');
-        const fragment = deserialize(parsed.body);
-        const transformedFragment = [];
-
-        for (const node of fragment) {
-          if (node.text) {
-            transformedFragment.push(deserializeCodeLine(node.text));
-          } else if (node.text === '') {
-            continue;
-          } else {
-            transformedFragment.push(node);
-          }
-        }
-        return insertFragment(transformedFragment);
+        const fragment = text?.split('\n').map((l: string) => deserializeCodeLine(l));
+        return insertFragment(fragment);
       } catch (error) {
         insertData(data);
       }
