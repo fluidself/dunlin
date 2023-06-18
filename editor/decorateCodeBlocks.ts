@@ -24,27 +24,31 @@ export default function decorateCodeBlocks(editor: Editor, [node, path]: NodeEnt
   if (!parentNode || parentNode.type !== ElementType.CodeBlock) return ranges;
 
   const blockLanguage = parentNode.lang;
-  if (!blockLanguage) return ranges;
+  if (!blockLanguage || !Object.keys(CODE_BLOCK_LANGUAGES).includes(blockLanguage)) return ranges;
 
-  const tokens = Prism.tokenize(Node.string(node), Prism.languages[blockLanguage]);
-  let start = 0;
+  try {
+    const tokens = Prism.tokenize(Node.string(node), Prism.languages[blockLanguage]);
+    let start = 0;
 
-  for (const token of tokens) {
-    const length = getLength(token);
-    const end = start + length;
+    for (const token of tokens) {
+      const length = getLength(token);
+      const end = start + length;
 
-    if (typeof token !== 'string') {
-      ranges.push({
-        [token.type === 'text' ? 'string' : token.type]: true,
-        anchor: { path, offset: start },
-        focus: { path, offset: end },
-      });
+      if (typeof token !== 'string') {
+        ranges.push({
+          [token.type === 'text' ? 'string' : token.type]: true,
+          anchor: { path, offset: start },
+          focus: { path, offset: end },
+        });
+      }
+      start = end;
     }
 
-    start = end;
+    return ranges;
+  } catch (error) {
+    console.error(error);
+    return ranges;
   }
-
-  return ranges;
 }
 
 const getLength = (token: string | Prism.Token): number => {
