@@ -44,6 +44,11 @@ export enum SidebarTab {
   Search,
 }
 
+export enum DaemonModel {
+  'gpt-3.5-turbo' = 'gpt-3.5-turbo',
+  'gpt-3.5-turbo-16k' = 'gpt-3.5-turbo-16k',
+}
+
 type CommandMenuState = {
   isVisible: boolean;
   activeEditor?: string;
@@ -266,8 +271,8 @@ export const store = createVanilla<Store>()(
         confirmNoteDeletion: state.confirmNoteDeletion,
         isDaemonUser: state.isDaemonUser,
         messages: state.messages,
+        model: state.model,
         temperature: state.temperature,
-        maxTokens: state.maxTokens,
       }),
     },
   ),

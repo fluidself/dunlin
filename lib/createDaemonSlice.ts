@@ -1,5 +1,5 @@
 import { Draft } from 'immer';
-import { setter, Setter, Store } from './store';
+import { setter, Setter, Store, DaemonModel } from './store';
 
 export type DaemonMessage = {
   type: 'system' | 'human' | 'ai';
@@ -11,10 +11,10 @@ export type DaemonStore = {
   setIsDaemonUser: Setter<boolean>;
   messages: DaemonMessage[];
   setMessages: Setter<DaemonMessage[]>;
+  model: DaemonModel;
+  setModel: Setter<DaemonModel>;
   temperature: number;
   setTemperature: Setter<number>;
-  maxTokens: number;
-  setMaxTokens: Setter<number>;
 };
 
 const createDaemonSlice = (set: (fn: (draft: Draft<Store>) => void) => void) => ({
@@ -22,10 +22,10 @@ const createDaemonSlice = (set: (fn: (draft: Draft<Store>) => void) => void) => 
   setIsDaemonUser: setter(set, 'isDaemonUser'),
   messages: [],
   setMessages: setter(set, 'messages'),
-  temperature: 0.5,
+  model: DaemonModel['gpt-3.5-turbo'],
+  setModel: setter(set, 'model'),
+  temperature: 0,
   setTemperature: setter(set, 'temperature'),
-  maxTokens: 1000,
-  setMaxTokens: setter(set, 'maxTokens'),
 });
 
 export default createDaemonSlice;
