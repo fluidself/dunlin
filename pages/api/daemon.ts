@@ -3,7 +3,8 @@ import { getIronSession } from 'iron-session/edge';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { SystemChatMessage, HumanChatMessage, AIChatMessage } from 'langchain/schema';
 import { CallbackManager } from 'langchain/callbacks';
-import type { DaemonMessage } from 'lib/createDaemonSlice';
+import { type DaemonMessage } from 'lib/createDaemonSlice';
+import { DaemonModel } from 'lib/store';
 import { ironOptions } from 'constants/iron-session';
 
 export const config = {
@@ -36,10 +37,10 @@ export default async function daemon(req: NextRequest) {
   }
 
   try {
-    const { messages, temperature, maxTokens, editorRequest } = (await req.json()) as {
+    const { messages, model, temperature, editorRequest } = (await req.json()) as {
       messages: DaemonMessage[];
+      model?: DaemonModel;
       temperature?: number;
-      maxTokens?: number;
       editorRequest?: string;
     };
     if (!messages) {
@@ -50,10 +51,10 @@ export default async function daemon(req: NextRequest) {
     const stream = new TransformStream();
     const writer = stream.writable.getWriter();
     const llm = new ChatOpenAI({
-      modelName: 'gpt-3.5-turbo',
+      modelName: model ?? DaemonModel['gpt-3.5-turbo'],
       streaming: true,
       temperature: temperature ?? 0,
-      maxTokens: maxTokens ?? 1024,
+      maxTokens: -1,
       callbacks: CallbackManager.fromHandlers({
         async handleLLMNewToken(token) {
           await writer.ready;

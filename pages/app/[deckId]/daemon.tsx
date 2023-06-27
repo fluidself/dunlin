@@ -33,11 +33,11 @@ export default function Daemon() {
   const authorOnlyNotes = useStore(state => state.authorOnlyNotes);
   const isDaemonUser = useStore(state => state.isDaemonUser);
   const messages = useStore(state => state.messages);
+  const model = useStore(state => state.model);
   const temperature = useStore(state => state.temperature);
-  const maxTokens = useStore(state => state.maxTokens);
   const setMessages = useStore(state => state.setMessages);
+  const setModel = useStore(state => state.setModel);
   const setTemperature = useStore(state => state.setTemperature);
-  const setMaxTokens = useStore(state => state.setMaxTokens);
   const [inputText, setInputText] = useState('');
   const [noteTitle, setNoteTitle] = useState('');
   const [summoning, setSummoning] = useState(false);
@@ -89,7 +89,7 @@ export default function Daemon() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ messages: [...messages, userMessage], temperature, maxTokens }),
+      body: JSON.stringify({ messages: [...messages, userMessage], model, temperature }),
       signal: ctrl.signal,
       async onopen(response) {
         if (response.ok) {
@@ -238,10 +238,10 @@ export default function Daemon() {
                   </div>
                 ) : null}
                 <SettingsMenu
+                  model={model}
+                  setModel={setModel}
                   temperature={temperature}
                   setTemperature={setTemperature}
-                  maxTokens={maxTokens}
-                  setMaxTokens={setMaxTokens}
                 />
               </div>
               <div className="flex items-center w-full relative">

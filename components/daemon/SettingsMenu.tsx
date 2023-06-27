@@ -2,18 +2,19 @@ import { memo, useRef, useState } from 'react';
 import { IconSettings } from '@tabler/icons';
 import { usePopper } from 'react-popper';
 import { Menu } from '@headlessui/react';
+import { DaemonModel } from 'lib/store';
 import Portal from 'components/Portal';
 import Tooltip from 'components/Tooltip';
 
 type SettingsMenuProps = {
+  model: DaemonModel;
+  setModel: (model: DaemonModel) => void;
   temperature: number;
   setTemperature: (temperature: number) => void;
-  maxTokens: number;
-  setMaxTokens: (maxTokens: number) => void;
 };
 
 function SettingsMenu(props: SettingsMenuProps) {
-  const { temperature, setTemperature, maxTokens, setMaxTokens } = props;
+  const { model, setModel, temperature, setTemperature } = props;
 
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
@@ -44,7 +45,24 @@ function SettingsMenu(props: SettingsMenuProps) {
                 style={styles.popper}
                 {...attributes.popper}
               >
-                <div className="flex flex-col space-y-2 p-2 dark:text-gray-200">
+                <div className="flex flex-col space-y-1 p-2 dark:text-gray-200">
+                  <label htmlFor="model" className="text-sm">
+                    Model
+                  </label>
+                  <select
+                    id="model"
+                    className="input bg-gray-50 dark:bg-gray-700 dark:border-gray-700 text-sm"
+                    value={model}
+                    onChange={e => setModel(e.target.value as DaemonModel)}
+                  >
+                    {Object.values(DaemonModel).map(model => (
+                      <option key={model} value={model}>
+                        {model}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex flex-col space-y-2 p-2 pb-3 dark:text-gray-200">
                   <div className="flex justify-between text-sm">
                     <label htmlFor="temperature">Temperature</label>
                     <span>{temperature}</span>
@@ -57,22 +75,6 @@ function SettingsMenu(props: SettingsMenuProps) {
                     step={0.1}
                     value={temperature}
                     onChange={e => setTemperature(+e.target.value)}
-                    className="w-full h-2 bg-gray-200 rounded appearance-none cursor-pointer accent-primary-500 dark:bg-gray-700"
-                  />
-                </div>
-                <div className="flex flex-col space-y-2 p-2 dark:text-gray-200">
-                  <div className="flex justify-between text-sm">
-                    <label htmlFor="max_tokens">Max. length</label>
-                    <span>{maxTokens}</span>
-                  </div>
-                  <input
-                    id="max_tokens"
-                    type="range"
-                    min={1}
-                    max={2048}
-                    step={1}
-                    value={maxTokens}
-                    onChange={e => setMaxTokens(+e.target.value)}
                     className="w-full h-2 bg-gray-200 rounded appearance-none cursor-pointer accent-primary-500 dark:bg-gray-700"
                   />
                 </div>
