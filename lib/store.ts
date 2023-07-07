@@ -47,6 +47,7 @@ export enum SidebarTab {
 export enum DaemonModel {
   'gpt-3.5-turbo' = 'gpt-3.5-turbo',
   'gpt-3.5-turbo-16k' = 'gpt-3.5-turbo-16k',
+  'gpt-4' = 'gpt-4',
 }
 
 type CommandMenuState = {
