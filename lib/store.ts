@@ -270,6 +270,7 @@ export const store = createVanilla<Store>()(
         darkMode: state.darkMode,
         isPageStackingOn: state.isPageStackingOn,
         confirmNoteDeletion: state.confirmNoteDeletion,
+        autoPairBrackets: state.autoPairBrackets,
         isDaemonUser: state.isDaemonUser,
         messages: state.messages,
         model: state.model,

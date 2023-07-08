@@ -30,6 +30,8 @@ export type UserSettings = {
   setConfirmNoteDeletion: Setter<boolean>;
   noteSort: Sort;
   setNoteSort: Setter<Sort>;
+  autoPairBrackets: boolean;
+  setAutoPairBrackets: Setter<boolean>;
 };
 
 const createUserSettingsSlice = (set: (fn: (draft: Draft<Store>) => void) => void) => ({
@@ -43,6 +45,8 @@ const createUserSettingsSlice = (set: (fn: (draft: Draft<Store>) => void) => voi
   setConfirmNoteDeletion: setter(set, 'confirmNoteDeletion'),
   noteSort: Sort.TitleAscending,
   setNoteSort: setter(set, 'noteSort'),
+  autoPairBrackets: true,
+  setAutoPairBrackets: setter(set, 'autoPairBrackets'),
 });
 
 export default createUserSettingsSlice;
