@@ -2,6 +2,8 @@ import { Editor, Element } from 'slate';
 import { ElementType } from 'types/slate';
 import handleBlockShortcuts from './handleBlockShortcuts';
 import handleInlineShortcuts from './handleInlineShortcuts';
+import handleBrackets, { BRACKET_MAP } from './handleBrackets';
+import handleQuotes, { QUOTE_MAP } from './handleQuotes';
 
 // Add auto-markdown formatting shortcuts
 const withAutoMarkdown = (editor: Editor) => {
@@ -26,6 +28,12 @@ const withAutoMarkdown = (editor: Editor) => {
 };
 
 const handleAutoMarkdown = (editor: Editor, text: string) => {
+  if (Object.keys(BRACKET_MAP).includes(text)) {
+    return handleBrackets(editor, text);
+  }
+  if (Object.keys(QUOTE_MAP).includes(text)) {
+    return handleQuotes(editor, text);
+  }
   // Don't handle auto markdown shortcuts in code blocks
   const inCodeBlock = Editor.above(editor, {
     match: n => !Editor.isEditor(n) && Element.isElement(n) && n['type'] === ElementType.CodeBlock,

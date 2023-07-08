@@ -1,5 +1,7 @@
 import { Editor, Element, Transforms, Node } from 'slate';
-import { BRACKET_MAP, DEFAULT_INDENTATION, isListType, QUOTE_MAP } from 'editor/formatting';
+import { DEFAULT_INDENTATION, isListType } from 'editor/formatting';
+import { BRACKET_MAP } from './withAutoMarkdown/handleBrackets';
+import { QUOTE_MAP } from './withAutoMarkdown/handleQuotes';
 import { ElementType } from 'types/slate';
 
 const withCustomDeleteBackward = (editor: Editor) => {

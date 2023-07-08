@@ -5,10 +5,8 @@ import type { AddLinkPopoverState } from 'components/editor/Editor';
 import type { DaemonPopoverState } from 'components/editor/DaemonPopover';
 import { store } from 'lib/store';
 import {
-  handleBrackets,
   handleExitBreak,
   handleIndent,
-  handleQuotes,
   handleUnindent,
   insertFootnote,
   isElementActive,
@@ -138,26 +136,6 @@ export const getDefaultEditorHotkeys = (
   {
     hotkey: 'mod+enter',
     callback: () => handleExitBreak(editor),
-  },
-  {
-    hotkey: 'shift+9',
-    callback: () => handleBrackets(editor, '('),
-  },
-  {
-    hotkey: '[',
-    callback: () => handleBrackets(editor, '['),
-  },
-  {
-    hotkey: 'shift+[',
-    callback: () => handleBrackets(editor, '{'),
-  },
-  {
-    hotkey: "'",
-    callback: () => handleQuotes(editor, "'"),
-  },
-  {
-    hotkey: "shift+'",
-    callback: () => handleQuotes(editor, '"'),
   },
   ...(isDaemonUser
     ? [
