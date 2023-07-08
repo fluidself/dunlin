@@ -8,6 +8,8 @@ export default function EditorSettings() {
   const setIsPageStackingOn = useStore(state => state.setIsPageStackingOn);
   const confirmNoteDeletion = useStore(state => state.confirmNoteDeletion);
   const setConfirmNoteDeletion = useStore(state => state.setConfirmNoteDeletion);
+  const autoPairBrackets = useStore(state => state.autoPairBrackets);
+  const setAutoPairBrackets = useStore(state => state.setAutoPairBrackets);
 
   return (
     <div className="flex-1 w-full h-full p-6 overflow-y-auto dark:bg-gray-900 dark:text-gray-100">
@@ -40,6 +42,18 @@ export default function EditorSettings() {
       <div className="flex items-center">
         <span className="text-sm text-gray-600 dark:text-gray-300">Off</span>
         <Toggle className="mx-2" id="3" isChecked={confirmNoteDeletion} setIsChecked={setConfirmNoteDeletion} />
+        <span className="text-sm text-gray-600 dark:text-gray-300">On</span>
+      </div>
+      <hr className="my-4" />
+      <div className="mb-4">
+        <h2 className="text-lg font-heading tracking-wide">Auto pair brackets</h2>
+        <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
+          If on, brackets and quotes will be automatically paired.
+        </p>
+      </div>
+      <div className="flex items-center">
+        <span className="text-sm text-gray-600 dark:text-gray-300">Off</span>
+        <Toggle className="mx-2" id="4" isChecked={autoPairBrackets} setIsChecked={setAutoPairBrackets} />
         <span className="text-sm text-gray-600 dark:text-gray-300">On</span>
       </div>
     </div>
