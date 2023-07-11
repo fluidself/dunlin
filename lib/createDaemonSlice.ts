@@ -9,6 +9,8 @@ export type DaemonMessage = {
 export type DaemonStore = {
   isDaemonUser: boolean;
   setIsDaemonUser: Setter<boolean>;
+  isDaemonSidebarOpen: boolean;
+  setIsDaemonSidebarOpen: Setter<boolean>;
   messages: DaemonMessage[];
   setMessages: Setter<DaemonMessage[]>;
   model: DaemonModel;
@@ -20,6 +22,8 @@ export type DaemonStore = {
 const createDaemonSlice = (set: (fn: (draft: Draft<Store>) => void) => void) => ({
   isDaemonUser: false,
   setIsDaemonUser: setter(set, 'isDaemonUser'),
+  isDaemonSidebarOpen: false,
+  setIsDaemonSidebarOpen: setter(set, 'isDaemonSidebarOpen'),
   messages: [],
   setMessages: setter(set, 'messages'),
   model: DaemonModel['gpt-3.5-turbo'],
