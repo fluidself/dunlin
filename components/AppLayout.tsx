@@ -28,6 +28,7 @@ import CommandMenu from './command-menu/CommandMenu';
 import CreateJoinRenameDeckModal, { CreateJoinRenameDeckType } from './CreateJoinRenameDeckModal';
 import ShareModal from './share-modal/ShareModal';
 import SettingsModal from './settings/SettingsModal';
+import DaemonSidebar from './daemon/DaemonSidebar';
 import Sidebar from './sidebar/Sidebar';
 import PageLoading from './PageLoading';
 import ErrorPage from './ErrorPage';
@@ -392,6 +393,7 @@ export default function AppLayout(props: Props) {
               <UpdateBanner />
               {children}
             </div>
+            {isDaemonUser ? <DaemonSidebar /> : null}
             {isSettingsOpen ? (
               <SettingsModal setIsOpen={setIsSettingsOpen} setCreateJoinRenameModal={setCreateJoinRenameModal} />
             ) : null}
