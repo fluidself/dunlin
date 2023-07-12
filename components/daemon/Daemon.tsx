@@ -153,144 +153,146 @@ export default function Daemon() {
 
   return (
     <ErrorBoundary>
-      <div className="flex flex-col flex-1 w-full h-full overflow-y-auto">
+      <div className="flex flex-col flex-1 w-full h-full">
         <DaemonSidebarHeader />
-        <div className="flex flex-col flex-1 w-full mx-auto md:w-128 lg:w-160 xl:w-192 overflow-x-hidden">
-          <div className="flex-1">
-            {messages.map((message, idx) => (
-              <Message
-                key={idx}
-                message={message}
-                messageIsLatest={idx === (messages.length ?? 0) - 1}
-                messageIsStreaming={summoning}
-              />
-            ))}
-            <div ref={endofMessagesRef} />
-          </div>
-          <div className="sticky bottom-0 flex flex-col items-center pt-3 pb-12 md:w-128 lg:w-160 xl:w-192 bg-white dark:bg-gray-900">
-            <div className="flex justify-end w-full space-x-2 mb-1">
-              {messages.length && !summoning && !saving ? (
-                <div className="flex items-center space-x-2">
-                  <Tooltip content="Reset daemon">
-                    <button
-                      className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
-                      disabled={summoning}
-                      onClick={() => {
-                        setMessages([]);
-                        setIsError(false);
-                      }}
-                    >
-                      <IconRefresh size={16} className="text-gray-600 dark:text-gray-300" />
-                    </button>
-                  </Tooltip>
-                  <Tooltip content="Save as note">
-                    <button
-                      className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
-                      disabled={summoning}
-                      onClick={() => setIsSaving(true)}
-                    >
-                      <IconDownload size={16} className="text-gray-600 dark:text-gray-300" />
-                    </button>
-                  </Tooltip>
-                </div>
-              ) : messages.length && !summoning && saving ? (
-                <div className="flex items-center space-x-1">
-                  <input
-                    type="text"
-                    className="input px-1 h-[28px] text-sm bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
-                    placeholder="Enter note name"
-                    value={noteTitle}
-                    onChange={event => setNoteTitle(event.target.value)}
-                    onKeyDown={event => {
-                      if (event.key === 'Escape') {
-                        setIsSaving(false);
-                      } else if (event.key === 'Enter' && noteTitle) {
-                        event.preventDefault();
-                        saveAsNote();
-                      }
-                    }}
-                    autoFocus
-                  />
-                  <button
-                    className={`text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100 ${
-                      !noteTitle ? 'cursor-not-allowed' : 'cursor-pointer'
-                    }`}
-                    disabled={!noteTitle}
-                    onClick={saveAsNote}
-                  >
-                    <IconCheck size={16} />
-                  </button>
-                  <button
-                    className="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100"
-                    onClick={() => setIsSaving(false)}
-                  >
-                    <IconX size={16} />
-                  </button>
-                </div>
-              ) : null}
-              <SettingsMenu
-                model={model}
-                setModel={setModel}
-                temperature={temperature}
-                setTemperature={setTemperature}
-              />
+        <div className="flex flex-col overflow-y-auto">
+          <div className="flex flex-col flex-1 mx-auto md:w-128 lg:w-160 xl:w-192">
+            <div className="flex-1">
+              {messages.map((message, idx) => (
+                <Message
+                  key={idx}
+                  message={message}
+                  messageIsLatest={idx === (messages.length ?? 0) - 1}
+                  messageIsStreaming={summoning}
+                />
+              ))}
+              <div ref={endofMessagesRef} />
             </div>
-            <div className="flex items-center w-full min-h-fit relative">
-              <textarea
-                id="daemon-textarea"
-                ref={textareaRef}
-                className={`w-full pl-2 pr-6 py-3 dark:bg-gray-800 shadow-popover border dark:text-gray-200 border-gray-50 dark:border-gray-700 focus:ring-0 focus:border-primary-500 resize-none ${
-                  summoning ? 'rounded-tl rounded-tr' : 'rounded'
-                }`}
-                style={{
-                  minHeight: '48px',
-                  maxHeight: '200px',
-                  overflow: `${textareaRef.current && textareaRef.current.scrollHeight > 200 ? 'auto' : 'hidden'}`,
-                }}
-                rows={1}
-                value={inputText}
-                placeholder="Send a message..."
-                onChange={event => setInputText(event.target.value)}
-                onKeyDown={event => {
-                  if (event.key === 'Enter' && !event.shiftKey && inputText) {
-                    event.preventDefault();
-                    !summoning && summonDaemon();
-                  }
-                }}
-                autoFocus
-              />
-              <button
-                className={`rounded absolute bottom-2.5 right-2 p-1 ${
-                  !summoning && inputText
-                    ? 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
-                    : 'text-gray-300 dark:text-gray-600 cursor-default'
-                }`}
-                disabled={summoning || !inputText}
-                onClick={summonDaemon}
-              >
-                <IconSend size={18} />
-              </button>
-            </div>
-            <div className="w-full h-1">
-              {summoning ? (
-                <div className="flex animate-pulse">
-                  <div className="flex-1">
-                    <div className="h-1 bg-primary-600 dark:bg-primary-400 rounded-bl-lg rounded-br-lg"></div>
+            <div className="sticky bottom-0 flex flex-col items-center pt-3 pb-12 md:w-128 lg:w-160 xl:w-192 bg-white dark:bg-gray-900">
+              <div className="flex justify-end w-full space-x-2 mb-1">
+                {messages.length && !summoning && !saving ? (
+                  <div className="flex items-center space-x-2">
+                    <Tooltip content="Reset daemon">
+                      <button
+                        className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
+                        disabled={summoning}
+                        onClick={() => {
+                          setMessages([]);
+                          setIsError(false);
+                        }}
+                      >
+                        <IconRefresh size={16} className="text-gray-600 dark:text-gray-300" />
+                      </button>
+                    </Tooltip>
+                    <Tooltip content="Save as note">
+                      <button
+                        className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
+                        disabled={summoning}
+                        onClick={() => setIsSaving(true)}
+                      >
+                        <IconDownload size={16} className="text-gray-600 dark:text-gray-300" />
+                      </button>
+                    </Tooltip>
                   </div>
+                ) : messages.length && !summoning && saving ? (
+                  <div className="flex items-center space-x-1">
+                    <input
+                      type="text"
+                      className="input px-1 h-[28px] text-sm bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+                      placeholder="Enter note name"
+                      value={noteTitle}
+                      onChange={event => setNoteTitle(event.target.value)}
+                      onKeyDown={event => {
+                        if (event.key === 'Escape') {
+                          setIsSaving(false);
+                        } else if (event.key === 'Enter' && noteTitle) {
+                          event.preventDefault();
+                          saveAsNote();
+                        }
+                      }}
+                      autoFocus
+                    />
+                    <button
+                      className={`text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100 ${
+                        !noteTitle ? 'cursor-not-allowed' : 'cursor-pointer'
+                      }`}
+                      disabled={!noteTitle}
+                      onClick={saveAsNote}
+                    >
+                      <IconCheck size={16} />
+                    </button>
+                    <button
+                      className="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100"
+                      onClick={() => setIsSaving(false)}
+                    >
+                      <IconX size={16} />
+                    </button>
+                  </div>
+                ) : null}
+                <SettingsMenu
+                  model={model}
+                  setModel={setModel}
+                  temperature={temperature}
+                  setTemperature={setTemperature}
+                />
+              </div>
+              <div className="flex items-center w-full min-h-fit relative">
+                <textarea
+                  id="daemon-textarea"
+                  ref={textareaRef}
+                  className={`w-full pl-2 pr-6 py-3 dark:bg-gray-800 shadow-popover border dark:text-gray-200 border-gray-50 dark:border-gray-700 focus:ring-0 focus:border-primary-500 resize-none ${
+                    summoning ? 'rounded-tl rounded-tr' : 'rounded'
+                  }`}
+                  style={{
+                    minHeight: '48px',
+                    maxHeight: '200px',
+                    overflow: `${textareaRef.current && textareaRef.current.scrollHeight > 200 ? 'auto' : 'hidden'}`,
+                  }}
+                  rows={1}
+                  value={inputText}
+                  placeholder="Send a message..."
+                  onChange={event => setInputText(event.target.value)}
+                  onKeyDown={event => {
+                    if (event.key === 'Enter' && !event.shiftKey && inputText) {
+                      event.preventDefault();
+                      !summoning && summonDaemon();
+                    }
+                  }}
+                  autoFocus
+                />
+                <button
+                  className={`rounded absolute bottom-2.5 right-2 p-1 ${
+                    !summoning && inputText
+                      ? 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
+                      : 'text-gray-300 dark:text-gray-600 cursor-default'
+                  }`}
+                  disabled={summoning || !inputText}
+                  onClick={summonDaemon}
+                >
+                  <IconSend size={18} />
+                </button>
+              </div>
+              <div className="w-full h-1">
+                {summoning ? (
+                  <div className="flex animate-pulse">
+                    <div className="flex-1">
+                      <div className="h-1 bg-primary-600 dark:bg-primary-400 rounded-bl-lg rounded-br-lg"></div>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+              {isError ? (
+                <div className="flex items-center pt-2 text-sm text-red-500">
+                  <IconExclamationCircle className="mr-1" size={16} />
+                  The daemon has failed you. Try again later.
                 </div>
               ) : null}
             </div>
-            {isError ? (
-              <div className="flex items-center pt-2 text-sm text-red-500">
-                <IconExclamationCircle className="mr-1" size={16} />
-                The daemon has failed you. Try again later.
-              </div>
-            ) : null}
           </div>
         </div>
         {messages.length ? (
           <button
-            className="absolute right-3 md:bottom-[110px] p-0.5 rounded-full border border-gray-200 bg-gray-50 text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+            className="absolute right-3.5 md:bottom-[120px] p-0.5 rounded-full border border-gray-200 bg-gray-50 text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
             onClick={scrollToBottom}
           >
             <IconArrowDown size={20} className="text-gray-500 dark:text-gray-300" />
