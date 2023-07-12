@@ -74,8 +74,12 @@ export default function NoteHeader() {
   const isOffline = useStore(state => state.isOffline);
   const isSidebarButtonVisible = useStore(state => !state.isSidebarOpen && state.openNoteIds?.[0] === currentNote.id);
   const isCloseButtonVisible = useStore(state => state.openNoteIds.length > 1);
+  const openNoteIds = useStore(state => state.openNoteIds);
+  const isDaemonUser = useStore(state => state.isDaemonUser);
+  const isDaemonSidebarOpen = useStore(state => state.isDaemonSidebarOpen);
   const note = useStore(state => state.notes[currentNote.id]);
   const setShareModalOpen = useStore(state => state.setShareModalOpen);
+  const isRightmostNote = currentNote.id === openNoteIds[openNoteIds.length - 1];
 
   const onClosePane = useCallback(() => {
     const currentNoteIndex = store.getState().openNoteIds.findIndex(openNoteId => openNoteId === currentNote.id);
@@ -177,7 +181,7 @@ export default function NoteHeader() {
   const iconClassName = 'text-gray-600 dark:text-gray-300';
 
   return (
-    <div className="flex items-center justify-between w-full px-4 py-1 text-right">
+    <div className="flex items-center justify-between w-full px-4 py-1 text-right min-h-[40px]">
       <div>{isSidebarButtonVisible ? <OpenSidebarButton /> : null}</div>
       <div className="flex items-center">
         {isCloseButtonVisible ? (
@@ -281,6 +285,11 @@ export default function NoteHeader() {
                     </Menu.Items>
                   </Portal>
                 )}
+                {isRightmostNote && isDaemonUser && !isDaemonSidebarOpen ? (
+                  <div className="flex items-center mr-7">
+                    <NoteHeaderDivider />
+                  </div>
+                ) : null}
               </>
             )}
           </Menu>
