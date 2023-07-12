@@ -7,8 +7,9 @@ import { useStore } from 'lib/store';
 import usePrevious from 'utils/usePrevious';
 import { queryParamToArray } from 'utils/url';
 import useBlockBacklinks from 'editor/backlinks/useBlockBacklinks';
-import Note from 'components/Note';
+import SummonDaemonButton from 'components/daemon/SummonDaemonButton';
 import WordCount from 'components/editor/WordCount';
+import Note from 'components/Note';
 
 export default function NotePage() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function NotePage() {
     query: { id: noteId, stack: stackQuery },
   } = router;
 
+  const isDaemonUser = useStore(state => state.isDaemonUser);
   const openNoteIds = useStore(state => state.openNoteIds);
   const setOpenNoteIds = useStore(state => state.setOpenNoteIds);
   const setActiveNoteId = useStore(state => state.setActiveNoteId);
@@ -105,6 +107,7 @@ export default function NotePage() {
             ))
           : null}
       </div>
+      {isDaemonUser ? <SummonDaemonButton /> : null}
       <WordCount />
     </>
   );
