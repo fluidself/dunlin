@@ -73,6 +73,7 @@ export default function AppLayout(props: Props) {
   const setSidebarTab = useStore(state => state.setSidebarTab);
   const setCommandMenuState = useStore(state => state.setCommandMenuState);
   const setIsDaemonUser = useStore(state => state.setIsDaemonUser);
+  const setIsDaemonSidebarOpen = useStore(state => state.setIsDaemonSidebarOpen);
 
   useEffect(() => {
     const onDisconnect = () => signOut();
@@ -342,7 +343,7 @@ export default function AppLayout(props: Props) {
         hotkey: 'mod+shift+d',
         callback: () => {
           if (isDaemonUser) {
-            router.push(`/app/${deckId}/daemon`);
+            setIsDaemonSidebarOpen(isOpen => !isOpen);
           }
         },
       },
@@ -351,7 +352,16 @@ export default function AppLayout(props: Props) {
         callback: () => setIsSidebarOpen(isOpen => !isOpen),
       },
     ],
-    [setSidebarTab, setCommandMenuState, setIsSidebarOpen, router, deckId, commandMenuState, isDaemonUser],
+    [
+      setSidebarTab,
+      setCommandMenuState,
+      setIsSidebarOpen,
+      setIsDaemonSidebarOpen,
+      router,
+      deckId,
+      commandMenuState,
+      isDaemonUser,
+    ],
   );
   useHotkeys(hotkeys);
 
