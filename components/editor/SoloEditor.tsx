@@ -66,11 +66,11 @@ function SoloEditor(props: Props) {
       withCustomDeleteBackward(
         withAutoMarkdown(
           withCodeBlocks(
-            withHtml(
-              withBlockBreakout(
-                withVoidElements(
-                  withBlockReferences(
-                    withMedia(withAnnotations(withLinks(withTables(withHistory(withReact(createEditor())))))),
+            withLinks(
+              withHtml(
+                withBlockBreakout(
+                  withVoidElements(
+                    withBlockReferences(withMedia(withAnnotations(withTables(withHistory(withReact(createEditor())))))),
                   ),
                 ),
               ),

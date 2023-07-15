@@ -63,9 +63,11 @@ function FootnoteDefinition(props: Props) {
         withCustomDeleteBackward(
           withAutoMarkdown(
             withCodeBlocks(
-              withHtml(
-                withBlockBreakout(
-                  withVoidElements(withMedia(withAnnotations(withLinks(withHistory(withReact(createEditor())))))),
+              withLinks(
+                withHtml(
+                  withBlockBreakout(
+                    withVoidElements(withMedia(withAnnotations(withHistory(withReact(createEditor()))))),
+                  ),
                 ),
               ),
             ),

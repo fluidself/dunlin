@@ -87,10 +87,10 @@ function CalloutContent(props: Props) {
           withCustomDeleteBackward(
             withAutoMarkdown(
               withCodeBlocks(
-                withHtml(
-                  withBlockBreakout(
-                    withVoidElements(
-                      withMedia(withAnnotations(withLinks(withTables(withHistory(withReact(createEditor())))))),
+                withLinks(
+                  withHtml(
+                    withBlockBreakout(
+                      withVoidElements(withMedia(withAnnotations(withTables(withHistory(withReact(createEditor())))))),
                     ),
                   ),
                 ),
