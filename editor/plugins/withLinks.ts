@@ -7,7 +7,9 @@ const withLinks = (editor: Editor) => {
   const { insertData, insertText, isInline } = editor;
 
   editor.isInline = (element: any) => {
-    return element.type === ElementType.ExternalLink || element.type === ElementType.NoteLink ? true : isInline(element);
+    return element.type === ElementType.ExternalLink || element.type === ElementType.NoteLink
+      ? true
+      : isInline(element);
   };
 
   editor.insertText = (text: any) => {
@@ -15,6 +17,7 @@ const withLinks = (editor: Editor) => {
 
     if (text && isUrl(text)) {
       insertExternalLink(editor, text);
+      Transforms.move(editor, { distance: 1, unit: 'offset' });
     } else if (text === ' ' && selection && Range.isCollapsed(selection)) {
       const { anchor } = selection;
       const start = Editor.start(editor, anchor.path);
@@ -34,6 +37,7 @@ const withLinks = (editor: Editor) => {
         };
         Transforms.select(editor, lastSegmentRange);
         insertExternalLink(editor, lastSegment);
+        Transforms.move(editor, { distance: 1, unit: 'offset' });
       }
 
       insertText(text);
@@ -47,6 +51,7 @@ const withLinks = (editor: Editor) => {
 
     if (text && isUrl(text)) {
       insertExternalLink(editor, text);
+      Transforms.move(editor, { distance: 1, unit: 'offset' });
     } else {
       insertData(data);
     }
