@@ -1,20 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { type ChatCompletionRequestMessage, Configuration, OpenAIApi } from 'openai-edge';
+import { OpenAIStream, StreamingTextResponse } from 'ai';
 import { getIronSession } from 'iron-session/edge';
-import { ChatOpenAI } from 'langchain/chat_models/openai';
-import { SystemChatMessage, HumanChatMessage, AIChatMessage } from 'langchain/schema';
-import { CallbackManager } from 'langchain/callbacks';
-import { type DaemonMessage } from 'lib/createDaemonSlice';
-import { DaemonModel } from 'lib/store';
 import { ironOptions } from 'constants/iron-session';
+import { DaemonModel } from 'lib/store';
 
-export const config = {
-  runtime: 'edge',
-};
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+export const runtime = 'edge';
 
 const defaultPrompt =
   'You are a helpful, succinct assistant. You always format your output in markdown and include code snippets and tables if relevant.';
@@ -25,11 +16,10 @@ const editorPrompt = (request: string) =>
 - Return answer in markdown format.
 - You are tasked with the following: ${request}`;
 
-export default async function daemon(req: NextRequest) {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
+const config = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAIApi(config);
 
+export default async function daemon(req: NextRequest) {
   const res = new NextResponse();
   const session = await getIronSession(req, res, ironOptions);
   if (!session.user || !process.env.DAEMON_USERS?.split(',').includes(session.user.id)) {
@@ -38,7 +28,7 @@ export default async function daemon(req: NextRequest) {
 
   try {
     const { messages, model, temperature, editorRequest } = (await req.json()) as {
-      messages: DaemonMessage[];
+      messages: ChatCompletionRequestMessage[];
       model?: DaemonModel;
       temperature?: number;
       editorRequest?: string;
@@ -47,44 +37,14 @@ export default async function daemon(req: NextRequest) {
       return new Response('Malformed request', { status: 400 });
     }
 
-    const encoder = new TextEncoder();
-    const stream = new TransformStream();
-    const writer = stream.writable.getWriter();
-    const llm = new ChatOpenAI({
-      modelName: model ?? DaemonModel['gpt-3.5-turbo'],
-      streaming: true,
+    const response = await openai.createChatCompletion({
+      model: model ?? DaemonModel['gpt-3.5-turbo'],
       temperature: temperature ?? 0,
-      maxTokens: -1,
-      callbacks: CallbackManager.fromHandlers({
-        async handleLLMNewToken(token) {
-          await writer.ready;
-          const data = JSON.stringify({ token: token });
-          await writer.write(encoder.encode(`data: ${data}\n\n`));
-        },
-        async handleLLMError(error) {
-          await writer.ready;
-          await writer.abort(error);
-        },
-        async handleLLMEnd() {
-          await writer.ready;
-          await writer.close();
-        },
-      }),
+      messages: [{ role: 'system', content: editorRequest ? editorPrompt(editorRequest) : defaultPrompt }, ...messages],
+      stream: true,
     });
-
-    llm.call([
-      new SystemChatMessage(editorRequest ? editorPrompt(editorRequest) : defaultPrompt),
-      ...messages.map(msg =>
-        msg.type === 'human' ? new HumanChatMessage(msg.text.trim().replace(/\n/g, ' ')) : new AIChatMessage(msg.text),
-      ),
-    ]);
-
-    return new NextResponse(stream.readable, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache, no-transform',
-      },
-    });
+    const stream = OpenAIStream(response);
+    return new StreamingTextResponse(stream);
   } catch (err) {
     console.error(err);
     return new Response('There was an error processing your request', { status: 500 });
