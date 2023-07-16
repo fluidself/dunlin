@@ -8,11 +8,11 @@ import {
   IconSend,
   IconX,
 } from '@tabler/icons';
-import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { useChat } from 'ai/react';
+import { nanoid } from 'nanoid';
 import { toast } from 'react-toastify';
 import upsertNote from 'lib/api/upsertNote';
 import { store, useStore } from 'lib/store';
-import type { DaemonMessage } from 'lib/createDaemonSlice';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useAuth } from 'utils/useAuth';
 import { caseInsensitiveStringEqual } from 'utils/string';
@@ -21,8 +21,8 @@ import useOnNoteLinkClick from 'editor/useOnNoteLinkClick';
 import ErrorBoundary from 'components/ErrorBoundary';
 import Tooltip from 'components/Tooltip';
 import SettingsMenu from 'components/daemon/SettingsMenu';
-import Message from 'components/daemon/Message';
 import DaemonSidebarHeader from './DaemonSidebarHeader';
+import DaemonMessage from './DaemonMessage';
 
 export default function Daemon() {
   const { user } = useAuth();
@@ -31,16 +31,25 @@ export default function Daemon() {
   const isPageStackingOn = useStore(state => state.isPageStackingOn);
   const lastOpenNoteId = useStore(state => state.openNoteIds[state.openNoteIds.length - 1]);
   const isDaemonUser = useStore(state => state.isDaemonUser);
-  const messages = useStore(state => state.messages);
+  const storeMessages = useStore(state => state.messages);
   const model = useStore(state => state.model);
   const temperature = useStore(state => state.temperature);
-  const setMessages = useStore(state => state.setMessages);
+  const setStoreMessages = useStore(state => state.setMessages);
   const setModel = useStore(state => state.setModel);
   const setTemperature = useStore(state => state.setTemperature);
   const { onClick: onNoteLinkClick } = useOnNoteLinkClick(lastOpenNoteId);
-  const [inputText, setInputText] = useState('');
+  const { messages, isLoading, input, setInput, append, handleInputChange } = useChat({
+    api: '/api/daemon',
+    initialMessages: storeMessages,
+    onError(error) {
+      console.log(error);
+      setIsError(true);
+    },
+    onFinish(message) {
+      setStoreMessages(prevMessages => [...prevMessages, message]);
+    },
+  });
   const [noteTitle, setNoteTitle] = useState('');
-  const [summoning, setSummoning] = useState(false);
   const [isError, setIsError] = useState(false);
   const [saving, setIsSaving] = useState(false);
   const endofMessagesRef = useRef<HTMLDivElement | null>(null);
@@ -58,7 +67,7 @@ export default function Daemon() {
       textareaRef.current.style.height = `${textareaRef.current?.scrollHeight}px`;
       textareaRef.current.style.overflow = `${textareaRef.current?.scrollHeight > 200 ? 'auto' : 'hidden'}`;
     }
-  }, [inputText]);
+  }, [input]);
 
   useEffect(() => {
     scrollToBottom();
@@ -71,49 +80,13 @@ export default function Daemon() {
   };
 
   const summonDaemon = async () => {
-    if (summoning || !inputText) return;
-    const userMessage: DaemonMessage = { type: 'human', text: inputText };
-    const ctrl = new AbortController();
+    if (isLoading || !input) return;
+    const id = nanoid(7);
 
-    setSummoning(true);
     setIsError(false);
-    setMessages(prevMessages => [...prevMessages, userMessage]);
-    setInputText('');
-
-    fetchEventSource('/api/daemon', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ messages: [...messages, userMessage], model, temperature }),
-      signal: ctrl.signal,
-      async onopen(response) {
-        if (response.ok) {
-          setMessages(prevMessages => [...prevMessages, { type: 'ai', text: '' }]);
-          return;
-        } else {
-          setIsError(true);
-          setSummoning(false);
-        }
-      },
-      onmessage(event) {
-        const data = JSON.parse(event.data);
-        setMessages(prevMessages => {
-          const lastMsg = prevMessages[prevMessages.length - 1];
-          const newMessages = [...prevMessages.slice(0, -1), { ...lastMsg, text: lastMsg.text + data.token }];
-          return newMessages;
-        });
-      },
-      onclose() {
-        setSummoning(false);
-        ctrl.abort();
-      },
-      onerror() {
-        setIsError(true);
-        setSummoning(false);
-        ctrl.abort();
-      },
-    });
+    setInput('');
+    setStoreMessages(prevMessages => [...prevMessages, { id, role: 'user', content: input }]);
+    await append({ id, role: 'user', content: input });
   };
 
   const saveAsNote = async () => {
@@ -126,8 +99,8 @@ export default function Daemon() {
       return;
     }
 
-    const parsedMessages = messages
-      .map(message => `**${message.type === 'human' ? 'User' : 'Daemon'}**:\n${message.text}\n\n---\n\n`)
+    const parsedMessages = storeMessages
+      .map(message => `**${message.role === 'user' ? 'User' : 'Daemon'}**:\n${message.content}\n\n---\n\n`)
       .join('');
     const slateContent = stringToSlate(parsedMessages);
     const newNote = {
@@ -155,29 +128,29 @@ export default function Daemon() {
     <ErrorBoundary>
       <div className="flex flex-col flex-1 w-full h-full">
         <DaemonSidebarHeader />
-        <div className="flex flex-col overflow-y-auto">
+        <div className="flex flex-col h-full overflow-y-auto">
           <div className="flex flex-col flex-1 mx-auto md:w-128 lg:w-160 xl:w-192">
             <div className="flex-1">
               {messages.map((message, idx) => (
-                <Message
+                <DaemonMessage
                   key={idx}
                   message={message}
                   messageIsLatest={idx === (messages.length ?? 0) - 1}
-                  messageIsStreaming={summoning}
+                  messageIsStreaming={isLoading}
                 />
               ))}
               <div ref={endofMessagesRef} />
             </div>
             <div className="sticky bottom-0 flex flex-col items-center pt-3 pb-12 md:w-128 lg:w-160 xl:w-192 bg-white dark:bg-gray-900">
               <div className="flex justify-end w-full space-x-2 mb-1">
-                {messages.length && !summoning && !saving ? (
+                {storeMessages.length && !isLoading && !saving ? (
                   <div className="flex items-center space-x-2">
                     <Tooltip content="Reset daemon">
                       <button
                         className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
-                        disabled={summoning}
+                        disabled={isLoading}
                         onClick={() => {
-                          setMessages([]);
+                          setStoreMessages([]);
                           setIsError(false);
                         }}
                       >
@@ -187,14 +160,14 @@ export default function Daemon() {
                     <Tooltip content="Save as note">
                       <button
                         className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
-                        disabled={summoning}
+                        disabled={isLoading}
                         onClick={() => setIsSaving(true)}
                       >
                         <IconDownload size={16} className="text-gray-600 dark:text-gray-300" />
                       </button>
                     </Tooltip>
                   </div>
-                ) : messages.length && !summoning && saving ? (
+                ) : storeMessages.length && !isLoading && saving ? (
                   <div className="flex items-center space-x-1">
                     <input
                       type="text"
@@ -238,10 +211,10 @@ export default function Daemon() {
               </div>
               <div className="flex items-center w-full min-h-fit relative">
                 <textarea
-                  id="daemon-textarea"
                   ref={textareaRef}
+                  placeholder="Send a message..."
                   className={`w-full pl-2 pr-6 py-3 dark:bg-gray-800 shadow-popover border dark:text-gray-200 border-gray-50 dark:border-gray-700 focus:ring-0 focus:border-primary-500 resize-none ${
-                    summoning ? 'rounded-tl rounded-tr' : 'rounded'
+                    isLoading ? 'rounded-tl rounded-tr' : 'rounded'
                   }`}
                   style={{
                     minHeight: '48px',
@@ -249,31 +222,29 @@ export default function Daemon() {
                     overflow: `${textareaRef.current && textareaRef.current.scrollHeight > 200 ? 'auto' : 'hidden'}`,
                   }}
                   rows={1}
-                  value={inputText}
-                  placeholder="Send a message..."
-                  onChange={event => setInputText(event.target.value)}
+                  value={input}
+                  onChange={handleInputChange}
                   onKeyDown={event => {
-                    if (event.key === 'Enter' && !event.shiftKey && inputText) {
+                    if (event.key === 'Enter' && !event.shiftKey && input) {
                       event.preventDefault();
-                      !summoning && summonDaemon();
+                      !isLoading && summonDaemon();
                     }
                   }}
-                  autoFocus
                 />
                 <button
                   className={`rounded absolute bottom-2.5 right-2 p-1 ${
-                    !summoning && inputText
+                    !isLoading && input
                       ? 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
                       : 'text-gray-300 dark:text-gray-600 cursor-default'
                   }`}
-                  disabled={summoning || !inputText}
+                  disabled={isLoading || !input}
                   onClick={summonDaemon}
                 >
                   <IconSend size={18} />
                 </button>
               </div>
               <div className="w-full h-1">
-                {summoning ? (
+                {isLoading ? (
                   <div className="flex animate-pulse">
                     <div className="flex-1">
                       <div className="h-1 bg-primary-600 dark:bg-primary-400 rounded-bl-lg rounded-br-lg"></div>
