@@ -9,13 +9,6 @@ const withPWA = require('next-pwa')({
 
 module.exports = withPWA({
   reactStrictMode: true,
-  webpack(config) {
-    config.experiments = {
-      asyncWebAssembly: true,
-      layers: true,
-    };
-    return config;
-  },
   async redirects() {
     return [
       {
