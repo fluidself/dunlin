@@ -10,11 +10,10 @@ import {
   IconTrash,
   type TablerIcon,
 } from '@tabler/icons';
-import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { useChat } from 'ai/react';
 import remarkGfm from 'remark-gfm';
 import rehypePrism from 'rehype-prism';
 import { ReactMarkdown } from 'lib/react-markdown/react-markdown';
-import { DaemonMessage } from 'lib/createDaemonSlice';
 import { useStore } from 'lib/store';
 import { toggleElement } from 'editor/formatting';
 import { createNodeId } from 'editor/plugins/withNodeId';
@@ -37,11 +36,17 @@ export default function DaemonPopover(props: Props) {
   const isDaemonUser = useStore(state => state.isDaemonUser);
   const editor = useSlateStatic();
   const [input, setInput] = useState('');
-  const [output, setOutput] = useState('');
-  const [summoning, setSummoning] = useState(false);
   const [isError, setIsError] = useState(false);
+  const { messages, isLoading, append, setMessages } = useChat({
+    api: '/api/daemon',
+    body: { editorRequest: input },
+    onError(error) {
+      console.log(error);
+      setIsError(true);
+    },
+  });
+  const output = useMemo(() => messages[1]?.content ?? '', [messages]);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const ctrl = useMemo(() => new AbortController(), []);
 
   useEffect(() => {
     if (textareaRef && textareaRef.current) {
@@ -55,11 +60,10 @@ export default function DaemonPopover(props: Props) {
     (confirmDiscard = true, locationToSelect?: BaseRange) => {
       if (
         !daemonPopoverState.selection ||
-        ((summoning || output) && confirmDiscard && !window.confirm('Do you want to discard the daemon response?'))
+        ((isLoading || output) && confirmDiscard && !window.confirm('Do you want to discard the daemon response?'))
       ) {
         return;
       }
-      ctrl.abort();
       Transforms.select(editor, locationToSelect ?? daemonPopoverState.selection);
       ReactEditor.focus(editor);
       setDaemonPopoverState({
@@ -67,45 +71,16 @@ export default function DaemonPopover(props: Props) {
         selection: undefined,
       });
     },
-    [editor, daemonPopoverState, summoning, output, ctrl, setDaemonPopoverState],
+    [editor, daemonPopoverState, isLoading, output, setDaemonPopoverState],
   );
 
   const summonDaemon = async () => {
-    if (summoning || !isDaemonUser || !daemonPopoverState.selection || !input) return;
+    if (isLoading || !isDaemonUser || !daemonPopoverState.selection || !input) return;
     const selectionText = Editor.string(editor, daemonPopoverState.selection);
-    const userMessage: DaemonMessage = { type: 'human', text: selectionText };
 
-    setSummoning(true);
     setIsError(false);
     setInput('');
-    setOutput('');
-
-    fetchEventSource('/api/daemon', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ editorRequest: input, messages: [userMessage] }),
-      signal: ctrl.signal,
-      async onopen(response) {
-        if (!response.ok) {
-          setIsError(true);
-          setSummoning(false);
-        }
-      },
-      onmessage(event) {
-        const data = JSON.parse(event.data);
-        setOutput(prev => prev + data.token);
-      },
-      onerror() {
-        ctrl.abort();
-        setIsError(true);
-        setSummoning(false);
-      },
-      onclose() {
-        setSummoning(false);
-      },
-    });
+    await append({ role: 'user', content: selectionText });
   };
 
   const setSelectionAndClose = (firstElementId: string, lastElementId: string) => {
@@ -179,13 +154,13 @@ export default function DaemonPopover(props: Props) {
             linkTarget="_blank"
             className="p-3 pl-2 prose dark:prose-invert max-w-none overflow-x-auto prose-p:whitespace-pre-line prose-table:border prose-table:border-collapse prose-th:border prose-th:border-gray-700 prose-th:align-baseline prose-th:pt-2 prose-th:pl-2 prose-td:border prose-td:border-gray-700 prose-td:pt-2 prose-td:pl-2 prose-a:text-primary-400 hover:prose-a:underline prose-pre:bg-gray-100 prose-pre:dark:bg-gray-800 prose-pre:text-gray-800 prose-pre:dark:text-gray-100 prose-code:bg-gray-100 prose-code:dark:bg-gray-800 prose-code:text-gray-800 prose-code:dark:text-gray-100"
           >
-            {`${output}${summoning ? '`▍`' : ''}`}
+            {`${output}${isLoading ? '`▍`' : ''}`}
           </ReactMarkdown>
-          {output && !summoning ? (
+          {output && !isLoading ? (
             <div className="flex items-center justify-between border-t dark:border-gray-600">
               <ActionButton text="Replace selection" Icon={IconCheck} onClick={replaceSelection} />
               <ActionButton text="Insert below" Icon={IconTextPlus} onClick={insertBelow} />
-              <ActionButton text="Try again" Icon={IconArrowBackUp} onClick={() => setOutput('')} />
+              <ActionButton text="Try again" Icon={IconArrowBackUp} onClick={() => setMessages([])} />
               <ActionButton text="Discard" Icon={IconTrash} onClick={() => hidePopover(false)} />
             </div>
           ) : null}
@@ -206,25 +181,25 @@ export default function DaemonPopover(props: Props) {
             onKeyDown={event => {
               if (event.key === 'Enter' && !event.shiftKey && input) {
                 event.preventDefault();
-                !summoning && summonDaemon();
+                !isLoading && summonDaemon();
               }
             }}
             autoFocus
           />
           <button
             className={`rounded absolute bottom-2.5 right-2 p-1 ${
-              !summoning && input
+              !isLoading && input
                 ? 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
                 : 'text-gray-300 dark:text-gray-600 cursor-default'
             }`}
-            disabled={summoning || !input}
+            disabled={isLoading || !input}
             onClick={summonDaemon}
           >
             <IconSend size={18} />
           </button>
         </div>
       )}
-      {summoning ? (
+      {isLoading ? (
         <div className="w-full h-1">
           <div className="flex animate-pulse">
             <div className="flex-1">
