@@ -38,7 +38,7 @@ export default function Daemon() {
   const setModel = useStore(state => state.setModel);
   const setTemperature = useStore(state => state.setTemperature);
   const { onClick: onNoteLinkClick } = useOnNoteLinkClick(lastOpenNoteId);
-  const { messages, isLoading, input, setInput, append, handleInputChange } = useChat({
+  const { messages, isLoading, input, setInput, setMessages, append, handleInputChange } = useChat({
     api: '/api/daemon',
     initialMessages: storeMessages,
     onError(error) {
@@ -150,6 +150,7 @@ export default function Daemon() {
                         className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
                         disabled={isLoading}
                         onClick={() => {
+                          setMessages([]);
                           setStoreMessages([]);
                           setIsError(false);
                         }}
