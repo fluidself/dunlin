@@ -3,7 +3,7 @@ import { usePopper } from 'react-popper';
 import { Menu } from '@headlessui/react';
 import { Placement } from '@popperjs/core';
 import Portal from './Portal';
-import Tooltip from './Tooltip';
+import Tooltip, { type TooltipPlacement } from './Tooltip';
 
 type Props = {
   buttonChildren: ReactNode;
@@ -13,7 +13,7 @@ type Props = {
   placement?: Placement;
   offset?: [number | null | undefined, number | null | undefined];
   tooltipContent?: ReactNode;
-  tooltipPlacement?: Placement;
+  tooltipPlacement?: TooltipPlacement;
 };
 
 export default function Dropdown(props: Props) {
@@ -40,7 +40,7 @@ export default function Dropdown(props: Props) {
       {({ open }) => (
         <>
           <Menu.Button ref={referenceElementRef} className={buttonClassName} contentEditable={false}>
-            <Tooltip disabled={!tooltipContent} content={tooltipContent} delay={[200, 0]} placement={tooltipPlacement}>
+            <Tooltip content={tooltipContent} placement={tooltipPlacement} delay={200}>
               <span>{buttonChildren}</span>
             </Tooltip>
           </Menu.Button>

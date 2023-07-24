@@ -29,7 +29,7 @@ export default function NoteLinkElement(props: NoteLinkElementProps) {
   );
 
   return (
-    <Tooltip content={element.noteTitle} placement="bottom-start">
+    <Tooltip content={element.noteTitle} placement="bottom">
       <span
         role="button"
         className={noteLinkClassName}

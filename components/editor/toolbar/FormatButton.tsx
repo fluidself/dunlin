@@ -9,7 +9,7 @@ interface FormatButtonProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'onCli
   format: Mark;
   clear?: Mark;
   Icon: TablerIcon;
-  tooltip?: string;
+  tooltip: string;
   className?: string;
 }
 

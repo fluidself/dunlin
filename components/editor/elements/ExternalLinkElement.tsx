@@ -24,7 +24,7 @@ export default function ExternalLinkElement(props: ExternalLinkElementProps) {
   const linkText = Node.string(element) ?? element.url;
 
   return (
-    <Tooltip content={<span className="break-words">{element.url}</span>} placement="bottom-start">
+    <Tooltip content={<span className="break-words">{element.url}</span>} placement="bottom">
       <a
         className={linkClassName}
         href={element.url}
