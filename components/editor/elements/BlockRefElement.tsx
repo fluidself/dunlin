@@ -27,18 +27,15 @@ export default function BlockRefElement(props: BlockRefElementProps) {
 
   const blockReference = useBlockReference(element.blockId);
   const currentNote = useCurrentNote();
-  const { onClick: onBlockRefClick, defaultStackingBehavior } =
-    useOnNoteLinkClick(currentNote.id);
+  const { onClick: onBlockRefClick, defaultStackingBehavior } = useOnNoteLinkClick(currentNote.id);
 
   const blockRefClassName = classNames(
     'p-0.25 border-b border-gray-200 select-none cursor-alias hover:bg-primary-50 active:bg-primary-100 dark:border-gray-700 dark:hover:bg-primary-900 dark:active:bg-primary-800',
     { 'bg-primary-100 dark:bg-primary-900': selected && focused },
-    className
+    className,
   );
 
-  const noteTitle = useStore((state) =>
-    blockReference ? state.notes[blockReference.noteId].title : null
-  );
+  const noteTitle = useStore(state => (blockReference ? state.notes[blockReference.noteId].title : null));
 
   const renderElement = useCallback((props: EditorElementProps) => {
     const elementType = props.element.type;
@@ -49,33 +46,22 @@ export default function BlockRefElement(props: BlockRefElementProps) {
     }
   }, []);
 
-  const editorValue = useMemo(
-    () => (blockReference ? [blockReference.element] : []),
-    [blockReference]
-  );
+  const editorValue = useMemo(() => (blockReference ? [blockReference.element] : []), [blockReference]);
 
   return (
-    <Tooltip content={noteTitle} placement="bottom-start" disabled={!noteTitle}>
+    <Tooltip content={noteTitle} placement="bottom">
       <div
         className={blockRefClassName}
-        onClick={(e) => {
+        onClick={e => {
           e.stopPropagation();
           if (blockReference) {
-            onBlockRefClick(
-              blockReference.noteId,
-              defaultStackingBehavior(e),
-              blockReference.path
-            );
+            onBlockRefClick(blockReference.noteId, defaultStackingBehavior(e), blockReference.path);
           }
         }}
         {...attributes}
       >
         {blockReference ? (
-          <ReadOnlyEditor
-            value={editorValue}
-            renderElement={renderElement}
-            renderLeaf={EditorLeaf}
-          />
+          <ReadOnlyEditor value={editorValue} renderElement={renderElement} renderLeaf={EditorLeaf} />
         ) : (
           <BlockRefError element={element} />
         )}

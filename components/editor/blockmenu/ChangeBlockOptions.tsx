@@ -100,7 +100,7 @@ type BlockButtonProps = {
   format: ElementType;
   element: Element;
   Icon: TablerIcon;
-  tooltip?: string;
+  tooltip: string;
   className?: string;
 };
 
@@ -110,7 +110,7 @@ const BlockButton = ({ format, element, Icon, tooltip, className = '' }: BlockBu
   const isActive = isElementActive(editor, format, path);
 
   return (
-    <Tooltip content={tooltip} placement="top" disabled={!tooltip}>
+    <Tooltip content={tooltip} placement="top">
       <span>
         <DropdownItem
           className={`flex items-center px-2 py-2 cursor-pointer rounded hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${className}`}
@@ -186,7 +186,7 @@ const FileButton = ({ format, element, Icon, tooltip, className = '', onlyImages
   }, [editor, path, onlyImages]);
 
   return (
-    <Tooltip content={tooltip} placement="top" disabled={!tooltip}>
+    <Tooltip content={tooltip} placement="top">
       <span>
         <DropdownItem
           className={`flex items-center px-2 py-2 cursor-pointer rounded hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${className}`}
@@ -221,7 +221,7 @@ const EmbedButton = ({ format, element, Icon, tooltip, className = '', setEmbedU
   const isActive = isElementActive(editor, format, path);
 
   return (
-    <Tooltip content={tooltip} placement="top" disabled={!tooltip}>
+    <Tooltip content={tooltip} placement="top">
       <span>
         <DropdownItem
           className={`flex items-center px-2 py-2 cursor-pointer rounded hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${className}`}

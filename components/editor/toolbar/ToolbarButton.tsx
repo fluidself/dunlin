@@ -6,8 +6,8 @@ import Tooltip from 'components/Tooltip';
 interface ToolbarButtonProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'onClick'> {
   icon: TablerIcon;
   onClick: () => void;
+  tooltip: string;
   text?: string;
-  tooltip?: string;
   isActive?: boolean;
   className?: string;
 }
@@ -23,7 +23,7 @@ const ToolbarButton = (props: ToolbarButtonProps) => {
   );
 
   return (
-    <Tooltip content={tooltip} placement="top" disabled={!tooltip}>
+    <Tooltip content={tooltip} placement="top">
       <span
         role="button"
         className={buttonClassName}
