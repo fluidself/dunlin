@@ -178,6 +178,7 @@ export default function Daemon() {
                       onChange={event => setNoteTitle(event.target.value)}
                       onKeyDown={event => {
                         if (event.key === 'Escape') {
+                          event.stopPropagation();
                           setIsSaving(false);
                         } else if (event.key === 'Enter' && noteTitle) {
                           event.preventDefault();

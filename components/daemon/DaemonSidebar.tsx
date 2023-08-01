@@ -1,5 +1,6 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { useTransition, animated } from '@react-spring/web';
+import useHotkeys from 'utils/useHotkeys';
 import { isMobile } from 'utils/device';
 import { useStore } from 'lib/store';
 import { SPRING_CONFIG } from 'constants/spring';
@@ -8,6 +9,17 @@ import Daemon from './Daemon';
 function DaemonSidebar() {
   const isDaemonSidebarOpen = useStore(state => state.isDaemonSidebarOpen);
   const setIsDaemonSidebarOpen = useStore(state => state.setIsDaemonSidebarOpen);
+
+  const hotkeys = useMemo(
+    () => [
+      {
+        hotkey: 'esc',
+        callback: () => setIsDaemonSidebarOpen(false),
+      },
+    ],
+    [setIsDaemonSidebarOpen],
+  );
+  useHotkeys(hotkeys);
 
   const transition = useTransition<
     boolean,
