@@ -1,4 +1,4 @@
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import { IconCopy } from '@tabler/icons';
 import Prism from 'prismjs';
 import copyToClipboard from 'utils/copyToClipboard';
@@ -10,9 +10,12 @@ type CodeBlockProps = {
 
 function CodeBlock(props: CodeBlockProps) {
   const { language, value } = props;
+  const codeBlockRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    Prism.highlightAll();
+    if (codeBlockRef.current) {
+      Prism.highlightElement(codeBlockRef.current);
+    }
   }, []);
 
   return (
@@ -26,7 +29,9 @@ function CodeBlock(props: CodeBlockProps) {
         />
       </div>
       <pre className="!p-2">
-        <code className={`language-${language ?? ''}`}>{value}</code>
+        <code ref={codeBlockRef} className={`language-${language ?? ''}`}>
+          {value}
+        </code>
       </pre>
     </div>
   );
