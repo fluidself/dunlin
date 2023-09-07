@@ -98,12 +98,14 @@ function Editor(props: Props) {
           withCustomDeleteBackward(
             withAutoMarkdown(
               withCodeBlocks(
-                withLinks(
-                  withHtml(
-                    withBlockBreakout(
-                      withVoidElements(
-                        withBlockReferences(
-                          withMedia(withAnnotations(withTables(withHistory(withReact(createEditor() as DeckEditor))))),
+                withMedia(
+                  withLinks(
+                    withHtml(
+                      withBlockBreakout(
+                        withVoidElements(
+                          withBlockReferences(
+                            withAnnotations(withTables(withHistory(withReact(createEditor() as DeckEditor)))),
+                          ),
                         ),
                       ),
                     ),
