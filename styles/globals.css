@@ -96,12 +96,12 @@ input[type='radio']:focus {
 
 /** Details disclosure editor element **/
 .details-summary > button::before {
-  @apply flex justify-center items-center w-6 h-6;
+  @apply flex justify-center items-center w-6 h-6 pt-4;
   content: '\25B6';
 }
 
 .details.is-open > .details-summary > button::before {
-  @apply rotate-90;
+  @apply rotate-90 pt-1 mt-2;
 }
 
 .settings-modal-tooltip > .tooltiptext {
