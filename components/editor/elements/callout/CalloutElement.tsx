@@ -128,7 +128,7 @@ export default function CalloutElement(props: CalloutElementProps) {
           <input
             value={title}
             disabled={readOnly}
-            className={`bg-transparent outline-none block w-full font-bold ${calloutDetails.colors.text}`}
+            className={`bg-transparent outline-none focus:ring-0 border-none block w-full font-bold ${calloutDetails.colors.text}`}
             placeholder={calloutDetails.defaultTitle}
             onChange={onTitleChange}
           />

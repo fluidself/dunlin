@@ -74,7 +74,7 @@ const Summary = ({ summaryText, isReadOnly, onChange, onDelete }: SummaryProps) 
     <input
       value={value}
       disabled={isReadOnly}
-      className="bg-transparent outline-none block w-full"
+      className="bg-transparent outline-none focus:ring-0 border-none block w-full"
       placeholder="Details"
       onKeyDown={e => {
         if (e.key === 'Backspace' && value === '') {
