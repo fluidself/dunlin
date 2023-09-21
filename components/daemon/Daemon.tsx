@@ -30,6 +30,7 @@ export default function Daemon() {
   const authorOnlyNotes = useStore(state => state.authorOnlyNotes);
   const isPageStackingOn = useStore(state => state.isPageStackingOn);
   const lastOpenNoteId = useStore(state => state.openNoteIds[state.openNoteIds.length - 1]);
+  const isDaemonSidebarOpen = useStore(state => state.isDaemonSidebarOpen);
   const isDaemonUser = useStore(state => state.isDaemonUser);
   const storeMessages = useStore(state => state.messages);
   const model = useStore(state => state.model);
@@ -57,9 +58,9 @@ export default function Daemon() {
 
   useEffect(() => {
     if (textareaRef && textareaRef.current && !saving) {
-      textareaRef.current.focus();
+      setTimeout(() => textareaRef?.current?.focus(), 200);
     }
-  });
+  }, [isDaemonSidebarOpen, saving]);
 
   useEffect(() => {
     if (textareaRef && textareaRef.current) {
