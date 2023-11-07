@@ -55,9 +55,9 @@ function SettingsMenu(props: SettingsMenuProps) {
                     value={model}
                     onChange={e => setModel(e.target.value as DaemonModel)}
                   >
-                    {Object.values(DaemonModel).map(model => (
-                      <option key={model} value={model}>
-                        {model}
+                    {Object.entries(DaemonModel).map(([key, model]) => (
+                      <option key={key} value={model}>
+                        {key}
                       </option>
                     ))}
                   </select>
