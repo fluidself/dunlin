@@ -42,6 +42,7 @@ export default function Daemon() {
   const { messages, isLoading, input, setInput, setMessages, append, handleInputChange } = useChat({
     api: '/api/daemon',
     initialMessages: storeMessages,
+    body: { model, temperature },
     onError(error) {
       console.log(error);
       setIsError(true);
