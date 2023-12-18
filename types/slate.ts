@@ -27,6 +27,7 @@ export enum ElementType {
   CodeLine = 'code-line',
   CodeBlock = 'code-block',
   MermaidDiagram = 'mermaid-diagram',
+  Whiteboard = 'whiteboard',
   ThematicBreak = 'thematic-break',
   Image = 'image',
   Video = 'video',
@@ -165,6 +166,19 @@ export type MermaidDiagram = {
   children: Descendant[];
 };
 
+export type Whiteboard = {
+  id: string;
+  type: ElementType.Whiteboard;
+  data?: {
+    elements: any[];
+    state: {
+      gridSize: number | null;
+      viewBackgroundColor: string;
+    };
+  };
+  children: Descendant[];
+};
+
 export type ThematicBreak = {
   id: string;
   type: ElementType.ThematicBreak;
@@ -260,6 +274,7 @@ export type ReferenceableBlockElement =
   | CodeLine
   | CodeBlock
   | MermaidDiagram
+  | Whiteboard
   | ThematicBreak
   | Image
   | Video
