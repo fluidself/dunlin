@@ -13,6 +13,7 @@ const VOID_ELEMENTS: Array<ElementType> = [
   ElementType.BlockReference,
   ElementType.MermaidDiagram,
   ElementType.Callout,
+  ElementType.Whiteboard,
 ];
 
 const withVoidElements = (editor: Editor) => {
