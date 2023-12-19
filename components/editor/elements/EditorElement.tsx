@@ -27,6 +27,14 @@ const MermaidElement = dynamic(() => import('./MermaidElement'), {
     </div>
   ),
 });
+const WhiteboardElement = dynamic(() => import('./WhiteboardElement'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-48">
+      <Spinner />
+    </div>
+  ),
+});
 
 export type EditorElementProps = {
   className?: string;
@@ -104,6 +112,12 @@ export default function EditorElement(props: EditorElementProps) {
         <MermaidElement className={className} element={element} attributes={attributes}>
           {children}
         </MermaidElement>
+      );
+    case ElementType.Whiteboard:
+      return (
+        <WhiteboardElement className={className} element={element} attributes={attributes}>
+          {children}
+        </WhiteboardElement>
       );
     case ElementType.ThematicBreak:
       return (
