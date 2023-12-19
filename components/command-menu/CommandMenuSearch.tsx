@@ -6,6 +6,7 @@ import {
   IconBlockquote,
   IconBraces,
   IconBrandYoutube,
+  IconBrush,
   IconFilePlus,
   IconH1,
   IconH2,
@@ -42,6 +43,7 @@ import {
   insertDetailsDisclosure,
   insertFootnote,
   insertThematicBreak,
+  insertWhiteboard,
   toggleElement,
 } from 'editor/formatting';
 import { type EmbedUrlInputState } from 'components/EmbedUrlInput';
@@ -212,6 +214,9 @@ export default function CommandMenuSearch(props: Props) {
             break;
           case ElementType.Table:
             insertTable(editor, path);
+            break;
+          case ElementType.Whiteboard:
+            insertWhiteboard(editor, path);
             break;
           case ElementType.ThematicBreak:
             insertThematicBreak(editor, path);
@@ -453,6 +458,13 @@ export const allElementOptions = [
     text: 'Embed',
     icon: IconTerminal2,
     format: ElementType.Embed,
+  },
+  {
+    id: 'whiteboard',
+    type: OptionType.ELEMENT,
+    text: 'Whiteboard',
+    icon: IconBrush,
+    format: ElementType.Whiteboard,
   },
   {
     id: 'file-attachment',
