@@ -19,6 +19,7 @@ import type {
   ThematicBreak,
   UploadedFile,
   Video,
+  Whiteboard,
 } from 'types/slate';
 import { ElementType, Mark } from 'types/slate';
 import { computeBlockReference } from './backlinks/useBlockReference';
@@ -397,6 +398,22 @@ export const insertFileAttachment = (editor: Editor, file: UploadedFile, path?: 
   } else {
     // Insert a new file attachment node
     Transforms.insertNodes(editor, fileAttachment);
+  }
+};
+
+export const insertWhiteboard = (editor: Editor, path?: Path) => {
+  const whiteboard: Whiteboard = {
+    id: createNodeId(),
+    type: ElementType.Whiteboard,
+    children: [{ text: '' }],
+  };
+
+  if (path) {
+    // Set the node at the given path to be a whiteboard element
+    Transforms.setNodes(editor, whiteboard, { at: path });
+  } else {
+    // Insert a new whiteboard element
+    Transforms.insertNodes(editor, whiteboard);
   }
 };
 
