@@ -4,6 +4,7 @@ import {
   IconCheck,
   IconDownload,
   IconExclamationCircle,
+  IconPlayerStop,
   IconRefresh,
   IconSend,
   IconX,
@@ -39,7 +40,7 @@ export default function Daemon() {
   const setModel = useStore(state => state.setModel);
   const setTemperature = useStore(state => state.setTemperature);
   const { onClick: onNoteLinkClick } = useOnNoteLinkClick(lastOpenNoteId);
-  const { messages, isLoading, input, setInput, setMessages, append, handleInputChange } = useChat({
+  const { messages, isLoading, input, setInput, setMessages, append, handleInputChange, stop } = useChat({
     api: '/api/daemon',
     initialMessages: storeMessages,
     body: { model, temperature },
@@ -235,17 +236,26 @@ export default function Daemon() {
                     }
                   }}
                 />
-                <button
-                  className={`rounded absolute bottom-2.5 right-2 p-1 ${
-                    !isLoading && input
-                      ? 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
-                      : 'text-gray-300 dark:text-gray-600 cursor-default'
-                  }`}
-                  disabled={isLoading || !input}
-                  onClick={summonDaemon}
-                >
-                  <IconSend size={18} />
-                </button>
+                {isLoading ? (
+                  <button
+                    className="rounded absolute bottom-2.5 right-2 p-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                    onClick={stop}
+                  >
+                    <IconPlayerStop size={18} className="fill-gray-600 dark:fill-gray-300" />
+                  </button>
+                ) : (
+                  <button
+                    className={`rounded absolute bottom-2.5 right-2 p-1 ${
+                      input
+                        ? 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
+                        : 'text-gray-300 dark:text-gray-600 cursor-default'
+                    }`}
+                    disabled={!input}
+                    onClick={summonDaemon}
+                  >
+                    <IconSend size={18} />
+                  </button>
+                )}
               </div>
               <div className="w-full h-1">
                 {isLoading ? (
