@@ -5,12 +5,8 @@ import { ironOptions } from 'constants/iron-session';
 import supabaseClient from 'lib/supabase';
 import type { User } from 'types/supabase';
 
-const SERVICE_ROLE_KEY = (
-  process.env.NODE_ENV === 'development' ? process.env.SERVICE_ROLE_KEY_ALT : process.env.SERVICE_ROLE_KEY
-) as string;
-const JWT_SECRET = (
-  process.env.NODE_ENV === 'development' ? process.env.JWT_SECRET_ALT : process.env.JWT_SECRET
-) as string;
+const SERVICE_ROLE_KEY = process.env.SERVICE_ROLE_KEY as string;
+const JWT_SECRET = process.env.JWT_SECRET as string;
 
 const headerName = 'Cache-Control';
 const headerValue = 'no-cache, no-store, max-age=0, must-revalidate';
