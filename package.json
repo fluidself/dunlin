@@ -14,6 +14,7 @@
     "@excalidraw/excalidraw": "^0.17.2",
     "@extractus/oembed-extractor": "^3.1.9",
     "@headlessui/react": "^1.7.14",
+    "@ipld/car": "^5.2.6",
     "@lit-protocol/core": "^2.2.15",
     "@lit-protocol/encryption": "^2.2.15",
     "@metamask/jazzicon": "^2.0.0",
@@ -23,6 +24,7 @@
     "@supabase/supabase-js": "^1.35.7",
     "@tabler/icons": "^1.119.0",
     "@tanstack/react-virtual": "^3.0.0-beta.54",
+    "@web3-storage/w3up-client": "^12.0.0",
     "ai": "^2.1.25",
     "classnames": "^2.3.2",
     "d3-drag": "^3.0.0",
@@ -77,7 +79,6 @@
     "viem": "^0.3.39",
     "w3name": "^1.0.8",
     "wagmi": "^1.0.9",
-    "web3.storage": "^4.5.4",
     "y-websocket": "^1.4.3",
     "yjs": "^13.6.1",
     "zustand": "4.1.5"
