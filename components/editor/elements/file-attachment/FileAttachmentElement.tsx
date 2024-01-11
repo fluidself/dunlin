@@ -8,7 +8,6 @@ import { saveAs } from 'file-saver';
 import { FileAttachment } from 'types/slate';
 import { useStore } from 'lib/store';
 import { formatBytes } from 'utils/string';
-import useIpfs from 'utils/useIpfs';
 import Tooltip from 'components/Tooltip';
 import Button from 'components/Button';
 import FileAttachmentMenu from './FileAttachmentMenu';
@@ -26,7 +25,6 @@ export default function FileAttachmentElement(props: FileAttachmentElementProps)
   const selected = useSelected();
   const focused = useFocused();
   const readOnly = useReadOnly();
-  const client = useIpfs();
   const isOffline = useStore(state => state.isOffline);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -34,11 +32,10 @@ export default function FileAttachmentElement(props: FileAttachmentElementProps)
   const handleDownload = async () => {
     setProcessing(true);
     try {
-      const res = await client.get(file.cid);
-      const files = await res?.files();
-      if (!files) throw new Error('Could not retrieve file at given CID');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${file.cid}`);
+      const encryptedFile = await res.blob();
+      if (!encryptedFile) throw new Error('Could not retrieve file at given CID');
 
-      const [encryptedFile] = files;
       const symmetricKey = decodeBase64(file.symmKey);
       const decryptedFile = await decryptFile({ file: encryptedFile, symmetricKey });
       const blob = new Blob([decryptedFile]);
