@@ -94,7 +94,8 @@ export default function PublishNoteModal(props: Props) {
 
   const publishNote = async (note: NotePublication) => {
     const file = prepareFileObject(note, `${note.address}-${note.timestamp}`);
-    const cid = await client.put([file], { wrapWithDirectory: false });
+    const link = await client!.uploadFile(file);
+    const cid = link.toString() as string;
 
     return cid;
   };
@@ -119,7 +120,7 @@ export default function PublishNoteModal(props: Props) {
   };
 
   const onConfirm = async () => {
-    if (!userId) return;
+    if (!userId || !client) return;
     setProcessing(true);
 
     const publishingToast = toast.info('Publishing to IPFS, please wait...', {

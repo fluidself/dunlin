@@ -1,11 +1,18 @@
-import { useMemo } from 'react';
-import { Web3Storage } from 'web3.storage';
-
-const TOKEN = process.env.NEXT_PUBLIC_WEB3STORAGE_TOKEN as string;
-const ENDPOINT = process.env.NEXT_PUBLIC_WEB3STORAGE_ENDPOINT as string;
+import { useEffect, useState } from 'react';
+import type { Client } from '@web3-storage/w3up-client';
+import { createClient } from 'utils/web3-storage';
 
 export default function useIpfs() {
-  const client = useMemo(() => new Web3Storage({ token: TOKEN, endpoint: new URL(ENDPOINT) }), []);
+  const [client, setClient] = useState<Client | null>(null);
+
+  useEffect(() => {
+    const initClient = async () => {
+      const client = await createClient();
+      setClient(client);
+    };
+
+    initClient();
+  }, []);
 
   return client;
 }

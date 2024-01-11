@@ -1,11 +1,11 @@
 import { encryptFile } from '@lit-protocol/encryption';
 import { encodeBase64 } from 'tweetnacl-util';
 import { Editor, Path } from 'slate';
-import { Web3Storage } from 'web3.storage';
 import { toast } from 'react-toastify';
 import { insertFileAttachment, insertImage, insertVideo } from 'editor/formatting';
 import type { UploadedFile } from 'types/slate';
 import { isUrl } from 'utils/url';
+import { createClient } from 'utils/web3-storage';
 import imageExtensions from 'utils/image-extensions';
 import { extractYoutubeEmbedLink, isYouTubeUrl } from 'utils/video';
 
@@ -78,17 +78,15 @@ const uploadFile = async (file: File | Blob) => {
   }
 
   try {
-    const TOKEN = process.env.NEXT_PUBLIC_WEB3STORAGE_TOKEN as string;
-    const ENDPOINT = process.env.NEXT_PUBLIC_WEB3STORAGE_ENDPOINT as string;
-    const client = new Web3Storage({ token: TOKEN, endpoint: new URL(ENDPOINT) });
-
     const uploadingToast = toast.info('Uploading file, please wait...', {
       autoClose: false,
       closeButton: false,
       draggable: false,
     });
 
-    const cid = await client.put([file], { wrapWithDirectory: false });
+    const client = await createClient();
+    const link = await client.uploadFile(file);
+    const cid = link.toString();
 
     toast.dismiss(uploadingToast);
 
