@@ -5,9 +5,10 @@ import { usePopper } from 'react-popper';
 import { DecryptedNote } from 'types/decrypted';
 import MoveToModal from 'components/MoveToModal';
 import DeleteNoteModal from 'components/DeleteNoteModal';
+import ChildNoteModal from 'components/ChildNoteModal';
 import NoteEditMenu from 'components/NoteEditMenu';
 import NoteMetadata from 'components/NoteMetadata';
-import Portal from '../Portal';
+import Portal from 'components/Portal';
 
 type Props = {
   note: DecryptedNote;
@@ -21,6 +22,7 @@ const SidebarNoteLinkDropdown = (props: Props) => {
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   const { styles, attributes } = usePopper(containerRef.current, popperElement, { placement: 'right-start' });
 
+  const [isChildNoteModalOpen, setIsChildNoteModalOpen] = useState(false);
   const [isMoveToModalOpen, setIsMoveToModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -50,6 +52,7 @@ const SidebarNoteLinkDropdown = (props: Props) => {
                     note={note}
                     setIsMoveToModalOpen={setIsMoveToModalOpen}
                     setIsDeleteModalOpen={setIsDeleteModalOpen}
+                    setIsChildNoteModalOpen={setIsChildNoteModalOpen}
                   />
                   <NoteMetadata note={note} />
                 </Menu.Items>
@@ -58,6 +61,11 @@ const SidebarNoteLinkDropdown = (props: Props) => {
           </>
         )}
       </Menu>
+      {isChildNoteModalOpen ? (
+        <Portal>
+          <ChildNoteModal noteId={note.id} setIsOpen={setIsChildNoteModalOpen} />
+        </Portal>
+      ) : null}
       {isMoveToModalOpen ? (
         <Portal>
           <MoveToModal noteId={note.id} setIsOpen={setIsMoveToModalOpen} />

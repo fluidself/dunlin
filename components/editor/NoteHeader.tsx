@@ -3,14 +3,14 @@ import { Menu } from '@headlessui/react';
 import Select from 'react-select';
 import { createEditor, Element, Editor } from 'slate';
 import {
+  IconCloudDownload,
   IconDots,
   IconDownload,
-  IconUpload,
-  IconCloudDownload,
-  IconX,
-  IconPencil,
   IconEye,
+  IconPencil,
   IconShare,
+  IconUpload,
+  IconX,
 } from '@tabler/icons';
 import { usePopper } from 'react-popper';
 import { saveAs } from 'file-saver';
@@ -38,6 +38,7 @@ import NoteMetadata from 'components/NoteMetadata';
 import MoveToModal from 'components/MoveToModal';
 import PublishNoteModal from 'components/PublishNoteModal';
 import DeleteNoteModal from 'components/DeleteNoteModal';
+import ChildNoteModal from 'components/ChildNoteModal';
 import Identicon from 'components/Identicon';
 import { NoteHeaderDivider } from './NoteHeaderDivider';
 
@@ -80,6 +81,15 @@ export default function NoteHeader() {
   const note = useStore(state => state.notes[currentNote.id]);
   const setShareModalOpen = useStore(state => state.setShareModalOpen);
   const isRightmostNote = currentNote.id === openNoteIds[openNoteIds.length - 1];
+
+  const menuButtonRef = useRef<HTMLButtonElement | null>(null);
+  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
+  const { styles, attributes } = usePopper(menuButtonRef.current, popperElement, { placement: 'bottom-start' });
+
+  const [isChildNoteModalOpen, setIsChildNoteModalOpen] = useState(false);
+  const [isMoveToModalOpen, setIsMoveToModalOpen] = useState(false);
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const onClosePane = useCallback(() => {
     const currentNoteIndex = store.getState().openNoteIds.findIndex(openNoteId => openNoteId === currentNote.id);
@@ -129,10 +139,6 @@ export default function NoteHeader() {
     return () => noteElement?.removeEventListener('keydown', handleCloseNote);
   }, [currentNote.id, isCloseButtonVisible, onClosePane]);
 
-  const menuButtonRef = useRef<HTMLButtonElement | null>(null);
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
-  const { styles, attributes } = usePopper(menuButtonRef.current, popperElement, { placement: 'bottom-start' });
-
   const onExportClick = useCallback(async () => {
     saveAs(getNoteAsBlob(note), `${note.title}.md`);
   }, [note]);
@@ -149,9 +155,6 @@ export default function NoteHeader() {
     saveAs(zipContent, 'notes-export.zip');
   }, []);
 
-  const [isMoveToModalOpen, setIsMoveToModalOpen] = useState(false);
-  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const onPublishClick = useCallback(() => setIsPublishModalOpen(true), []);
 
   const renderPermissionIcon = () => {
@@ -279,6 +282,7 @@ export default function NoteHeader() {
                         note={note}
                         setIsMoveToModalOpen={setIsMoveToModalOpen}
                         setIsDeleteModalOpen={setIsDeleteModalOpen}
+                        setIsChildNoteModalOpen={setIsChildNoteModalOpen}
                         onPublishClick={onPublishClick}
                       />
                       <NoteMetadata note={note} />
@@ -295,6 +299,11 @@ export default function NoteHeader() {
           </Menu>
         </div>
       </div>
+      {isChildNoteModalOpen ? (
+        <Portal>
+          <ChildNoteModal noteId={note.id} setIsOpen={setIsChildNoteModalOpen} />
+        </Portal>
+      ) : null}
       {isMoveToModalOpen ? (
         <Portal>
           <MoveToModal noteId={currentNote.id} setIsOpen={setIsMoveToModalOpen} />
