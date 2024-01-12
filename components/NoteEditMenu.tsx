@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import { IconCornerDownRight, IconTrash, IconPencil, IconEye, IconSend } from '@tabler/icons';
+import { IconCornerDownRight, IconEye, IconFilePlus, IconPencil, IconSend, IconTrash } from '@tabler/icons';
 import { toast } from 'react-toastify';
 import { DecryptedNote } from 'types/decrypted';
 import { Note, Deck } from 'types/supabase';
@@ -15,11 +15,12 @@ type Props = {
   note: DecryptedNote;
   setIsMoveToModalOpen: Dispatch<SetStateAction<boolean>>;
   setIsDeleteModalOpen: Dispatch<SetStateAction<boolean>>;
+  setIsChildNoteModalOpen: Dispatch<SetStateAction<boolean>>;
   onPublishClick?: () => void;
 };
 
 export default function NoteEditMenu(props: Props) {
-  const { note, setIsMoveToModalOpen, setIsDeleteModalOpen, onPublishClick } = props;
+  const { note, setIsMoveToModalOpen, setIsDeleteModalOpen, setIsChildNoteModalOpen, onPublishClick } = props;
 
   const { user } = useAuth();
   const { id: deckId, user_id: deckOwner, author_control_notes } = useCurrentDeck();
@@ -28,6 +29,7 @@ export default function NoteEditMenu(props: Props) {
   const confirmNoteDeletion = useStore(state => state.confirmNoteDeletion);
 
   const onMoveToClick = useCallback(() => setIsMoveToModalOpen(true), [setIsMoveToModalOpen]);
+  const onChildNoteClick = useCallback(() => setIsChildNoteModalOpen(true), [setIsChildNoteModalOpen]);
   const [authorControlNotes, setAuthorControlNotes] = useState(author_control_notes);
 
   const userCanEditNote = note.author_only ? note.user_id === user?.id || deckOwner === user?.id : true;
@@ -55,12 +57,12 @@ export default function NoteEditMenu(props: Props) {
 
   const renderNotePermission = () =>
     note.author_only ? (
-      <DropdownItem className="border-t dark:border-gray-700" onClick={async () => await toggleAuthorOnly(false)}>
+      <DropdownItem onClick={async () => await toggleAuthorOnly(false)}>
         <IconPencil size={18} className="mr-1" />
         <span>Allow editing</span>
       </DropdownItem>
     ) : (
-      <DropdownItem className="border-t dark:border-gray-700" onClick={async () => await toggleAuthorOnly(true)}>
+      <DropdownItem onClick={async () => await toggleAuthorOnly(true)}>
         <IconEye size={18} className="mr-1" />
         <span>Restrict editing</span>
       </DropdownItem>
@@ -70,21 +72,21 @@ export default function NoteEditMenu(props: Props) {
 
   return (
     <>
+      <DropdownItem className={`${onPublishClick ? 'border-t dark:border-gray-700' : ''}`} onClick={onChildNoteClick}>
+        <IconFilePlus size={18} className="mr-1" />
+        <span>Add child note</span>
+      </DropdownItem>
+      <DropdownItem onClick={onMoveToClick}>
+        <IconCornerDownRight size={18} className="mr-1" />
+        <span>Move note to</span>
+      </DropdownItem>
       {userCanControlNotePermission && renderNotePermission()}
       {onPublishClick && (
-        <DropdownItem
-          disabled={isOffline}
-          className={`${!userCanControlNotePermission ? 'border-t dark:border-gray-700' : ''}`}
-          onClick={onPublishClick}
-        >
+        <DropdownItem disabled={isOffline} onClick={onPublishClick}>
           <IconSend size={18} className="mr-1" />
           <span>Publish</span>
         </DropdownItem>
       )}
-      <DropdownItem onClick={onMoveToClick}>
-        <IconCornerDownRight size={18} className="mr-1" />
-        <span>Move to</span>
-      </DropdownItem>
       <DropdownItem onClick={() => (confirmNoteDeletion ? setIsDeleteModalOpen(true) : onDeleteClick())}>
         <IconTrash size={18} className="mr-1" />
         <span>Delete</span>
