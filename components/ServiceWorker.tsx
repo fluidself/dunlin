@@ -14,8 +14,12 @@ export default function ServiceWorker(props: Props) {
       // Show a banner when a service worker has updated and is waiting to install
       const showUpdateBanner = () => {
         const updateBanner = document.getElementById('update-banner');
+        const summonDaemonButton = document.getElementById('summon-daemon-button');
         if (updateBanner) {
           updateBanner.classList.replace('hidden', 'block');
+        }
+        if (summonDaemonButton) {
+          summonDaemonButton.classList.replace('py-[5px]', 'py-[37px]');
         }
       };
 

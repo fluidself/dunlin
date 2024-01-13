@@ -12,7 +12,10 @@ export default function SummonDaemonButton() {
   if (!isDaemonUser || isDaemonSidebarOpen) return null;
 
   return (
-    <div className="flex items-center justify-center absolute top-0 right-4 py-[5px]">
+    <div
+      id="summon-daemon-button"
+      className={`flex items-center justify-center absolute top-0 right-4 ${isOffline ? 'py-[37px]' : 'py-[5px]'}`}
+    >
       <Tooltip content={`Summon daemon (${modifierKey()}+Shift+D)`}>
         <button
           className={`rounded hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 ${
@@ -22,7 +25,10 @@ export default function SummonDaemonButton() {
           onClick={() => setIsDaemonSidebarOpen(isOpen => !isOpen)}
         >
           <span className="flex items-center justify-center w-7 h-7">
-            <IconGhost2 size={20} className="text-gray-600 dark:text-gray-300" />
+            <IconGhost2
+              size={20}
+              className={`${isOffline ? 'text-gray-300 dark:text-gray-500' : 'text-gray-600 dark:text-gray-300'}`}
+            />
           </span>
         </button>
       </Tooltip>
