@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Editor, Element, Transforms } from 'slate';
 import { ReactEditor, useSlateStatic } from 'slate-react';
-import { IconDotsVertical, IconLink, IconPlus } from '@tabler/icons';
+import { IconCornerDownRight, IconCornerUpRight, IconDotsVertical, IconLink } from '@tabler/icons';
 import { ReferenceableBlockElement, ElementType } from 'types/slate';
 import { isReferenceableBlockElement } from 'editor/checks';
 import { createNodeId } from 'editor/plugins/withNodeId';
@@ -21,7 +21,22 @@ export default function BlockMenuDropdown(props: BlockMenuDropdownProps) {
   const editor = useSlateStatic();
   const [embedUrlInputState, setEmbedUrlInputState] = useState<EmbedUrlInputState>({ isOpen: false });
 
-  const onAddBlock = useCallback(() => {
+  const onAddBlockAbove = useCallback(() => {
+    // Insert new paragraph before the current block
+    const path = ReactEditor.findPath(editor, element);
+    const location = Editor.before(editor, path, { unit: 'line', voids: true });
+    Transforms.insertNodes(
+      editor,
+      {
+        id: createNodeId(),
+        type: ElementType.Paragraph,
+        children: [{ text: '' }],
+      },
+      { at: location ?? [0] },
+    );
+  }, [editor, element]);
+
+  const onAddBlockBelow = useCallback(() => {
     // Insert new paragraph after the current block
     const path = ReactEditor.findPath(editor, element);
     const location = Editor.after(editor, path, { unit: 'line', voids: true });
@@ -89,8 +104,12 @@ export default function BlockMenuDropdown(props: BlockMenuDropdownProps) {
         tooltipContent={<span className="text-xs">Click to open menu</span>}
         tooltipPlacement="bottom"
       >
-        <DropdownItem className="!px-3" onClick={onAddBlock}>
-          <IconPlus size={18} className="mr-1" />
+        <DropdownItem className="!px-3" onClick={onAddBlockAbove}>
+          <IconCornerUpRight size={18} className="mr-1" />
+          <span>Add block above</span>
+        </DropdownItem>
+        <DropdownItem className="!px-3" onClick={onAddBlockBelow}>
+          <IconCornerDownRight size={18} className="mr-1" />
           <span>Add block below</span>
         </DropdownItem>
         <DropdownItem className="!px-3" onClick={onCopyBlockRef}>
