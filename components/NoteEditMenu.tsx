@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import { IconCornerDownRight, IconEye, IconFilePlus, IconPencil, IconSend, IconTrash } from '@tabler/icons';
+import { IconArrowsUpRight, IconEye, IconFilePlus, IconPencil, IconSend, IconTrash } from '@tabler/icons';
 import { toast } from 'react-toastify';
 import { DecryptedNote } from 'types/decrypted';
 import { Note, Deck } from 'types/supabase';
@@ -77,7 +77,7 @@ export default function NoteEditMenu(props: Props) {
         <span>Add child note</span>
       </DropdownItem>
       <DropdownItem onClick={onMoveToClick}>
-        <IconCornerDownRight size={18} className="mr-1" />
+        <IconArrowsUpRight size={18} className="mr-1" />
         <span>Move note to</span>
       </DropdownItem>
       {userCanControlNotePermission && renderNotePermission()}
