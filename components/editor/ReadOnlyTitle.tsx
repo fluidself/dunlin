@@ -24,12 +24,12 @@ function ReadOnlyTitle(props: Props) {
       <div
         ref={titleRef}
         className={`title text-3xl md:text-4xl font-semibold border-none focus:outline-none p-0 leading-tight cursor-text ${className}`}
-        placeholder="Untitled"
+        data-placeholder="Untitled"
         contentEditable={false}
       />
       <style jsx>{`
-        .title[placeholder]:empty:before {
-          content: attr(placeholder);
+        .title[data-placeholder]:empty:before {
+          content: attr(data-placeholder);
           color: #d1d5db;
         }
       `}</style>

@@ -34,14 +34,14 @@ function Title(props: Props) {
         ref={titleRef}
         className={`title text-3xl md:text-4xl font-semibold border-none focus:outline-none p-0 leading-tight cursor-text ${className}`}
         role="textbox"
-        placeholder="Untitled"
-        onKeyPress={(event) => {
+        data-placeholder="Untitled"
+        onKeyPress={event => {
           // Disallow newlines in the title field
           if (event.key === 'Enter') {
             event.preventDefault();
           }
         }}
-        onPaste={(event) => {
+        onPaste={event => {
           // Remove styling and newlines from the text
           event.preventDefault();
           let text = event.clipboardData.getData('text/plain');
@@ -53,8 +53,8 @@ function Title(props: Props) {
         spellCheck
       />
       <style jsx>{`
-        .title[placeholder]:empty:before {
-          content: attr(placeholder);
+        .title[data-placeholder]:empty:before {
+          content: attr(data-placeholder);
           color: #d1d5db;
         }
       `}</style>
