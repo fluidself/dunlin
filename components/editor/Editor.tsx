@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState, KeyboardEvent, useEffect, memo } from 'react';
-import { createEditor, Range, Editor as SlateEditor, Descendant, Path } from 'slate';
+import { useCallback, useMemo, useState, KeyboardEvent, useEffect, memo, useRef } from 'react';
+import { createEditor, Range, Editor as SlateEditor, Descendant, Operation, Path } from 'slate';
 import { withReact, Editable, ReactEditor, Slate } from 'slate-react';
 import { SyncElement, toSharedType, withYjs, withCursor, useCursors } from 'slate-yjs';
 import { WebsocketProvider } from 'y-websocket';
@@ -65,11 +65,15 @@ function Editor(props: Props) {
   const isDaemonUser = useStore(state => state.isDaemonUser);
 
   const note = useStore(state => state.notes[noteId]);
-  const value = note?.content ?? getDefaultEditorValue();
-  const setValue = useCallback(
+  const updateStoreNote = useCallback(
     (value: Descendant[]) => store.getState().updateNote({ id: noteId, content: value }),
     [noteId],
   );
+  const initialValueRef = useRef<Descendant[]>();
+  if (!initialValueRef.current) {
+    initialValueRef.current = note?.content ?? getDefaultEditorValue();
+  }
+  const initialValue = initialValueRef.current;
 
   const color = useMemo(
     () =>
@@ -133,7 +137,7 @@ function Editor(props: Props) {
   useEffect(() => {
     provider.on('sync', (isSynced: boolean) => {
       if (isSynced && sharedType.length === 0) {
-        toSharedType(sharedType, value);
+        toSharedType(sharedType, initialValue);
       }
     });
 
@@ -247,19 +251,18 @@ function Editor(props: Props) {
         });
         return;
       }
-      if (newValue?.length && value?.length) {
+      if (newValue?.length && initialValue?.length) {
         setSelection(editor.selection);
-        // We need this check because this function is called every time
-        // the selection changes
-        const valueNormalized = value.map(v => _pick(v, ['type', 'children']));
+        const isAstChange = editor.operations.some((op: Operation) => 'set_selection' !== op.type);
+        const valueNormalized = initialValue.map(v => _pick(v, ['type', 'children']));
         const newValueNormalized = newValue.map(v => _pick(v, ['type', 'children']));
-        if (!_isEqual(valueNormalized, newValueNormalized)) {
-          setValue(newValue);
+        if (isAstChange && !_isEqual(valueNormalized, newValueNormalized)) {
+          updateStoreNote(newValue);
           onChange(newValue);
         }
       }
     },
-    [editor.selection, onChange, value, setValue, noteId, note],
+    [editor.selection, editor.operations, initialValue, updateStoreNote, noteId, note, onChange],
   );
 
   // If highlightedPath is defined, highlight the path
@@ -298,7 +301,7 @@ function Editor(props: Props) {
 
   return (
     <>
-      <Slate editor={editor} value={value} onChange={onSlateChange}>
+      <Slate editor={editor} initialValue={initialValue} onChange={onSlateChange}>
         {isToolbarVisible ? (
           <HoveringToolbar
             setAddLinkPopoverState={setAddLinkPopoverState}

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, KeyboardEvent, useEffect, useRef, memo } from 'react';
-import { createEditor, Range, Editor as SlateEditor, Descendant, Path } from 'slate';
+import { createEditor, Range, Editor as SlateEditor, Descendant, Operation, Path } from 'slate';
 import { withReact, Editable, ReactEditor, Slate } from 'slate-react';
 import { withHistory } from 'slate-history';
 import { isHotkey } from 'is-hotkey';
@@ -54,11 +54,16 @@ function SoloEditor(props: Props) {
   const commandMenuState = useStore(state => state.commandMenuState);
   const isDaemonUser = useStore(state => state.isDaemonUser);
 
-  const value = useStore(state => state.notes[noteId]?.content ?? getDefaultEditorValue());
-  const setValue = useCallback(
+  const updateStoreNote = useCallback(
     (value: Descendant[]) => store.getState().updateNote({ id: noteId, content: value }),
     [noteId],
   );
+
+  const initialValueRef = useRef<Descendant[]>();
+  if (!initialValueRef.current) {
+    initialValueRef.current = store.getState().notes[noteId]?.content ?? getDefaultEditorValue();
+  }
+  const initialValue = initialValueRef.current;
 
   const editorRef = useRef<SlateEditor>();
   if (!editorRef.current) {
@@ -179,14 +184,13 @@ function SoloEditor(props: Props) {
   const onSlateChange = useCallback(
     (newValue: Descendant[]) => {
       setSelection(editor.selection);
-      // We need this check because this function is called every time
-      // the selection changes
-      if (newValue !== value) {
-        setValue(newValue);
+      const isAstChange = editor.operations.some((op: Operation) => 'set_selection' !== op.type);
+      if (isAstChange) {
+        updateStoreNote(newValue);
         onChange(newValue);
       }
     },
-    [editor.selection, onChange, value, setValue],
+    [editor.selection, editor.operations, updateStoreNote, onChange],
   );
 
   // If highlightedPath is defined, highlight the path
@@ -225,7 +229,7 @@ function SoloEditor(props: Props) {
 
   return (
     <>
-      <Slate editor={editor} value={value} onChange={onSlateChange}>
+      <Slate editor={editor} initialValue={initialValue} onChange={onSlateChange}>
         {isToolbarVisible ? (
           <HoveringToolbar
             setAddLinkPopoverState={setAddLinkPopoverState}

@@ -25,7 +25,7 @@ function ReadOnlyEditor(props: Props) {
   return (
     <Slate
       editor={editor}
-      value={value}
+      initialValue={value}
       onChange={() => {
         /* Do nothing, this is a read only editor */
       }}

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, KeyboardEvent, memo, useEffect } from 'react';
-import { createEditor, Range, Editor as SlateEditor, Descendant, Transforms, Node } from 'slate';
+import { createEditor, Range, Editor as SlateEditor, Descendant, Transforms, Node, Operation } from 'slate';
 import { withReact, Editable, ReactEditor, Slate, useReadOnly } from 'slate-react';
 import { withHistory } from 'slate-history';
 import { IconX } from '@tabler/icons';
@@ -163,11 +163,12 @@ function FootnoteDefinition(props: Props) {
   const onSlateChange = useCallback(
     (newValue: Descendant[]) => {
       setSelection(editor.selection);
-      if (newValue !== value) {
+      const isAstChange = editor.operations.some((op: Operation) => 'set_selection' !== op.type);
+      if (isAstChange) {
         onChange(newValue);
       }
     },
-    [editor.selection, value, onChange],
+    [editor.selection, editor.operations, onChange],
   );
 
   if (readOnly) {
@@ -178,7 +179,7 @@ function FootnoteDefinition(props: Props) {
         </button>
         <Slate
           editor={editor}
-          value={value}
+          initialValue={value}
           onChange={() => {
             /* Do nothing, this is a read only editor */
           }}
@@ -200,7 +201,7 @@ function FootnoteDefinition(props: Props) {
       <button className="absolute top-0.5 right-0.5 text-gray-300 hover:text-gray-100" onClick={onClose}>
         <IconX size={14} />
       </button>
-      <Slate editor={editor} value={value} onChange={onSlateChange}>
+      <Slate editor={editor} initialValue={value} onChange={onSlateChange}>
         {isToolbarVisible ? (
           <HoveringToolbar
             setAddLinkPopoverState={setAddLinkPopoverState}

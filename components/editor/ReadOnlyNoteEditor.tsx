@@ -31,7 +31,7 @@ function ReadOnlyNoteEditor(props: Props) {
   const { user } = useAuth();
 
   const note = useStore(state => state.notes[noteId]);
-  const value = note?.content ?? getDefaultEditorValue();
+  const initialValue = note?.content ?? getDefaultEditorValue();
 
   useEffect(() => {
     if (!note) {
@@ -80,7 +80,7 @@ function ReadOnlyNoteEditor(props: Props) {
   useEffect(() => {
     provider.on('sync', (isSynced: boolean) => {
       if (isSynced && sharedType.length === 0) {
-        toSharedType(sharedType, value);
+        toSharedType(sharedType, initialValue);
       }
     });
 
@@ -107,7 +107,7 @@ function ReadOnlyNoteEditor(props: Props) {
   return (
     <Slate
       editor={editor}
-      value={value}
+      initialValue={initialValue}
       onChange={() => {
         /* Do nothing, this is a read only editor */
       }}
