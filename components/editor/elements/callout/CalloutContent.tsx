@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, KeyboardEvent, memo, useEffect } from 'react';
-import { createEditor, Range, Editor as SlateEditor, Descendant, Transforms } from 'slate';
+import { createEditor, Range, Editor as SlateEditor, Descendant, Operation, Transforms } from 'slate';
 import { withReact, Editable, ReactEditor, Slate, useReadOnly } from 'slate-react';
 import { SyncElement, toSharedType, withYjs, withCursor, useCursors } from 'slate-yjs';
 import { WebsocketProvider } from 'y-websocket';
@@ -231,21 +231,22 @@ function CalloutContent(props: Props) {
       }
       if (newValue?.length && value?.length) {
         setSelection(editor.selection);
+        const isAstChange = editor.operations.some((op: Operation) => 'set_selection' !== op.type);
         const valueNormalized = value.map(v => _pick(v, ['type', 'children']));
         const newValueNormalized = newValue.map(v => _pick(v, ['type', 'children']));
-        if (!_isEqual(valueNormalized, newValueNormalized)) {
+        if (isAstChange && !_isEqual(valueNormalized, newValueNormalized)) {
           onChange(newValue);
         }
       }
     },
-    [editor.selection, onChange, value, noteId, note],
+    [editor.selection, editor.operations, value, noteId, note, onChange],
   );
 
   if (readOnly) {
     return (
       <Slate
         editor={editor}
-        value={value}
+        initialValue={value}
         onChange={() => {
           /* Do nothing, this is a read only editor */
         }}
@@ -267,7 +268,7 @@ function CalloutContent(props: Props) {
 
   return (
     <>
-      <Slate editor={editor} value={value} onChange={onSlateChange}>
+      <Slate editor={editor} initialValue={value} onChange={onSlateChange}>
         {isToolbarVisible ? (
           <HoveringToolbar
             setAddLinkPopoverState={setAddLinkPopoverState}
