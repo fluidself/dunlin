@@ -14,7 +14,7 @@ export const callouts: Plugin = function (providedConfig?: Partial<Config>) {
   const defaultKeywords: string = Object.keys(config.types).map(escapeRegExp).join('|');
 
   return function (tree) {
-    visit(tree, (node: Node, index, parent: Parent<Node>) => {
+    visit(tree, (node, index, parent: Parent<Node>) => {
       // Filter required elems
       if (node.type !== 'blockquote') return;
 

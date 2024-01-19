@@ -7,13 +7,13 @@ const supersub: Plugin = function () {
   return function (tree) {
     // Superscript
     let superscriptIndex: number | null = null;
-    visit(tree, (node: Node, index, parent: Parent<Node>) => {
+    visit(tree, (node, index, parent: Parent<Node>) => {
       if (node.type !== 'html') return;
 
       const { value } = node as Literal<string>;
 
       if (value === '<sup>') {
-        superscriptIndex = index;
+        superscriptIndex = index || null;
       } else if (value === '</sup>' && index && typeof superscriptIndex === 'number') {
         const textChild = parent.children[index - 1];
         const superscriptNode = {
@@ -30,13 +30,13 @@ const supersub: Plugin = function () {
 
     // Subscript
     let subscriptIndex: number | null = null;
-    visit(tree, (node: Node, index, parent: Parent<Node>) => {
+    visit(tree, (node, index, parent: Parent<Node>) => {
       if (node.type !== 'html') return;
 
       const { value } = node as Literal<string>;
 
       if (value === '<sub>') {
-        subscriptIndex = index;
+        subscriptIndex = index || null;
       } else if (value === '</sub>' && index && typeof subscriptIndex === 'number') {
         const textChild = parent.children[index - 1];
         const subscriptNode = {
