@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Highlighter from 'react-highlight-words';
-import Fuse from 'fuse.js';
+import type { FuseResultMatch } from 'fuse.js';
 import useNoteSearch, { NoteBlock } from 'utils/useNoteSearch';
 import useDebounce from 'utils/useDebounce';
 import { useStore } from 'lib/store';
@@ -109,7 +109,7 @@ const SidebarSearchLeaf = memo(function SidebarSearchLeaf(props: SidebarSearchLe
   );
 });
 
-const matchSort = (a: Fuse.FuseResultMatch, b: Fuse.FuseResultMatch) => {
+const matchSort = (a: FuseResultMatch, b: FuseResultMatch) => {
   if (a.refIndex === undefined && b.refIndex === undefined) {
     return 0;
   } else if (a.refIndex === undefined) {

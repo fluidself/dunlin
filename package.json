@@ -33,7 +33,7 @@
     "d3-zoom": "^3.0.0",
     "detect-indent": "^7.0.1",
     "file-saver": "^2.0.5",
-    "fuse.js": "^6.5.3",
+    "fuse.js": "^7.0.0",
     "immer": "^9.0.16",
     "iron-session": "^6.2.1",
     "is-hotkey": "^0.2.0",
