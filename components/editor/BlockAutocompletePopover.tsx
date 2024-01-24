@@ -49,7 +49,7 @@ export default function BlockAutocompletePopover() {
 
   const options: Option[] = useMemo(() => {
     const currBlock = Editor.above(editor, {
-      match: n => Editor.isBlock(editor, n),
+      match: n => Element.isElement(n) && Editor.isBlock(editor, n),
     });
     const currPath = currBlock ? currBlock[1] : [];
     return searchResults
