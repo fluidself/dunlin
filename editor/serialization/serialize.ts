@@ -166,7 +166,7 @@ export default function serialize(
         .split('\n')
         .map(line => `> ${line}`)
         .join('\n');
-      return `> [!${callout.calloutType}] ${callout.title ?? ''}\n${formattedContent}\n\n`;
+      return `> [!${callout.calloutType}] ${callout.title ?? ''}  \n${formattedContent}\n\n`;
 
     case ElementType.CodeLine:
       return `${children}\n`;
