@@ -68,7 +68,7 @@ export default function Daemon() {
     if (textareaRef && textareaRef.current) {
       textareaRef.current.style.height = 'inherit';
       textareaRef.current.style.height = `${textareaRef.current?.scrollHeight}px`;
-      textareaRef.current.style.overflow = `${textareaRef.current?.scrollHeight > 200 ? 'auto' : 'hidden'}`;
+      textareaRef.current.style.overflow = `${textareaRef.current?.scrollHeight > 300 ? 'auto' : 'hidden'}`;
     }
   }, [input]);
 
@@ -223,8 +223,8 @@ export default function Daemon() {
                   }`}
                   style={{
                     minHeight: '48px',
-                    maxHeight: '200px',
-                    overflow: `${textareaRef.current && textareaRef.current.scrollHeight > 200 ? 'auto' : 'hidden'}`,
+                    maxHeight: '300px',
+                    overflow: `${textareaRef.current && textareaRef.current.scrollHeight > 300 ? 'auto' : 'hidden'}`,
                   }}
                   rows={1}
                   value={input}
