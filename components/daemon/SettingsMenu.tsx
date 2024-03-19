@@ -2,9 +2,15 @@ import { memo, useRef, useState } from 'react';
 import { IconSettings } from '@tabler/icons';
 import { usePopper } from 'react-popper';
 import { Menu } from '@headlessui/react';
+import Select from 'react-select';
 import { DaemonModel } from 'lib/store';
 import Portal from 'components/Portal';
 import Tooltip from 'components/Tooltip';
+
+const selectOptions = Object.entries(DaemonModel).map(([key, model]) => ({
+  value: model,
+  label: key,
+}));
 
 type SettingsMenuProps = {
   model: DaemonModel;
@@ -45,22 +51,18 @@ function SettingsMenu(props: SettingsMenuProps) {
                 style={styles.popper}
                 {...attributes.popper}
               >
-                <div className="flex flex-col space-y-1 p-2 dark:text-gray-200">
+                <div className="flex flex-col space-y-1 p-2 dark:text-gray-200 min-w-40">
                   <label htmlFor="model" className="text-sm">
                     Model
                   </label>
-                  <select
+                  <Select
                     id="model"
-                    className="input bg-gray-50 dark:bg-gray-700 dark:border-gray-700 text-sm"
-                    value={model}
-                    onChange={e => setModel(e.target.value as DaemonModel)}
-                  >
-                    {Object.entries(DaemonModel).map(([key, model]) => (
-                      <option key={key} value={model}>
-                        {key}
-                      </option>
-                    ))}
-                  </select>
+                    className="react-select-container react-select-container-menu"
+                    classNamePrefix="react-select"
+                    options={selectOptions}
+                    value={selectOptions.find(option => option.value === model)}
+                    onChange={value => setModel(value?.value as DaemonModel)}
+                  />
                 </div>
                 <div className="flex flex-col space-y-2 p-2 pb-3 dark:text-gray-200">
                   <div className="flex justify-between text-sm">

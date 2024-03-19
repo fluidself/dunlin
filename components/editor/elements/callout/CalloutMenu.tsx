@@ -2,10 +2,16 @@ import { useCallback, useMemo, useState } from 'react';
 import { Transforms } from 'slate';
 import { useSlateStatic } from 'slate-react';
 import { IconTrash, IconX } from '@tabler/icons';
+import Select from 'react-select';
 import { ElementType } from 'types/slate';
 import useHotkeys from 'utils/useHotkeys';
 import useOnClickOutside from 'utils/useOnClickOutside';
 import { CalloutType, calloutConfig } from './config';
+
+const selectOptions = Object.entries(calloutConfig).map(([calloutType, calloutDetails]) => ({
+  value: calloutType,
+  label: calloutDetails.defaultTitle,
+}));
 
 type CalloutMenuProps = {
   selectedType: CalloutType;
@@ -50,18 +56,15 @@ export default function CalloutMenu(props: CalloutMenuProps) {
       </div>
       <div className="flex flex-col px-4 py-3 space-y-2 border-y dark:border-gray-700">
         <label htmlFor="type">Type</label>
-        <select
+        <Select
           id="type"
-          className="input bg-gray-50 dark:bg-gray-700 dark:border-gray-700"
-          value={selectedType}
-          onChange={e => onUpdate(e.target.value as CalloutType)}
-        >
-          {Object.entries(calloutConfig).map(([calloutType, calloutDetails]) => (
-            <option key={calloutType} value={calloutType}>
-              {calloutDetails.defaultTitle}
-            </option>
-          ))}
-        </select>
+          className="react-select-container react-select-container-menu"
+          classNamePrefix="react-select"
+          menuPlacement="auto"
+          options={selectOptions}
+          value={selectOptions.find(option => option.value === selectedType)}
+          onChange={value => onUpdate(value?.value as CalloutType)}
+        />
       </div>
       <button
         className="flex flex-row items-center justify-center py-3 focus:outline-none hover:bg-gray-100 active:bg-gray-100 dark:hover:bg-gray-700 dark:active:bg-gray-600"
