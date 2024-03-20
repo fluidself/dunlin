@@ -1,13 +1,22 @@
-import { ChangeEvent, ReactNode, useCallback, useEffect, useMemo } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo } from 'react';
 import { Editor, createEditor, Node, Transforms, Path } from 'slate';
 import { ReactEditor, RenderElementProps, useSlateStatic, useReadOnly } from 'slate-react';
+import Select from 'react-select';
 import { CODE_BLOCK_LANGUAGES } from 'editor/decorateCodeBlocks';
 import { CodeBlock, ElementType, MermaidDiagram } from 'types/slate';
 import { useCurrentNote } from 'utils/useCurrentNote';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { encrypt } from 'utils/encryption';
 import updateNote from 'lib/api/updateNote';
-import { store } from 'lib/store';
+import { store, useStore } from 'lib/store';
+
+const selectOptions = [
+  { value: '', label: 'Plaintext' },
+  ...Object.entries(CODE_BLOCK_LANGUAGES).map(([key, val]) => ({
+    value: key,
+    label: val,
+  })),
+];
 
 type Props = {
   element: CodeBlock;
@@ -23,6 +32,7 @@ export default function CodeBlockElement(props: Props) {
   const readOnly = useReadOnly();
   const { id: noteId } = useCurrentNote();
   const { key } = useCurrentDeck();
+  const darkMode = useStore(state => state.darkMode);
   const path = useMemo(() => ReactEditor.findPath(editor, element), [editor, element]);
   const isMermaidCodeBlockFocused = useMemo(
     () => lang === 'mermaid' && editor.selection && Path.isDescendant(editor.selection.anchor.path, path),
@@ -30,11 +40,11 @@ export default function CodeBlockElement(props: Props) {
   );
 
   const onSelectChange = useCallback(
-    async (event: ChangeEvent<HTMLSelectElement>) => {
+    async (newLang: string) => {
       if (readOnly) return;
 
       try {
-        const newProperties: Partial<CodeBlock> = { lang: event.target.value };
+        const newProperties: Partial<CodeBlock> = { lang: newLang };
         Transforms.setNodes(editor, newProperties, { at: path });
 
         // Update note locally and in database
@@ -84,19 +94,50 @@ export default function CodeBlockElement(props: Props) {
       {...attributes}
     >
       {!readOnly ? (
-        <select
-          value={lang ?? ''}
-          onChange={onSelectChange}
-          contentEditable={false}
-          className="bg-transparent absolute top-0 right-0 p-0.5 pr-7 border-none focus:ring-0 focus:shadow-none ring-offset-0 text-right cursor-pointer text-[13px]"
-        >
-          <option value="">Plaintext</option>
-          {Object.entries(CODE_BLOCK_LANGUAGES).map(([key, val]) => (
-            <option key={key} value={key}>
-              {val}
-            </option>
-          ))}
-        </select>
+        <div contentEditable={false}>
+          <Select
+            className="react-select-container react-select-container-code"
+            classNamePrefix="react-select"
+            menuPlacement="auto"
+            minMenuHeight={366}
+            isSearchable={false}
+            options={selectOptions}
+            value={selectOptions.find(option => option.value === (lang ?? ''))}
+            onChange={value => onSelectChange(value?.value ?? '')}
+            menuPortalTarget={document.body}
+            styles={{
+              menuPortal: base => ({ ...base, zIndex: 9999 }),
+              menu: base => ({
+                ...base,
+                margin: 0,
+                border: 'unset',
+                boxShadow: 'none',
+              }),
+              menuList: base => ({
+                ...base,
+                paddingTop: 0,
+                paddingBottom: 0,
+                minWidth: '100px',
+                minHeight: '366px',
+                borderRadius: '4px',
+                border: darkMode ? '1px solid rgb(64 64 64 / var(--tw-bg-opacity))' : '1px solid lightgray',
+                backgroundColor: darkMode ? 'rgb(38 38 38 / var(--tw-bg-opacity))' : 'white',
+              }),
+              option: base => ({
+                ...base,
+                fontSize: '0.75rem',
+                lineHeight: '0.75rem',
+                color: darkMode ? 'white' : 'black',
+                backgroundColor: darkMode ? 'rgb(38 38 38 / var(--tw-bg-opacity))' : 'white',
+                ':hover': {
+                  backgroundColor: darkMode
+                    ? 'rgb(64 64 64 / var(--tw-bg-opacity))'
+                    : 'rgb(245 245 245 / var(--tw-bg-opacity))',
+                },
+              }),
+            }}
+          />
+        </div>
       ) : null}
       <code className={`language-${lang ?? ''}`}>{children}</code>
     </pre>
