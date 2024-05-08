@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { type ChatCompletionRequestMessage, Configuration, OpenAIApi } from 'openai-edge';
-import { OpenAIStream, StreamingTextResponse } from 'ai';
+import { type CoreMessage, StreamingTextResponse, streamText } from 'ai';
+import { openai } from '@ai-sdk/openai';
 import { getIronSession } from 'iron-session/edge';
 import { ironOptions } from 'constants/iron-session';
 import { DaemonModel } from 'lib/store';
@@ -16,9 +16,6 @@ const editorPrompt = (request: string) =>
 - Return answer in markdown format.
 - You are tasked with the following: ${request}`;
 
-const config = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
-const openai = new OpenAIApi(config);
-
 export default async function daemon(req: NextRequest) {
   const res = new NextResponse();
   const session = await getIronSession(req, res, ironOptions);
@@ -28,7 +25,7 @@ export default async function daemon(req: NextRequest) {
 
   try {
     const { messages, model, temperature, editorRequest } = (await req.json()) as {
-      messages: ChatCompletionRequestMessage[];
+      messages: CoreMessage[];
       model?: DaemonModel;
       temperature?: number;
       editorRequest?: string;
@@ -37,14 +34,14 @@ export default async function daemon(req: NextRequest) {
       return new Response('Malformed request', { status: 400 });
     }
 
-    const response = await openai.createChatCompletion({
-      model: model ?? DaemonModel['gpt-3.5-turbo'],
+    const result = await streamText({
+      model: openai(model ?? DaemonModel['gpt-3.5-turbo']),
+      system: editorRequest ? editorPrompt(editorRequest) : defaultPrompt,
       temperature: temperature ?? 0,
-      messages: [{ role: 'system', content: editorRequest ? editorPrompt(editorRequest) : defaultPrompt }, ...messages],
-      stream: true,
+      messages: [...messages],
     });
-    const stream = OpenAIStream(response);
-    return new StreamingTextResponse(stream);
+
+    return new StreamingTextResponse(result.toAIStream());
   } catch (err) {
     console.error(err);
     return new Response('There was an error processing your request', { status: 500 });
