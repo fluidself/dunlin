@@ -1,14 +1,20 @@
 import { Draft } from 'immer';
-import type { Message } from 'ai/react';
 import { setter, Setter, Store, DaemonModel } from './store';
+
+type DaemonMessage = {
+  id: string;
+  createdAt?: Date;
+  role: 'system' | 'user' | 'assistant' | 'function' | 'data' | 'tool';
+  content: string;
+};
 
 export type DaemonStore = {
   isDaemonUser: boolean;
   setIsDaemonUser: Setter<boolean>;
   isDaemonSidebarOpen: boolean;
   setIsDaemonSidebarOpen: Setter<boolean>;
-  messages: Message[];
-  setMessages: Setter<Message[]>;
+  messages: DaemonMessage[];
+  setMessages: Setter<DaemonMessage[]>;
   model: DaemonModel;
   setModel: Setter<DaemonModel>;
   temperature: number;
