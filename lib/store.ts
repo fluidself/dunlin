@@ -9,7 +9,7 @@ import { caseInsensitiveStringEqual } from 'utils/string';
 import { Backlink } from 'editor/backlinks/useBacklinks';
 import type { PickPartial } from 'types/utils';
 import createUserSettingsSlice, { UserSettings } from './createUserSettingsSlice';
-import createDaemonSlice, { DaemonStore } from './createDaemonSlice';
+import createDaemonSlice, { DaemonStore, DaemonSession } from './createDaemonSlice';
 
 export { default as shallowEqual } from 'zustand/shallow';
 
@@ -49,6 +49,8 @@ export enum DaemonModel {
   'gpt-4' = 'gpt-4',
   'gpt-4-turbo' = 'gpt-4-turbo',
 }
+
+export type { DaemonSession };
 
 type CommandMenuState = {
   isVisible: boolean;
@@ -273,7 +275,7 @@ export const store = createVanilla<Store>()(
         autoPairBrackets: state.autoPairBrackets,
         isDaemonUser: state.isDaemonUser,
         isDaemonSidebarOpen: state.isDaemonSidebarOpen,
-        messages: state.messages,
+        daemonSessions: state.daemonSessions,
         model: state.model,
         temperature: state.temperature,
       }),
