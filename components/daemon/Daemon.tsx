@@ -33,10 +33,14 @@ export default function Daemon() {
   const lastOpenNoteId = useStore(state => state.openNoteIds[state.openNoteIds.length - 1]);
   const isDaemonSidebarOpen = useStore(state => state.isDaemonSidebarOpen);
   const isDaemonUser = useStore(state => state.isDaemonUser);
-  const storeMessages = useStore(state => state.messages);
   const model = useStore(state => state.model);
   const temperature = useStore(state => state.temperature);
-  const setStoreMessages = useStore(state => state.setMessages);
+  const daemonSessions = useStore(state => state.daemonSessions);
+  const activeDaemonSession = useStore(state => state.activeDaemonSession);
+  const storeMessages = useStore(state => state.daemonSessions[activeDaemonSession]?.messages ?? []);
+  const setActiveDaemonSession = useStore(state => state.setActiveDaemonSession);
+  const insertDaemonSession = useStore(state => state.insertDaemonSession);
+  const addMessageToDaemonSession = useStore(state => state.addMessageToDaemonSession);
   const setModel = useStore(state => state.setModel);
   const setTemperature = useStore(state => state.setTemperature);
   const { onClick: onNoteLinkClick } = useOnNoteLinkClick(lastOpenNoteId);
@@ -49,7 +53,7 @@ export default function Daemon() {
       setIsError(true);
     },
     onFinish(message) {
-      setStoreMessages(prevMessages => [...prevMessages, message]);
+      addMessageToDaemonSession(store.getState().activeDaemonSession, message);
     },
   });
   const [noteTitle, setNoteTitle] = useState('');
@@ -73,6 +77,10 @@ export default function Daemon() {
   }, [input]);
 
   useEffect(() => {
+    setMessages(storeMessages);
+  }, [activeDaemonSession, storeMessages, setMessages]);
+
+  useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
@@ -84,12 +92,26 @@ export default function Daemon() {
 
   const summonDaemon = async () => {
     if (isLoading || !input) return;
-    const id = nanoid(7);
+
+    const messageId = nanoid(7);
+    const sessionId = activeDaemonSession || nanoid(7);
+    const sessionExists = Boolean(daemonSessions[sessionId]);
 
     setIsError(false);
     setInput('');
-    setStoreMessages(prevMessages => [...prevMessages, { id, role: 'user', content: input }]);
-    await append({ id, role: 'user', content: input });
+
+    if (!sessionExists) {
+      insertDaemonSession({
+        id: sessionId,
+        title: input.trim().slice(0, 40).trim(),
+        createdAt: new Date().toISOString(),
+        messages: [],
+      });
+    }
+
+    setActiveDaemonSession(sessionId);
+    addMessageToDaemonSession(sessionId, { id: messageId, role: 'user', content: input });
+    await append({ id: messageId, role: 'user', content: input });
   };
 
   const saveAsNote = async () => {
@@ -148,14 +170,13 @@ export default function Daemon() {
               <div className="flex justify-end w-full space-x-2 mb-1">
                 {storeMessages.length && !isLoading && !saving ? (
                   <div className="flex items-center space-x-2">
-                    <Tooltip content="Reset daemon">
+                    <Tooltip content="New session">
                       <button
                         className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
                         disabled={isLoading}
                         onClick={() => {
-                          setMessages([]);
-                          setStoreMessages([]);
                           setIsError(false);
+                          setActiveDaemonSession('');
                         }}
                       >
                         <IconRefresh size={16} className="text-gray-600 dark:text-gray-300" />
