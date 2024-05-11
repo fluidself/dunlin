@@ -42,6 +42,7 @@ export type NoteTreeItem = {
 export enum SidebarTab {
   Notes,
   Search,
+  Daemon,
 }
 
 export enum DaemonModel {
