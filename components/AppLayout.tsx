@@ -61,6 +61,7 @@ export default function AppLayout(props: Props) {
   const shareModalOpen = useStore(state => state.shareModalOpen);
   const commandMenuState = useStore(state => state.commandMenuState);
   const isDaemonUser = useStore(state => state.isDaemonUser);
+  const isDaemonSidebarOpen = useStore(state => state.isDaemonSidebarOpen);
   const setStoreDeckKey = useStore(state => state.setDeckKey);
   const setNotes = useStore(state => state.setNotes);
   const setNoteTree = useStore(state => state.setNoteTree);
@@ -343,6 +344,7 @@ export default function AppLayout(props: Props) {
         hotkey: 'mod+shift+d',
         callback: () => {
           if (isDaemonUser) {
+            setSidebarTab(isDaemonSidebarOpen ? SidebarTab.Notes : SidebarTab.Daemon);
             setIsDaemonSidebarOpen(isOpen => !isOpen);
           }
         },
@@ -361,6 +363,7 @@ export default function AppLayout(props: Props) {
       deckId,
       commandMenuState,
       isDaemonUser,
+      isDaemonSidebarOpen,
     ],
   );
   useHotkeys(hotkeys);
