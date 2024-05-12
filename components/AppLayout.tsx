@@ -302,7 +302,7 @@ export default function AppLayout(props: Props) {
   const hotkeys = useMemo(
     () => [
       {
-        hotkey: 'mod+p',
+        hotkey: 'mod+k',
         callback: () => {
           if (commandMenuState.isVisible) {
             const editor = activeEditorsStore.getActiveEditor(commandMenuState.activeEditor ?? '');

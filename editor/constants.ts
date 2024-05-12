@@ -101,7 +101,7 @@ export const getDefaultEditorHotkeys = (
     callback: () => toggleElement(editor, ElementType.Paragraph),
   },
   {
-    hotkey: 'mod+k',
+    hotkey: 'mod+p',
     callback: () => {
       if (editor.selection) {
         // Save the selection and make the add link popover visible
@@ -155,7 +155,7 @@ export const getDefaultEditorHotkeys = (
   ...(activeEditor
     ? [
         {
-          hotkey: 'mod+p',
+          hotkey: 'mod+k',
           callback: () => store.getState().setCommandMenuState({ isVisible: true, activeEditor }),
         },
       ]

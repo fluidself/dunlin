@@ -33,7 +33,7 @@ const LinkButton = (props: LinkButtonProps) => {
       text="Link"
       isActive={isActive}
       className={className}
-      tooltip={`Link to a note or web page (${modifierKey()}+K)`}
+      tooltip={`Link to a note or web page (${modifierKey()}+P)`}
     />
   );
 };

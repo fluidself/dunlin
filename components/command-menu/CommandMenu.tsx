@@ -32,7 +32,7 @@ export default function CommandMenu() {
 
   useEffect(() => {
     const handleHotkeys = (event: KeyboardEvent) => {
-      if (isHotkey(['esc', 'mod+p'], event)) {
+      if (isHotkey(['esc', 'mod+k'], event)) {
         event.preventDefault();
         event.stopPropagation();
         hideCommandMenu();
