@@ -6,7 +6,7 @@
 
 | Windows / Linux        | macOS               | Action                                                              |
 | :--------------------- | :------------------ | :------------------------------------------------------------------ |
-| `Ctrl` + `p`           | `⌘` + `p`           | Open command menu to create or find a note or use an editor element |
+| `Ctrl` + `k`           | `⌘` + `k`           | Open command menu to create or find a note or use an editor element |
 | `Ctrl` + `\`           | `⌘` + `\`           | Open or close sidebar                                               |
 | `Ctrl` + `Shift` + `e` | `⌘` + `Shift` + `e` | Switch to notes sidebar tab                                         |
 | `Ctrl` + `Shift` + `f` | `⌘` + `Shift` + `f` | Switch to search sidebar tab                                        |

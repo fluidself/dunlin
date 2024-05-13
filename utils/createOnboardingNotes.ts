@@ -29,7 +29,7 @@ export default function createOnboardingNotes() {
             { text: 'Link to another note by using the hovering menu, pressing ' },
             { code: true, text: 'cmd/ctrl' },
             { text: ' + ' },
-            { code: true, text: 'k' },
+            { code: true, text: 'p' },
             { text: ', or enclosing its title in double brackets.' },
           ],
         },
@@ -99,7 +99,7 @@ export default function createOnboardingNotes() {
             },
             { code: true, text: 'cmd/ctrl' },
             { text: ' + ' },
-            { code: true, text: 'p' },
+            { code: true, text: 'k' },
             {
               text: '. Just type in the title of the note you want to create or find.',
             },
