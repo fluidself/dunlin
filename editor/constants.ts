@@ -1,6 +1,7 @@
 import { SetStateAction } from 'react';
-import { Descendant, type Editor, Transforms } from 'slate';
-import { ElementType, Mark } from 'types/slate';
+import { Descendant, Editor, Transforms } from 'slate';
+import { ReactEditor } from 'slate-react';
+import { ElementType, ExternalLink, Mark, NoteLink } from 'types/slate';
 import type { AddLinkPopoverState } from 'components/editor/Editor';
 import type { DaemonPopoverState } from 'components/editor/DaemonPopover';
 import { store } from 'lib/store';
@@ -136,6 +137,20 @@ export const getDefaultEditorHotkeys = (
   {
     hotkey: 'mod+enter',
     callback: () => handleExitBreak(editor),
+  },
+  {
+    hotkey: 'opt+enter',
+    callback: () => {
+      const linkNodeEntry = Editor.above<ExternalLink | NoteLink>(editor, {
+        match: n => n.type === ElementType.ExternalLink || n.type === ElementType.NoteLink,
+      });
+
+      if (linkNodeEntry) {
+        const [link] = linkNodeEntry;
+        const domNode = ReactEditor.toDOMNode(editor, link);
+        domNode.click();
+      }
+    },
   },
   ...(isDaemonUser
     ? [
