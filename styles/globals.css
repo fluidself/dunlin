@@ -84,7 +84,7 @@
   }
 
   .react-select-container-code .react-select__control {
-    @apply bg-gray-100 dark:bg-gray-800 absolute top-[-12px] right-0 p-0 border-none focus:ring-0 focus:shadow-none ring-offset-0 cursor-pointer text-xs font-sans;
+    @apply bg-gray-100 dark:bg-gray-800 absolute top-[-15px] right-[-4px] p-0 border-none focus:ring-0 focus:shadow-none ring-offset-0 cursor-pointer text-xs font-sans;
   }
 
   .react-select-container-code .react-select__dropdown-indicator {
