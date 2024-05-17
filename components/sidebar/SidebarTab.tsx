@@ -1,4 +1,5 @@
 import { ForwardedRef, forwardRef, memo } from 'react';
+import type { TooltipTriggerProps } from '@radix-ui/react-tooltip';
 import { TablerIcon } from '@tabler/icons';
 
 type Props = {
@@ -6,12 +7,14 @@ type Props = {
   setActive: () => void;
   Icon: TablerIcon;
   className?: string;
-};
+} & TooltipTriggerProps;
 
 const SidebarTab = (props: Props, forwardedRef: ForwardedRef<HTMLButtonElement>) => {
-  const { isActive, setActive, Icon, className = '' } = props;
+  const { isActive, setActive, Icon, className = '', ...tooltipTriggerProps } = props;
+
   return (
     <button
+      {...tooltipTriggerProps}
       ref={forwardedRef}
       className={`flex justify-center flex-1 py-1.5 px-6 rounded-t-sm hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:border-gray-700 focus:outline-none ${
         isActive ? 'bg-gray-50 border-t dark:bg-gray-800' : 'border-b'
