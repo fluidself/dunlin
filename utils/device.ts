@@ -6,5 +6,5 @@ export const isMobile = () => {
 
 export const modifierKey = () => {
   const userAgent = window.navigator.userAgent.toLowerCase();
-  return userAgent.indexOf('mac') !== -1 ? 'Cmd' : 'Ctrl';
+  return userAgent.indexOf('mac') !== -1 ? '⌘' : 'Ctrl';
 };
