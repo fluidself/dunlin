@@ -44,10 +44,12 @@ const withCustomDeleteBackward = (editor: Editor) => {
       Element.isElement(lineElement) &&
       lineElement.type !== ElementType.Paragraph &&
       lineElement.type !== ElementType.BlockReference &&
-      lineElement.type !== ElementType.TableCell
+      lineElement.type !== ElementType.TableCell &&
+      lineElement.type !== ElementType.HeadingOne &&
+      lineElement.type !== ElementType.HeadingTwo &&
+      lineElement.type !== ElementType.HeadingThree
     ) {
       Editor.withoutNormalizing(editor, () => {
-        // If it is a list item, unwrap the list
         if (lineElement.type === ElementType.ListItem) {
           Transforms.unwrapNodes(editor, {
             match: n => !Editor.isEditor(n) && Element.isElement(n) && isListType(n['type']),
@@ -73,7 +75,6 @@ const withCustomDeleteBackward = (editor: Editor) => {
             unwrapCodeBlock(editor);
           }
         } else {
-          // Convert to paragraph
           Transforms.setNodes(editor, { type: ElementType.Paragraph });
         }
       });
