@@ -35,7 +35,7 @@ export default async function daemon(req: NextRequest) {
     }
 
     const result = await streamText({
-      model: openai(model ?? DaemonModel['gpt-3.5-turbo']),
+      model: openai(model ?? DaemonModel['gpt-4o-mini']),
       system: editorRequest ? editorPrompt(editorRequest) : defaultPrompt,
       temperature: temperature ?? 0,
       messages: [...messages],

@@ -38,7 +38,7 @@ const createDaemonSlice = (set: (fn: (draft: Draft<Store>) => void) => void) => 
   setIsDaemonUser: setter(set, 'isDaemonUser'),
   isDaemonSidebarOpen: false,
   setIsDaemonSidebarOpen: setter(set, 'isDaemonSidebarOpen'),
-  model: DaemonModel['gpt-3.5-turbo'],
+  model: DaemonModel['gpt-4o-mini'],
   setModel: setter(set, 'model'),
   temperature: 0,
   setTemperature: setter(set, 'temperature'),
