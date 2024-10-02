@@ -49,8 +49,12 @@
     @apply dark:bg-gray-900 border dark:border-gray-600 z-50;
   }
 
+  .react-select-container .react-select__menu-list {
+    @apply py-px;
+  }
+
   .react-select-container .react-select__option {
-    @apply text-gray-800 dark:text-gray-300 bg-white hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-700 text-sm text-left py-1.5;
+    @apply text-gray-800 dark:text-gray-300 bg-white hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-700 text-sm text-left py-1;
   }
 
   .react-select-container .react-select__indicators {
@@ -75,12 +79,16 @@
     @apply dark:text-gray-300 my-0 py-0 leading-4;
   }
 
+  .react-select-container .react-select__dropdown-indicator > svg {
+    @apply w-4 h-4;
+  }
+
   .react-select-container-header .react-select__control {
     @apply dark:bg-gray-900 h-8 min-h-[32px] py-0 pl-1 border-[0.5px] dark:border-gray-700 dark:hover:border-gray-400 leading-4 text-left text-sm;
   }
 
   .react-select-container-menu .react-select__control {
-    @apply bg-gray-50 dark:bg-gray-700 dark:border-gray-700 min-h-[32px] py-0.5 pl-1 leading-4 text-sm;
+    @apply bg-gray-50 dark:bg-gray-700 dark:border-gray-700 min-h-[30px] py-0.5 pl-1 leading-4 text-sm;
   }
 
   .react-select-container-code .react-select__control {
@@ -89,10 +97,6 @@
 
   .react-select-container-code .react-select__dropdown-indicator {
     @apply p-0 dark:text-gray-400;
-  }
-
-  .react-select-container-code .react-select__dropdown-indicator > svg {
-    @apply w-4 h-4;
   }
 }
 
