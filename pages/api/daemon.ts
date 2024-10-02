@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { type CoreMessage, StreamingTextResponse, streamText } from 'ai';
 import { openai } from '@ai-sdk/openai';
+import { anthropic } from '@ai-sdk/anthropic';
 import { getIronSession } from 'iron-session/edge';
 import { ironOptions } from 'constants/iron-session';
 import { DaemonModel } from 'lib/store';
@@ -35,10 +36,10 @@ export default async function daemon(req: NextRequest) {
     }
 
     const result = await streamText({
-      model: openai(model ?? DaemonModel['gpt-4o-mini']),
+      model: getModel(model ?? DaemonModel['gpt-4o-mini']),
       system: editorRequest ? editorPrompt(editorRequest) : defaultPrompt,
       temperature: temperature ?? 0,
-      messages: [...messages],
+      messages,
     });
 
     return new StreamingTextResponse(result.toAIStream());
@@ -47,3 +48,5 @@ export default async function daemon(req: NextRequest) {
     return new Response('There was an error processing your request', { status: 500 });
   }
 }
+
+const getModel = (daemonModel: DaemonModel) => (daemonModel.startsWith('gpt') ? openai : anthropic)(daemonModel);
