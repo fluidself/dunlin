@@ -1,8 +1,8 @@
 import { encryptFile } from '@lit-protocol/encryption';
 import { encodeBase64 } from 'tweetnacl-util';
-import { Editor, Path } from 'slate';
+import { Editor, Path, Range } from 'slate';
 import { toast } from 'react-toastify';
-import { insertFileAttachment, insertImage, insertVideo } from 'editor/formatting';
+import { insertExternalLink, insertFileAttachment, insertImage, insertVideo } from 'editor/formatting';
 import type { UploadedFile } from 'types/slate';
 import { isUrl } from 'utils/url';
 import { createClient } from 'utils/web3-storage';
@@ -30,8 +30,15 @@ const withMedia = (editor: Editor) => {
     } else if (isImageUrl(text)) {
       insertImage(editor, text);
     } else if (isYouTubeUrl(text)) {
-      const youtubeEmbedLink = extractYoutubeEmbedLink(text);
-      if (youtubeEmbedLink) insertVideo(editor, youtubeEmbedLink);
+      const { selection } = editor;
+      const isCollapsed = selection && Range.isCollapsed(selection);
+
+      if (isCollapsed) {
+        const youtubeEmbedLink = extractYoutubeEmbedLink(text);
+        if (youtubeEmbedLink) insertVideo(editor, youtubeEmbedLink);
+      } else {
+        insertExternalLink(editor, text);
+      }
     } else {
       insertData(data);
     }
