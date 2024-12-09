@@ -17,7 +17,7 @@ export default function Sidebar() {
 
   return (
     <Disclosure as="nav">
-      {({ open }) => (
+      {({ open, close }) => (
         <>
           <div className="fixed h-screen flex-[0_0_auto] py-12 border-r border-gray-600 bg-gray-800">
             <div className="relative items-center justify-between">
@@ -64,7 +64,12 @@ export default function Sidebar() {
               {items.map(link => {
                 const active = router.asPath === link.href;
                 return (
-                  <Disclosure.Button as="li" className="list-none px-8 py-1 my-1 w-full" key={link.href}>
+                  <Disclosure.Button
+                    as="li"
+                    className="list-none px-8 py-1 my-1 w-full"
+                    key={link.href}
+                    onTouchEnd={() => close()}
+                  >
                     <Link
                       {...link}
                       href={link.href}
