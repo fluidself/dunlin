@@ -1,6 +1,6 @@
 import { IconGhost2 } from '@tabler/icons';
 import { modifierKey } from 'utils/device';
-import { useStore } from 'lib/store';
+import { SidebarTab, useStore } from 'lib/store';
 import Tooltip from 'components/Tooltip';
 
 export default function SummonDaemonButton() {
@@ -8,6 +8,7 @@ export default function SummonDaemonButton() {
   const isDaemonUser = useStore(state => state.isDaemonUser);
   const isDaemonSidebarOpen = useStore(state => state.isDaemonSidebarOpen);
   const setIsDaemonSidebarOpen = useStore(state => state.setIsDaemonSidebarOpen);
+  const setSidebarTab = useStore(state => state.setSidebarTab);
 
   if (!isDaemonUser || isDaemonSidebarOpen) return null;
 
@@ -22,7 +23,10 @@ export default function SummonDaemonButton() {
             isOffline ? 'pointer-events-none' : ''
           }`}
           disabled={isOffline}
-          onClick={() => setIsDaemonSidebarOpen(isOpen => !isOpen)}
+          onClick={() => {
+            setSidebarTab(SidebarTab.Daemon);
+            setIsDaemonSidebarOpen(true);
+          }}
         >
           <span className="flex items-center justify-center w-7 h-7">
             <IconGhost2
