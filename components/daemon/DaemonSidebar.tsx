@@ -2,22 +2,26 @@ import { memo, useMemo } from 'react';
 import { useTransition, animated } from '@react-spring/web';
 import useHotkeys from 'utils/useHotkeys';
 import { isMobile } from 'utils/device';
-import { useStore } from 'lib/store';
+import { SidebarTab, useStore } from 'lib/store';
 import { SPRING_CONFIG } from 'constants/spring';
 import Daemon from './Daemon';
 
 function DaemonSidebar() {
   const isDaemonSidebarOpen = useStore(state => state.isDaemonSidebarOpen);
   const setIsDaemonSidebarOpen = useStore(state => state.setIsDaemonSidebarOpen);
+  const setSidebarTab = useStore(state => state.setSidebarTab);
 
   const hotkeys = useMemo(
     () => [
       {
         hotkey: 'esc',
-        callback: () => setIsDaemonSidebarOpen(false),
+        callback: () => {
+          setSidebarTab(SidebarTab.Notes);
+          setIsDaemonSidebarOpen(false);
+        },
       },
     ],
-    [setIsDaemonSidebarOpen],
+    [setIsDaemonSidebarOpen, setSidebarTab],
   );
   useHotkeys(hotkeys);
 
