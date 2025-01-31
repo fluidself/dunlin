@@ -12,7 +12,7 @@ import withBlockBreakout from 'editor/plugins/withBlockBreakout';
 import withMedia from 'editor/plugins/withMedia';
 import withLinks from 'editor/plugins/withLinks';
 import withNormalization from 'editor/plugins/withNormalization';
-import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
+import withCustomDeleteBehavior from 'editor/plugins/withCustomDeleteBehavior';
 import withVoidElements from 'editor/plugins/withVoidElements';
 import withBlockReferences from 'editor/plugins/withBlockReferences';
 import withCodeBlocks, { onKeyDown as onCodeBlockKeyDown } from 'editor/plugins/withCodeBlocks';
@@ -68,7 +68,7 @@ function SoloEditor(props: Props) {
   const editorRef = useRef<SlateEditor>();
   if (!editorRef.current) {
     editorRef.current = withNormalization(
-      withCustomDeleteBackward(
+      withCustomDeleteBehavior(
         withAutoMarkdown(
           withCodeBlocks(
             withMedia(

@@ -1,11 +1,11 @@
-import { Editor, Element, Transforms, Node } from 'slate';
+import { Editor, Element, Range, Transforms, Node } from 'slate';
+import { Callout, ElementType } from 'types/slate';
 import { DEFAULT_INDENTATION, isListType } from 'editor/formatting';
 import { BRACKET_MAP } from './withAutoMarkdown/handleBrackets';
 import { QUOTE_MAP } from './withAutoMarkdown/handleQuotes';
-import { ElementType } from 'types/slate';
 
-const withCustomDeleteBackward = (editor: Editor) => {
-  const { deleteBackward } = editor;
+const withCustomDeleteBehavior = (editor: Editor) => {
+  const { deleteBackward, deleteForward } = editor;
 
   editor.deleteBackward = (...args: any[]) => {
     const { selection } = editor;
@@ -15,6 +15,10 @@ const withCustomDeleteBackward = (editor: Editor) => {
 
     if (!selection || !block) {
       deleteBackward(...args);
+      return;
+    }
+
+    if (!canDeleteBelowCallout(editor)) {
       return;
     }
 
@@ -97,6 +101,12 @@ const withCustomDeleteBackward = (editor: Editor) => {
     deleteBackward(...args);
   };
 
+  editor.deleteForward = (...args: any[]) => {
+    if (canDeleteAboveCallout(editor)) {
+      deleteForward(...args);
+    }
+  };
+
   return editor;
 };
 
@@ -107,4 +117,43 @@ const unwrapCodeBlock = (editor: Editor) => {
   Transforms.setNodes(editor, { type: ElementType.Paragraph });
 };
 
-export default withCustomDeleteBackward;
+const isEmptyCallout = (callout: Callout) => {
+  return callout.content.length === 1 && !Node.string(callout.content[0]);
+};
+
+function canDeleteBelowCallout(editor: Editor) {
+  if (editor.selection && Range.isCollapsed(editor.selection)) {
+    const abovePath = Editor.before(editor, editor.selection);
+    if (!abovePath) return true;
+
+    const start = Editor.start(editor, editor.selection);
+    const isAtLineStart = Editor.isStart(editor, start, editor.selection);
+    const [nodeAbove] = Editor.parent(editor, abovePath);
+
+    if (nodeAbove && nodeAbove.type === ElementType.Callout && !isEmptyCallout(nodeAbove) && isAtLineStart) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function canDeleteAboveCallout(editor: Editor) {
+  if (editor.selection && Range.isCollapsed(editor.selection)) {
+    const belowPath = Editor.after(editor, editor.selection);
+    if (!belowPath) return true;
+
+    const [, currentPath] = Editor.node(editor, editor.selection);
+    const currentEnd = Editor.end(editor, currentPath);
+    const isAtLineEnd = Editor.isEnd(editor, currentEnd, editor.selection);
+    const [nodeBelow] = Editor.parent(editor, belowPath);
+
+    if (nodeBelow && nodeBelow.type === ElementType.Callout && !isEmptyCallout(nodeBelow) && isAtLineEnd) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+export default withCustomDeleteBehavior;

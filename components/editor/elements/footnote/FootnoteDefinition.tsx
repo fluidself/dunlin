@@ -13,7 +13,7 @@ import withBlockBreakout from 'editor/plugins/withBlockBreakout';
 import withMedia from 'editor/plugins/withMedia';
 import withLinks from 'editor/plugins/withLinks';
 import withNormalization from 'editor/plugins/withNormalization';
-import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
+import withCustomDeleteBehavior from 'editor/plugins/withCustomDeleteBehavior';
 import withVoidElements from 'editor/plugins/withVoidElements';
 import withCodeBlocks, { onKeyDown as onCodeBlockKeyDown } from 'editor/plugins/withCodeBlocks';
 import withAnnotations from 'editor/plugins/withAnnotations';
@@ -60,7 +60,7 @@ function FootnoteDefinition(props: Props) {
   const editor = useMemo(
     () =>
       withNormalization(
-        withCustomDeleteBackward(
+        withCustomDeleteBehavior(
           withAutoMarkdown(
             withCodeBlocks(
               withMedia(

@@ -21,7 +21,7 @@ import withCodeBlocks, { onKeyDown as onCodeBlockKeyDown } from 'editor/plugins/
 import withMedia from 'editor/plugins/withMedia';
 import withLinks from 'editor/plugins/withLinks';
 import withNormalization from 'editor/plugins/withNormalization';
-import withCustomDeleteBackward from 'editor/plugins/withCustomDeleteBackward';
+import withCustomDeleteBehavior from 'editor/plugins/withCustomDeleteBehavior';
 import withVoidElements from 'editor/plugins/withVoidElements';
 import withAnnotations from 'editor/plugins/withAnnotations';
 import withHtml from 'editor/plugins/withHtml';
@@ -99,7 +99,7 @@ function Editor(props: Props) {
     const editor = withCursor(
       withYjs(
         withNormalization(
-          withCustomDeleteBackward(
+          withCustomDeleteBehavior(
             withAutoMarkdown(
               withCodeBlocks(
                 withMedia(
