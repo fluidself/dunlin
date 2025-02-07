@@ -9,7 +9,7 @@ import {
   IconSend,
   IconX,
 } from '@tabler/icons';
-import { useChat } from 'ai/react';
+import { Message, useChat } from 'ai/react';
 import { nanoid } from 'nanoid';
 import { toast } from 'react-toastify';
 import upsertNote from 'lib/api/upsertNote';
@@ -53,12 +53,18 @@ export default function Daemon() {
       setIsError(true);
     },
     onFinish(message) {
-      addMessageToDaemonSession(store.getState().activeDaemonSession, message);
+      const sessionId = store.getState().activeDaemonSession;
+      if (submittedUserMessage.current) {
+        addMessageToDaemonSession(sessionId, submittedUserMessage.current);
+        submittedUserMessage.current = null;
+      }
+      addMessageToDaemonSession(sessionId, message);
     },
   });
   const [noteTitle, setNoteTitle] = useState('');
   const [isError, setIsError] = useState(false);
   const [saving, setIsSaving] = useState(false);
+  const submittedUserMessage = useRef<Message | null>(null);
   const endofMessagesRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -110,8 +116,9 @@ export default function Daemon() {
     }
 
     setActiveDaemonSession(sessionId);
-    addMessageToDaemonSession(sessionId, { id: messageId, role: 'user', content: input });
-    await append({ id: messageId, role: 'user', content: input });
+    const message: Message = { id: messageId, role: 'user', content: input };
+    submittedUserMessage.current = message;
+    await append(message);
   };
 
   const saveAsNote = async () => {
