@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { type CoreMessage, StreamingTextResponse, streamText } from 'ai';
-import { openai } from '@ai-sdk/openai';
+import { type CoreMessage, streamText } from 'ai';
 import { anthropic } from '@ai-sdk/anthropic';
+import { google } from '@ai-sdk/google';
+import { openai } from '@ai-sdk/openai';
 import { getIronSession } from 'iron-session/edge';
 import { ironOptions } from 'constants/iron-session';
 import { DaemonModel } from 'lib/store';
@@ -36,17 +37,26 @@ export default async function daemon(req: NextRequest) {
     }
 
     const result = await streamText({
-      model: getModel(model ?? DaemonModel['gpt-4o-mini']),
+      model: getModel(model ?? DaemonModel['gemini-2.0-flash']),
       system: editorRequest ? editorPrompt(editorRequest) : defaultPrompt,
       temperature: temperature ?? 0,
       messages,
     });
 
-    return new StreamingTextResponse(result.toAIStream());
+    return result.toDataStreamResponse();
   } catch (err) {
     console.error(err);
     return new Response('There was an error processing your request', { status: 500 });
   }
 }
 
-const getModel = (daemonModel: DaemonModel) => (daemonModel.startsWith('gpt') ? openai : anthropic)(daemonModel);
+const getModel = (daemonModel: DaemonModel) => {
+  if (daemonModel.startsWith('claude')) {
+    return anthropic(daemonModel);
+  }
+  if (daemonModel.startsWith('gemini')) {
+    return google(daemonModel);
+  }
+
+  return openai(daemonModel);
+};

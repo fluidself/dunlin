@@ -4,7 +4,7 @@ import { setter, Setter, Store, DaemonModel } from './store';
 type DaemonMessage = {
   id: string;
   createdAt?: Date;
-  role: 'system' | 'user' | 'assistant' | 'function' | 'data' | 'tool';
+  role: 'system' | 'user' | 'assistant' | 'data';
   content: string;
 };
 

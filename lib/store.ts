@@ -48,10 +48,9 @@ export enum SidebarTab {
 export enum DaemonModel {
   'gpt-4o-mini' = 'gpt-4o-mini',
   'gpt-4o' = 'gpt-4o',
-  'gpt-4-turbo' = 'gpt-4-turbo',
-  'claude-3.5-sonnet' = 'claude-3-5-sonnet-20240620',
-  'claude-3-opus' = 'claude-3-opus-20240229',
-  'claude-3-haiku' = 'claude-3-haiku-20240307',
+  'claude-3.5-sonnet' = 'claude-3-5-sonnet-20241022',
+  'claude-3.5-haiku' = 'claude-3-5-haiku-20241022',
+  'gemini-2.0-flash' = 'gemini-2.0-flash-001',
 }
 
 export type { DaemonSession };
