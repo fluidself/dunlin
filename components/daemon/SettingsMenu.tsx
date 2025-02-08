@@ -51,7 +51,7 @@ function SettingsMenu(props: SettingsMenuProps) {
                 style={styles.popper}
                 {...attributes.popper}
               >
-                <div className="flex flex-col space-y-1 p-2 dark:text-gray-200 min-w-40">
+                <div className="flex flex-col space-y-1 p-2 dark:text-gray-200 min-w-44">
                   <label htmlFor="model" className="text-sm">
                     Model
                   </label>
