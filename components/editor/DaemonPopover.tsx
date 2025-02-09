@@ -37,16 +37,17 @@ export default function DaemonPopover(props: Props) {
   const editor = useSlateStatic();
   const [input, setInput] = useState('');
   const [isError, setIsError] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
   const { messages, isLoading, append, setMessages } = useChat({
     api: '/api/daemon',
-    body: { editorRequest: input },
+    body: { editorRequest: textareaRef.current?.textContent },
     onError(error) {
       console.log(error);
       setIsError(true);
     },
   });
   const output = useMemo(() => messages[1]?.content ?? '', [messages]);
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     if (textareaRef && textareaRef.current) {
