@@ -3,7 +3,7 @@ import { IconSettings } from '@tabler/icons';
 import { usePopper } from 'react-popper';
 import { Menu } from '@headlessui/react';
 import Select from 'react-select';
-import { DaemonModel } from 'lib/store';
+import { DaemonModel, useStore } from 'lib/store';
 import Portal from 'components/Portal';
 import Tooltip from 'components/Tooltip';
 
@@ -22,11 +22,14 @@ type SettingsMenuProps = {
 function SettingsMenu(props: SettingsMenuProps) {
   const { model, setModel, temperature, setTemperature } = props;
 
+  const isDaemonSidebarOpen = useStore(state => state.isDaemonSidebarOpen);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   const { styles, attributes } = usePopper(buttonRef.current, popperElement, {
     placement: 'top-end',
   });
+
+  if (!isDaemonSidebarOpen) return null;
 
   return (
     <Menu>
