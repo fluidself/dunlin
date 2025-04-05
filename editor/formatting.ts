@@ -401,20 +401,14 @@ export const insertFileAttachment = (editor: Editor, file: UploadedFile, path?: 
   }
 };
 
-export const insertWhiteboard = (editor: Editor, path?: Path) => {
+export const insertWhiteboard = (editor: Editor) => {
   const whiteboard: Whiteboard = {
     id: createNodeId(),
     type: ElementType.Whiteboard,
     children: [{ text: '' }],
   };
 
-  if (path) {
-    // Set the node at the given path to be a whiteboard element
-    Transforms.setNodes(editor, whiteboard, { at: path });
-  } else {
-    // Insert a new whiteboard element
-    Transforms.insertNodes(editor, whiteboard);
-  }
+  Transforms.insertNodes(editor, whiteboard);
 };
 
 export const insertBlockReference = (editor: Editor, blockId: string, onOwnLine: boolean) => {

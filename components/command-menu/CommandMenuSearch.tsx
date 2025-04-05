@@ -216,7 +216,7 @@ export default function CommandMenuSearch(props: Props) {
             insertTable(editor, path);
             break;
           case ElementType.Whiteboard:
-            insertWhiteboard(editor, path);
+            insertWhiteboard(editor);
             break;
           case ElementType.ThematicBreak:
             insertThematicBreak(editor, path);
