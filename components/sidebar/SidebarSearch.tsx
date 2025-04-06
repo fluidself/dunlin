@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Highlighter from 'react-highlight-words';
 import type { FuseResultMatch } from 'fuse.js';
@@ -13,10 +13,19 @@ const DEBOUNCE_MS = 500;
 export default function SidebarSearch() {
   const deckId = useStore(state => state.deckId);
   const inputText = useStore(state => state.sidebarSearchQuery);
+  const isSidebarOpen = useStore(state => state.isSidebarOpen);
   const setInputText = useStore(state => state.setSidebarSearchQuery);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const [searchQuery, setSearchQuery] = useDebounce(inputText, DEBOUNCE_MS);
   const search = useNoteSearch({ searchContent: true, extendedSearch: true });
+
+  useEffect(() => {
+    if (isSidebarOpen) {
+      const handler = setTimeout(() => inputRef.current?.focus(), 100);
+      return () => clearTimeout(handler);
+    }
+  }, [isSidebarOpen]);
 
   const searchResultsData = useMemo(() => {
     const searchResults = search(searchQuery);
@@ -51,6 +60,7 @@ export default function SidebarSearch() {
           className="block py-1 mx-4 my-2 bg-white border-gray-200 rounded dark:bg-gray-700 dark:border-gray-700 input"
           placeholder="Search notes"
           value={inputText}
+          ref={inputRef}
           onChange={e => setInputText(e.target.value)}
           onKeyDown={e => {
             if (e.key === 'Enter') {
@@ -58,7 +68,6 @@ export default function SidebarSearch() {
               setSearchQuery(inputText);
             }
           }}
-          autoFocus
         />
         {!searchQuery || searchResultsData.length > 0 ? (
           <VirtualTree className="flex-1 px-1 overflow-y-auto" data={searchResultsData} />
