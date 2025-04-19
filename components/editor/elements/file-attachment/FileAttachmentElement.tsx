@@ -32,7 +32,7 @@ export default function FileAttachmentElement(props: FileAttachmentElementProps)
   const handleDownload = async () => {
     setProcessing(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${file.cid}`);
+      const res = await fetch(`https://${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${file.cid}`);
       const encryptedFile = await res.blob();
       if (!encryptedFile) throw new Error('Could not retrieve file at given CID');
 

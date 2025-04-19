@@ -33,5 +33,5 @@ export default function ImageElement(props: ImageElementProps) {
 }
 
 export const getImageElementUrl = (cidOrUrl: string) => {
-  return isUrl(cidOrUrl) ? cidOrUrl : `${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${cidOrUrl}`;
+  return isUrl(cidOrUrl) ? cidOrUrl : `https://${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${cidOrUrl}`;
 };

@@ -168,7 +168,7 @@ export default function PublicationPage(props: Props) {
           <div className="flex flex-col mt-20 border border-gray-700 rounded text-gray-400 text-sm">
             <a
               className="hover:bg-gray-800"
-              href={`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${cid}`}
+              href={`https://${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${cid}`}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -215,7 +215,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
     if (!cid) throw new Error('Not found');
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${cid}`);
+    const res = await fetch(`https://${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${cid}`);
     const data = await res.json();
 
     if (data.address && data.timestamp && data.title && data.body) {
