@@ -5,7 +5,6 @@ import { toast } from 'react-toastify';
 import { insertExternalLink, insertFileAttachment, insertImage, insertVideo } from 'editor/formatting';
 import type { UploadedFile } from 'types/slate';
 import { isUrl } from 'utils/url';
-import { createClient } from 'utils/web3-storage';
 import imageExtensions from 'utils/image-extensions';
 import { extractYoutubeEmbedLink, isYouTubeUrl } from 'utils/video';
 
@@ -16,8 +15,6 @@ const withMedia = (editor: Editor) => {
     const text = data.getData('text/plain');
     const { files } = data;
 
-    // TODO: there is a bug on iOS Safari where the files array is empty
-    // See https://github.com/ianstormtaylor/slate/issues/4491
     if (files && files.length > 0) {
       for (const file of files) {
         const [mime] = file.type.split('/');
@@ -59,7 +56,7 @@ export const uploadAndInsertFile = async (editor: Editor, file: File, path?: Pat
   try {
     const { encryptedFile, symmetricKey } = await encryptFile({ file });
     const symmetricKeyBase64 = encodeBase64(symmetricKey as Uint8Array);
-    const cid = await uploadFile(encryptedFile);
+    const cid = await uploadFile(new File([encryptedFile], file.name, { type: 'application/octet-stream' }));
 
     if (cid) {
       const uploadedFile: UploadedFile = {
@@ -76,7 +73,7 @@ export const uploadAndInsertFile = async (editor: Editor, file: File, path?: Pat
   }
 };
 
-const uploadFile = async (file: File | Blob) => {
+const uploadFile = async (file: File) => {
   const UPLOAD_LIMIT = 5 * 1024 * 1024; // 5 MB
 
   if (file.size > UPLOAD_LIMIT) {
@@ -84,16 +81,20 @@ const uploadFile = async (file: File | Blob) => {
     return;
   }
 
-  try {
-    const uploadingToast = toast.info('Uploading file, please wait...', {
-      autoClose: false,
-      closeButton: false,
-      draggable: false,
-    });
+  const uploadingToast = toast.info('Uploading file, please wait...', {
+    autoClose: false,
+    closeButton: false,
+    draggable: false,
+  });
 
-    const client = await createClient();
-    const link = await client.uploadFile(file);
-    const cid = link.toString();
+  try {
+    const data = new FormData();
+    data.set('file', file);
+    const uploadResponse = await fetch('/api/file', {
+      method: 'POST',
+      body: data,
+    });
+    const { cid } = await uploadResponse.json();
 
     toast.dismiss(uploadingToast);
 
@@ -104,6 +105,8 @@ const uploadFile = async (file: File | Blob) => {
     }
   } catch (e) {
     console.error(e);
+    toast.dismiss(uploadingToast);
+    toast.error('There was a problem uploading your file. Please try again later.');
   }
 };
 

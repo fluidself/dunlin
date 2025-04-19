@@ -8,7 +8,6 @@ import { Callout, ElementType, Footnote, NoteLink } from 'types/slate';
 import type { DecryptedNote } from 'types/decrypted';
 import useHotkeys from 'utils/useHotkeys';
 import copyToClipboard from 'utils/copyToClipboard';
-import useIpfs from 'utils/useIpfs';
 import { store } from 'lib/store';
 import { getSerializedNote } from 'components/editor/NoteHeader';
 import Button from 'components/Button';
@@ -33,7 +32,6 @@ const NOTE_LINK_REGEX =
 export default function PublishNoteModal(props: Props) {
   const { note, userId, setIsOpen } = props;
 
-  const client = useIpfs();
   const [noteLinks, setNoteLinks] = useState<NoteLink[]>([]);
   const [hasFileAttachments, setHasFileAttachments] = useState(false);
   const [publishLinkedNotes, setPublishLinkedNotes] = useState(false);
@@ -86,16 +84,21 @@ export default function PublishNoteModal(props: Props) {
   };
 
   const prepareFileObject = (note: NotePublication, fileName: string) => {
-    const blob = new Blob([JSON.stringify(note)], { type: 'application/json' });
-    const file = new File([blob], `${fileName}.json`);
+    const blob = new Blob([JSON.stringify(note)]);
+    const file = new File([blob], `${fileName}.json`, { type: 'application/json' });
 
     return file;
   };
 
   const publishNote = async (note: NotePublication) => {
     const file = prepareFileObject(note, `${note.address}-${note.timestamp}`);
-    const link = await client!.uploadFile(file);
-    const cid = link.toString() as string;
+    const data = new FormData();
+    data.set('file', file);
+    const uploadResponse = await fetch('/api/file', {
+      method: 'POST',
+      body: data,
+    });
+    const { cid } = await uploadResponse.json();
 
     return cid;
   };
@@ -120,7 +123,7 @@ export default function PublishNoteModal(props: Props) {
   };
 
   const onConfirm = async () => {
-    if (!userId || !client) return;
+    if (!userId) return;
     setProcessing(true);
 
     const publishingToast = toast.info('Publishing to IPFS, please wait...', {
