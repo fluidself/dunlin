@@ -10,7 +10,7 @@ import {
   IconTrash,
   type TablerIcon,
 } from '@tabler/icons';
-import { useChat } from 'ai/react';
+import { useChat } from '@ai-sdk/react';
 import remarkGfm from 'remark-gfm';
 import rehypePrism from 'rehype-prism';
 import { ReactMarkdown } from 'lib/react-markdown/react-markdown';
@@ -38,8 +38,7 @@ export default function DaemonPopover(props: Props) {
   const [input, setInput] = useState('');
   const [isError, setIsError] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
-  const { messages, isLoading, append, setMessages } = useChat({
+  const { messages, status, append, setMessages } = useChat({
     api: '/api/daemon',
     body: { editorRequest: textareaRef.current?.textContent },
     onError(error) {
@@ -61,7 +60,9 @@ export default function DaemonPopover(props: Props) {
     (confirmDiscard = true, locationToSelect?: BaseRange) => {
       if (
         !daemonPopoverState.selection ||
-        ((isLoading || output) && confirmDiscard && !window.confirm('Do you want to discard the daemon response?'))
+        ((status === 'submitted' || status === 'streaming' || output) &&
+          confirmDiscard &&
+          !window.confirm('Do you want to discard the daemon response?'))
       ) {
         return;
       }
@@ -72,11 +73,11 @@ export default function DaemonPopover(props: Props) {
         selection: undefined,
       });
     },
-    [editor, daemonPopoverState, isLoading, output, setDaemonPopoverState],
+    [editor, daemonPopoverState, status, output, setDaemonPopoverState],
   );
 
   const summonDaemon = async () => {
-    if (isLoading || !isDaemonUser || !daemonPopoverState.selection || !input) return;
+    if (!isDaemonUser || !daemonPopoverState.selection || !input || status !== 'ready') return;
     const selectionText = Editor.string(editor, daemonPopoverState.selection);
 
     setIsError(false);
@@ -155,9 +156,9 @@ export default function DaemonPopover(props: Props) {
             linkTarget="_blank"
             className="p-3 pl-2 prose dark:prose-invert max-w-none overflow-x-auto prose-p:whitespace-pre-line prose-table:border prose-table:border-collapse prose-th:border prose-th:border-gray-700 prose-th:align-baseline prose-th:pt-2 prose-th:pl-2 prose-td:border prose-td:border-gray-700 prose-td:pt-2 prose-td:pl-2 prose-a:text-primary-400 hover:prose-a:underline prose-pre:bg-gray-100 prose-pre:dark:bg-gray-800 prose-pre:text-gray-800 prose-pre:dark:text-gray-100 prose-code:bg-gray-100 prose-code:dark:bg-gray-800 prose-code:text-gray-800 prose-code:dark:text-gray-100"
           >
-            {`${output}${isLoading ? '`▍`' : ''}`}
+            {`${output}${status === 'streaming' ? '`▍`' : ''}`}
           </ReactMarkdown>
-          {output && !isLoading ? (
+          {output && status !== 'submitted' && status !== 'streaming' ? (
             <div className="flex items-center justify-between border-t dark:border-gray-600">
               <ActionButton text="Replace selection" Icon={IconCheck} onClick={replaceSelection} />
               <ActionButton text="Insert below" Icon={IconTextPlus} onClick={insertBelow} />
@@ -182,25 +183,25 @@ export default function DaemonPopover(props: Props) {
             onKeyDown={event => {
               if (event.key === 'Enter' && !event.shiftKey && input) {
                 event.preventDefault();
-                !isLoading && summonDaemon();
+                status === 'ready' && summonDaemon();
               }
             }}
             autoFocus
           />
           <button
             className={`rounded absolute bottom-2.5 right-2 p-1 ${
-              !isLoading && input
+              status !== 'streaming' && status !== 'submitted' && input
                 ? 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
                 : 'text-gray-300 dark:text-gray-600 cursor-default'
             }`}
-            disabled={isLoading || !input}
+            disabled={status !== 'ready' || !input}
             onClick={summonDaemon}
           >
             <IconSend size={18} />
           </button>
         </div>
       )}
-      {isLoading ? (
+      {status === 'streaming' || status === 'submitted' ? (
         <div className="w-full h-1">
           <div className="flex animate-pulse">
             <div className="flex-1">

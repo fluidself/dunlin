@@ -9,7 +9,7 @@ import {
   IconSend,
   IconX,
 } from '@tabler/icons';
-import { Message, useChat } from 'ai/react';
+import { Message, useChat } from '@ai-sdk/react';
 import { nanoid } from 'nanoid';
 import { toast } from 'react-toastify';
 import upsertNote from 'lib/api/upsertNote';
@@ -44,7 +44,7 @@ export default function Daemon() {
   const setModel = useStore(state => state.setModel);
   const setTemperature = useStore(state => state.setTemperature);
   const { onClick: onNoteLinkClick } = useOnNoteLinkClick(lastOpenNoteId);
-  const { messages, isLoading, input, setInput, setMessages, append, handleInputChange, stop } = useChat({
+  const { messages, input, status, setInput, setMessages, append, handleInputChange, stop } = useChat({
     api: '/api/daemon',
     initialMessages: storeMessages,
     body: { model, temperature },
@@ -97,7 +97,7 @@ export default function Daemon() {
   };
 
   const summonDaemon = async () => {
-    if (isLoading || !input) return;
+    if (!input || status !== 'ready') return;
 
     const messageId = nanoid(7);
     const sessionId = activeDaemonSession || nanoid(7);
@@ -168,19 +168,18 @@ export default function Daemon() {
                   key={idx}
                   message={message}
                   messageIsLatest={idx === (messages.length ?? 0) - 1}
-                  messageIsStreaming={isLoading}
+                  messageIsStreaming={status === 'streaming'}
                 />
               ))}
               <div ref={endofMessagesRef} />
             </div>
             <div className="sticky bottom-0 flex flex-col items-center pt-3 pb-12 md:w-128 lg:w-160 xl:w-192 bg-white dark:bg-gray-900">
               <div className="flex justify-end w-full space-x-2 mb-1">
-                {storeMessages.length && !isLoading && !saving ? (
+                {storeMessages.length && !saving && status !== 'streaming' && status !== 'submitted' ? (
                   <div className="flex items-center space-x-2">
                     <Tooltip content="New session">
                       <button
                         className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
-                        disabled={isLoading}
                         onClick={() => {
                           setIsError(false);
                           setActiveDaemonSession('');
@@ -192,14 +191,13 @@ export default function Daemon() {
                     <Tooltip content="Save as note">
                       <button
                         className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
-                        disabled={isLoading}
                         onClick={() => setIsSaving(true)}
                       >
                         <IconDownload size={16} className="text-gray-600 dark:text-gray-300" />
                       </button>
                     </Tooltip>
                   </div>
-                ) : storeMessages.length && !isLoading && saving ? (
+                ) : storeMessages.length && saving && status !== 'streaming' && status !== 'submitted' ? (
                   <div className="flex items-center space-x-1">
                     <input
                       type="text"
@@ -247,7 +245,7 @@ export default function Daemon() {
                   ref={textareaRef}
                   placeholder="Send a message..."
                   className={`w-full pl-2 pr-6 py-3 dark:bg-gray-800 shadow-popover border dark:text-gray-200 border-gray-50 dark:border-gray-700 focus:ring-0 focus:border-primary-500 resize-none ${
-                    isLoading ? 'rounded-tl rounded-tr' : 'rounded'
+                    status === 'streaming' || status === 'submitted' ? 'rounded-tl rounded-tr' : 'rounded'
                   }`}
                   style={{
                     minHeight: '48px',
@@ -260,11 +258,11 @@ export default function Daemon() {
                   onKeyDown={event => {
                     if (event.key === 'Enter' && !event.shiftKey && input) {
                       event.preventDefault();
-                      !isLoading && summonDaemon();
+                      status === 'ready' && summonDaemon();
                     }
                   }}
                 />
-                {isLoading ? (
+                {status === 'submitted' || status === 'streaming' ? (
                   <button
                     className="rounded absolute bottom-2.5 right-2 p-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                     onClick={stop}
@@ -286,7 +284,7 @@ export default function Daemon() {
                 )}
               </div>
               <div className="w-full h-1">
-                {isLoading ? (
+                {status === 'streaming' || status === 'submitted' ? (
                   <div className="flex animate-pulse">
                     <div className="flex-1">
                       <div className="h-1 bg-primary-600 dark:bg-primary-400 rounded-bl-lg rounded-br-lg"></div>

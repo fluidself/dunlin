@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { IconCopy, IconGhost2 } from '@tabler/icons';
-import type { Message } from 'ai/react';
+import type { Message } from '@ai-sdk/react';
 import classNames from 'classnames';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'lib/react-markdown';
