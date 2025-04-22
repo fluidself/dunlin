@@ -73,10 +73,11 @@ export default function Daemon() {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
-    if (textareaRef && textareaRef.current && !saving) {
-      setTimeout(() => textareaRef?.current?.focus(), 200);
+    if (textareaRef?.current && !saving) {
+      const handler = setTimeout(() => textareaRef?.current?.focus(), 200);
+      return () => clearTimeout(handler);
     }
-  }, [isDaemonSidebarOpen, saving]);
+  }, [isDaemonSidebarOpen, saving, activeDaemonSession]);
 
   useEffect(() => {
     if (textareaRef && textareaRef.current) {
