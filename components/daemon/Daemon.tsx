@@ -25,6 +25,8 @@ import SettingsMenu from 'components/daemon/SettingsMenu';
 import DaemonSidebarHeader from './DaemonSidebarHeader';
 import DaemonMessage from './DaemonMessage';
 
+const PLACEHOLDER_SESSION_TITLE = 'New session';
+
 export default function Daemon() {
   const { user } = useAuth();
   const { id: deckId } = useCurrentDeck();
@@ -40,11 +42,13 @@ export default function Daemon() {
   const storeMessages = useStore(state => state.daemonSessions[activeDaemonSession]?.messages ?? []);
   const setActiveDaemonSession = useStore(state => state.setActiveDaemonSession);
   const insertDaemonSession = useStore(state => state.insertDaemonSession);
+  const renameDaemonSession = useStore(state => state.renameDaemonSession);
   const addMessageToDaemonSession = useStore(state => state.addMessageToDaemonSession);
   const setModel = useStore(state => state.setModel);
   const setTemperature = useStore(state => state.setTemperature);
   const { onClick: onNoteLinkClick } = useOnNoteLinkClick(lastOpenNoteId);
-  const { messages, input, status, setInput, setMessages, append, handleInputChange, stop } = useChat({
+
+  const { messages, data, input, status, setInput, setData, setMessages, append, handleInputChange, stop } = useChat({
     api: '/api/daemon',
     initialMessages: storeMessages,
     body: { model, temperature },
@@ -87,6 +91,15 @@ export default function Daemon() {
   }, [activeDaemonSession, storeMessages, setMessages]);
 
   useEffect(() => {
+    const currentSession = activeDaemonSession ? daemonSessions[activeDaemonSession] : null;
+
+    if (data?.length && currentSession && currentSession.title === PLACEHOLDER_SESSION_TITLE) {
+      const title = data[0] as string;
+      if (title) renameDaemonSession(activeDaemonSession, title);
+    }
+  }, [data, activeDaemonSession, daemonSessions, renameDaemonSession]);
+
+  useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
@@ -109,7 +122,7 @@ export default function Daemon() {
     if (!sessionExists) {
       insertDaemonSession({
         id: sessionId,
-        title: input.trim().slice(0, 40).trim(),
+        title: PLACEHOLDER_SESSION_TITLE,
         createdAt: new Date().toISOString(),
         messages: [],
       });
@@ -182,6 +195,7 @@ export default function Daemon() {
                         className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
                         onClick={() => {
                           setIsError(false);
+                          setData(undefined);
                           setActiveDaemonSession('');
                         }}
                       >
