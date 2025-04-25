@@ -189,28 +189,32 @@ export default function Daemon() {
             </div>
             <div className="sticky bottom-0 flex flex-col items-center pt-3 pb-12 md:w-128 lg:w-160 xl:w-192 bg-white dark:bg-gray-900">
               <div className="flex justify-end w-full space-x-2 mb-1">
-                {storeMessages.length && !saving && status !== 'streaming' && status !== 'submitted' ? (
+                {!saving && status !== 'streaming' && status !== 'submitted' ? (
                   <div className="flex items-center space-x-2">
-                    <Tooltip content="New session">
-                      <button
-                        className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
-                        onClick={() => {
-                          setIsError(false);
-                          setData(undefined);
-                          setActiveDaemonSession('');
-                        }}
-                      >
-                        <IconRefresh size={16} className="text-gray-600 dark:text-gray-300" />
-                      </button>
-                    </Tooltip>
-                    <Tooltip content="Save as note">
-                      <button
-                        className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
-                        onClick={() => setIsSaving(true)}
-                      >
-                        <IconDownload size={16} className="text-gray-600 dark:text-gray-300" />
-                      </button>
-                    </Tooltip>
+                    {storeMessages.length || isError ? (
+                      <Tooltip content="New session">
+                        <button
+                          className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
+                          onClick={() => {
+                            setIsError(false);
+                            setData(undefined);
+                            setActiveDaemonSession('');
+                          }}
+                        >
+                          <IconRefresh size={16} className="text-gray-600 dark:text-gray-300" />
+                        </button>
+                      </Tooltip>
+                    ) : null}
+                    {storeMessages.length ? (
+                      <Tooltip content="Save as note">
+                        <button
+                          className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
+                          onClick={() => setIsSaving(true)}
+                        >
+                          <IconDownload size={16} className="text-gray-600 dark:text-gray-300" />
+                        </button>
+                      </Tooltip>
+                    ) : null}
                   </div>
                 ) : storeMessages.length && saving && status !== 'streaming' && status !== 'submitted' ? (
                   <div className="flex items-center space-x-1">
