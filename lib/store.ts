@@ -47,13 +47,12 @@ export enum SidebarTab {
 
 export enum DaemonModel {
   'gemini-2.0-flash' = 'gemini-2.0-flash-001',
+  'gemini-2.5-flash' = 'gemini-2.5-flash-preview-04-17',
   'gpt-4o-mini' = 'gpt-4o-mini',
-  'gpt-4.1-mini' = 'gpt-4.1-mini',
   'gpt-4.1' = 'gpt-4.1',
   'o4-mini' = 'o4-mini',
-  'claude-3.7-sonnet' = 'claude-3-7-sonnet-latest',
-  'claude-3.5-sonnet' = 'claude-3-5-sonnet-latest',
-  'claude-3.5-haiku' = 'claude-3-5-haiku-latest',
+  'o3' = 'o3',
+  'claude-4-sonnet' = 'claude-sonnet-4-20250514',
 }
 
 export type { DaemonSession };
