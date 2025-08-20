@@ -222,6 +222,16 @@ function FootnoteDefinition(props: Props) {
           renderElement={renderElement}
           renderLeaf={EditorLeaf}
           placeholder="Enter footnote definition…"
+          renderPlaceholder={({ attributes, children }) => {
+            const styledAttributes = {
+              ...attributes,
+              style: {
+                ...attributes.style,
+                marginTop: '0.75rem',
+              },
+            };
+            return <span {...styledAttributes}>{children}</span>;
+          }}
           decorate={entry => {
             const codeSyntaxRanges = decorateCodeBlocks(editor, entry);
             const daemonSelection = decorateLastActiveSelection(editor, entry, daemonPopoverState.selection);

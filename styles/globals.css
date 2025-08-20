@@ -147,11 +147,6 @@ input[type='radio']:focus {
   color: #f5f5f5;
 }
 
-span[data-slate-placeholder='true'] {
-  top: unset !important;
-  width: fit-content !important;
-}
-
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {
     display: none;
