@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { type CoreMessage, createDataStreamResponse, generateText, streamText } from 'ai';
+import {
+  UIMessage,
+  convertToModelMessages,
+  createUIMessageStream,
+  createUIMessageStreamResponse,
+  generateText,
+  streamText,
+} from 'ai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { google } from '@ai-sdk/google';
 import { openai } from '@ai-sdk/openai';
 import { getIronSession } from 'iron-session/edge';
 import { ironOptions } from 'constants/iron-session';
-import { DaemonModel } from 'lib/store';
+import { DaemonModel, DaemonUIMessage } from 'lib/store';
 
 export const runtime = 'edge';
 
@@ -24,7 +31,7 @@ export default async function daemon(req: NextRequest) {
   }
 
   const { messages, model, temperature, editorRequest } = (await req.json()) as {
-    messages: CoreMessage[];
+    messages: UIMessage[];
     model?: DaemonModel;
     temperature?: number;
     editorRequest?: string;
@@ -36,22 +43,28 @@ export default async function daemon(req: NextRequest) {
   try {
     const title = messages.length === 1 && !editorRequest ? await generateTitleFromUserMessage(messages[0]) : null;
 
-    return createDataStreamResponse({
-      execute: dataStream => {
+    const stream = createUIMessageStream<DaemonUIMessage>({
+      execute: ({ writer }) => {
         if (title) {
-          dataStream.writeData(title);
+          writer.write({
+            type: 'data-title',
+            data: { title },
+            transient: true,
+          });
         }
 
         const result = streamText({
           model: getModel(model ?? DaemonModel['gemini-2.0-flash']),
           system: editorRequest ? editorPrompt(editorRequest) : defaultPrompt,
           temperature: temperature ?? 0,
-          messages,
+          messages: convertToModelMessages(messages),
         });
 
-        result.mergeIntoDataStream(dataStream);
+        writer.merge(result.toUIMessageStream());
       },
     });
+
+    return createUIMessageStreamResponse({ stream });
   } catch (err) {
     console.error(err);
     return new Response('There was an error processing your request', { status: 500 });
@@ -69,7 +82,7 @@ function getModel(daemonModel: DaemonModel) {
   return openai(daemonModel);
 }
 
-async function generateTitleFromUserMessage(message: CoreMessage) {
+async function generateTitleFromUserMessage(message: UIMessage) {
   const { text: title } = await generateText({
     model: google('gemini-2.0-flash'),
     system: `\n
