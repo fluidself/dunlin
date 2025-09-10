@@ -1,12 +1,5 @@
 import { Draft } from 'immer';
-import { setter, Setter, Store, DaemonModel } from './store';
-
-type DaemonMessage = {
-  id: string;
-  createdAt?: Date;
-  role: 'system' | 'user' | 'assistant' | 'data';
-  content: string;
-};
+import { setter, Setter, Store, DaemonModel, DaemonMessage } from './store';
 
 export type DaemonSession = {
   id: string;

@@ -4,6 +4,7 @@ import { persist, StateStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { Draft } from 'immer';
 import localforage from 'localforage';
+import { UIMessage } from 'ai';
 import type { DecryptedNote } from 'types/decrypted';
 import { caseInsensitiveStringEqual } from 'utils/string';
 import { Backlink } from 'editor/backlinks/useBacklinks';
@@ -54,6 +55,27 @@ export enum DaemonModel {
   'o3' = 'o3',
   'claude-4-sonnet' = 'claude-sonnet-4-20250514',
 }
+
+export type DaemonMessage = {
+  id: string;
+  role: 'system' | 'user' | 'assistant';
+  parts: TextMessagePart[];
+};
+
+export type TextMessagePart = {
+  type: 'text';
+  text: string;
+};
+
+export type DaemonUIMessage = UIMessage<
+  never,
+  {
+    title: {
+      title: string;
+    };
+  },
+  never
+>;
 
 export type { DaemonSession };
 
