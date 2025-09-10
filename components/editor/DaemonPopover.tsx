@@ -10,11 +10,12 @@ import {
   IconTrash,
   type TablerIcon,
 } from '@tabler/icons';
+import { DefaultChatTransport } from 'ai';
 import { useChat } from '@ai-sdk/react';
 import remarkGfm from 'remark-gfm';
 import rehypePrism from 'rehype-prism';
 import { ReactMarkdown } from 'lib/react-markdown/react-markdown';
-import { useStore } from 'lib/store';
+import { DaemonUIMessage, useStore } from 'lib/store';
 import { toggleElement } from 'editor/formatting';
 import { createNodeId } from 'editor/plugins/withNodeId';
 import { stringToSlate } from 'editor/utils';
@@ -38,15 +39,21 @@ export default function DaemonPopover(props: Props) {
   const [input, setInput] = useState('');
   const [isError, setIsError] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const { messages, status, append, setMessages } = useChat({
-    api: '/api/daemon',
-    body: { editorRequest: textareaRef.current?.textContent },
+
+  const { messages, status, sendMessage, setMessages } = useChat<DaemonUIMessage>({
+    transport: new DefaultChatTransport({
+      api: '/api/daemon',
+    }),
     onError(error) {
       console.log(error);
       setIsError(true);
     },
   });
-  const output = useMemo(() => messages[1]?.content ?? '', [messages]);
+
+  const output = useMemo(
+    () => messages[1]?.parts.map(p => (p.type === 'text' ? p.text : '')).join('') ?? '',
+    [messages],
+  );
 
   useEffect(() => {
     if (textareaRef && textareaRef.current) {
@@ -82,7 +89,10 @@ export default function DaemonPopover(props: Props) {
 
     setIsError(false);
     setInput('');
-    await append({ role: 'user', content: selectionText });
+    await sendMessage(
+      { role: 'user', parts: [{ type: 'text', text: selectionText }] },
+      { body: { editorRequest: textareaRef.current?.textContent } },
+    );
   };
 
   const setSelectionAndClose = (firstElementId: string, lastElementId: string) => {

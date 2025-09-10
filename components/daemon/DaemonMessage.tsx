@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { IconCopy, IconGhost2 } from '@tabler/icons';
-import type { Message } from '@ai-sdk/react';
+import { UIMessage } from 'ai';
 import classNames from 'classnames';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'lib/react-markdown';
@@ -9,14 +9,14 @@ import Identicon from 'components/Identicon';
 import CodeBlock from './CodeBlock';
 
 type DaemonMessageProps = {
-  message: Message;
+  message: UIMessage;
   messageIsLatest: boolean;
   messageIsStreaming: boolean;
 };
 
 function DaemonMessage(props: DaemonMessageProps) {
   const {
-    message: { role, content },
+    message: { role, parts },
     messageIsLatest,
     messageIsStreaming,
   } = props;
@@ -30,10 +30,12 @@ function DaemonMessage(props: DaemonMessageProps) {
     <div className={messageClassName}>
       <div>{role === 'user' ? <Identicon diameter={20} className="w-5 h-5" /> : <IconGhost2 size={20} />}</div>
       {role === 'user' ? (
-        <div className="whitespace-pre-line overflow-x-auto">{content}</div>
+        <div className="whitespace-pre-line overflow-x-auto">
+          {parts.map(p => (p.type === 'text' ? p.text : '')).join('')}
+        </div>
       ) : (
         <div className="relative flex flex-col w-[calc(100%-50px)] lg:w-[calc(100%-60px)] h-full">
-          {content ? (
+          {parts ? (
             <ReactMarkdown
               className="prose dark:prose-invert max-w-none overflow-x-auto prose-p:whitespace-pre-line prose-a:text-primary-400 hover:prose-a:underline prose-pre:m-0 prose-pre:p-0 prose-pre:bg-gray-100 prose-pre:dark:bg-gray-800 prose-pre:text-gray-800 prose-pre:dark:text-gray-100 prose-code:bg-gray-100 prose-code:dark:bg-gray-800 prose-code:text-gray-800 prose-code:dark:text-gray-100"
               linkTarget="_blank"
@@ -82,7 +84,9 @@ function DaemonMessage(props: DaemonMessageProps) {
                 },
               }}
             >
-              {`${content}${messageIsLatest && messageIsStreaming ? '`▍`' : ''}`}
+              {`${parts.map(p => (p.type === 'text' ? p.text : '')).join('')}${
+                messageIsLatest && messageIsStreaming ? '`▍`' : ''
+              }`}
             </ReactMarkdown>
           ) : (
             <span className="animate-pulse">▍</span>
@@ -94,7 +98,7 @@ function DaemonMessage(props: DaemonMessageProps) {
           size={18}
           className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
           role="button"
-          onClick={async () => await copyToClipboard(content)}
+          onClick={async () => await copyToClipboard(parts.map(p => (p.type === 'text' ? p.text : '')).join(''))}
         />
       ) : null}
     </div>

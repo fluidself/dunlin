@@ -9,11 +9,11 @@ import {
   IconSend,
   IconX,
 } from '@tabler/icons';
-import { Message, useChat } from '@ai-sdk/react';
-import { nanoid } from 'nanoid';
+import { DefaultChatTransport, generateId } from 'ai';
+import { useChat } from '@ai-sdk/react';
 import { toast } from 'react-toastify';
 import upsertNote from 'lib/api/upsertNote';
-import { store, useStore } from 'lib/store';
+import { DaemonUIMessage, TextMessagePart, store, useStore } from 'lib/store';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
 import { useAuth } from 'utils/useAuth';
 import { caseInsensitiveStringEqual } from 'utils/string';
@@ -48,27 +48,44 @@ export default function Daemon() {
   const setTemperature = useStore(state => state.setTemperature);
   const { onClick: onNoteLinkClick } = useOnNoteLinkClick(lastOpenNoteId);
 
-  const { messages, data, input, status, setInput, setData, setMessages, append, handleInputChange, stop } = useChat({
-    api: '/api/daemon',
-    initialMessages: storeMessages,
-    body: { model, temperature },
+  const { messages, status, sendMessage, setMessages, stop } = useChat<DaemonUIMessage>({
+    transport: new DefaultChatTransport({
+      api: '/api/daemon',
+    }),
+    messages: storeMessages,
+    onData({ data, type }) {
+      if (type === 'data-title') {
+        const title = data.title;
+        setChatTitle(title);
+      }
+    },
     onError(error) {
       console.log(error);
       setIsError(true);
     },
-    onFinish(message) {
+    onFinish({ message }) {
       const sessionId = store.getState().activeDaemonSession;
+
       if (submittedUserMessage.current) {
-        addMessageToDaemonSession(sessionId, submittedUserMessage.current);
+        addMessageToDaemonSession(sessionId, {
+          id: submittedUserMessage.current.id,
+          role: 'user',
+          parts: [{ type: 'text', text: submittedUserMessage.current.text }],
+        });
         submittedUserMessage.current = null;
       }
-      addMessageToDaemonSession(sessionId, message);
+
+      const storeMessage = { ...message, parts: message.parts.filter((p): p is TextMessagePart => p.type === 'text') };
+      addMessageToDaemonSession(sessionId, storeMessage);
     },
   });
+
+  const [input, setInput] = useState('');
+  const [chatTitle, setChatTitle] = useState('');
   const [noteTitle, setNoteTitle] = useState('');
   const [isError, setIsError] = useState(false);
   const [saving, setIsSaving] = useState(false);
-  const submittedUserMessage = useRef<Message | null>(null);
+  const submittedUserMessage = useRef<{ id: string; text: string } | null>(null);
   const endofMessagesRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -89,16 +106,16 @@ export default function Daemon() {
 
   useEffect(() => {
     setMessages(storeMessages);
-  }, [activeDaemonSession, storeMessages, setMessages]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeDaemonSession, setMessages]);
 
   useEffect(() => {
     const currentSession = activeDaemonSession ? daemonSessions[activeDaemonSession] : null;
 
-    if (data?.length && currentSession && currentSession.title === PLACEHOLDER_SESSION_TITLE) {
-      const title = data[0] as string;
-      if (title) renameDaemonSession(activeDaemonSession, title);
+    if (chatTitle && currentSession && currentSession.title === PLACEHOLDER_SESSION_TITLE) {
+      renameDaemonSession(activeDaemonSession, chatTitle);
     }
-  }, [data, activeDaemonSession, daemonSessions, renameDaemonSession]);
+  }, [chatTitle, activeDaemonSession, daemonSessions, renameDaemonSession]);
 
   useEffect(() => {
     scrollToBottom();
@@ -113,8 +130,8 @@ export default function Daemon() {
   const summonDaemon = async () => {
     if (!input || status !== 'ready') return;
 
-    const messageId = nanoid(7);
-    const sessionId = activeDaemonSession || nanoid(7);
+    const messageId = generateId();
+    const sessionId = activeDaemonSession || generateId();
     const sessionExists = Boolean(daemonSessions[sessionId]);
 
     setIsError(false);
@@ -130,9 +147,9 @@ export default function Daemon() {
     }
 
     setActiveDaemonSession(sessionId);
-    const message: Message = { id: messageId, role: 'user', content: input };
+    const message = { id: messageId, text: input };
     submittedUserMessage.current = message;
-    await append(message);
+    await sendMessage({ text: input }, { body: { model, temperature } });
   };
 
   const saveAsNote = async () => {
@@ -146,7 +163,11 @@ export default function Daemon() {
     }
 
     const parsedMessages = storeMessages
-      .map(message => `**${message.role === 'user' ? 'User' : 'Daemon'}**:\n${message.content}\n\n---\n\n`)
+      .map(message => {
+        const role = message.role === 'user' ? 'User' : 'Daemon';
+        const text = message.parts.filter(m => m.type === 'text').map(p => p.text);
+        return `**${role}**:\n${text}\n\n---\n\n`;
+      })
       .join('');
     const slateContent = stringToSlate(parsedMessages);
     const newNote = {
@@ -197,7 +218,7 @@ export default function Daemon() {
                           className="flex items-center justify-center w-7 h-7 rounded hover:bg-gray-100 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:text-gray-100"
                           onClick={() => {
                             setIsError(false);
-                            setData(undefined);
+                            setChatTitle(PLACEHOLDER_SESSION_TITLE);
                             setActiveDaemonSession('');
                           }}
                         >
@@ -273,7 +294,7 @@ export default function Daemon() {
                   }}
                   rows={1}
                   value={input}
-                  onChange={handleInputChange}
+                  onChange={e => setInput(e.target.value)}
                   onKeyDown={event => {
                     if (event.key === 'Enter' && !event.shiftKey && input) {
                       event.preventDefault();
