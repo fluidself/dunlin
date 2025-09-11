@@ -54,7 +54,7 @@ export default async function daemon(req: NextRequest) {
         }
 
         const result = streamText({
-          model: getModel(model ?? DaemonModel['gemini-2.0-flash']),
+          model: getModel(model ?? DaemonModel['gemini-2.5-flash']),
           system: editorRequest ? editorPrompt(editorRequest) : defaultPrompt,
           temperature: temperature ?? 0,
           messages: convertToModelMessages(messages),
