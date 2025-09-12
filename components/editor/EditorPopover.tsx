@@ -12,16 +12,17 @@ type Props = {
   className?: string;
   placement?: Placement;
   selection?: Range;
+  content?: string;
   onClose?: () => void;
 };
 
 export default function EditorPopover(props: Props) {
-  const { children, className = '', placement, selection, onClose } = props;
+  const { children, className = '', placement, selection, content = '', onClose } = props;
   const editor = useSlate();
 
   const [referenceElement, setReferenceElement] = useState<Element | VirtualElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
-  const { styles, attributes } = usePopper(referenceElement, popperElement, {
+  const { styles, attributes, update } = usePopper(referenceElement, popperElement, {
     placement,
     modifiers: [
       { name: 'offset', options: { offset: [0, 12] } },
@@ -70,6 +71,13 @@ export default function EditorPopover(props: Props) {
 
     setReferenceElement(virtualElement);
   }, [editor, editor.selection, selection]);
+
+  useEffect(() => {
+    if (!content) return;
+
+    const handler = setTimeout(() => update?.(), 100);
+    return () => clearTimeout(handler);
+  }, [update, content]);
 
   return (
     <Portal>

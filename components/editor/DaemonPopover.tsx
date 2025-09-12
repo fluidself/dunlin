@@ -154,8 +154,9 @@ export default function DaemonPopover(props: Props) {
   return (
     <EditorPopover
       selection={daemonPopoverState.selection}
+      content={output}
       placement="auto"
-      className="flex flex-col w-160"
+      className="flex flex-col w-160 max-h-192"
       onClose={hidePopover}
     >
       {output ? (
