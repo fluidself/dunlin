@@ -300,7 +300,6 @@ export const store = createVanilla<Store>()(
         confirmNoteDeletion: state.confirmNoteDeletion,
         autoPairBrackets: state.autoPairBrackets,
         isDaemonUser: state.isDaemonUser,
-        isDaemonSidebarOpen: state.isDaemonSidebarOpen,
         daemonSessions: state.daemonSessions,
         model: state.model,
         temperature: state.temperature,
