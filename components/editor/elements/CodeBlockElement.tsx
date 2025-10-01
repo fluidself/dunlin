@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect, useMemo } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { Editor, createEditor, Node, Transforms, Path } from 'slate';
 import { ReactEditor, RenderElementProps, useSlateStatic, useReadOnly } from 'slate-react';
 import Select from 'react-select';
@@ -33,6 +33,7 @@ export default function CodeBlockElement(props: Props) {
   const { id: noteId } = useCurrentNote();
   const { key } = useCurrentDeck();
   const darkMode = useStore(state => state.darkMode);
+  const [isOpen, setIsOpen] = useState(false);
   const path = useMemo(() => ReactEditor.findPath(editor, element), [editor, element]);
   const isMermaidCodeBlockFocused = useMemo(
     () => lang === 'mermaid' && editor.selection && Path.isDescendant(editor.selection.anchor.path, path),
@@ -56,6 +57,7 @@ export default function CodeBlockElement(props: Props) {
 
         const encryptedContent = encrypt(noteEditor.children, key);
         await updateNote({ id: noteId, content: encryptedContent });
+        setIsOpen(false);
       } catch (e) {
         const message = e instanceof Error ? e.message : e;
         console.error(`There was an error updating the language: ${message}`);
@@ -94,7 +96,7 @@ export default function CodeBlockElement(props: Props) {
       {...attributes}
     >
       {!readOnly ? (
-        <div contentEditable={false}>
+        <div contentEditable={false} onClick={() => setIsOpen(!isOpen)}>
           <Select
             className="react-select-container react-select-container-code"
             classNamePrefix="react-select"
@@ -105,6 +107,7 @@ export default function CodeBlockElement(props: Props) {
             value={selectOptions.find(option => option.value === (lang ?? ''))}
             onChange={value => onSelectChange(value?.value ?? '')}
             menuPortalTarget={document.body}
+            menuIsOpen={isOpen}
             styles={{
               menuPortal: base => ({ ...base, zIndex: 9999 }),
               menu: base => ({
