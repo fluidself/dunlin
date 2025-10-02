@@ -6,6 +6,7 @@ import { CODE_BLOCK_LANGUAGES } from 'editor/decorateCodeBlocks';
 import { CodeBlock, ElementType, MermaidDiagram } from 'types/slate';
 import { useCurrentNote } from 'utils/useCurrentNote';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
+import useOnClickOutside from 'utils/useOnClickOutside';
 import { encrypt } from 'utils/encryption';
 import updateNote from 'lib/api/updateNote';
 import { store, useStore } from 'lib/store';
@@ -34,6 +35,8 @@ export default function CodeBlockElement(props: Props) {
   const { key } = useCurrentDeck();
   const darkMode = useStore(state => state.darkMode);
   const [isOpen, setIsOpen] = useState(false);
+  const [menuElement, setMenuElement] = useState<HTMLDivElement | null>(null);
+  useOnClickOutside(menuElement, () => setIsOpen(false));
   const path = useMemo(() => ReactEditor.findPath(editor, element), [editor, element]);
   const isMermaidCodeBlockFocused = useMemo(
     () => lang === 'mermaid' && editor.selection && Path.isDescendant(editor.selection.anchor.path, path),
@@ -96,7 +99,7 @@ export default function CodeBlockElement(props: Props) {
       {...attributes}
     >
       {!readOnly ? (
-        <div contentEditable={false} onClick={() => setIsOpen(!isOpen)}>
+        <div contentEditable={false} ref={setMenuElement} onClick={() => setIsOpen(!isOpen)}>
           <Select
             className="react-select-container react-select-container-code"
             classNamePrefix="react-select"
