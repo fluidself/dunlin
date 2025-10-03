@@ -1,4 +1,4 @@
-import { Editor, BaseRange, NodeEntry, Node } from 'slate';
+import { Editor, BaseRange, NodeEntry, Node, Element } from 'slate';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-bash';
 import 'prismjs/components/prism-css';
@@ -18,30 +18,39 @@ Prism.manual = true;
 export default function decorateCodeBlocks(editor: Editor, [node, path]: NodeEntry) {
   const ranges: BaseRange[] = [];
 
-  if (node === editor || node.type !== ElementType.CodeLine) return ranges;
+  if (!Element.isElement(node) || node.type !== ElementType.CodeBlock) return ranges;
 
-  const [parentNode] = Editor.parent(editor, path);
-  if (!parentNode || parentNode.type !== ElementType.CodeBlock) return ranges;
-
-  const blockLanguage = parentNode.lang;
+  const blockLanguage = node.lang;
   if (!blockLanguage || !Object.keys(CODE_BLOCK_LANGUAGES).includes(blockLanguage)) return ranges;
 
   try {
-    const tokens = Prism.tokenize(Node.string(node), Prism.languages[blockLanguage]);
-    let start = 0;
+    for (const [child, childPath] of Node.children(editor, path)) {
+      if (Element.isElement(child) && child.type === ElementType.CodeLine) {
+        const tokens = Prism.tokenize(Node.string(child), Prism.languages[blockLanguage]);
+        const textNodePath = [...childPath, 0];
 
-    for (const token of tokens) {
-      const length = getLength(token);
-      const end = start + length;
+        const addRanges = (tokenStream: (string | Prism.Token)[], start: number) => {
+          for (const token of tokenStream) {
+            const length = getLength(token);
+            const end = start + length;
 
-      if (typeof token !== 'string') {
-        ranges.push({
-          [token.type === 'text' ? 'string' : token.type]: true,
-          anchor: { path, offset: start },
-          focus: { path, offset: end },
-        });
+            if (typeof token !== 'string') {
+              ranges.push({
+                [token.type === 'text' ? 'string' : token.type]: true,
+                anchor: { path: textNodePath, offset: start },
+                focus: { path: textNodePath, offset: end },
+              });
+
+              if (Array.isArray(token.content)) {
+                addRanges(token.content, start);
+              }
+            }
+            start = end;
+          }
+        };
+
+        addRanges(tokens, 0);
       }
-      start = end;
     }
 
     return ranges;
