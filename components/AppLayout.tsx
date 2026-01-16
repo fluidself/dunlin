@@ -136,7 +136,8 @@ export default function AppLayout(props: Props) {
     setDeckId(deckId);
     setUserId(user.id);
 
-    if (process.env.NEXT_PUBLIC_DAEMON_USERS?.split(',').includes(user.id)) {
+    const daemonUsers = process.env.NEXT_PUBLIC_DAEMON_USERS?.split(',').map(id => id.toLowerCase()) ?? [];
+    if (daemonUsers.includes(user.id.toLowerCase())) {
       setIsDaemonUser(true);
     }
 

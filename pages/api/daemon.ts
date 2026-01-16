@@ -26,7 +26,8 @@ const editorPrompt = (request: string) =>
 export default async function daemon(req: NextRequest) {
   const res = new NextResponse();
   const session = await getIronSession(req, res, ironOptions);
-  if (!session.user || !process.env.DAEMON_USERS?.split(',').includes(session.user.id)) {
+  const daemonUsers = process.env.DAEMON_USERS?.split(',').map(id => id.toLowerCase()) ?? [];
+  if (!session.user || !daemonUsers.includes(session.user.id.toLowerCase())) {
     return new Response('Forbidden resource', { status: 403 });
   }
 
