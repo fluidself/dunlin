@@ -18,6 +18,7 @@ interface ProviderRpcError extends Error {
 type AuthContextType = {
   isLoaded: boolean;
   user: User | null;
+  isDaemonUser: boolean;
   signIn: (connector: Connector) => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -34,13 +35,15 @@ function useProvideAuth(): AuthContextType {
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [signingIn, setSigningIn] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
+  const [isDaemonUser, setIsDaemonUser] = useState<boolean>(false);
 
   const initUser = async () => {
     const res = await fetch('/api/user');
-    const { user, token } = await res.json();
+    const { user, token, isDaemonUser } = await res.json();
     localStorage.setItem('dbToken', token);
 
     setUser(user);
+    setIsDaemonUser(isDaemonUser ?? false);
     setIsLoaded(true);
   };
 
@@ -130,6 +133,7 @@ function useProvideAuth(): AuthContextType {
   return {
     isLoaded: isLoaded && !signingIn,
     user,
+    isDaemonUser,
     signIn,
     signOut,
   };

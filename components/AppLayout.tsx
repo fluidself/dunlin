@@ -47,7 +47,7 @@ export default function AppLayout(props: Props) {
   const router = useRouter();
   const { isReady: litReady, isError: litError } = useLitProtocol();
   const deckId = Array.isArray(router.query.deckId) ? router.query.deckId[0] : (router.query.deckId as string);
-  const { user, isLoaded, signOut } = useAuth();
+  const { user, isLoaded, signOut, isDaemonUser: isAuthDaemonUser } = useAuth();
   const { connector } = useAccount();
   const { data, error: dataFetchError } = useSWR(deckId ? 'deck-with-notes' : null, () => selectDeckWithNotes(deckId));
   const { dbDeck, dbNotes } = data || {};
@@ -136,8 +136,7 @@ export default function AppLayout(props: Props) {
     setDeckId(deckId);
     setUserId(user.id);
 
-    const daemonUsers = process.env.NEXT_PUBLIC_DAEMON_USERS?.split(',').map(id => id.toLowerCase()) ?? [];
-    if (daemonUsers.includes(user.id.toLowerCase())) {
+    if (isAuthDaemonUser) {
       setIsDaemonUser(true);
     }
 
@@ -224,6 +223,7 @@ export default function AppLayout(props: Props) {
     setAuthorOnlyNotes,
     setCollaborativeDeck,
     setIsDaemonUser,
+    isAuthDaemonUser,
   ]);
 
   useEffect(() => {

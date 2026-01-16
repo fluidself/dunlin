@@ -42,11 +42,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const token = sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
 
+  const daemonUsers = process.env.DAEMON_USERS?.split(',').map(id => id.toLowerCase()) ?? [];
+  const isDaemonUser = daemonUsers.includes(user.id.toLowerCase());
+
   req.session.user = user;
   req.session.dbToken = token;
   await req.session.save();
 
-  res.setHeader(headerName, headerValue).status(200).json({ user, token });
+  res.setHeader(headerName, headerValue).status(200).json({ user, token, isDaemonUser });
 };
 
 export default withIronSessionApiRoute(handler, ironOptions);
