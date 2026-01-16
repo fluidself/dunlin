@@ -1,6 +1,6 @@
-import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
-import { Editor, createEditor, Node, Transforms, Path } from 'slate';
-import { ReactEditor, RenderElementProps, useSlateStatic, useReadOnly } from 'slate-react';
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Editor, createEditor, Node, Transforms } from 'slate';
+import { ReactEditor, RenderElementProps, useFocused, useSelected, useSlateStatic, useReadOnly } from 'slate-react';
 import Select from 'react-select';
 import { CODE_BLOCK_LANGUAGES } from 'editor/decorateCodeBlocks';
 import { CodeBlock, ElementType, MermaidDiagram } from 'types/slate';
@@ -31,6 +31,8 @@ export default function CodeBlockElement(props: Props) {
   const { lang } = element;
   const editor = useSlateStatic();
   const readOnly = useReadOnly();
+  const selected = useSelected();
+  const focused = useFocused();
   const { id: noteId } = useCurrentNote();
   const { key } = useCurrentDeck();
   const darkMode = useStore(state => state.darkMode);
@@ -38,10 +40,6 @@ export default function CodeBlockElement(props: Props) {
   const [menuElement, setMenuElement] = useState<HTMLDivElement | null>(null);
   useOnClickOutside(menuElement, () => setIsOpen(false));
   const path = useMemo(() => ReactEditor.findPath(editor, element), [editor, element]);
-  const isMermaidCodeBlockFocused = useMemo(
-    () => lang === 'mermaid' && editor.selection && Path.isDescendant(editor.selection.anchor.path, path),
-    [lang, path, editor.selection],
-  );
 
   const onSelectChange = useCallback(
     async (newLang: string) => {
@@ -87,11 +85,18 @@ export default function CodeBlockElement(props: Props) {
     Transforms.insertNodes(editor, mermaidDiagram, { at: path });
   }, [editor, path, element.id]);
 
+  const wasFocusedRef = useRef(selected && focused);
+
   useEffect(() => {
-    if (lang === 'mermaid' && !isMermaidCodeBlockFocused) {
+    const isFocused = selected && focused;
+    const wasFocused = wasFocusedRef.current;
+
+    if (lang === 'mermaid' && wasFocused && !isFocused) {
       convertToMermaid();
     }
-  }, [lang, isMermaidCodeBlockFocused, convertToMermaid]);
+
+    wasFocusedRef.current = isFocused;
+  }, [lang, selected, focused, convertToMermaid]);
 
   return (
     <pre
