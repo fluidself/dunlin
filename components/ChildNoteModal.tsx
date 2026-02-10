@@ -5,6 +5,7 @@ import { Deck } from 'types/supabase';
 import useHotkeys from 'utils/useHotkeys';
 import { useAuth } from 'utils/useAuth';
 import { useCurrentDeck } from 'utils/useCurrentDeck';
+import { caseInsensitiveStringEqual } from 'utils/string';
 import supabase from 'lib/supabase';
 import { store, useStore } from 'lib/store';
 import upsertNote from 'lib/api/upsertNote';
@@ -25,7 +26,7 @@ export default function ChildNoteModal(props: Props) {
   const moveNoteTreeItem = useStore(state => state.moveNoteTreeItem);
   const lastOpenNoteId = useStore(state => state.openNoteIds[state.openNoteIds.length - 1]);
   const { onClick: onNoteLinkClick } = useOnNoteLinkClick(lastOpenNoteId);
-  const [inputText, setInputText] = useState('');
+  const [noteTitle, setNoteTitle] = useState('');
 
   const hotkeys = useMemo(
     () => [
@@ -39,18 +40,26 @@ export default function ChildNoteModal(props: Props) {
   useHotkeys(hotkeys);
 
   const onConfirm = async () => {
-    if (!deckId || !user || !inputText) return;
+    if (!deckId || !user || !noteTitle) return;
+
+    const notesArr = Object.values(store.getState().notes);
+    const isTitleUnique = notesArr.findIndex(n => caseInsensitiveStringEqual(n.title, noteTitle)) === -1;
+
+    if (!isTitleUnique) {
+      toast.error(`There's already a note called ${noteTitle}. Please use a different title.`);
+      return;
+    }
 
     const newNote = {
       deck_id: deckId,
       user_id: user.id,
       author_only: authorOnlyNotes,
-      title: inputText,
+      title: noteTitle,
       content: getDefaultEditorValue(),
     };
     const note = await upsertNote(newNote);
     if (!note) {
-      toast.error(`There was an error creating the note ${inputText}.`);
+      toast.error(`There was an error creating the note ${noteTitle}.`);
       return;
     }
     moveNoteTreeItem(note.id, noteId);
@@ -81,8 +90,8 @@ export default function ChildNoteModal(props: Props) {
               type="text"
               className="w-full py-3 px-2 text-xl border-none rounded focus:ring-0 bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
               placeholder="Enter note title"
-              value={inputText}
-              onChange={e => setInputText(e.target.value)}
+              value={noteTitle}
+              onChange={e => setNoteTitle(e.target.value)}
               onKeyDown={e => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
